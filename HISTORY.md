@@ -21264,3 +21264,49 @@ Updated the detailed formation roadmap funding correction, current status, durab
 
 The main-based provider branch deliberately excludes PR264's site and M1 helper, which remain draft and NOT_QUALIFIED for missing historical TDD evidence. Its branch-local HISTORY through 653 requires chronological reconciliation before later integration. Preserve unrelated dirty primary and other worktrees; no stash was created. Required GitHub checks and protected merge must be observed before claiming delivery, and no website deployment is implied.
 ---END-ENTRY-#646---
+
+---BEGIN-ENTRY-#647---
+id: 647
+date: 2026-09-24T08:30:32Z
+agent: claude
+status: changed
+topics: ci, tests, verify, docs
+commits: pending
+refs: tests/audit/test_history_closeout.py,REPO_LEDGER.md
+supersedes: 646
+tokens: 1092
+---
+Repaired the pre-existing gate-parity failure in tests/audit/test_history_closeout.py that has been the advisory red check on this repository's CI. This is test and policy work only; no runtime, benchmark, provider or memory-formation code changed, and no paid call was made. The failure reproduces on clean origin/main, so it was never caused by the open memory-formation branch.
+
+The failing assertion was wrong about its own subject. tools/git-hooks/pre-commit enforces all eight closeout.PREFLIGHT_GATES, not seven. verify_agent_config runs at pre-commit line 36 as a bare "$PY" -m tools.git.verify_agent_config --staged || exit 1 scope block rather than through run_gate, and sits ahead of the merge/rebase early-exit, so it aborts the commit immediately and still applies during merges when the run_gate chain is deliberately skipped. Commit b623032 moved it there on purpose. The old test matched only run_gate lines and compared them as a positional tuple, so a gate hardened in three distinct ways read as a missing gate. Satisfying that test by adding a redundant run_gate line would have downgraded a blocking scope check into a collect-and-continue one, which is the precise failure mode AGENTS.md Session End warns about: a quieter gate still reports passed.
+
+Replaced the single positional comparison with four invariant assertions: every canonical module is covered, arguments match canonically except for documented --staged scoping, gates sharing the run_gate chain keep canonical relative order, and any canonical gate lifted out of the chain must abort. tests/audit/test_local_gates_match_ci.py already asserted parity as set-coverage rather than shape; the repaired test now matches that house pattern instead of contradicting it. Recorded the invariant in REPO_LEDGER.md so a future gate hardening is not read as a regression again.
+
+Verification: each new assertion was mutation-tested rather than accepted on a green run. Deleting verify_agent_config from the hook, stripping its || exit 1, swapping two run_gate lines out of canonical order, and narrowing a gate with an extra argument each failed a distinct intended assertion, and the hook was restored byte-identical after every mutation. One assertion was found structurally vacuous during that check and repaired before commit: the bare-invocation pattern originally required || exit 1 in order to match at all, which made the abort assertion true by construction, so presence and abort-strength are now parsed independently. The repaired module passes 10 tests; together with tests/audit/test_ci_hang_guards.py and test_local_gates_match_ci.py the touched suites pass 40. Ruff clean. All eight closeout preflight gates pass.
+
+The wider tests/audit run reports five failures, all environmental and unreachable from this diff: four branding tests require a Chrome or Chromium binary under a searched name, and one tree-endpoint test asserts an unreadable directory while this container runs as root. The fastapi and httpx extras had to be installed locally before fifteen server modules would collect at all.
+
+Prepared but NOT landed, blocked on credentials rather than on judgement: no workflow declares timeout-minutes, so every job inherits GitHub's 360-minute default. All six ci.yml jobs share the single self-hosted seam-box runner, which executes one job at a time and chains test-and-benchmark behind the other five, and concurrency.cancel-in-progress cancels only superseded runs on the same ref, so one hung job queues every required check on every branch behind it. Measured durations on run 35481034027 are package-smoke 13s, chroma-real-smoke 25s, repo-hygiene 27s, locomo-quickstart-bil2 41s, pgvector-integration 1m26s and test-and-benchmark 12m01s, against a 360-minute worst case. Ceilings of 10/10/10/20/15/45 minutes plus 30 on the manual windows-latest leg, and a tests/audit/test_ci_hang_guards.py that fails on a missing timeout, a timeout above 60 minutes, or a silent move off the self-hosted runner, were written and mutation-tested but could not be pushed: both the git credential and the GitHub App in this session lack the workflow OAuth scope required to write .github/workflows. The hang-guard test is deliberately withheld with the workflow edits rather than landed alone, because alone it asserts timeouts that do not exist and would be a knowingly red test.
+
+Also recorded, not repaired: package-release.yml, publish-private-release.yml, external-memory-benchmarks.yml and repository-maintenance.yml declare no timeouts and run on hosted ubuntu-latest, where a hang bills real minutes. ci.yml and ci-windows.yml use permissions: read-all rather than an explicit minimal block; that grants read on all scopes and no writes, so it is left unchanged rather than described as a defect. Action pin currency was not assessed and no deprecation is claimed.
+
+Next unresolved step: the withheld workflow timeouts need either the workflow scope granted to this session or the prepared patch applied by the operator. Separately, seam-box remains offline, so this branch cannot reach a required-check verdict any more than the open memory-formation PR can; nothing merges until that runner is powered on with its Actions service running.
+---END-ENTRY-#647---
+
+---BEGIN-ENTRY-#648---
+id: 648
+date: 2026-09-28T21:02:39Z
+agent: codex
+status: done
+topics: ci, gates, parity, tests, verify, pgvector, continuity
+commits: 085981a
+refs: tests/audit/test_history_closeout.py,tests/audit/test_local_gates_match_ci.py,REPO_LEDGER.md
+supersedes: 647
+tokens: 291
+---
+Completed current-branch qualification of the focused gate-parity invariant repair at 085981a. The corrected full strict suite ran with the existing Hugging Face cache preserved, live pgvector, a fresh ignored SQLite store, provider credentials removed from the child process, and no skip suppression: /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/ -ra --durations=15 -o addopts= -p no:cacheprovider. Result: 3,224 collected; 3,222 passed; 2 expected xfailed; 0 failed; 0 skipped; 2 warnings; 456.68 seconds. The expected failures remain the documented compiler entity-extraction cases.
+
+An earlier full-suite attempt reported 30 embedding-dependent failures only because its test harness removed the non-secret HF_HUB_CACHE location before invoking local-only model loading. The corrected environment passed those same areas, including abstention, benchmark reproducibility, reranking, judged scoring, LoCoMo, mem0, pgvector, history-closeout, and local-gate-parity coverage. No product or test source change was needed for that harness error.
+
+The branch remains scoped to the safe parity extraction from draft PR #270. Its destructive verify_workspace --fix cleanup remains excluded and must not be run or merged as written. This entry records qualification evidence only; pushed-head CI and protected-main merge remain separate states.
+---END-ENTRY-#648---
