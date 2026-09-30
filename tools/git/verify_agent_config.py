@@ -9,7 +9,19 @@ from pathlib import Path
 
 PIN_PATH = ".claude/settings.json"
 PIN = {"autoMemoryDirectory": "~/.claude/memory-shared/seam"}
-LOCAL_DIRS = {".claude", ".opencode", ".agents"}
+LOCAL_DIRS = frozenset({".claude", ".opencode", ".agents"})
+ROOT_OPENCODE_CONFIGS = frozenset({"opencode.json", "opencode.jsonc"})
+OPENCODE_COMPAT_PATHS = frozenset({
+    ".opencode/skills/seam-architect/SKILL.md",
+    ".opencode/skills/seam-github-publisher/SKILL.md",
+    ".opencode/skills/seam-implementation-executor/SKILL.md",
+    ".opencode/skills/seam-implementation-planner/SKILL.md",
+    ".opencode/skills/seam-repo-navigator/SKILL.md",
+    ".opencode/skills/seam-roadmap-ledger-updater/SKILL.md",
+    ".opencode/skills/seam-session-closeout/SKILL.md",
+    ".opencode/skills/seam-skill-sync-auditor/SKILL.md",
+    ".opencode/skills/seam-test-hardener/SKILL.md",
+})
 
 
 def _unique_keys(pairs: list[tuple[str, object]]) -> dict[str, object]:
@@ -41,15 +53,29 @@ def _valid_worktree_pin(path: Path) -> bool:
         return False
 
 
+def _valid_worktree_regular(path: Path) -> bool:
+    """Accept a regular working-tree file without following a symlink."""
+
+    return not path.is_symlink() and path.is_file()
+
+
+def _is_agent_local_path(path: str) -> bool:
+    parts = Path(path).parts
+    folded_parts = {part.casefold() for part in parts}
+    return bool(
+        folded_parts & LOCAL_DIRS
+        or (
+            len(parts) == 1
+            and parts[0].casefold() in ROOT_OPENCODE_CONFIGS
+        )
+    )
+
+
 def verify(repo: Path, *, staged: bool = False) -> list[str]:
     """Inspect tracked paths and the exact staged blobs at the commit boundary."""
     entries = subprocess.check_output(
         ["git", "ls-files", "--stage", "-z"], cwd=repo
     ).split(b"\0")
-    changed = set(subprocess.check_output(
-        ["git", "diff", "--cached", "--name-only", "--diff-filter=ACMR", "-z"],
-        cwd=repo,
-    ).decode("utf-8", errors="surrogateescape").split("\0"))
     problems = []
     saw_pin = False
     for entry in filter(None, entries):
@@ -78,11 +104,18 @@ def verify(repo: Path, *, staged: bool = False) -> list[str]:
                 valid = False
             if not valid:
                 problems.append(f"{path}: only the fixed autoMemoryDirectory pin is allowed")
-        elif ".claude" in {part.casefold() for part in Path(path).parts} or (path in changed and (
-            any(part in LOCAL_DIRS for part in Path(path).parts) or path in {
-                "opencode.json", "opencode.jsonc"
-            }
-        )):
+        elif path in OPENCODE_COMPAT_PATHS:
+            if stage != "0":
+                problems.append(f"{path}: unresolved index entry")
+            elif mode != "100644":
+                problems.append(
+                    f"{path}: compatibility document must be a regular nonexecutable file"
+                )
+            elif not staged and not _valid_worktree_regular(repo / path):
+                problems.append(
+                    f"{path}: compatibility document must be a regular working-tree file"
+                )
+        elif _is_agent_local_path(path):
             problems.append(f"{path}: agent-local state must not be tracked")
     if not saw_pin:
         path = repo / PIN_PATH

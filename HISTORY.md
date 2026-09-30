@@ -21310,3 +21310,71 @@ An earlier full-suite attempt reported 30 embedding-dependent failures only beca
 
 The branch remains scoped to the safe parity extraction from draft PR #270. Its destructive verify_workspace --fix cleanup remains excluded and must not be run or merged as written. This entry records qualification evidence only; pushed-head CI and protected-main merge remain separate states.
 ---END-ENTRY-#648---
+
+---BEGIN-ENTRY-#649---
+id: 649
+date: 2026-09-29T11:12:08Z
+agent: codex
+status: done
+topics: ci, gates, config, security, tests, verify, continuity
+commits: pending
+refs: tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/audit/test_local_gates_match_ci.py,.github/workflows/ci.yml,docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md,REPO_LEDGER.md
+supersedes: 648
+tokens: 759
+---
+Closed the four unresolved PR #258 agent-configuration findings as a focused security and required-gate slice stacked on PR #273 at efb30b73f97011e887a29e94c40e2167cb627e73. `tools.git.verify_agent_config` now classifies every Git index entry independently of staged-diff membership. It preserves the exact root Claude memory pin contract and admits only the literal nine-path `OPENCODE_COMPAT_PATHS` set as optional project documentation when each entry is stage zero and mode 100644. Other case-insensitive `.claude`, `.opencode`, and `.agents` path components and root OpenCode configuration names fail in both working-tree and staged modes. Compatible working-tree paths also fail closed on a missing file or symlink.
+
+Added the same validator as an unconditional exact command in required `repo-hygiene`; no new check name, ruleset, runner, permission, or timeout was introduced. Extended the local/CI parity audit to parse both supported `run_gate` and bare gate forms while separating presence from abort strength. The audit covers Claude preflight, the canonical hook, closeout, and required CI, and mutation checks reject invocation removal, advisory-only placement, missing hook `--staged`, weakened aborts, late hook placement, conditional execution, `continue-on-error`, and shell suppression. Production wrappers were not changed: the canonical hook retains its early bare `--staged || exit 1` scope block before merge/rebase exits.
+
+Corrected the active production-readiness SOP's absolute prohibition and recorded the narrow root-pin and OpenCode documentation exceptions in `docs/CLAUDE_MEMORY.md`, `REPO_LEDGER.md`, and `docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md`. Existing OpenCode document contents, SkillDB, runtime behavior, dependencies, runner isolation, general content safety, workspace cleanup, release workflows, and PR #269/#270 were excluded.
+
+TDD used real temporary Git repositories and copied/mutated gate structures. The exact three-file command `pytest tests/audit/test_claude_memory_pin.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q -p no:cacheprovider -o addopts=` first produced 27 failed and 74 passed against the unchanged implementation, then 101 passed after the implementation. The required five-file focused command adding `tests/audit/test_public_safe_gate.py` and `tests/audit/test_github_pr_gates.py` passed 158 tests. Both validator modes, `ruff check .`, and `git diff --check` passed.
+
+The first approved full-scope attempt was invalid because `docker-up` started only the Docker engine while the project pgvector service remained absent; it produced connection-refused cascades and is not qualification evidence. After starting the documented private-env Compose service and verifying `seam-pgvector` healthy without rendering its DSN, `/home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest test_seam_all/ tools/history/test_history_tools.py tools/streams/ tests/ -ra --durations=25 -o addopts= -p no:cacheprovider` completed with 3,732 passed, 2 expected xfailed compiler entity-extraction cases, 0 skipped, 0 failed, and 2 multiprocessing/fork deprecation warnings in 614.15 seconds. The existing non-secret `HF_HUB_CACHE` was preserved. No paid or product benchmark ran.
+
+Delivery state at this entry is local implementation plus verified regression evidence. Commit, push, stacked draft PR, exact-head CI, independent closeout receipt, and final tracked handoff remain separate subsequent states.
+---END-ENTRY-#649---
+
+---BEGIN-ENTRY-#650---
+id: 650
+date: 2026-09-29T11:35:33Z
+agent: codex
+status: done
+topics: ci, gates, config, security, tests, verify, continuity, handoff
+commits: cf5a6f2,a0f50a7
+refs: tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/audit/test_local_gates_match_ci.py,.github/workflows/ci.yml,docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md,docs/handoffs/2026-09-29-agent-config-required-gate-next.md,PR#274
+supersedes: 649
+tokens: 806
+---
+Delivered the agent-configuration required-gate repair as draft PR #274 on `fix/agent-config-required-gate-20260929`, deliberately stacked on PR #273's exact head `efb30b73f97011e887a29e94c40e2167cb627e73`. The implementation inspects all Git index paths even when the staged diff is empty, preserves the exact root Claude memory pin, permits only the nine literal retained OpenCode skill documents with regular nonexecutable stage-zero metadata, and rejects other agent-local paths including case, nesting, symlink, and unresolved-entry variants. Required `repo-hygiene` invokes the validator unconditionally, and local parity assertions preserve the canonical hook's early `--staged || exit 1` strength. No production wrapper, required-check name, ruleset, runner, permission, timeout, runtime, benchmark, package, or release interface changed.
+
+TDD witnessed 27 failed and 74 passed before implementation, then 101 passed with the same focused three-file command. The required five-file scope passed 158 tests. Both validator modes, Ruff, and whitespace checks passed. After rejecting a connection-refused run without pgvector as invalid evidence, the approved full collection ran with the documented Compose service healthy and the existing nonsecret `HF_HUB_CACHE` preserved: 3,732 passed, 2 expected xfailed, 0 skipped, 0 failed, with two multiprocessing/fork warnings in 614.15 seconds. Working-tree and committed-range secret/session scans passed. No paid or product benchmark ran.
+
+The first exact-state closeout request `01a0ecb1-cde0-7b23-887b-ed4a420e27f8-2c698ba8182a816b` remains immutably admitted as `NOT_QUALIFIED`: a session-state command semicolon-joined multiple path references, so independent recomputation correctly found `TDD_UNPROVEN`. The real implementation-report correction was committed as `a0f50a7`, and a corrected cycle recorded the same witnessed RED/GREEN evidence with repeated CLI fields per literal path. Independent review of successor request `01a0ecb1-cde0-7b23-887b-ed4a420e27f8-a8e5bb0a950c7a3b` confirmed the exact head and diff fingerprint, recomputed `TDD_PROVEN`, passed 101 focused tests and all six continuity/wiki gates, and returned a validated `QUALIFIED` receipt that explicitly supersedes the failed request. The receipt was stored only after every worktree state root was re-enumerated; this worktree's pending queue is empty, while unrelated reports-worktree nonqualifying and indeterminate states remain preserved.
+
+On the independently qualified head `a0f50a792949a56525a0e9bd425d56a02f86a8af`, required `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` passed; package smoke, registry plan, and pgvector integration also passed. The branch push used the pre-push hook's documented one-push dirty-worktree continuation because six unrelated linked worktrees contain uncommitted owner work; signature, secret-scan, and public-freeze protections remained active, and those worktrees were not modified.
+
+Registered `docs/handoffs/2026-09-29-agent-config-required-gate-next.md` as the canonical tracked continuation and superseded the prior handoff head. PR #274 remains open, draft, and unmerged. The next authorized step is to keep it focused, inspect any new review evidence, and after PR #273's protected-main outcome reconcile and requalify the stack before any ready or merge decision. PRs #269/#270, runner isolation, general content safety, workspace cleanup, SkillDB, release workflows, and product/formation work remain excluded.
+---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-30T02:01:49Z
+agent: codex
+status: done
+topics: handoff, continuity, verify, status, ci, config
+commits: pending
+refs: docs/handoffs/2026-09-29-agent-config-required-gate-audit-next.md,docs/handoffs/INDEX.md,PR#273,PR#274
+supersedes: 650
+tokens: 390
+---
+Recorded the operator-required successor handoff after a read-only exact-state audit of the stacked agent-configuration gate work.
+
+The new canonical handoff preserves the integration prerequisite: PR #273 remained an open draft at `efb30b73f97011e887a29e94c40e2167cb627e73`, and PR #274 remained an open draft at `2626d7e14b0960197541ec4b01cf0ea070a5da74`, stacked on #273. Both reported clean mergeability and green checks, but neither was merged. No rebase, retarget, readiness, merge, publication, or runtime change was authorized.
+
+An independent complete-diff assurance pass found no validator, fail-closed, required-CI wiring, or local/CI parity defect. It identified one P3 predecessor-handoff error: the memory pin is `.claude/settings.json`, not `.claude/CLAUDE.md`. The successor records the correction without changing runtime behavior.
+
+The handoff also records the exact closeout boundary: the primary, target, and gate-parity queues were empty, while the unrelated reports worktree retained requests `01a095ac-6f5c-70b0-b7a4-972e4384e352-f347ee305abc1548` and `01a096e3-826a-7a62-aed3-62a69efcd9c2-7e023d93071f9c1b` as non-qualified pending evidence. They were neither resolved nor weakened by this documentation event.
+
+The registry now points to `2026-09-29-agent-config-required-gate-audit-next`, and its predecessor is marked superseded. Verification for this docs-only event is the canonical `tools.history.closeout` chain plus `git diff --check`; prior runtime pytest and remote CI evidence was not rerun or represented as new evidence.
+---END-ENTRY-#651---

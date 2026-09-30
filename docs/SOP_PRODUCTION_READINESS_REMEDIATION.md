@@ -493,7 +493,11 @@ HISTORY#<id> — supersedes #<prev>
 - Never edit a committed HISTORY entry in place. Always append.
 - Never delete `experimental/hybrid_orchestrator/` without operator confirmation, regardless of how clean the grep looks.
 - Never bypass the pre-commit hook (`--no-verify`). If the gate fails, fix the underlying issue.
-- Never commit a `.claude/`, `.opencode/`, `.agents/`, or `opencode.jsonc` path — the gate will block, but do not work around it.
+- Never commit agent-local `.claude/`, `.opencode/`, `.agents/`, or root
+  OpenCode configuration paths. The narrow tracked exceptions are the exact
+  root Claude memory pin documented in [`CLAUDE_MEMORY.md`](CLAUDE_MEMORY.md)
+  and the validator-declared OpenCode project skill documents; do not broaden
+  or work around those compatibility rules.
 - Never write session links, share links, API keys, or credential-bearing DSNs into commits, HISTORY, snapshots, or docs. If found in the working tree, redact or delete.
 - If a verify gate fails after a phase, **roll back that phase** (`git restore`) and re-run the gate before continuing. Do not stack work on a red gate.
 

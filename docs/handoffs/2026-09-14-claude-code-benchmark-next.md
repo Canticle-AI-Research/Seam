@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-14-claude-code-benchmark-next
 supersedes: 2026-09-12-memory-formation-roadmap
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#646
 ---
 

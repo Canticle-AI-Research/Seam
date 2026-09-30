@@ -731,6 +731,16 @@ bounded task-specific reading; do not maintain a competing sequence here.
   overrides belong in ignored `.claude/settings.local.json`. This pin shares
   Claude auto memory across updated Seam clones on one machine; the separate
   SDK has its own memory. See `docs/CLAUDE_MEMORY.md` for migration and limits.
+- The only tracked OpenCode compatibility exception is the literal
+  `OPENCODE_COMPAT_PATHS` set in `tools/git/verify_agent_config.py`. Those exact
+  regular, nonexecutable, stage-zero files are optional project skill
+  documents, not required configuration. Every other case-insensitive
+  `.opencode`, `.claude`, or `.agents` directory component and every
+  case-insensitive root `opencode.json` or `opencode.jsonc` name is rejected
+  from the complete Git index, including when the staged diff is empty.
+  Required `repo-hygiene`, closeout, Claude preflight, and the canonical commit
+  hook all enforce the validator; local/CI parity tests preserve invocation
+  scope, arguments, abort strength, and early hook placement.
 - Legacy public-mirror freeze (HISTORY#467, superseding HISTORY#344/#355/#356
   as current policy): `tools/git-hooks/pre-push` unconditionally refuses any
   update to the `seam-runtime`/`Seam_Runtime` remote. The safety scanner
