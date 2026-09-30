@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 716
+total_events: 717
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T08:47:52Z | history:457:2a4d73af | session-event | done | graph, identity, resolution, mcp, cli, rest, server, know... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T11:15:01Z | history:458:e7f532c2 | session-event | done | graph, identity, resolution, retrieval, vector, knowledge... | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
 | 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-28T21:02:39Z | history:648:c86828ca | session-event | done | ci, gates, parity, tests, verify, pgvector, continuity | tests/audit/test_history_closeout.py,tests/audit/test_local_gates_match_ci.py... |
 | 2026-09-29T11:12:08Z | history:649:c262ad1a | session-event | done | ci, gates, config, security, tests, verify, continuity | tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/... |
 | 2026-09-29T11:35:33Z | history:650:79f0dbf9 | session-event | done | ci, gates, config, security, tests, verify, continuity, h... | tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/... |
+| 2026-09-30T02:01:49Z | history:651:1fdf208a | session-event | done | handoff, continuity, verify, status, ci, config | docs/handoffs/2026-09-29-agent-config-required-gate-audit-next.md,docs/handof... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0516.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:31:29Z | 516 | (multi) | (multi) |
+| 0001-0517.cross.md | 2026-04-15T00:00:00Z..2026-07-22T08:47:52Z | 517 | (multi) | (multi) |

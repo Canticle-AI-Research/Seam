@@ -21356,3 +21356,25 @@ On the independently qualified head `a0f50a792949a56525a0e9bd425d56a02f86a8af`, 
 
 Registered `docs/handoffs/2026-09-29-agent-config-required-gate-next.md` as the canonical tracked continuation and superseded the prior handoff head. PR #274 remains open, draft, and unmerged. The next authorized step is to keep it focused, inspect any new review evidence, and after PR #273's protected-main outcome reconcile and requalify the stack before any ready or merge decision. PRs #269/#270, runner isolation, general content safety, workspace cleanup, SkillDB, release workflows, and product/formation work remain excluded.
 ---END-ENTRY-#650---
+
+---BEGIN-ENTRY-#651---
+id: 651
+date: 2026-09-30T02:01:49Z
+agent: codex
+status: done
+topics: handoff, continuity, verify, status, ci, config
+commits: pending
+refs: docs/handoffs/2026-09-29-agent-config-required-gate-audit-next.md,docs/handoffs/INDEX.md,PR#273,PR#274
+supersedes: 650
+tokens: 390
+---
+Recorded the operator-required successor handoff after a read-only exact-state audit of the stacked agent-configuration gate work.
+
+The new canonical handoff preserves the integration prerequisite: PR #273 remained an open draft at `efb30b73f97011e887a29e94c40e2167cb627e73`, and PR #274 remained an open draft at `2626d7e14b0960197541ec4b01cf0ea070a5da74`, stacked on #273. Both reported clean mergeability and green checks, but neither was merged. No rebase, retarget, readiness, merge, publication, or runtime change was authorized.
+
+An independent complete-diff assurance pass found no validator, fail-closed, required-CI wiring, or local/CI parity defect. It identified one P3 predecessor-handoff error: the memory pin is `.claude/settings.json`, not `.claude/CLAUDE.md`. The successor records the correction without changing runtime behavior.
+
+The handoff also records the exact closeout boundary: the primary, target, and gate-parity queues were empty, while the unrelated reports worktree retained requests `01a095ac-6f5c-70b0-b7a4-972e4384e352-f347ee305abc1548` and `01a096e3-826a-7a62-aed3-62a69efcd9c2-7e023d93071f9c1b` as non-qualified pending evidence. They were neither resolved nor weakened by this documentation event.
+
+The registry now points to `2026-09-29-agent-config-required-gate-audit-next`, and its predecessor is marked superseded. Verification for this docs-only event is the canonical `tools.history.closeout` chain plus `git diff --check`; prior runtime pytest and remote CI evidence was not rerun or represented as new evidence.
+---END-ENTRY-#651---
