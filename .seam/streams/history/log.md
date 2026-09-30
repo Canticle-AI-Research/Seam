@@ -21378,3 +21378,25 @@ The handoff also records the exact closeout boundary: the primary, target, and g
 
 The registry now points to `2026-09-29-agent-config-required-gate-audit-next`, and its predecessor is marked superseded. Verification for this docs-only event is the canonical `tools.history.closeout` chain plus `git diff --check`; prior runtime pytest and remote CI evidence was not rerun or represented as new evidence.
 ---END-ENTRY-#651---
+
+---BEGIN-ENTRY-#652---
+id: 652
+date: 2026-09-30T17:39:47Z
+agent: codex
+status: done
+topics: handoff, continuity, verify, status, ci, config, gates, worktree, security, tests
+commits: ccd48f8,ad01957
+refs: docs/handoffs/2026-09-30-agent-config-gates-landed-next.md,docs/handoffs/INDEX.md,PR#273,PR#274
+supersedes: 651
+tokens: 580
+---
+Closed the stacked gate-parity and agent-configuration required-gate integration through protected main and registered the final post-merge handoff.
+
+PR #273 merged at `2026-09-30T11:39:29Z` as `ccd48f8c5035b8005bb984bcb72b51b8a5edfe09`. PR #274 was reconciled by merge at `89ea49cf5737d266c8ad0e2c83e387e5993ce0b1`; that tree matched the prior `f05f862` handoff tree exactly. On that reconciled head, the focused five-file audit scope passed 158 tests, and the approved full collection passed 3,732 tests with 2 expected xfails, 0 failures, 0 skips, and 2 warnings in 598.71 seconds using live pgvector and the exact pinned BGE snapshot. Both validator modes, Ruff, whitespace, the six continuity and wiki gates, and working-tree and range secret scans passed. An earlier 1-failed and 3,731-passed attempt used an incomplete inherited model cache and is explicitly not qualification evidence.
+
+Independent review of the complete `ccd48f8...89ea49c` diff found no defect or unintended scope. Exact-state SessionEnd returned `CLEAN_NO_REQUEST` because reconciliation changed commit topology while preserving the already recorded tree. Required pushed-head checks `repo-hygiene`, `chroma-real-smoke`, and `locomo-quickstart-bil2` passed; package smoke, pgvector integration, registry plan, and CodeQL also passed. PR #274 then merged at `2026-09-30T17:32:24Z` as `ad01957b04c259741cd078f882dd547a5aff561f`. Advisory `test-and-benchmark` was still in progress at merge, so no result is claimed here.
+
+Registered `docs/handoffs/2026-09-30-agent-config-gates-landed-next.md` as the canonical tracked continuation and superseded the prior audit handoff. No further integration action remains for PR #273 or PR #274. PR #270 destructive `verify_workspace --fix` cleanup remains quarantined; PR #269 and unrelated dirty worktrees were not changed.
+
+The unrelated reports worktree still retains non-qualified requests `01a095ac-6f5c-70b0-b7a4-972e4384e352-f347ee305abc1548` and `01a096e3-826a-7a62-aed3-62a69efcd9c2-7e023d93071f9c1b`. They remain preserved open conditions and this handoff does not claim global write-boundary clearance.
+---END-ENTRY-#652---
