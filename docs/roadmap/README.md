@@ -14,6 +14,13 @@ claim against current status, active code, named tests, and history evidence.
   the detailed roadmap for what to do next: recovered requests, setup,
   temporal dependencies, parallel work streams and acceptance gates.
 
+## Parallel research lanes
+
+- [Latent CacheBridge](LATENT_CACHEBRIDGE.md) — model-native KV-cache capture,
+  learned cache projection/fusion, induction-aware PACK experiments,
+  provenance-aware trust gating, heterogeneous/multi-sharer transfer, and a
+  qualification gate for whether the subsystem stays in SEAM or is extracted.
+
 ## Product acceptance backlog
 
 - [SEAM launch plan](SEAM_LAUNCH.md) — ordered acceptance criteria for packaging,
