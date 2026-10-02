@@ -104,6 +104,15 @@ frozen authored files remain untouched.
 
 ## Operator action required (outside repo reach this session)
 
+Resolution status as of the same day's cleanup pass (HISTORY#657): the
+canticle.cc badge/hosted/benchmarks/demo/help/console items and the
+GitHub org-profile framing, wiki placeholders, repo description, and
+dead Pages config are fixed — see below. Still open for the owner:
+the Lab Notes catalog superlative (site protocol forbids in-place
+report edits), the Discussions enabled-or-not decision, the published
+v2.4.0 release body, and a live-site deploy check (the live downloads
+page still shows pre-fix content that main's source no longer contains).
+
 1. **canticle.cc — HIGH**: "APACHE-2.0 CORE" badge and "open-source runtime"
    copy conflict with the BUSL-1.1 runtime license (Apache-2.0 covers only
    legacy/seam-client artifacts); `brew install canticle/tap/seam` points at a
