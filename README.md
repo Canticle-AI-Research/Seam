@@ -21,16 +21,47 @@ and [current packaging constraints](docs/status/packaging-licensing.md).
 
 ## Install
 
-The `seam-suite` rename is a **2.4.1rc1 candidate**. TestPyPI is the first
-registry target; production PyPI is unchanged. Public upload remains blocked
-until exact artifact membership is reviewed and TestPyPI publishing access is
-configured. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
+**Requirements:** Python 3.11+, Git, and the GitHub CLI (`gh`) for the clone
+flows; Docker is optional (only for the pgvector backend). Supported platforms:
+macOS 12+, Windows 10/11, and Linux/WSL2.
 
-Use a fresh virtual environment: old `seam-runtime` and `seam-self-host`
-distributions can own the same imports and commands. This is not an in-place
-`pip install --upgrade` migration.
+**Package name map.** The PyPI package `seam` is an unrelated SDK — never
+install it for SEAM. `seam-runtime` (1.3.1, yanked) and `seam-self-host`
+(retired) are legacy artifacts that can own the same imports and commands in a
+shared environment, so use a fresh virtual environment; this is not an
+in-place `pip install --upgrade` migration. The current root package is the
+`seam-suite` **2.4.1rc1 candidate** (`Private :: Do Not Upload`): TestPyPI is
+the first registry target and no public PyPI runtime artifact exists yet —
+see the [TestPyPI-first procedure](docs/TESTPYPI.md). The public Python
+client is the separate Apache-2.0 `seam-client`.
 
-From a checkout containing this candidate, source-development install for
+**Operator install** — clone the canonical repository and run the platform
+installer. This creates a managed runtime, `seam` / `seam-benchmark` /
+`seam-dash` shims, and a persistent SQLite database, and runs `seam doctor`
+at the end:
+
+Windows PowerShell:
+
+```powershell
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+```
+
+macOS:
+
+```bash
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+```
+
+Linux / WSL2:
+
+```bash
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+```
+
+Add `--dev` to any of these for the repo-local development bootstrap (repo
+`.venv`, dev dependencies, protocol verification).
+
+**Contributor install** — from a checkout containing this candidate, for
 contributors authorized by the Project Owner, subject to the existing license
 terms:
 
@@ -44,10 +75,9 @@ Install with REST API and dashboard extras:
 python -m pip install ".[server,dash]"
 ```
 
-Use a reviewed commit or release tag for a reproducible checkout. Public repository visibility does not change the
-[license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
-operator setup path for repo-local development, persistent state setup, and
-platform shims.
+Use a reviewed commit or release tag for a reproducible checkout. Public
+repository visibility does not change the [license terms](LICENSE) or qualify
+an artifact for PyPI.
 
 ## Public agent SDK
 
@@ -99,33 +129,10 @@ selected and rejected record IDs, evidence fingerprints, scores, controlled
 reason codes, and latency. It makes no provider call by default and does not
 copy record payloads into the reasoning graph.
 
-The installer flows below are for authorized source-development use under
-[LICENSE](LICENSE). They use the GitHub CLI with the canonical repository;
-public visibility does not replace the required use authorization.
-
-Windows PowerShell:
-
-```powershell
-gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
-```
-
-macOS:
-
-```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
-```
-
-Linux / WSL2:
-
-```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
-```
-
-Repo-local Linux development bootstrap:
-
-```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
-```
+The platform installer commands live in [Install](#install). They are for
+authorized source-development use under [LICENSE](LICENSE), use the GitHub CLI
+with the canonical repository, and public visibility does not replace the
+required use authorization.
 
 ## Agent Setup Prompt
 
@@ -415,6 +422,8 @@ Useful endpoints:
 Set `SEAM_API_TOKEN` to require `Authorization: Bearer <local-token>` for
 protected endpoints. This token-only mode is a trusted single-user gate, not a
 multi-tenant identity boundary.
+
+### Public /v1 boundary and hosted SDK
 
 The public SDK boundary is `/v1/health`, `/v1/memories`,
 `/v1/memories/recall`, and `/v1/context`. Published Track S S6 adds optional

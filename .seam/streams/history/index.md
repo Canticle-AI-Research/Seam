@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 654
-total_tokens: ~333694
-latest_id: 654
+total_entries: 655
+total_tokens: ~333973
+latest_id: 655
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 655 | 2026-10-02 | done | 57cc6c0b37ced2ad | docs,readme,correction | none |
 | 654 | 2026-10-02 | done | 05fefc7a77353b3f | docs,correction,continuity | none |
 | 653 | 2026-10-02 | done | c426be53747d8096 | docs,audit,verify,correction,+ | none |
 | 652 | 2026-09-30 | done | 8162e73df5517f61 | handoff,continuity,verify,status,+ | 651 |
@@ -736,7 +737,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=27 latest=#654, #653, #639, #638, #632
+- correction: count=28 latest=#655, #654, #653, #639, #638
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -761,7 +762,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=101 latest=#654, #653, #647, #646, #643
+- docs: count=102 latest=#655, #654, #653, #647, #646
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -916,7 +917,7 @@ compact: true
 - rank: count=15 latest=#640, #638, #629, #521, #504
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=25 latest=#353, #352, #347, #346, #345
+- readme: count=26 latest=#655, #353, #352, #347, #346
 - reasoning: count=10 latest=#609, #608, #499, #498, #497
 - recall: count=2 latest=#320, #317
 - reconcile: count=8 latest=#645, #626, #602, #570, #569
@@ -1016,8 +1017,8 @@ compact: true
 
 ## status rollup
 
-- roots: 88
+- roots: 89
 - changed: 70
-- done: 542
+- done: 543
 - in-progress: 20
 - planned: 22

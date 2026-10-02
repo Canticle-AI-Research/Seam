@@ -21428,3 +21428,17 @@ tokens: 195
 ---
 Pointer-card consolidation slice on the documentation-audit branch (PR #277). Consolidated README's internal restatement of two volatile mechanisms: the agent-quickstart rules block and setup step 5 now point to the canonical Web UI section for the seam.env credential contract and the prototype-WebUI warning instead of restating them, leaving one authoritative statement per mechanism. Reviewed the remaining duplication-map clusters and deliberately kept them: licensing text in SECURITY/CONTRIBUTING/pricing docs is each document's necessary legal context; platform DB-path tables and per-guide pgvector bring-up steps are per-audience operator content owned by seam_runtime/installer.py and docker-compose.yaml values; PROJECT_STATUS dated headline blocks are router records rather than restatements to trim. The 14-cluster map in docs/audits/2026-10-02-documentation-drift-audit.md stands as the backlog for a dedicated design review. All six continuity gates pass after the slice.
 ---END-ENTRY-#654---
+
+---BEGIN-ENTRY-#655---
+id: 655
+date: 2026-10-02T12:41:51Z
+agent: ZCode (GLM)
+status: done
+topics: docs, readme, correction
+commits: none
+refs: docs/audits/2026-10-02-documentation-drift-audit.md,docs/TESTPYPI.md,docs/PRODUCTS.md
+supersedes: none
+tokens: 279
+---
+README restructure on PR #277 so the GitHub landing page leads with current, complete facts. Added a Requirements line (Python 3.11+, Git, gh CLI, optional Docker; macOS 12+/Windows 10-11/Linux-WSL2) and a package-name map (PyPI seam is an unrelated SDK; seam-runtime 1.3.1 yanked and seam-self-host retired shadow imports; seam-suite 2.4.1rc1 candidate is the root package with no public PyPI runtime artifact yet; seam-client is the public client). Promoted the three platform operator-install one-liners plus the --dev bootstrap into the Install section with what the installer creates (managed runtime, three shims, persistent SQLite, doctor); the contributor pip path is now explicitly labeled contributor-only and separated from the operator path; the duplicated command block later in the file was replaced with a pointer. Split the REST section with a Public /v1 boundary and hosted SDK subsection so local development endpoints are not confused with the published /v1 record. Advisor review (fresh agent) recommended these items from a README-vs-product-map gap analysis; licensing prose compression and moving the Agent Setup Prompt out of README were deliberately not done: the legal section is post-audit accurate and the prompt is intentionally ingested by agents via the documented README ingest flow. All six continuity gates pass.
+---END-ENTRY-#655---
