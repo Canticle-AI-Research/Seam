@@ -9,7 +9,7 @@ SEAM ships a Docker Compose service. Use the private env file that holds your
 credentials (never committed to git):
 
 ```powershell
-docker compose --env-file <path-to-private-env> up -d seam-pgvector
+docker compose --env-file <path-to-private-env> up -d pgvector
 ```
 
 Current image: `pgvector/pgvector:0.8.6-pg18-trixie`

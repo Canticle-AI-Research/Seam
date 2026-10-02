@@ -34,8 +34,8 @@ The hardened fixture set covers:
 To start the pgvector container (credentials in private env file, never committed):
 
 ```powershell
-docker compose --env-file <path-to-private-env> up -d seam-pgvector
-$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=postgres password=$env:PGPASSWORD"
+docker compose --env-file <path-to-private-env> up -d pgvector
+$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$env:POSTGRES_USER password=$env:PGPASSWORD"
 ```
 
 ## Run the local deterministic baseline
@@ -61,7 +61,7 @@ Uses your configured embedding provider:
 $env:OPENAI_API_KEY="your-key"
 $env:SEAM_EMBEDDING_PROVIDER="openai-compatible"
 $env:SEAM_EMBEDDING_MODEL="text-embedding-3-small"
-$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=postgres password=$env:PGPASSWORD"
+$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$env:POSTGRES_USER password=$env:PGPASSWORD"
 
 python seam.py doctor
 python seam.py --db seam_validate.db stats
@@ -85,17 +85,17 @@ Look at `summary.tracks` first:
 Then look at `summary.success_checks`:
 
 - `mirl_beats_raw_on_fact_or_relation`
-- `hybrid_matches_or_beats_vector_on_relation`
-- `expected_over_rejected_on_temporal_scope_contradiction`
+- `hybrid_beats_vector_on_relation`
 - `exact_packs_reversible`
 - `context_packs_traceable`
 
-Finally inspect per-fixture failures:
+Finally inspect per-fixture results:
 
 - `expected_ids` are the records that should come back
-- `rejected_ids` are stale, contradicted, or wrong-scope records that should not
-  outrank the expected answer
-- `rejection_rate` tells you how much junk survived into the result set
+- `tracks` reports each retrieval track (raw, vector, mirl, hybrid,
+  machine_nat_query, machine_vector, machine_hybrid) ranked against
+  `expected_ids`
+- `packs` reports the exact/context/narrative pack aggregation per fixture
 
 ## How to harden the benchmark
 

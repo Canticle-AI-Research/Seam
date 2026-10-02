@@ -270,19 +270,14 @@ prints `absent`.
 
 ## 5. Phase 3 — Dead-code audit (gated)
 
-### 3.1 `experimental/hybrid_orchestrator/` audit
+### 3.1 `experimental/hybrid_orchestrator/` audit — RESOLVED
 
-**Important:** `docs/CODE_LAYOUT.md:23` explicitly says `experimental/` is *not* dead code. The audit recommends deletion; this SOP requires you to **verify first and request operator confirmation before deleting**.
-
-**Do:**
-1. Run a thorough usage search:
-   ```bash
-   grep -rn "hybrid_orchestrator" --include="*.py" --include="*.md" --include="*.toml" . | grep -v __pycache__
-   ```
-2. If matches outside `experimental/hybrid_orchestrator/` itself exist → **stop**, file a HISTORY observation, do not delete.
-3. If matches are only inside the directory plus `__init__.py` re-exports from `retrieval_orchestrator`, write a one-paragraph finding in the HISTORY entry and **request operator confirmation** before removal. Do not delete in this PR.
-
-**Verify:** HISTORY entry contains the finding and explicit "awaiting operator confirmation" note for this item.
+Superseded by repo history: the orchestrator was promoted to
+`seam_runtime/retrieval_orchestrator/` in HISTORY#284 and the `experimental/`
+tree was removed entirely in HISTORY#285. `docs/CODE_LAYOUT.md` documents the
+promoted module as active runtime; no deletion decision remains for this item.
+If a comparable retired directory is ever reintroduced, verify with a thorough
+usage search and request operator confirmation before any removal.
 
 ## 6. Phase 4 — Test coverage gaps
 
@@ -491,7 +486,8 @@ HISTORY#<id> — supersedes #<prev>
 ## 12. Hard rules (do not violate)
 
 - Never edit a committed HISTORY entry in place. Always append.
-- Never delete `experimental/hybrid_orchestrator/` without operator confirmation, regardless of how clean the grep looks.
+- Never delete retired directories without an explicit operator decision; the
+  `experimental/` tree itself was removed in HISTORY#285 and no longer exists.
 - Never bypass the pre-commit hook (`--no-verify`). If the gate fails, fix the underlying issue.
 - Never commit agent-local `.claude/`, `.opencode/`, `.agents/`, or root
   OpenCode configuration paths. The narrow tracked exceptions are the exact

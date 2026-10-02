@@ -99,7 +99,7 @@ class ClaudeJudge:
         except ImportError as exc:
             raise RuntimeError(
                 "--judge claude requires the anthropic package. "
-                "Install with: pip install seam[bench-judge]"
+                "Install with: pip install -e .[bench-judge] (repository checkout)"
             ) from exc
         api_key = os.environ.get("ANTHROPIC_API_KEY")
         if not api_key:
@@ -120,7 +120,7 @@ class OpenAIJudge:
         except ImportError as exc:
             raise RuntimeError(
                 "--judge openai requires the openai package. "
-                "Install with: pip install seam[bench-judge]"
+                "Install with: pip install -e .[bench-judge] (repository checkout)"
             ) from exc
         api_key = os.environ.get("OPENAI_API_KEY")
         if not api_key:
@@ -263,7 +263,7 @@ Add a "Judges" section:
 - [ ] `seam bench external --quickstart locomo --judge openai` (without `OPENAI_API_KEY`) prints a clear error mentioning the env var and exits non-zero
 - [ ] `pytest test_seam_all/test_locomo_judge.py -v` passes (8+ tests)
 - [ ] `pytest test_seam_all -x` passes (full suite)
-- [ ] `pip install seam` (without `[bench-judge]`) succeeds and `seam bench external --quickstart locomo --judge stub` still works (StubJudge has no deps)
+- [ ] `pip install -e .` from the repository checkout (without extras) succeeds and `seam bench external --quickstart locomo --judge stub` still works (StubJudge has no deps)
 - [ ] `grep -RE "(sk-[A-Za-z0-9]{20,}|ghp_[A-Za-z0-9]{20,})" benchmarks/ test_seam_all/test_locomo_judge.py` returns nothing
 - [ ] No test calls a real LLM endpoint (grep for `messages.create`, `chat.completions.create` in tests should return zero results)
 - [ ] `python -m tools.history.verify_continuity` passes

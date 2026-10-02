@@ -44,8 +44,7 @@ Install with REST API and dashboard extras:
 python -m pip install ".[server,dash]"
 ```
 
-Use a reviewed commit or release tag for a reproducible checkout; the naming
-candidate is not on `main` until its PR merges. Public repository visibility does not change the
+Use a reviewed commit or release tag for a reproducible checkout. Public repository visibility does not change the
 [license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
@@ -258,7 +257,7 @@ seam webui --host 127.0.0.1 --port 8765
 - Persistent local memory: SQLite is the canonical source of truth.
 - Efficient RAG: `vector`, `graph`, `hybrid`, and `mix` retrieval modes.
 - Progressive disclosure: `seam memory search` gives compact IDs first; `seam memory get <ids>` fetches full records only when needed.
-- Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Gemini's project config starts it with `--ensure-pgvector` so Docker Compose pgvector is ready before MCP tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
+- Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Pass `--ensure-pgvector` when you want the MCP server to start the Docker Compose pgvector service before tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
 - Provenance: records keep refs, evidence, trace edges, and source document status.
 - Benchmark discipline: benchmark bundles are hash-verified, diffed, gated, and separated from holdout publication runs.
 - Operator surface: CLI, Textual dashboard, REST API, and installer shims use
@@ -419,15 +418,17 @@ Set `SEAM_API_TOKEN` to require `Authorization: Bearer <local-token>` for
 protected endpoints. This token-only mode is a trusted single-user gate, not a
 multi-tenant identity boundary.
 
-Protected `main@a177852` exposes the public SDK boundary at `/v1/health`,
-`/v1/memories`, `/v1/memories/recall`, and `/v1/context`. The unpublished Track
-S S6 candidate adds optional in-process principal resolution and
+The public SDK boundary is `/v1/health`, `/v1/memories`,
+`/v1/memories/recall`, and `/v1/context`. Published Track S S6 adds optional
+in-process principal resolution and `POST /v1/memories/correct` plus
 `POST /v1/memories/delete`: principal mode derives internal tenancy from the
 resolved subject, disables legacy private data routes, applies a bounded
 process-local limiter by default, and resolves generation-bound indexed opaque
-handles only inside that boundary. Its local runtime lanes, review, and closeout
-gates are green, but signed publication, exact-head CI, and merge remain; do not
-treat the candidate as installed or hosted-deployment behavior yet.
+handles only inside that boundary. The opaque agent-turn lifecycle
+(`/v1/agent/turns/{begin,actions,complete,fail}`) and deliberate
+`admit`/`reject`/`review` memory governance are also published protected-main
+source (PRs #223, #231, #233). These are source-publication facts, not
+hosted-deployment claims; see the [surfaces stream](docs/status/surfaces.md).
 
 ## Benchmark Glassbox
 
@@ -591,8 +592,10 @@ and reserved materials. Repository access does not grant a right to copy,
 publish, distribute, implement, host, commercialize, train on, or use that
 material in another project.
 
-Exact versions previously published at
-<https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 retain that
+Exact versions previously published at the legacy public repository
+(`BlackhatShiftey/Seam_Runtime` — that coordinate no longer resolves publicly
+as of 2026-10-02; the frozen head `0f4b40a` and `LICENSES/Apache-2.0.txt` are
+the provenance record) under Apache-2.0 retain that
 license. The legacy grant is not revoked, but it does not apply automatically
 to later private versions, unpublished changes, or new MIRL or HS/1 material.
 The private-to-public mirror tooling was removed. The new Suite distribution

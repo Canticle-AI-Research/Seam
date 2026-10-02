@@ -73,7 +73,7 @@ class ZepLocomoAdapter:
             except ImportError as exc:
                 raise RuntimeError(
                     "--adapter zep requires the zep-cloud (or zep-python) package. "
-                    "Install with: pip install seam[bench-zep]"
+                    "Install with: pip install -e .[bench-zep]"
                 ) from exc
         api_key = os.environ.get("ZEP_API_KEY")
         base_url = os.environ.get("ZEP_API_URL")
@@ -235,8 +235,8 @@ Update the comparator matrix to include Zep:
 | Adapter | Install | Required env | Local data path |
 |---|---|---|---|
 | `seam` | base install | none | per-scope SQLite under `test_seam/locomo/` |
-| `mem0` | `pip install seam[bench-mem0]` | `OPENAI_API_KEY` | temp Chroma store |
-| `zep` | `pip install seam[bench-zep]` | `ZEP_API_KEY` (Cloud) or `ZEP_API_URL` (CE) | remote/self-hosted Zep |
+| `mem0` | `pip install -e .[bench-mem0]` | `OPENAI_API_KEY` | temp Chroma store |
+| `zep` | `pip install -e .[bench-zep]` | `ZEP_API_KEY` (Cloud) or `ZEP_API_URL` (CE) | remote/self-hosted Zep |
 
 Add a note: Zep is the first comparator that requires either an external service account or a running local Zep CE container. Document the `docker run` line for Zep CE if available at implementation time. Do not bundle the Zep image.
 
@@ -267,7 +267,7 @@ Add a note: Zep is the first comparator that requires either an external service
 ## 6. Reviewer verification checklist
 
 - [ ] `pip install -e .` (without `[bench-zep]`) succeeds; `seam bench external --quickstart locomo --adapter seam` still works
-- [ ] `seam bench external --quickstart locomo --adapter zep` (without Zep SDK installed) prints a clear error mentioning `pip install seam[bench-zep]` and exits non-zero
+- [ ] `seam bench external --quickstart locomo --adapter zep` (without Zep SDK installed) prints a clear error mentioning `pip install -e .[bench-zep]` and exits non-zero
 - [ ] `pip install -e ".[bench-zep]"` succeeds
 - [ ] `seam bench external --quickstart locomo --adapter zep` (without `ZEP_API_KEY` and `ZEP_API_URL`) prints a clear error mentioning both env vars and exits non-zero
 - [ ] With Zep SDK installed and either `ZEP_API_KEY` or `ZEP_API_URL` set against a working Zep, `seam bench external --quickstart locomo --adapter zep --output /tmp/zep.json` runs end-to-end and produces a valid `SEAM-EXTERNAL-MEMORY-BENCHMARK-RESULT/1` JSON

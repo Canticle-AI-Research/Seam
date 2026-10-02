@@ -11,27 +11,28 @@ For failures by symptom, see [errors.md](errors.md).
 ## Prerequisites
 
 - **macOS 12+** (Monterey or later recommended)
-- **Python 3.10+** — check with `python3 --version`
+- **Python 3.11+** — check with `python3 --version`
   - If missing: install from [python.org](https://www.python.org/downloads/macos/) or `brew install python`
 - **Git** and **GitHub CLI** (`gh`) for private-repo clone installs — `brew install gh` then `gh auth login`
 - **Docker Desktop** (optional) — only if you want the Postgres + pgvector backend
 
 ## Install options
 
-### Option A — Private Git package
+### Option A — Git package install (current Python environment)
 
-Requires authorization to the private repository and working SSH credentials:
+Clone the repository, then install into your current Python environment:
 
 ```bash
 python3 -m pip install --upgrade pip
-python3 -m pip install "seam-runtime[server,dash] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam
+python3 -m pip install ".[server,dash]"
 seam doctor
 ```
 
 Add pgvector or local embeddings when needed:
 
 ```bash
-python3 -m pip install "seam-runtime[pgvector,sbert] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+python3 -m pip install ".[pgvector,sbert]"
 ```
 
 ### Option B — Private repository clone
@@ -39,7 +40,7 @@ python3 -m pip install "seam-runtime[pgvector,sbert] @ git+ssh://git@github.com/
 Requires `gh auth login` first.
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Open a **new terminal** (or `source ~/.zprofile`) so PATH picks up the installer changes, then:
@@ -80,9 +81,8 @@ Install useful operator extras into the dev venv:
 ./.venv/bin/python -m pip install -e ".[server,dash,pgvector,sbert,rerank]"
 ```
 
-The dev bootstrap does **not** install Node or build the `webui/` Vite project.
-The shipped browser dashboard is served directly by `seam serve` / `seam webui` with
-no build step.
+The dev bootstrap does **not** install Node. The shipped browser dashboard is
+served directly by `seam serve` / `seam webui` with no build step.
 
 ## What the installer does
 
@@ -113,7 +113,8 @@ no build step.
 | `~/.local/bin/seam-benchmark` | Benchmark shim |
 | `~/.local/bin/seam-dash` | Textual dashboard shim |
 | `repo/.venv/` | Repo-local dev venv (`--dev` mode only) |
-| `~/.config/seam/.env` | Recommended location for local credentials (never commit) |
+| `~/.config/seam/seam.env` | Runtime-managed settings/credentials file (mode 0600, never commit) |
+| `~/.config/seam/.env` | Docker Compose env file for the optional pgvector service (never commit) |
 
 Override the database path any time:
 
@@ -170,7 +171,7 @@ Base install pulls `requirements.txt` (`rich`, `tiktoken`; `chromadb` is optiona
 | `pgvector` | `psycopg[binary]` | Postgres pgvector backend |
 | `sbert` | `sentence-transformers` | Local neural embeddings |
 | `chroma` | `chromadb` | Chroma vector backend (opt-in) |
-| `all-extras` | all of the above | Full local setup |
+| `all-extras` | all of the above **except** `chroma` | Full local setup (`chromadb` stays opt-in via `seam-suite[chroma]`) |
 
 Into the **managed runtime** (default install):
 
@@ -193,7 +194,7 @@ mkdir -p "$HOME/.config/seam"
 cp .env.example "$HOME/.config/seam/.env"
 # Edit ~/.config/seam/.env with your local password values — never commit this file.
 
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 set -a
 . "$HOME/.config/seam/.env"
 set +a
@@ -248,26 +249,27 @@ Stdio bridge:
 seam mcp stdio
 ```
 
-With auto-start pgvector when Docker is available:
+With auto-start pgvector when Docker is available (the `seam-mcp` console
+script lives in the runtime venv, not in `~/.local/bin/`):
 
 ```bash
-seam-mcp --ensure-pgvector
+"$HOME/Library/Application Support/SEAM/runtime/bin/seam-mcp" --ensure-pgvector
 ```
 
 Typical Claude Desktop / Cursor MCP config uses a command like:
 
 ```json
 {
-  "command": "/Users/<you>/.local/bin/seam-mcp",
-  "args": [],
+  "command": "/Users/<you>/.local/bin/seam",
+  "args": ["mcp", "stdio"],
   "env": {
     "SEAM_DB_PATH": "/Users/<you>/Library/Application Support/SEAM/state/seam.db"
   }
 }
 ```
 
-Adjust paths if you use a custom `SEAM_DB_PATH` or a dev venv entrypoint
-(`./.venv/bin/seam-mcp`).
+Adjust paths if you use a custom `SEAM_DB_PATH` or a venv entrypoint
+(`./.venv/bin/seam-mcp --ensure-pgvector`).
 
 ## Fresh clone resume (developers)
 
@@ -303,7 +305,7 @@ Re-run the installer if `~/.local/bin/seam` is missing.
 
 ### `Python 3 is required to install SEAM`
 
-Install Python 3.10+ and ensure `python3` is on PATH:
+Install Python 3.11+ and ensure `python3` is on PATH:
 
 ```bash
 python3 --version
@@ -327,7 +329,7 @@ python3 --version
 ### PgVector unreachable
 
 - Confirm Docker Desktop is running: `docker ps`
-- Start the service: `docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector`
+- Start the service: `docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector`
 - Export `SEAM_PGVECTOR_DSN` in the same shell session before `seam doctor`
 
 ### Gatekeeper / quarantine on downloaded repo

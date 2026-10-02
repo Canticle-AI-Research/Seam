@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-08
+Last updated: 2026-10-02
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -75,7 +75,10 @@ bounded task-specific reading; do not maintain a competing sequence here.
   license. Its public `main` head at the freeze was
   `0f4b40aab7fda643ce776e597f0b430faa465ca8`. The required Apache text is
   preserved at `LICENSES/Apache-2.0.txt` for unchanged legacy material
-  incorporated into later private distributions.
+  incorporated into later private distributions. As of 2026-10-02 that
+  repository coordinate no longer resolves publicly (no redirect to a renamed
+  or moved repository); the frozen head above and the preserved Apache text
+  are the provenance record.
 - The private-to-public mirror is gone, not merely disabled: `sync_public_mirror.py`
   was removed with the rest of the split tooling. `verify_public_safe.py` and its
   `public_manifest.py` path classifier are RETAINED as a secret and
@@ -85,7 +88,9 @@ bounded task-specific reading; do not maintain a competing sequence here.
   public client/SDK is a separate ground-up artifact with its own boundary,
   license review, and written owner approval; do not reconstruct the old mirror.
 - The operator-approved public integration surface is the separately authored
-  Apache-2.0 `seam-client` package under `BlackhatShiftey/Seam_Runtime/sdk`.
+  Apache-2.0 `seam-client` package (originally under
+  `BlackhatShiftey/Seam_Runtime/sdk`, a coordinate that no longer resolves
+  publicly as of 2026-10-02; live releases remain on PyPI).
   It may contain HTTP transport, typed public models, sync/async clients, and
   framework-neutral agent-memory hooks. It must not import, package, copy, or
   expose private runtime modules, MIRL/HS/1 implementation, storage, retrieval,
@@ -293,17 +298,18 @@ bounded task-specific reading; do not maintain a competing sequence here.
   boundary. All SQLite-backed legs and visibility checks for one retrieval
   request must observe one committed read snapshot; routing connections through
   a pool without that snapshot contract is insufficient. This architecture is
-  not authorization to change ranked behavior:
-  the full provider-free gate in HISTORY#503 found the uncommitted fixed-RRF
-  consolidation at 0.755616 context recall versus 0.766420 for the legacy
-  scorer, while warm median latency rose from 156.4 to 207.2 ms. Preserve the
-  legacy RAW/BM25/weighted ranking semantics inside the orchestrator as the
-  versioned behavioral baseline, isolate graph attribution with a same-code
-  hybrid-versus-mix ablation, and require full-corpus non-regression before
-  promotion. Quickstart parity is insufficient. Component-level
-  representation evals may still call the pure `search_batch` scorer as a
-  named comparison track, but it is not a live runtime path. See HISTORY#502
-  and HISTORY#503.
+  not authorization to change ranked behavior: HISTORY#503's overall-regression
+  hold was falsified by the matched four-arm ablation (every arm run from its
+  own clone of one pristine ingest-only snapshot), which measured canonical
+  mix/hybrid at 0.776048 overall versus 0.766420 for the legacy arm — with the
+  legacy arm reproducing #503's legacy figure exactly, so only the original
+  canonical figure was confounded (its default-ingest corpus had zero
+  admissible semantic relations). `legacy-weighted/1` remains the shipped
+  compatibility default until an S9-gated promotion decision, and the cat3
+  category gate remains open; docs/status/retrieval.md owns the corrected
+  measurement and current gate state. Component-level representation evals may
+  still call the pure `search_batch` scorer as a named comparison track, but
+  it is not a live runtime path. See HISTORY#502 and HISTORY#503.
 - SEAM's knowledge graph is a self-building, versioned SQLite projection of
   canonical MIRL, not a manually authored or browser-generated topology.
   `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed
@@ -348,9 +354,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
   predicate admission now have provider-free counterexamples. A retrieved-ENT
   fixture resolves 5/5 entities through complete exact SPAN-to-RAW chains.
   Historical native LoCoMo ENT coverage remains 0.0000; native corpus
-  freeze/review and scorer promotion remain S9. S8 is the next stage and must
-  begin only from protected main containing the chronological S8-next handoff.
-  See HISTORY#602, HISTORY#603, and HISTORY#604.
+  freeze/review and scorer promotion remain S9. S8 mechanism work is complete:
+  R2 backend parity qualified the S8 mechanisms and the protected S8 freeze
+  landed through PR #254 at `2f9a96b9` (HISTORY#641). S9 matched
+  multi-benchmark qualification and S10 release/deployment proof remain open.
+  See HISTORY#602, HISTORY#603, HISTORY#604, and the S8 freeze headline in
+  `PROJECT_STATUS.md`.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing

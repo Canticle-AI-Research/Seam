@@ -47,19 +47,19 @@ Override any time with `SEAM_DB_PATH` in the shell or MCP client env.
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 Repo-local development bootstrap:
@@ -104,8 +104,9 @@ seam --db seam_validate.db stats
 
 ### Live cloud + pgvector path
 
-Credentials stay in a private env file outside the repo (for example
-`~/.config/seam/.env` on macOS / Linux).
+Credentials stay in a private env file outside the repo. For Docker Compose
+values use a dedicated env file (for example `~/.config/seam/.env`); the
+runtime's own managed settings/credentials file is `~/.config/seam/seam.env`.
 
 Windows PowerShell:
 
@@ -136,13 +137,13 @@ seam --db seam_validate.db stats
 Windows PowerShell:
 
 ```powershell
-docker compose --env-file <path-to-private-env> up -d seam-pgvector
+docker compose --env-file <path-to-private-env> up -d pgvector
 ```
 
 macOS / Linux bash:
 
 ```bash
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 ```
 
 Image: `pgvector/pgvector:0.8.6-pg18-trixie` | Container: `seam-pgvector` | Port: `55432`
@@ -277,13 +278,15 @@ seam webui --host 127.0.0.1 --port 8765
 
 ```bash
 seam mcp stdio
-# or, with pgvector auto-start when Docker is available:
-seam-mcp --ensure-pgvector
+# or, with pgvector auto-start when Docker is available (the `seam-mcp`
+# console script lives in the runtime venv, not in `~/.local/bin/`):
+"$HOME/Library/Application Support/SEAM/runtime/bin/seam-mcp" --ensure-pgvector
 ```
 
-On macOS, global shims live in `~/.local/bin/`. Point your MCP client at
-`seam-mcp` and set `SEAM_DB_PATH` if you use a non-default database. See
-[MACOS.md](MACOS.md) for a sample client config.
+On macOS, global shims live in `~/.local/bin/` (`seam`, `seam-benchmark`,
+`seam-dash`). Point your MCP client at the `seam` shim with args
+`["mcp", "stdio"]` and set `SEAM_DB_PATH` if you use a non-default database.
+See [MACOS.md](MACOS.md) for a sample client config.
 
 ## 6. Testing SEAM
 

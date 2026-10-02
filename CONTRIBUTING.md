@@ -53,8 +53,9 @@ snapshot, handoff, continuity, and stream gates for material changes.
 
 ## Legacy public versions
 
-Exact versions previously released through
-<https://github.com/BlackhatShiftey/Seam_Runtime> remain under the license
-attached to those public versions. Do not copy later private changes into that
-repository. The private-to-public mirror is frozen unless the project owner
+Exact versions previously released through the legacy public repository
+(`BlackhatShiftey/Seam_Runtime` — that coordinate no longer resolves publicly
+as of 2026-10-02) remain under the license
+attached to those public versions. Do not treat that coordinate as an active
+publication target. The private-to-public mirror is frozen unless the project owner
 approves a new, legally reviewed distribution boundary in writing.

@@ -2,38 +2,39 @@
 
 This folder is the direct install surface for SEAM.
 
-## One-Line Private Repo Install
+## One-Line Repo Install
 
-Run `gh auth login` first for private repo access.
+Run `gh auth login` first if the repository is not publicly accessible for your
+account.
 
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 macOS repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 macOS operator guide: [docs/MACOS.md](../docs/MACOS.md)
@@ -106,8 +107,8 @@ Linux `--dev` mode:
 - installs `requirements.txt`, `.[all-extras]`, and `pytest`
 - runs `seam.py doctor`, history integrity, routing, snapshot, continuity, and
   stream verification checks
-- does not install Node dependencies or build the `webui/` dev project (the
-  runtime serves the dashboard directly; no build step is required)
+- does not install Node dependencies (the runtime serves the dashboard
+  directly; no build step is required)
 
 Default persistent database paths:
 
@@ -135,13 +136,13 @@ checked by `python -m tools.ci.verify_dependency_contract`.
 
 | Extra | Package installed | When you need it |
 |---|---|---|
-| `dash` | `textual>=0.50`, `httpx` | Textual dashboard |
+| `dash` | `textual>=8.0,<9.0`, `httpx` | Textual dashboard |
 | `server` | `fastapi`, `uvicorn`, `python-multipart` | REST API |
-| `pgvector` | `psycopg[binary]>=3.0` | PostgreSQL PgVector backend |
-| `sbert` | `sentence-transformers>=2.0` | Local neural embeddings |
+| `pgvector` | `psycopg[binary]>=3.0,<4.0` | PostgreSQL PgVector backend |
+| `sbert` | `sentence-transformers>=2.0,<3.0` | Local neural embeddings |
 | `chroma` | `chromadb>=1.0,<2.0` | Explicit opt-in embedded Chroma only; excluded from `all-extras` |
 | `agent` | none yet | Reserved MCP-style agent bridge wrapper extra |
-| `rerank` | `sentence-transformers>=2.0` | Optional reranker experiments |
+| `rerank` | `sentence-transformers>=2.0,<3.0` | Optional reranker experiments |
 | `bench-judge` | `anthropic`, `openai` | Explicit external judge integrations; running paid validation still requires confirmation |
 | `bench-mem0` | `mem0ai`, pre-1.0 `chromadb` | Matched Mem0 benchmark lane |
 | `bench-zep` | `zep-cloud` | Matched Zep benchmark lane |
@@ -174,7 +175,7 @@ PgVector is optional. Keep credentials in a local env file outside git.
 ```bash
 mkdir -p "$HOME/.config/seam"
 cp .env.example "$HOME/.config/seam/.env"
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 set -a
 . "$HOME/.config/seam/.env"
 set +a

@@ -73,7 +73,7 @@ class Mem0LocomoAdapter:
         except ImportError as exc:
             raise RuntimeError(
                 "--adapter mem0 requires the mem0ai package. "
-                "Install with: pip install seam[bench-mem0]"
+                "Install with: pip install -e .[bench-mem0] (repository checkout)"
             ) from exc
         # Require an LLM key. Mem0 default is OpenAI; allow override via Mem0 config.
         if not os.environ.get("OPENAI_API_KEY") and not (config_overrides or {}).get("llm"):
@@ -216,7 +216,7 @@ Comparator matrix table:
 | Adapter | Install | Required env | Local data path |
 |---|---|---|---|
 | `seam` | base install | none | per-scope SQLite under `test_seam/locomo/` |
-| `mem0` | `pip install seam[bench-mem0]` | `OPENAI_API_KEY` (or Mem0 config override) | temp Chroma store |
+| `mem0` | `pip install -e .[bench-mem0]` | `OPENAI_API_KEY` (or Mem0 config override) | temp Chroma store |
 | `zep` | (SOP 4) | (SOP 4) | (SOP 4) |
 
 Include a "Reproducing a comparison" section:
@@ -259,7 +259,7 @@ Add a "Comparators" section pointing at `locomo/README.md`. Reaffirm the publish
 ## 6. Reviewer verification checklist
 
 - [ ] `pip install -e .` (without `[bench-mem0]`) succeeds; `seam bench external --quickstart locomo --adapter seam` still works
-- [ ] `seam bench external --quickstart locomo --adapter mem0` (without Mem0 installed) prints a clear error mentioning `pip install seam[bench-mem0]` and exits non-zero
+- [ ] `seam bench external --quickstart locomo --adapter mem0` (without Mem0 installed) prints a clear error mentioning `pip install -e .[bench-mem0]` and exits non-zero
 - [ ] `pip install -e ".[bench-mem0]"` succeeds
 - [ ] `seam bench external --quickstart locomo --adapter mem0` (without `OPENAI_API_KEY`) prints a clear error mentioning the env var and exits non-zero
 - [ ] With both installed and `OPENAI_API_KEY` set, `seam bench external --quickstart locomo --adapter mem0 --output /tmp/mem0.json` runs end-to-end and produces a valid `SEAM-EXTERNAL-MEMORY-BENCHMARK-RESULT/1` JSON

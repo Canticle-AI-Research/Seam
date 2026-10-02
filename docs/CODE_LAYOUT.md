@@ -36,8 +36,9 @@ not have to infer what works from directory names alone.
   `/v1` agent-memory boundary. It maps SDK-only namespaces, validates public
   partitions, and returns user-facing text plus opaque identifiers without
   exporting MIRL, HS/1, PACK, storage, graph, or ranking structures. The
-  Apache-2.0 client implementation lives separately in
-  `BlackhatShiftey/Seam_Runtime/sdk`.
+  Apache-2.0 client implementation lives separately (originally in the legacy
+  `BlackhatShiftey/Seam_Runtime/sdk` tree, which no longer publicly resolves as
+  of 2026-10-02; live releases remain on PyPI).
 - `seam_runtime/workspace.py` - append-only structured workspace run/event schema, allowlisted telemetry sanitization, SSE framing/replay, and deterministic graph-activation projection. It explicitly excludes credentials, hidden chain-of-thought, and raw activation tensors.
 - `seam_runtime/jspace.py` - optional J-lens capability boundary: unavailable/structured-only default, verified local Hugging Face Qwen adapter, and authenticated pinned remote worker. No model, lens, analyzer, download, or network dependency is enabled by default.
 - `seam_runtime/improvement_experiments.py` - H2 immutable experiment definitions and append-only SHA-256 event chains, with bounded structured evidence and raw-content rejection.

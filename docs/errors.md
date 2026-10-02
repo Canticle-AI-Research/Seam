@@ -88,7 +88,7 @@ macOS-specific install help: [MACOS.md](MACOS.md)
 
 SEAM's documented operating port for the local pgvector container is `55432`
 (set via `SEAM_PGVECTOR_PORT=55432` in your local env file). The default
-`docker-compose.yaml` mapping is `${SEAM_PGVECTOR_PORT:-5432}:5432`, so the host
+`docker-compose.yaml` mapping is `${SEAM_PGVECTOR_PORT:-55432}:5432`, so the host
 port follows your env var. Use the host port (typically `55432`) in
 `SEAM_PGVECTOR_DSN`.
 
@@ -99,7 +99,7 @@ $localEnv = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "SEAM\local\
 New-Item -ItemType Directory -Force -Path (Split-Path $localEnv)
 Copy-Item .env.example $localEnv
 # Edit $localEnv locally first; do not commit it. Set SEAM_PGVECTOR_PORT=55432.
-docker compose --env-file $localEnv up -d seam-pgvector
+docker compose --env-file $localEnv up -d pgvector
 Get-Content $localEnv | Where-Object { $_ -and $_ -notmatch '^\s*#' } | ForEach-Object {
     $name, $value = $_ -split '=', 2
     Set-Item -Path "Env:$name" -Value $value
@@ -114,7 +114,7 @@ $env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$env:POSTGRES
 mkdir -p "$HOME/.config/seam"
 cp .env.example "$HOME/.config/seam/.env"
 # Edit the env file locally; do not commit it. Set SEAM_PGVECTOR_PORT=55432.
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 set -a
 . "$HOME/.config/seam/.env"
 set +a
