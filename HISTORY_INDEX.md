@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 655
-total_tokens: ~333973
-latest_id: 655
+total_entries: 656
+total_tokens: ~334429
+latest_id: 656
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 656 | 2026-10-02 | done | e4636270d7e26697 | docs,website,verify,correction | none |
 | 655 | 2026-10-02 | done | 57cc6c0b37ced2ad | docs,readme,correction | none |
 | 654 | 2026-10-02 | done | 05fefc7a77353b3f | docs,correction,continuity | none |
 | 653 | 2026-10-02 | done | c426be53747d8096 | docs,audit,verify,correction,+ | none |
@@ -737,7 +738,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=28 latest=#655, #654, #653, #639, #638
+- correction: count=29 latest=#656, #655, #654, #653, #639
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -762,7 +763,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=102 latest=#655, #654, #653, #647, #646
+- docs: count=103 latest=#656, #655, #654, #653, #647
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -1001,9 +1002,10 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=458 latest=#653, #652, #651, #650, #649
+- verify: count=459 latest=#656, #653, #652, #651, #650
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
+- website: count=1 latest=#656
 - webui: count=13 latest=#571, #545, #544, #543, #404
 - wiki: count=2 latest=#557, #556
 - windows: count=25 latest=#506, #370, #361, #360, #283
@@ -1017,8 +1019,8 @@ compact: true
 
 ## status rollup
 
-- roots: 89
+- roots: 90
 - changed: 70
-- done: 543
+- done: 544
 - in-progress: 20
 - planned: 22

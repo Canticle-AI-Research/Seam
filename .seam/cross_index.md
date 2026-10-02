@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 721
+total_events: 722
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T16:50:30Z | history:462:2b05af6b | session-event | done | graph, retrieval, memory, agent, verify, vector | docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2... |
 | 2026-07-23T02:46:46Z | history:463:3c16da17 | session-event | done | vector, retrieval, memory, verify | docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py |
 | 2026-07-23T08:59:28Z | history:464:5d53be0e | session-event | done | vector, retrieval, bugfix, verify, test | seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG... |
 | 2026-07-23T09:34:00Z | history:465:f120ba7d | session-event | done | vector, retrieval, memory, verify, test | seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-02T12:25:12Z | history:653:c426be53 | session-event | done | docs, audit, verify, correction, continuity | docs/audits/2026-10-02-documentation-drift-audit.md,docs/handoffs/2026-09-30-... |
 | 2026-10-02T12:32:13Z | history:654:05fefc7a | session-event | done | docs, correction, continuity | docs/audits/2026-10-02-documentation-drift-audit.md |
 | 2026-10-02T12:41:51Z | history:655:57cc6c0b | session-event | done | docs, readme, correction | docs/audits/2026-10-02-documentation-drift-audit.md,docs/TESTPYPI.md,docs/PRO... |
+| 2026-10-02T12:55:17Z | history:656:e4636270 | session-event | done | docs, website, verify, correction | docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/Blackh... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0521.cross.md | 2026-04-15T00:00:00Z..2026-07-22T15:21:34Z | 521 | (multi) | (multi) |
+| 0001-0522.cross.md | 2026-04-15T00:00:00Z..2026-07-22T16:50:30Z | 522 | (multi) | (multi) |
