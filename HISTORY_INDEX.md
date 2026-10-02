@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 653
-total_tokens: ~333499
-latest_id: 653
+total_entries: 654
+total_tokens: ~333694
+latest_id: 654
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 654 | 2026-10-02 | done | 05fefc7a77353b3f | docs,correction,continuity | none |
 | 653 | 2026-10-02 | done | c426be53747d8096 | docs,audit,verify,correction,+ | none |
 | 652 | 2026-09-30 | done | 8162e73df5517f61 | handoff,continuity,verify,status,+ | 651 |
 | 651 | 2026-09-30 | done | 1fdf208ae016de12 | handoff,continuity,verify,status,+ | 650 |
@@ -730,12 +731,12 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=97 latest=#653, #652, #651, #650, #649
+- continuity: count=98 latest=#654, #653, #652, #651, #650
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=26 latest=#653, #639, #638, #632, #631
+- correction: count=27 latest=#654, #653, #639, #638, #632
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -760,7 +761,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=100 latest=#653, #647, #646, #643, #642
+- docs: count=101 latest=#654, #653, #647, #646, #643
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -1015,8 +1016,8 @@ compact: true
 
 ## status rollup
 
-- roots: 87
+- roots: 88
 - changed: 70
-- done: 541
+- done: 542
 - in-progress: 20
 - planned: 22

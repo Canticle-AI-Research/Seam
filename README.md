@@ -146,10 +146,9 @@ Rules:
 - Do not ingest secrets, `.env` files, credential files, private keys, provider
   session links, ignored local artifacts, or private chat/share links.
 - API keys and local environment files are operator-owned. Export server/WebUI
-  variables in their launch environment. The TUI can additionally read
-  `~/.config/seam/seam.env` (mode 0600); the server does not load that file
-  automatically. Do not enter credentials in the prototype WebUI; its browser
-  storage is not an approved secret store.
+  variables in their launch environment; the TUI-only
+  `~/.config/seam/seam.env` contract is described in the Web UI section below.
+  Do not enter credentials in the prototype WebUI (that section explains why).
 - Prefer project installers and documented commands over ad hoc setup.
 - Do not install `bench-judge`, `bench-mem0`, or `bench-zep` unless the operator
   explicitly approves provider/API-key benchmark dependencies.
@@ -169,11 +168,10 @@ Steps:
    `seam doctor`
 5. Ask the operator to set any needed provider keys and local config before
    enabling paid/provider-backed features. Export the variables in the current
-   shell. For the TUI, `~/.config/seam/seam.env` with mode 0600 is also
-   supported. The server and WebUI do not load it: if the operator chooses to
-   use that shell-safe file, source it explicitly with
-   `set -a; . ~/.config/seam/seam.env; set +a` before launch. Never commit or
-   ingest the file. Do not use the prototype WebUI Settings panel for secrets.
+   shell. To reuse the shell-safe TUI file for a server process, source it
+   explicitly before launch (command shown in the Web UI section below).
+   Never commit or ingest the file. Do not use the prototype WebUI Settings
+   panel for secrets.
 6. Re-run:
    `seam doctor`
 7. Ingest safe repo context as persistent memory:
