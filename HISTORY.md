@@ -21492,3 +21492,19 @@ Updated the existing external documentation PRs without merging or deploying the
 
 The unrelated reports-pages worktree remains NOT_QUALIFIED because `tools/memory_formation_m1.py` lacks witnessed historical TDD. Its validated non-qualified attempt is preserved; this documentation correction does not weaken or resolve that condition.
 ---END-ENTRY-#658---
+
+---BEGIN-ENTRY-#659---
+id: 659
+date: 2026-10-03T03:34:13Z
+agent: codex
+status: changed
+topics: ci, docs, correction, verify, tests, continuity
+commits: pending
+refs: tools/docs/verify_terminology.py,https://github.com/Canticle-AI-Research/Seam/pull/277
+supersedes: 658
+tokens: 166
+---
+Corrected the sole required-CI failure on the terminology-correction head from HISTORY#658. GitHub `repo-hygiene` reported Ruff I001 in `tools/docs/verify_terminology.py`; the import block now uses Ruff's canonical formatting with no runtime or terminology behavior change.
+
+The tracked Python set passes Ruff, the terminology and wiki audit slice passes 54 tests, and `git diff --check` passes. A literal local `ruff check .` also reported pre-existing findings only inside preserved untracked `.disposable/` and `.seam/orchestration/` operator artifacts; those paths are outside the tracked PR and were not modified. This entry supersedes the readiness state of HISTORY#658, not its semantic terminology evidence. The unrelated reports-pages worktree remains NOT_QUALIFIED.
+---END-ENTRY-#659---

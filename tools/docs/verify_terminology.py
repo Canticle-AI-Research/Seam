@@ -7,7 +7,6 @@ import re
 import sys
 from pathlib import Path
 
-
 ROOT_AUTHORITY_FILES = (
     Path("README.md"),
     Path("REPO_LEDGER.md"),
