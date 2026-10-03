@@ -9,9 +9,10 @@ root Claude memory pin guarantees, make the validator an unconditional part of
 the required `repo-hygiene` check, and prove parity across every canonical
 local enforcement surface.
 
-This plan is stacked on PR #273 at
-`efb30b73f97011e887a29e94c40e2167cb627e73`. It does not authorize merging or
-marking either PR ready.
+This plan was stacked on PR #273 at
+`efb30b73f97011e887a29e94c40e2167cb627e73`. Both stacked PRs (#273 and #274)
+have since merged through the protected path; see the current handoff in
+[the handoff registry](../handoffs/INDEX.md) for the landed state.
 
 ## Change classes
 

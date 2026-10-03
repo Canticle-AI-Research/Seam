@@ -26,8 +26,8 @@ report a worktree as clean while removal would still destroy local data.
 
 | Logical item | Physical identities | Verified baseline | Next action |
 | --- | --- | --- | --- |
-| Protected main | `origin/main`; `Canticle-AI-Research/Seam` | `8834601`, matching the live GitHub main SHA | Use the verified protected base for new slices |
-| Primary audit work | Primary `Seam` checkout; `docs/deep-audit-20260829` | `780b377`, behind protected main with dirty audit/history/handoff state | Preserve; compare recovered work against merged PR #247 before any cleanup |
+| Protected main | `origin/main`; `Canticle-AI-Research/Seam` | `fe528a5` as of the 2026-10-02 documentation-audit sync; verify against the live GitHub main SHA before acting | Use the verified protected base for new slices |
+| Primary audit work | Primary `Seam` checkout; `docs/deep-audit-20260829` | Resolved 2026-10-02: the dirty lineage was committed on the branch at `884f15f` and confirmed superseded by merged PR #247; branch retained locally as a record, not mergeable | No action; delete only after owner review |
 | Audit cleanup | `.claude/worktrees/audit-cleanup-20260903`; `docs/audit-cleanup-20260903` | Clean at `99c9d48`, PR #247 merged; worktree remains locked | Owner reviews retained local state and lock before removal |
 | Codex hook candidate | `.worktrees/codex-pretool-hooks`; `fix/codex-pretool-hooks` | Base `8834601` with staged and unstaged hook/test/docs changes; no matching open PR observed | Finish and review as a separate slice; reconcile provisional history numbering on rebase |
 | Launch documentation | `docs/launch-baseline-20260906`, isolated from the protected baseline | Documentation candidate described by the current handoff | Review the baseline, then L1 packaging preparation; R2 first runtime slice |

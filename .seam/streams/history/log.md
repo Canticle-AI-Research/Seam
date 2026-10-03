@@ -21400,3 +21400,111 @@ Registered `docs/handoffs/2026-09-30-agent-config-gates-landed-next.md` as the c
 
 The unrelated reports worktree still retains non-qualified requests `01a095ac-6f5c-70b0-b7a4-972e4384e352-f347ee305abc1548` and `01a096e3-826a-7a62-aed3-62a69efcd9c2-7e023d93071f9c1b`. They remain preserved open conditions and this handoff does not claim global write-boundary clearance.
 ---END-ENTRY-#652---
+
+---BEGIN-ENTRY-#653---
+id: 653
+date: 2026-10-02T12:25:12Z
+agent: ZCode (GLM)
+status: done
+topics: docs, audit, verify, correction, continuity
+commits: none
+refs: docs/audits/2026-10-02-documentation-drift-audit.md,docs/handoffs/2026-09-30-agent-config-gates-landed-next.md,docs/status/retrieval.md
+supersedes: none
+tokens: 814
+---
+Documentation drift audit and correction across repo docs, GitHub-facing surfaces, and canticle.cc. Method: deterministic link/CLI/tag checker plus five audit passes, an adversarial falsification round over every applied correction, and a 14-cluster duplication map; sources of truth were pyproject.toml, seam_runtime cli/installer/migrations/storage/server/config, docker-compose.yaml, .env.example, ci.yml, git history, and the handoff supersession chain. Corrected 47 findings across 28 files (210 insertions, 154 deletions): stale Track S state (S8 is next -> frozen via PR #254 at 2f9a96b9, HISTORY#641) in REPO_LEDGER and the operations/surfaces streams; the falsified HISTORY#503 0.755616 premise replaced with the matched four-arm ablation record (canonical 0.776048 vs legacy 0.766420, cat3 gate open); README unpublished-S6 block rewritten to the published record (PRs #223/#231/#233); dead legacy coordinate BlackhatShiftey/Seam_Runtime (no public resolution, no redirect; frozen head 0f4b40a and LICENSES/Apache-2.0.txt recorded as provenance) de-linked and annotated in README, CONTRIBUTING, PROTECTION_MODEL (which also presented the removed sync_public_mirror.py as a live disabled control), CODE_LAYOUT, and REPO_LEDGER; operator guides fixed for compose service name pgvector (10 command instances), canonical clone owner (11 instances), Python 3.11+ floor, checkout-extras install coordinates replacing seam-runtime git+ssh and the foreign PyPI seam package, MCP client config pointed at the real seam shim with mcp stdio args (installer writes only seam/seam-benchmark/seam-dash shims), seam.env vs compose .env credential-file split, DSN user=postgres to user=POSTGRES_USER, compose default port 5432 to 55432, removed-tree webui references, extras version bounds, all-extras chroma exclusion, core-storage/4, rgba64 mode, seam-box runner label, evals.py success-check key names, and pgvector image tag 0.8.2 to 0.8.6 in SOP_CI_BENCH_GATE_PREP_DEEPSEEK; SECURITY.md fallback now names the private advisory URL; SOP_INDEX gained a DeepSeek-era note and the three external-bench comparator SOPs install real extras. New report docs/audits/2026-10-02-documentation-drift-audit.md records 25 operator-action findings on canticle.cc (APACHE-2.0 CORE badge vs BUSL-1.1, nonexistent brew tap, advertised dmg/exe downloads absent from release v2.4.0, unbacked benchmark board including an unauthorized graph 0.86, simulated demo dashboard without disclaimer, seam init not a real command) and GitHub surfaces (org profile open-source framing vs layered licensing, wiki placeholder with wrong product expansion, Pages serving 404, Discussions undocumented) plus the duplication backlog. Operator constraints honored: HISTORY.md and ROADMAP.md plus docs/roadmap treated as frozen this session until this closeout entry; all frozen-surface edits were reverted (git restore) before closeout; dated records were not rewritten. Reversibility: all corrections were uncommitted working-tree edits with the full before/after diff preserved under the local disposable record directory. Verification: adversarial falsification round passed on every correction after two minor fix-ups (era-note date decoupling; a nonexistent bench extra in a reverted roadmap doc); verify_integrity, verify_routing, verify_handoffs, verify_continuity, verify_streams pass; verify_wiki passes with this entry cited by the registry row. Not done: duplication consolidation to pointer cards (14 clusters, backlog), spec section-27 suggested-command divergence (governing contract left untouched), and all operator-action website/settings items.
+---END-ENTRY-#653---
+
+---BEGIN-ENTRY-#654---
+id: 654
+date: 2026-10-02T12:32:13Z
+agent: ZCode (GLM)
+status: done
+topics: docs, correction, continuity
+commits: none
+refs: docs/audits/2026-10-02-documentation-drift-audit.md
+supersedes: none
+tokens: 195
+---
+Pointer-card consolidation slice on the documentation-audit branch (PR #277). Consolidated README's internal restatement of two volatile mechanisms: the agent-quickstart rules block and setup step 5 now point to the canonical Web UI section for the seam.env credential contract and the prototype-WebUI warning instead of restating them, leaving one authoritative statement per mechanism. Reviewed the remaining duplication-map clusters and deliberately kept them: licensing text in SECURITY/CONTRIBUTING/pricing docs is each document's necessary legal context; platform DB-path tables and per-guide pgvector bring-up steps are per-audience operator content owned by seam_runtime/installer.py and docker-compose.yaml values; PROJECT_STATUS dated headline blocks are router records rather than restatements to trim. The 14-cluster map in docs/audits/2026-10-02-documentation-drift-audit.md stands as the backlog for a dedicated design review. All six continuity gates pass after the slice.
+---END-ENTRY-#654---
+
+---BEGIN-ENTRY-#655---
+id: 655
+date: 2026-10-02T12:41:51Z
+agent: ZCode (GLM)
+status: done
+topics: docs, readme, correction
+commits: none
+refs: docs/audits/2026-10-02-documentation-drift-audit.md,docs/TESTPYPI.md,docs/PRODUCTS.md
+supersedes: none
+tokens: 279
+---
+README restructure on PR #277 so the GitHub landing page leads with current, complete facts. Added a Requirements line (Python 3.11+, Git, gh CLI, optional Docker; macOS 12+/Windows 10-11/Linux-WSL2) and a package-name map (PyPI seam is an unrelated SDK; seam-runtime 1.3.1 yanked and seam-self-host retired shadow imports; seam-suite 2.4.1rc1 candidate is the root package with no public PyPI runtime artifact yet; seam-client is the public client). Promoted the three platform operator-install one-liners plus the --dev bootstrap into the Install section with what the installer creates (managed runtime, three shims, persistent SQLite, doctor); the contributor pip path is now explicitly labeled contributor-only and separated from the operator path; the duplicated command block later in the file was replaced with a pointer. Split the REST section with a Public /v1 boundary and hosted SDK subsection so local development endpoints are not confused with the published /v1 record. Advisor review (fresh agent) recommended these items from a README-vs-product-map gap analysis; licensing prose compression and moving the Agent Setup Prompt out of README were deliberately not done: the legal section is post-audit accurate and the prompt is intentionally ingested by agents via the documented README ingest flow. All six continuity gates pass.
+---END-ENTRY-#655---
+
+---BEGIN-ENTRY-#656---
+id: 656
+date: 2026-10-02T12:55:17Z
+agent: ZCode (GLM)
+status: done
+topics: docs, website, verify, correction
+commits: none
+refs: docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/BlackhatShiftey/Cantlicle/pull/30
+supersedes: none
+tokens: 456
+---
+Expanded and corrected the canticle.cc documentation page in the coupled site repository BlackhatShiftey/Cantlicle (local checkout Canticle-interface-docs, branch docs/documentation-expansion-20261002 off main, PR #30). Corrections: the macOS one-line install pointed at a nonexistent brew tap and now uses the real raw-installer one-liners at tag v2.4.0 plus the clone flow; the open-source runtime license mislabel now states BUSL-1.1 self-host terms with the proprietary MIRL/HS/1 boundary; the nonexistent seam init subcommand was removed from the CLI reference; the MCP tool list was completed to the real 19 with the global shim versus runtime-venv seam-mcp distinction; the stats troubleshooting row was corrected (per-track reports, no rejection_rate field). Additions per the operator request for a complete operator reference: a Configuration and environment section with ten variables verified against runtime code and per-OS default database paths, a pgvector setup section (compose env-file flow, DSN shape, image/container/port), an expanded REST section with the local endpoint table and the published public /v1 boundary with hosted-planned framing, a deepened troubleshooting table mirroring the repository error reference with links to docs/errors.md and the repository wiki, and a one-screen License section. Every command, variable, path, and license statement was cross-checked against Seam sources of truth (cli.py, mcp.py, server.py, installer.py, pyproject.toml, docker-compose.yaml, docs/errors.md, REPO_LEDGER.md) and re-attacked by an independent adversarial verification pass that caught and fixed one error (the quickstart judge wording: default is string-match scoring, stub judge opt-in via --judge stub). HTML structure validated. Site protocol honored: hand-written HTML only, existing stylesheet classes and section patterns, no styles.css or script.js change so no cache-busting bump needed, nav/footer untouched; sidebar entries added for the two new sections and external repo references. Also this session: README restructure (HISTORY#655) added the requirements line, package-name map, promoted operator install commands, contributor-path separation, and a Public /v1 subsection split.
+---END-ENTRY-#656---
+
+---BEGIN-ENTRY-#657---
+id: 657
+date: 2026-10-02T13:29:22Z
+agent: ZCode (GLM)
+status: done
+topics: docs, website, security, verify, correction
+commits: none
+refs: docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/BlackhatShiftey/Cantlicle/pull/30,https://github.com/Canticle-AI-Research/.github/pull/4
+supersedes: none
+tokens: 460
+---
+Public-surface cleanup pass completing the documentation audit's operator-action items that could be fixed with operator authorization. Site repository BlackhatShiftey/Cantlicle (PR #30 branch): landing badge APACHE-2.0 CORE replaced with FREE SELF-HOST / BUSL-1.1; hosted plans and hosted SEAM-API moved from present tense to planned/waitlist framing; the landing live-dashboard callout and the demo dashboard itself now carry explicit simulated-sample-data disclaimers; benchmarks.html gained a pre-release board banner that separates design-mock figures from the verified hash-checked results (native LoCoMo candidate 0.776163, mem0-harness 88.10 percent with the Mem0 retraction note, canonical mix 0.776048 versus legacy 0.766420, retracted native ENT 0.0000); the help page no longer describes the board as SEAM versus Mem0/Zep; the console meta description no longer implies live billing. The codex/current-interface-docs branch's wrong product expansion was corrected in place (Semantic -> Surface Encoded Agent Memory). The downloads-page advertised dmg/exe finding did not reproduce against main's source and is assessed as stale proxy content; live-vs-main deploy currency flagged for the owner. Org repository Canticle-AI-Research/.github PR #4 aligns the profile README with per-layer licensing (BUSL-1.1 runtime, PolyForm Shield Ghost, Apache-2.0 thin clients) and removes the open-source framing including the hero alt text. Seam repository settings applied directly: description set to the Surface Encoded Agent Memory identity with canticle.cc pointer, the 404-serving GitHub Pages configuration deleted, and both wiki stub pages replaced with pointers to the in-repo wiki home (the mis-titled Semantically Encoded page renamed to Surface Encoded). Deliberately unchanged: Lab Notes catalog.js 0.733 superlative (site protocol forbids in-place report edits; a new report would be required), Discussions enablement (operator decision), the published v2.4.0 release body (immutable artifact), and the repo pricing draft (explicit proposals). All six continuity gates pass; the audit report's operator-action section now carries a resolution-status note.
+---END-ENTRY-#657---
+
+---BEGIN-ENTRY-#658---
+id: 658
+date: 2026-10-03T03:09:45Z
+agent: codex
+status: changed
+topics: docs, correction, mirl, verify, continuity, wiki, website, tests, audit
+commits: pending
+refs: docs/TERMINOLOGY.md,tools/docs/verify_terminology.py,tests/audit/test_terminology_contract.py,docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/Canticle-AI-Research/Seam/pull/277,https://github.com/BlackhatShiftey/Cantlicle/pull/30,https://github.com/Canticle-AI-Research/.github/pull/4
+supersedes: 657
+tokens: 517
+---
+Corrected and independently re-verified the terminology and factual drift left by the documentation-audit series through HISTORY#657. Added `docs/TERMINOLOGY.md` as the naming authority while preserving `SEAM_SPEC_V0.1.md` and `docs/MIRL_V1.md` as the behavioral contracts. MIRL now expands consistently to Machine Intermediate Representation Language. The glossary distinguishes RAW/IR/PACK/LENS, RC/1/LX/1/HS/1, canonical SQLite from derived indexes/graphs/surfaces, Canticle Research from SEAM, and SEAM Suite, SEAM Client, `seam-client`, `seam-sdk`, and the Distributed Runtime.
+
+Added the bounded `tools.docs.verify_terminology` gate, invoked by `tools.docs.verify_wiki`, with focused audit coverage for competing SEAM/MIRL expansions and product-name collisions. A root-witnessed red-before-green cycle proved that the wiki gate initially admitted `Semantic Encoded Agent Memory` and then rejected it after the shared verifier change. The focused terminology plus wiki slice passed 54 tests; both verifier CLIs and whitespace checks passed. Independent Standards and Spec reviews found and then cleared the remaining database-selection, evidence-revision, install-mode, benchmark-provenance, and mock-panel labeling defects.
+
+Corrected active operator guidance so managed shims use global `--db` arguments instead of an overwritten `SEAM_DB_PATH`. Updated the documentation audit to identify exact inspected revisions and distinguish inspection-time working state from later PR, merge, or deployment state.
+
+Updated the existing external documentation PRs without merging or deploying them. Canticle site PR #30 advanced to `23d250ab286aba1ffb674ceaf0de2d2611afe19f`: broken curl-piped installers were removed; managed/default versus development environments and owning Python interpreters are explicit; benchmark mocks no longer impersonate tracked/hash-verified runs; Mem0, ENT, provenance, product, and BUSL claims now match their authorities. Organization-profile PR #4 advanced to `b9df6fd6301098d9eadb35ac96e6e206ca1bca28`: Canticle is described as an independent research organization with per-layer software licensing rather than one source-available software identity.
+
+The unrelated reports-pages worktree remains NOT_QUALIFIED because `tools/memory_formation_m1.py` lacks witnessed historical TDD. Its validated non-qualified attempt is preserved; this documentation correction does not weaken or resolve that condition.
+---END-ENTRY-#658---
+
+---BEGIN-ENTRY-#659---
+id: 659
+date: 2026-10-03T03:34:13Z
+agent: codex
+status: changed
+topics: ci, docs, correction, verify, tests, continuity
+commits: pending
+refs: tools/docs/verify_terminology.py,https://github.com/Canticle-AI-Research/Seam/pull/277
+supersedes: 658
+tokens: 166
+---
+Corrected the sole required-CI failure on the terminology-correction head from HISTORY#658. GitHub `repo-hygiene` reported Ruff I001 in `tools/docs/verify_terminology.py`; the import block now uses Ruff's canonical formatting with no runtime or terminology behavior change.
+
+The tracked Python set passes Ruff, the terminology and wiki audit slice passes 54 tests, and `git diff --check` passes. A literal local `ruff check .` also reported pre-existing findings only inside preserved untracked `.disposable/` and `.seam/orchestration/` operator artifacts; those paths are outside the tracked PR and were not modified. This entry supersedes the readiness state of HISTORY#658, not its semantic terminology evidence. The unrelated reports-pages worktree remains NOT_QUALIFIED.
+---END-ENTRY-#659---

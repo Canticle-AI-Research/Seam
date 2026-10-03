@@ -81,6 +81,27 @@ _ISO_DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _DANGEROUS_URI_SCHEMES = frozenset({"data", "javascript", "vbscript"})
 
 
+def _verify_terminology(root: Path) -> list[str]:
+    """Run the terminology contract for SEAM checkouts.
+
+    The wiki verifier is also exercised against deliberately minimal temporary
+    repositories. Those fixtures are not SEAM checkouts and need not copy every
+    sibling verifier. A real checkout is identified by its governing spec or
+    repository ledger and fails closed if the terminology verifier is absent.
+    """
+
+    checker = root / "tools/docs/verify_terminology.py"
+    if not checker.is_file():
+        seam_authorities = (root / "SEAM_SPEC_V0.1.md", root / "REPO_LEDGER.md")
+        if any(path.is_file() for path in seam_authorities):
+            return ["required terminology verifier is missing: tools/docs/verify_terminology.py"]
+        return []
+
+    from tools.docs.verify_terminology import verify as verify_terminology
+
+    return verify_terminology(root)
+
+
 @dataclass(frozen=True)
 class _AuditRow:
     report_date: date
@@ -671,6 +692,7 @@ def verify(repo_root: Path) -> list[str]:
         for path in missing
     )
     errors.extend(_verify_audit_registry(root))
+    errors.extend(_verify_terminology(root))
     return sorted(set(errors))
 
 

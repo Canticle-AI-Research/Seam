@@ -10,7 +10,7 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   container `seam-pgvector`; port **55432**; credentials stay outside the repo.
 - Docker Desktop is a user service (no system `docker.service`); start via
   `~/.local/bin/docker-up`; auto-stops after 30 min idle.
-- Self-hosted CI runner `seam-terrabyte` (systemd user service, docker wake hook)
+- Self-hosted CI runner (label `seam-box`; systemd user service, docker wake hook)
   runs all Seam Linux CI. pgvector CI port 55433. Windows leg is manual-only.
 - The protected-main required checks are `repo-hygiene`, `chroma-real-smoke`,
   and `locomo-quickstart-bil2`. The long `test-and-benchmark` suite runs after
@@ -52,11 +52,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Track S operating state
 
-- The HISTORY#634 baseline is protected `main@8834601`, containing D1-D4,
-  T1, G1, and R1. R2 remains before S8 freeze; use the current handoff and
-  `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` for execution details.
-  Historical D1-local qualification statements are superseded by the merged
-  source chain; this documentation pass does not rerun runtime qualification.
+- S8 mechanism work is complete: R2 exact backend parity qualified the S8
+  mechanisms and the protected S8 freeze landed through PR #254 at `2f9a96b9`
+  (HISTORY#641). S9 matched multi-benchmark qualification and S10
+  release/deployment proof remain open; use the current handoff for execution
+  details. Historical D1-local qualification statements are superseded by the
+  merged source chain; this documentation pass does not rerun runtime
+  qualification.
 - S1 routes real Uvicorn `--factory` startup through the same bind and worker
   safety validation as normal launch.
 - `tools.security.secret_scan` owns the canonical secret/session patterns.

@@ -3,6 +3,10 @@
 Practical runbook for interacting with SEAM, running tests, and validating the
 live stack.
 
+Names and representation boundaries are defined in the
+[SEAM terminology glossary](TERMINOLOGY.md); runtime behavior remains governed
+by the [SEAM specification](../SEAM_SPEC_V0.1.md) and [MIRL v1](MIRL_V1.md).
+
 **Platform guides**
 
 - **macOS** — [MACOS.md](MACOS.md) (install, Application Support layout, MCP, troubleshooting)
@@ -38,7 +42,11 @@ where they differ.
 | macOS | `~/Library/Application Support/SEAM/state/seam.db` |
 | Linux / WSL2 | `~/.local/share/seam/state/seam.db` |
 
-Override any time with `SEAM_DB_PATH` in the shell or MCP client env.
+Managed command shims set `SEAM_DB_PATH` to the per-platform persistent default
+on every invocation. Override a shimmed command with the CLI option, for
+example `seam --db /path/to/custom/seam.db stats`. Use `SEAM_DB_PATH` only for
+direct runtime entry points or MCP client processes that do not launch through
+the managed shim.
 
 ## 3. Environment setup
 
@@ -47,19 +55,19 @@ Override any time with `SEAM_DB_PATH` in the shell or MCP client env.
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 Repo-local development bootstrap:
@@ -104,8 +112,9 @@ seam --db seam_validate.db stats
 
 ### Live cloud + pgvector path
 
-Credentials stay in a private env file outside the repo (for example
-`~/.config/seam/.env` on macOS / Linux).
+Credentials stay in a private env file outside the repo. For Docker Compose
+values use a dedicated env file (for example `~/.config/seam/.env`); the
+runtime's own managed settings/credentials file is `~/.config/seam/seam.env`.
 
 Windows PowerShell:
 
@@ -136,13 +145,13 @@ seam --db seam_validate.db stats
 Windows PowerShell:
 
 ```powershell
-docker compose --env-file <path-to-private-env> up -d seam-pgvector
+docker compose --env-file <path-to-private-env> up -d pgvector
 ```
 
 macOS / Linux bash:
 
 ```bash
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 ```
 
 Image: `pgvector/pgvector:0.8.6-pg18-trixie` | Container: `seam-pgvector` | Port: `55432`
@@ -277,13 +286,16 @@ seam webui --host 127.0.0.1 --port 8765
 
 ```bash
 seam mcp stdio
-# or, with pgvector auto-start when Docker is available:
-seam-mcp --ensure-pgvector
+# or, with pgvector auto-start when Docker is available (the `seam-mcp`
+# console script lives in the runtime venv, not in `~/.local/bin/`):
+"$HOME/Library/Application Support/SEAM/runtime/bin/seam-mcp" --ensure-pgvector
 ```
 
-On macOS, global shims live in `~/.local/bin/`. Point your MCP client at
-`seam-mcp` and set `SEAM_DB_PATH` if you use a non-default database. See
-[MACOS.md](MACOS.md) for a sample client config.
+On macOS, global shims live in `~/.local/bin/` (`seam`, `seam-benchmark`,
+`seam-dash`). Point your MCP client at the `seam` shim with default args
+`["mcp", "stdio"]`. For a custom database, use
+`["--db", "/path/to/custom/seam.db", "mcp", "stdio"]`. The executable JSON is
+centralized in the [macOS MCP example](MACOS.md#mcp-cursor-claude-desktop-other-mcp-clients).
 
 ## 6. Testing SEAM
 

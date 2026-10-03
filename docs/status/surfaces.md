@@ -151,9 +151,12 @@ This direction does not change the implementation evidence below.
   leaking tenant, MIRL, policy, or graph internals through `/v1`.
 - S7 is published through PR #226 at protected `main@3385343` with admissible
   semantic ingest, temporal/scoped identity contracts, and exact retrieved-ENT
-  evidence. The current core handoff places R2 before S8 freeze.
-- Track S S8 must prove every shipped surface returns the same retrieval IDs and
-  order as direct `SeamRuntime.retrieve()` under the same request.
+  evidence.
+- S8 is frozen on protected main through PR #254 at `2f9a96b9` after R2 exact
+  backend parity: every shipped surface reaches the single retrieval engine,
+  and REST/SDK/MCP/TUI candidate parity with direct `retrieve()` under the
+  same policy is a published S8 mechanism exit. S9 qualification and S10
+  release/deployment proof remain open.
 - Turn the SEAM CLI into a first-class agent CLI (model routing, tool execution,
   repo/context awareness, command history, guardrails) on top of SEAM memory.
 - Agent Compiler workstream from `docs/roadmap/AGENT_COMPILER.md`: compile canonical

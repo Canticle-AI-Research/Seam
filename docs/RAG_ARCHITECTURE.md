@@ -81,6 +81,9 @@ these SEAM tools:
 - `seam_index_status`
 - `seam_retrieve`
 - `seam_benchmark_latest`
+- `seam_knowledge_graph`
+- `seam_knowledge_node`
+- `seam_identity_merges`
 
 The MCP server is intentionally thin: it adapts MCP `initialize`, `tools/list`,
 and `tools/call` to the existing SEAM runtime dispatcher. The older

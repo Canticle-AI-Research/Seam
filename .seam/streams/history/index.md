@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 652
-total_tokens: ~332685
-latest_id: 652
+total_entries: 659
+total_tokens: ~335572
+latest_id: 659
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,13 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 659 | 2026-10-03 | changed | 36ce3cfd8fa0bedf | ci,docs,correction,verify,+ | 658 |
+| 658 | 2026-10-03 | changed | e7d5a27939d21dfb | docs,correction,mirl,verify,+ | 657 |
+| 657 | 2026-10-02 | done | 34d592863e643337 | docs,website,security,verify,+ | none |
+| 656 | 2026-10-02 | done | e4636270d7e26697 | docs,website,verify,correction | none |
+| 655 | 2026-10-02 | done | 57cc6c0b37ced2ad | docs,readme,correction | none |
+| 654 | 2026-10-02 | done | 05fefc7a77353b3f | docs,correction,continuity | none |
+| 653 | 2026-10-02 | done | c426be53747d8096 | docs,audit,verify,correction,+ | none |
 | 652 | 2026-09-30 | done | 8162e73df5517f61 | handoff,continuity,verify,status,+ | 651 |
 | 651 | 2026-09-30 | done | 1fdf208ae016de12 | handoff,continuity,verify,status,+ | 650 |
 | 650 | 2026-09-29 | done | 79f0dbf9608567b8 | ci,gates,config,security,+ | 649 |
@@ -683,7 +690,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=15 latest=#623, #622, #621, #620, #619
-- audit: count=129 latest=#641, #632, #597, #596, #595
+- audit: count=131 latest=#658, #653, #641, #632, #597
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -706,7 +713,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=77 latest=#652, #651, #650, #649, #648
+- ci: count=78 latest=#659, #652, #651, #650, #649
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -729,12 +736,12 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=96 latest=#652, #651, #650, #649, #648
+- continuity: count=100 latest=#659, #658, #654, #653, #652
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=25 latest=#639, #638, #632, #631, #630
+- correction: count=32 latest=#659, #658, #657, #656, #655
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -759,7 +766,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=99 latest=#647, #646, #643, #642, #641
+- docs: count=106 latest=#659, #658, #657, #656, #655
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -852,7 +859,7 @@ compact: true
 - merge: count=5 latest=#405, #388, #383, #359, #301
 - metrics: count=2 latest=#307, #305
 - migration: count=3 latest=#606, #575, #574
-- mirl: count=39 latest=#602, #601, #599, #530, #510
+- mirl: count=40 latest=#658, #602, #601, #599, #530
 - mirror-sync: count=2 latest=#360, #359
 - model-selection: count=1 latest=#368
 - models: count=4 latest=#646, #450, #403, #182
@@ -914,7 +921,7 @@ compact: true
 - rank: count=15 latest=#640, #638, #629, #521, #504
 - ratchet: count=1 latest=#291
 - read-order: count=1 latest=#304
-- readme: count=25 latest=#353, #352, #347, #346, #345
+- readme: count=26 latest=#655, #353, #352, #347, #346
 - reasoning: count=10 latest=#609, #608, #499, #498, #497
 - recall: count=2 latest=#320, #317
 - reconcile: count=8 latest=#645, #626, #602, #570, #569
@@ -947,7 +954,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=115 latest=#652, #650, #649, #644, #635
+- security: count=116 latest=#657, #652, #650, #649, #644
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -982,7 +989,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=86 latest=#652, #650, #649, #648, #647
+- tests: count=88 latest=#659, #658, #652, #650, #649
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -998,11 +1005,12 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=457 latest=#652, #651, #650, #649, #648
+- verify: count=462 latest=#659, #658, #657, #656, #653
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
+- website: count=3 latest=#658, #657, #656
 - webui: count=13 latest=#571, #545, #544, #543, #404
-- wiki: count=2 latest=#557, #556
+- wiki: count=3 latest=#658, #557, #556
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
@@ -1014,8 +1022,8 @@ compact: true
 
 ## status rollup
 
-- roots: 86
-- changed: 70
-- done: 540
+- roots: 91
+- changed: 72
+- done: 545
 - in-progress: 20
 - planned: 22

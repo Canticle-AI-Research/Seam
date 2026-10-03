@@ -5,6 +5,20 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-02 — documentation drift audit corrected the active docs.** A
+whole-surface audit (repo docs, GitHub-facing surfaces, canticle.cc) fixed
+stale Track S state in the ledger and status streams ("S8 is next" → frozen
+via PR #254 at `2f9a96b9`), the falsified HISTORY#503 retrieval premise still
+quoted as a stable decision, dead legacy repository coordinates, and wrong
+install/clone/compose/DSN instructions across the operator guides. The frozen
+`BlackhatShiftey/Seam_Runtime` coordinate no longer resolves publicly;
+provenance anchors are the dangling frozen head and
+`LICENSES/Apache-2.0.txt`. Website license/benchmarks/downloads drift and
+GitHub wiki/Pages settings need owner action — see
+[the 2026-10-02 audit](docs/audits/2026-10-02-documentation-drift-audit.md).
+A duplication map (14 clusters) is recorded there as the pointer-card
+refactor backlog. The closeout chronology entry is `HISTORY#653`.
+
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
 roughly $50 is on Claude.ai, not the API Console. The explicit
 [`claude-code` answerer/judge](docs/CLAUDE_CODE_BENCHMARKS.md) uses the

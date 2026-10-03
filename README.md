@@ -9,6 +9,8 @@ before they are treated as real progress.
 
 > **Documentation:** Start at the [SEAM Wiki](docs/README.md) for task-first
 > routes into operator guides, architecture, current state, evidence, and plans.
+> Use the [canonical terminology glossary](docs/TERMINOLOGY.md) for representation,
+> graph, product, package, and licensed-subset names.
 
 The launch product family is **SEAM Suite** (`seam-suite`, self-hosted TUI,
 benchmark glassbox, and browser graph dashboard), **SEAM Client** (the paid
@@ -21,16 +23,47 @@ and [current packaging constraints](docs/status/packaging-licensing.md).
 
 ## Install
 
-The `seam-suite` rename is a **2.4.1rc1 candidate**. TestPyPI is the first
-registry target; production PyPI is unchanged. Public upload remains blocked
-until exact artifact membership is reviewed and TestPyPI publishing access is
-configured. See the [TestPyPI-first procedure](docs/TESTPYPI.md).
+**Requirements:** Python 3.11+, Git, and the GitHub CLI (`gh`) for the clone
+flows; Docker is optional (only for the pgvector backend). Supported platforms:
+macOS 12+, Windows 10/11, and Linux/WSL2.
 
-Use a fresh virtual environment: old `seam-runtime` and `seam-self-host`
-distributions can own the same imports and commands. This is not an in-place
-`pip install --upgrade` migration.
+**Package name map.** The PyPI package `seam` is an unrelated SDK — never
+install it for SEAM. `seam-runtime` (1.3.1, yanked) and `seam-self-host`
+(retired) are legacy artifacts that can own the same imports and commands in a
+shared environment, so use a fresh virtual environment; this is not an
+in-place `pip install --upgrade` migration. The current root package is the
+`seam-suite` **2.4.1rc1 candidate** (`Private :: Do Not Upload`): TestPyPI is
+the first registry target and no public PyPI runtime artifact exists yet —
+see the [TestPyPI-first procedure](docs/TESTPYPI.md). The public Python
+client is the separate Apache-2.0 `seam-client`.
 
-From a checkout containing this candidate, source-development install for
+**Operator install** — clone the canonical repository and run the platform
+installer. This creates a managed runtime, `seam` / `seam-benchmark` /
+`seam-dash` shims, and a persistent SQLite database, and runs `seam doctor`
+at the end:
+
+Windows PowerShell:
+
+```powershell
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+```
+
+macOS:
+
+```bash
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+```
+
+Linux / WSL2:
+
+```bash
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+```
+
+Add `--dev` to any of these for the repo-local development bootstrap (repo
+`.venv`, dev dependencies, protocol verification).
+
+**Contributor install** — from a checkout containing this candidate, for
 contributors authorized by the Project Owner, subject to the existing license
 terms:
 
@@ -44,11 +77,9 @@ Install with REST API and dashboard extras:
 python -m pip install ".[server,dash]"
 ```
 
-Use a reviewed commit or release tag for a reproducible checkout; the naming
-candidate is not on `main` until its PR merges. Public repository visibility does not change the
-[license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
-operator setup path for repo-local development, persistent state setup, and
-platform shims.
+Use a reviewed commit or release tag for a reproducible checkout. Public
+repository visibility does not change the [license terms](LICENSE) or qualify
+an artifact for PyPI.
 
 ## Public agent SDK
 
@@ -100,33 +131,10 @@ selected and rejected record IDs, evidence fingerprints, scores, controlled
 reason codes, and latency. It makes no provider call by default and does not
 copy record payloads into the reasoning graph.
 
-The installer flows below are for authorized source-development use under
-[LICENSE](LICENSE). They use the GitHub CLI with the canonical repository;
-public visibility does not replace the required use authorization.
-
-Windows PowerShell:
-
-```powershell
-gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
-```
-
-macOS:
-
-```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
-```
-
-Linux / WSL2:
-
-```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
-```
-
-Repo-local Linux development bootstrap:
-
-```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
-```
+The platform installer commands live in [Install](#install). They are for
+authorized source-development use under [LICENSE](LICENSE), use the GitHub CLI
+with the canonical repository, and public visibility does not replace the
+required use authorization.
 
 ## Agent Setup Prompt
 
@@ -147,10 +155,9 @@ Rules:
 - Do not ingest secrets, `.env` files, credential files, private keys, provider
   session links, ignored local artifacts, or private chat/share links.
 - API keys and local environment files are operator-owned. Export server/WebUI
-  variables in their launch environment. The TUI can additionally read
-  `~/.config/seam/seam.env` (mode 0600); the server does not load that file
-  automatically. Do not enter credentials in the prototype WebUI; its browser
-  storage is not an approved secret store.
+  variables in their launch environment; the TUI-only
+  `~/.config/seam/seam.env` contract is described in the Web UI section below.
+  Do not enter credentials in the prototype WebUI (that section explains why).
 - Prefer project installers and documented commands over ad hoc setup.
 - Do not install `bench-judge`, `bench-mem0`, or `bench-zep` unless the operator
   explicitly approves provider/API-key benchmark dependencies.
@@ -170,11 +177,10 @@ Steps:
    `seam doctor`
 5. Ask the operator to set any needed provider keys and local config before
    enabling paid/provider-backed features. Export the variables in the current
-   shell. For the TUI, `~/.config/seam/seam.env` with mode 0600 is also
-   supported. The server and WebUI do not load it: if the operator chooses to
-   use that shell-safe file, source it explicitly with
-   `set -a; . ~/.config/seam/seam.env; set +a` before launch. Never commit or
-   ingest the file. Do not use the prototype WebUI Settings panel for secrets.
+   shell. To reuse the shell-safe TUI file for a server process, source it
+   explicitly before launch (command shown in the Web UI section below).
+   Never commit or ingest the file. Do not use the prototype WebUI Settings
+   panel for secrets.
 6. Re-run:
    `seam doctor`
 7. Ingest safe repo context as persistent memory:
@@ -258,7 +264,7 @@ seam webui --host 127.0.0.1 --port 8765
 - Persistent local memory: SQLite is the canonical source of truth.
 - Efficient RAG: `vector`, `graph`, `hybrid`, and `mix` retrieval modes.
 - Progressive disclosure: `seam memory search` gives compact IDs first; `seam memory get <ids>` fetches full records only when needed.
-- Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Gemini's project config starts it with `--ensure-pgvector` so Docker Compose pgvector is ready before MCP tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
+- Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Pass `--ensure-pgvector` when you want the MCP server to start the Docker Compose pgvector service before tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
 - Provenance: records keep refs, evidence, trace edges, and source document status.
 - Benchmark discipline: benchmark bundles are hash-verified, diffed, gated, and separated from holdout publication runs.
 - Operator surface: CLI, Textual dashboard, REST API, and installer shims use
@@ -419,15 +425,19 @@ Set `SEAM_API_TOKEN` to require `Authorization: Bearer <local-token>` for
 protected endpoints. This token-only mode is a trusted single-user gate, not a
 multi-tenant identity boundary.
 
-Protected `main@a177852` exposes the public SDK boundary at `/v1/health`,
-`/v1/memories`, `/v1/memories/recall`, and `/v1/context`. The unpublished Track
-S S6 candidate adds optional in-process principal resolution and
+### Public /v1 boundary and hosted SDK
+
+The public SDK boundary is `/v1/health`, `/v1/memories`,
+`/v1/memories/recall`, and `/v1/context`. Published Track S S6 adds optional
+in-process principal resolution and `POST /v1/memories/correct` plus
 `POST /v1/memories/delete`: principal mode derives internal tenancy from the
 resolved subject, disables legacy private data routes, applies a bounded
 process-local limiter by default, and resolves generation-bound indexed opaque
-handles only inside that boundary. Its local runtime lanes, review, and closeout
-gates are green, but signed publication, exact-head CI, and merge remain; do not
-treat the candidate as installed or hosted-deployment behavior yet.
+handles only inside that boundary. The opaque agent-turn lifecycle
+(`/v1/agent/turns/{begin,actions,complete,fail}`) and deliberate
+`admit`/`reject`/`review` memory governance are also published protected-main
+source (PRs #223, #231, #233). These are source-publication facts, not
+hosted-deployment claims; see the [surfaces stream](docs/status/surfaces.md).
 
 ## Benchmark Glassbox
 
@@ -480,7 +490,7 @@ benchmark bundle supports that exact claim.
 The product entrypoint is simple: install SEAM, persist memory, retrieve
 context. Under that surface, SEAM is still machine-first:
 
-- `MIRL`: canonical memory IR
+- `MIRL`: Machine Intermediate Representation Language, SEAM's canonical memory IR
 - `PACK`: prompt-time context view
 - `SEAM-LX/1`: exact machine-text envelope for lossless workflows
 - `SEAM-RC/1`: directly readable compressed machine language
@@ -591,8 +601,10 @@ and reserved materials. Repository access does not grant a right to copy,
 publish, distribute, implement, host, commercialize, train on, or use that
 material in another project.
 
-Exact versions previously published at
-<https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 retain that
+Exact versions previously published at the legacy public repository
+(`BlackhatShiftey/Seam_Runtime` — that coordinate no longer resolves publicly
+as of 2026-10-02; the frozen head `0f4b40a` and `LICENSES/Apache-2.0.txt` are
+the provenance record) under Apache-2.0 retain that
 license. The legacy grant is not revoked, but it does not apply automatically
 to later private versions, unpublished changes, or new MIRL or HS/1 material.
 The private-to-public mirror tooling was removed. The new Suite distribution

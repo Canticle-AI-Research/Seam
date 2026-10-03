@@ -10,7 +10,7 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - SEAM-HS/1 Holographic Surface PNG snapshots: source-to-MIRL surface compile,
   direct MIRL/RC query, verify, decode, context, import.
 - Surface commands: `seam surface compile|encode|decode|verify|query|search|context|import`
-  with `bw1`, `rgb`/`rgb24`, explicit `rgba32` codecs.
+  with `bw1`, `rgb`/`rgb24`, explicit `rgba32`/`rgba64` codecs.
 - Surface library: `seam surface store|list|show|repair`, `compile --store`,
   `encode --store`, stable `hs:<hash>` IDs, redundant file-backed copies.
 

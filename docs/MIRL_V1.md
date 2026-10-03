@@ -1,6 +1,9 @@
 # MIRL v1 Freeze
 
-MIRL is the canonical memory IR inside SEAM.
+MIRL expands to **Machine Intermediate Representation Language**. It is the
+canonical memory IR inside SEAM. Naming is centralized in the
+[SEAM terminology glossary](TERMINOLOGY.md); this document remains the format
+and readable-lossless behavior contract.
 
 ## Readable Lossless Compression Contract
 

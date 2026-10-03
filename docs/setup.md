@@ -9,31 +9,31 @@ Requires `gh auth login` first.
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 macOS repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 Full macOS guide: [docs/MACOS.md](MACOS.md)
@@ -51,7 +51,7 @@ seam dashboard --snapshot --no-clear
 Windows PowerShell:
 
 ```powershell
-cd C:\Users\iwana\OneDrive\Documents\Codex
+cd C:\path\to\Seam
 python -m venv .venv
 .\.venv\Scripts\python.exe -m pip install --upgrade pip
 .\.venv\Scripts\python.exe -m pip install -r requirements.txt
@@ -75,8 +75,8 @@ sh ./installers/install_seam_linux.sh --dev
 ```
 
 The Linux development bootstrap installs Python dependencies only. It does not
-install Node dependencies or build the `webui/` dev project; the runtime serves
-the dashboard (`seam serve` / `seam webui`) directly with no build step.
+install Node dependencies; the runtime serves the dashboard (`seam serve` /
+`seam webui`) directly with no build step.
 
 If Debian/Ubuntu says `venv` is missing:
 

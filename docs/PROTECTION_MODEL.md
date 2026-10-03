@@ -68,9 +68,11 @@ Consequences for the controls below:
 
 ## Legacy Apache boundary
 
-The public repository at
-`https://github.com/BlackhatShiftey/Seam_Runtime` is a legacy Apache-2.0
-release. Its `main` head at the licensing freeze was:
+The legacy repository
+`BlackhatShiftey/Seam_Runtime` is a legacy Apache-2.0
+release (that coordinate no longer resolves publicly as of 2026-10-02; the
+frozen head below and `LICENSES/Apache-2.0.txt` are the provenance record).
+Its `main` head at the licensing freeze was:
 
 `0f4b40aab7fda643ce776e597f0b430faa465ca8`
 
@@ -91,11 +93,12 @@ Similarity of name, ancestry, interface, or purpose is not a new license grant.
 
 ## Frozen mirror control
 
-The old private-to-public synchronization path is disabled:
+The old private-to-public synchronization path is removed, not merely disabled:
+`sync_public_mirror.py` was deleted with the rest of the split tooling. The
+retained controls are:
 
 - `tools/release/public_manifest.py` has no private synced paths and classifies
   obvious MIRL and HS/1 implementation surfaces as reserved;
-- `tools/release/sync_public_mirror.py` fails closed for dry-run and push modes;
 - `tools/release/verify_public_safe.py` blocks MIRL and HS/1 Reserved Materials and all
   private-by-default paths; and
 - `tools/git-hooks/pre-push` refuses every push to the legacy
@@ -107,8 +110,9 @@ history and they must not be bypassed.
 ## Approved public SDK artifact
 
 The operator-approved public integration surface is the independently authored
-Apache-2.0 `seam-client` package under
-`BlackhatShiftey/Seam_Runtime/sdk`. It is not produced by reactivating or
+Apache-2.0 `seam-client` package (originally under
+`BlackhatShiftey/Seam_Runtime/sdk`, a coordinate that no longer resolves
+publicly as of 2026-10-02; live releases remain on PyPI). It is not produced by reactivating or
 filtering the private mirror.
 
 The artifact is limited to:

@@ -2,20 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 718
+total_events: 725
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-22T13:59:43Z | history:459:a7cf1232 | session-event | done | graph, identity, resolution, measurement, tooling, protoc... | docs/kb/seam-internals/lever-graveyard.md |
-| 2026-07-22T14:59:22Z | history:460:f3d5ac63 | session-event | done | graph, bugfix, verify, history, continuity, retrieval, pa... | seam_runtime/identity_resolution.py,seam_runtime/cli.py,seam_runtime/pack.py,... |
-| 2026-07-22T15:21:34Z | history:461:d0e59411 | session-event | done | graph, memory, agent, protocol, storage, workspace, atomi... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,s... |
-| 2026-07-22T16:50:30Z | history:462:2b05af6b | session-event | done | graph, retrieval, memory, agent, verify, vector | docs/REASONING_GRAPH.md,docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/handoffs/2... |
-| 2026-07-23T02:46:46Z | history:463:3c16da17 | session-event | done | vector, retrieval, memory, verify | docs/RAG_ARCHITECTURE.md,tests/audit/test_pgvector_boundary_resync.py |
-| 2026-07-23T08:59:28Z | history:464:5d53be0e | session-event | done | vector, retrieval, bugfix, verify, test | seam_runtime/runtime.py,tests/audit/test_pgvector_boundary_resync.py,docs/RAG... |
-| 2026-07-23T09:34:00Z | history:465:f120ba7d | session-event | done | vector, retrieval, memory, verify, test | seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval... |
 | 2026-07-23T16:42:06Z | history:466:dfaafd98 | session-event | done | graph, memory, agent, verify, test, provenance, atomicity... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,t... |
 | 2026-07-24T00:00:00Z | roadmap:061:c6b5382b | status-change | bootstrap | packaging, release, distribution | ROADMAP.md:1668 |
 | 2026-07-24T10:21:50Z | history:467:9e9791e2 | session-event | changed | security, mirl, surface, pyproject, ci, docs, verify, han... | LICENSE,LICENSES/Apache-2.0.txt,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,... |
@@ -209,10 +202,17 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-09-29T11:35:33Z | history:650:79f0dbf9 | session-event | done | ci, gates, config, security, tests, verify, continuity, h... | tools/git/verify_agent_config.py,tests/audit/test_claude_memory_pin.py,tests/... |
 | 2026-09-30T02:01:49Z | history:651:1fdf208a | session-event | done | handoff, continuity, verify, status, ci, config | docs/handoffs/2026-09-29-agent-config-required-gate-audit-next.md,docs/handof... |
 | 2026-09-30T17:39:47Z | history:652:8162e73d | session-event | done | handoff, continuity, verify, status, ci, config, gates, w... | docs/handoffs/2026-09-30-agent-config-gates-landed-next.md,docs/handoffs/INDE... |
+| 2026-10-02T12:25:12Z | history:653:c426be53 | session-event | done | docs, audit, verify, correction, continuity | docs/audits/2026-10-02-documentation-drift-audit.md,docs/handoffs/2026-09-30-... |
+| 2026-10-02T12:32:13Z | history:654:05fefc7a | session-event | done | docs, correction, continuity | docs/audits/2026-10-02-documentation-drift-audit.md |
+| 2026-10-02T12:41:51Z | history:655:57cc6c0b | session-event | done | docs, readme, correction | docs/audits/2026-10-02-documentation-drift-audit.md,docs/TESTPYPI.md,docs/PRO... |
+| 2026-10-02T12:55:17Z | history:656:e4636270 | session-event | done | docs, website, verify, correction | docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/Blackh... |
+| 2026-10-02T13:29:22Z | history:657:34d59286 | session-event | done | docs, website, security, verify, correction | docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/Blackh... |
+| 2026-10-03T03:09:45Z | history:658:e7d5a279 | session-event | changed | docs, correction, mirl, verify, continuity, wiki, website... | docs/TERMINOLOGY.md,tools/docs/verify_terminology.py,tests/audit/test_termino... |
+| 2026-10-03T03:34:13Z | history:659:36ce3cfd | session-event | changed | ci, docs, correction, verify, tests, continuity | tools/docs/verify_terminology.py,https://github.com/Canticle-AI-Research/Seam... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0518.cross.md | 2026-04-15T00:00:00Z..2026-07-22T11:15:01Z | 518 | (multi) | (multi) |
+| 0001-0525.cross.md | 2026-04-15T00:00:00Z..2026-07-23T09:34:00Z | 525 | (multi) | (multi) |
