@@ -1,5 +1,10 @@
 # SEAM Holographic Surface
 
+See the [SEAM terminology glossary](TERMINOLOGY.md) for the distinction among
+MIRL, RC/1, LX/1, HS/1, and canonical versus derived data. The governing
+behavior remains defined by the [SEAM specification](../SEAM_SPEC_V0.1.md) and
+[MIRL v1 contract](MIRL_V1.md).
+
 `SEAM-HS/1` is the first Holographic Surface format for SEAM. It stores
 machine-language payload bytes inside lossless PNG pixel data so SEAM can read
 and query a portable memory snapshot without OCR, natural-language recompilation,

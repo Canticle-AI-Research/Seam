@@ -9,6 +9,8 @@ before they are treated as real progress.
 
 > **Documentation:** Start at the [SEAM Wiki](docs/README.md) for task-first
 > routes into operator guides, architecture, current state, evidence, and plans.
+> Use the [canonical terminology glossary](docs/TERMINOLOGY.md) for representation,
+> graph, product, package, and licensed-subset names.
 
 The launch product family is **SEAM Suite** (`seam-suite`, self-hosted TUI,
 benchmark glassbox, and browser graph dashboard), **SEAM Client** (the paid
@@ -488,7 +490,7 @@ benchmark bundle supports that exact claim.
 The product entrypoint is simple: install SEAM, persist memory, retrieve
 context. Under that surface, SEAM is still machine-first:
 
-- `MIRL`: canonical memory IR
+- `MIRL`: Machine Intermediate Representation Language, SEAM's canonical memory IR
 - `PACK`: prompt-time context view
 - `SEAM-LX/1`: exact machine-text envelope for lossless workflows
 - `SEAM-RC/1`: directly readable compressed machine language

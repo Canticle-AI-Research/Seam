@@ -12,7 +12,7 @@ coverage, open the [documentation map](DOCUMENTATION_MAP.md).
 | I want to... | Start here | Then use |
 | --- | --- | --- |
 | Organize the launch | [Product map](PRODUCTS.md) | [Launch plan](roadmap/SEAM_LAUNCH.md), [packaging migration](status/packaging-licensing.md), and [current handoff](handoffs/INDEX.md) |
-| Understand what SEAM is | [SEAM governing specification](../SEAM_SPEC_V0.1.md) | [MIRL v1 contract](MIRL_V1.md) and [engineering architecture](engineering/01_ARCHITECTURE.md) |
+| Understand what SEAM is | [SEAM governing specification](../SEAM_SPEC_V0.1.md) | [Terminology glossary](TERMINOLOGY.md), [MIRL v1 contract](MIRL_V1.md), and [engineering architecture](engineering/01_ARCHITECTURE.md) |
 | Install and use SEAM | [Operator guide](SEAM_OPERATOR_GUIDE.md) | [Setup](setup.md), [how-to runbooks](howto/README.md), and [troubleshooting](errors.md) |
 | Understand the architecture | [Engineering manual](engineering/README.md) | [RAG architecture](RAG_ARCHITECTURE.md), [knowledge graph](KNOWLEDGE_GRAPH.md), and [reasoning graph](REASONING_GRAPH.md) |
 | Continue or resume a SEAM initiative with Codex | [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) | [Codex agent orchestration mechanics](SOP_AGENT_ORCHESTRATION.md), [engineering change SOP](engineering/06_ENGINEERING_CHANGE_SOP.md), and [current handoff](handoffs/INDEX.md) |
@@ -58,6 +58,8 @@ without promoting a weaker source into a stronger claim:
 
 - [Complete documentation map](DOCUMENTATION_MAP.md) — progressive-disclosure
   inventory of every active Markdown page under `docs/`.
+- [Terminology glossary](TERMINOLOGY.md) — canonical representation, graph,
+  product, package, and licensed-subset names.
 - [Standard operating procedures](SOP_INDEX.md) — operator procedures and
   bounded execution packets, with historical material marked.
 - [Engineering manual](engineering/README.md) — architecture, change control,

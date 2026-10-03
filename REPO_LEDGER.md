@@ -16,7 +16,10 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
 - Active execution direction: root `ROADMAP.md` registers `roadmap:track:MemoryFormation`; `docs/roadmap/MEMORY_FORMATION.md` is its detailed specification, request register, dependency graph and current ready set (HISTORY#645). When the operator asks what is next, consult that specification and the current handoff, verify live completion evidence, and choose the earliest unblocked slice. Preserve the opening formation priorities; BIL-3, provider setup and report routing can proceed in independent scopes. Plans do not supersede the governing SEAM/MIRL contracts or establish implementation evidence.
-- `MIRL`: canonical memory IR
+- `MIRL`: Machine Intermediate Representation Language, SEAM's canonical memory IR
+- Canonical SEAM names and product/package boundaries live in
+  `docs/TERMINOLOGY.md`. It is normative for terminology only; the governing
+  SEAM and MIRL contracts remain normative for behavior.
 - Benchmark funding correction (HISTORY#646): use the explicit `claude-code`
   transport for the operator's funded Claude.ai account; `claude` remains the
   separately billed API route. Never substitute an inherited API key or copy

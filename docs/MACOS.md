@@ -116,12 +116,16 @@ served directly by `seam serve` / `seam webui` with no build step.
 | `~/.config/seam/seam.env` | Runtime-managed settings/credentials file (mode 0600, never commit) |
 | `~/.config/seam/.env` | Docker Compose env file for the optional pgvector service (never commit) |
 
-Override the database path any time:
+The managed shims set `SEAM_DB_PATH` on every invocation, so an exported shell
+value does not override their persistent default. Select another database with
+the CLI `--db` option:
 
 ```bash
-export SEAM_DB_PATH="$HOME/path/to/custom/seam.db"
-seam doctor
+seam --db "$HOME/path/to/custom/seam.db" doctor
 ```
+
+`SEAM_DB_PATH` remains useful when launching the runtime entry point directly
+or configuring an MCP client process that does not go through a managed shim.
 
 ## PATH and shell profiles
 
@@ -256,19 +260,26 @@ script lives in the runtime venv, not in `~/.local/bin/`):
 "$HOME/Library/Application Support/SEAM/runtime/bin/seam-mcp" --ensure-pgvector
 ```
 
-Typical Claude Desktop / Cursor MCP config uses a command like:
+Typical Claude Desktop / Cursor MCP config uses the managed shim and its
+default database with args `["mcp", "stdio"]`:
 
 ```json
 {
   "command": "/Users/<you>/.local/bin/seam",
-  "args": ["mcp", "stdio"],
-  "env": {
-    "SEAM_DB_PATH": "/Users/<you>/Library/Application Support/SEAM/state/seam.db"
-  }
+  "args": ["mcp", "stdio"]
 }
 ```
 
-Adjust paths if you use a custom `SEAM_DB_PATH` or a venv entrypoint
+For a custom database, pass global CLI `--db` arguments before the subcommand:
+
+```json
+{
+  "command": "/Users/<you>/.local/bin/seam",
+  "args": ["--db", "/Users/<you>/path/to/custom/seam.db", "mcp", "stdio"]
+}
+```
+
+Adjust the command path if you use a venv entrypoint
 (`./.venv/bin/seam-mcp --ensure-pgvector`).
 
 ## Fresh clone resume (developers)

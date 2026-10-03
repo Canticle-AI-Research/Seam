@@ -3,6 +3,10 @@
 Practical runbook for interacting with SEAM, running tests, and validating the
 live stack.
 
+Names and representation boundaries are defined in the
+[SEAM terminology glossary](TERMINOLOGY.md); runtime behavior remains governed
+by the [SEAM specification](../SEAM_SPEC_V0.1.md) and [MIRL v1](MIRL_V1.md).
+
 **Platform guides**
 
 - **macOS** — [MACOS.md](MACOS.md) (install, Application Support layout, MCP, troubleshooting)
@@ -38,7 +42,11 @@ where they differ.
 | macOS | `~/Library/Application Support/SEAM/state/seam.db` |
 | Linux / WSL2 | `~/.local/share/seam/state/seam.db` |
 
-Override any time with `SEAM_DB_PATH` in the shell or MCP client env.
+Managed command shims set `SEAM_DB_PATH` to the per-platform persistent default
+on every invocation. Override a shimmed command with the CLI option, for
+example `seam --db /path/to/custom/seam.db stats`. Use `SEAM_DB_PATH` only for
+direct runtime entry points or MCP client processes that do not launch through
+the managed shim.
 
 ## 3. Environment setup
 
@@ -284,9 +292,10 @@ seam mcp stdio
 ```
 
 On macOS, global shims live in `~/.local/bin/` (`seam`, `seam-benchmark`,
-`seam-dash`). Point your MCP client at the `seam` shim with args
-`["mcp", "stdio"]` and set `SEAM_DB_PATH` if you use a non-default database.
-See [MACOS.md](MACOS.md) for a sample client config.
+`seam-dash`). Point your MCP client at the `seam` shim with default args
+`["mcp", "stdio"]`. For a custom database, use
+`["--db", "/path/to/custom/seam.db", "mcp", "stdio"]`. The executable JSON is
+centralized in the [macOS MCP example](MACOS.md#mcp-cursor-claude-desktop-other-mcp-clients).
 
 ## 6. Testing SEAM
 

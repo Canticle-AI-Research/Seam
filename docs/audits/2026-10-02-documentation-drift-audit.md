@@ -14,12 +14,27 @@ records (`HISTORY.md`, handoffs, audits, archives, ledgers, DeepSeek-era task
 packets) are records and were never "corrected"; a superseded handoff is never
 current truth; the `latest` handoff plus the status streams win.
 
+Inspected input revisions for this verification:
+
+- SEAM: `8ee8856d89dfb88a42e9dfef94262147096089de`
+- Canticle site: `d71c7c4c848c52627b4a99e23e777cea2d5368ab`
+- GitHub organization profile: `032f2505945216456bb8ef9ceb7c6778b39efd9b`
+
+During verification, the named revisions were inspected with a working-tree
+overlay containing the corrections described below. That inspection-time fact
+does not establish any later remote PR-head, merge, deployment, or live-site
+state; exact later state requires a fresh revision and live-state check.
+
 At authoring time the operator had frozen `HISTORY.md`, `ROADMAP.md`, and the
 `docs/roadmap/` collection for this session against modification; the
 closeout entry `HISTORY#653` was appended append-only at session end, and the
 frozen authored files remain untouched.
 
-## Corrected in this pass (all verified against source; falsifier round passed)
+## Corrections inspected in the working overlay
+
+During verification, the working overlay below was checked against the named
+input revisions. This records that bounded inspection only; it does not predict
+or establish a later commit, push, review, merge, publication, or deployment.
 
 - **Stale Track S state** — REPO_LEDGER.md ("S8 is the next stage"), and
   docs/status/operations.md + surfaces.md ("R2 remains before S8 freeze")
@@ -104,14 +119,14 @@ frozen authored files remain untouched.
 
 ## Operator action required (outside repo reach this session)
 
-Resolution status as of the same day's cleanup pass (HISTORY#657): the
-canticle.cc badge/hosted/benchmarks/demo/help/console items and the
-GitHub org-profile framing, wiki placeholders, repo description, and
-dead Pages config are fixed — see below. Still open for the owner:
-the Lab Notes catalog superlative (site protocol forbids in-place
-report edits), the Discussions enabled-or-not decision, the published
-v2.4.0 release body, and a live-site deploy check (the live downloads
-page still shows pre-fix content that main's source no longer contains).
+At the inspected revisions, the Canticle site and GitHub organization profile
+worktrees were associated with separate open PR branches, and during
+verification these corrections existed in the working overlay. That evidence
+did not establish remote PR-head, merged, deployed, or live state. The Lab
+Notes catalog superlative (site protocol forbids in-place report edits), the
+Discussions enabled-or-not decision, the published v2.4.0 release body, and a
+live-site deploy check were also owner actions at inspection time. Any later
+repository, PR, or live-site state requires a fresh check.
 
 1. **canticle.cc — HIGH**: "APACHE-2.0 CORE" badge and "open-source runtime"
    copy conflict with the BUSL-1.1 runtime license (Apache-2.0 covers only
@@ -164,22 +179,29 @@ follow-up because mass prose removal needs its own review.
 
 ## Verification
 
-- All six continuity gates pass after corrections: verify_integrity,
-  verify_routing, verify_handoffs, verify_continuity, verify_streams,
-  verify_wiki (278 active pages reachable, safe links).
-- Deterministic drift checker: zero findings on active paths (remaining hits
-  are inside the deliberately frozen `docs/status_archive/` record).
-- Adversarial falsification round: every applied correction re-attacked against
-  code/config/git evidence; all survived after two minor fix-ups (era-note date
-  decoupling; a nonexistent `bench` extra in a reverted roadmap doc).
+- Repository checks are reproducible from the PR checkout with
+  `python -m tools.history.verify_integrity`,
+  `python -m tools.history.verify_routing`,
+  `python -m tools.history.verify_handoffs`,
+  `python -m tools.history.verify_continuity`,
+  `python -m tools.streams.verify_streams`, and
+  `python -m tools.docs.verify_wiki`. This audit deliberately does not freeze a
+  wiki-page count; reachability is whatever the current verifier reports.
+- The focused terminology correction adds
+  `python -m tools.docs.verify_terminology` and its audit tests. The checker is
+  scoped to active authority documents and excludes chronology, archives,
+  generated output, and worktree copies.
+- External site/profile fixes must be verified on their own PR heads. A local
+  branch check does not establish merged or deployed state.
 
 ## Evidence manifest
 
 Raw artifacts: none
 
-All evidence is repository content at the audited working tree: the cited
-code/config files and line-level claims above, plus git facts reproducible
-from this checkout — the PR #254 merge commit 2f9a96b9 (see the git log), the
-dangling legacy frozen commit 0f4b40aab7fda643ce776e597f0b430faa465ca8 (a
-reachable object via git cat-file), and the legacy repository coordinate
-returning "could not resolve" from the GitHub API on 2026-10-02.
+This audit attaches no raw artifact bundle. Its repository claims are
+reproducible from the cited files and commands at the audited checkout. Some
+benchmark summaries publish aggregate results, exact commands, code provenance,
+and SHA-256 anchors while the licensed per-case records remain in the
+operator's private durable store; this audit does not claim those raw records
+are present in-repo. Time-sensitive GitHub, PR, and deployment state requires a
+fresh live check rather than inference from this dated record.

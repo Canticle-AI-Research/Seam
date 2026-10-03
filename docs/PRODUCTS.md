@@ -2,6 +2,10 @@
 
 [Back to the SEAM Wiki](README.md)
 
+Canonical name definitions are centralized in the
+[SEAM terminology glossary](TERMINOLOGY.md). This page owns product roles and
+artifact boundaries; it does not override the governing behavior contracts.
+
 **SEAM means Surface Encoded Agent Memory.** This is the current product name;
 the RAW/MIRL/PACK/LENS behavior remains governed by the
 [SEAM specification](../SEAM_SPEC_V0.1.md) and [MIRL contract](MIRL_V1.md).
