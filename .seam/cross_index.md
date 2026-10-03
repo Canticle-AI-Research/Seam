@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 725
+total_events: 727
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-23T16:42:06Z | history:466:dfaafd98 | session-event | done | graph, memory, agent, verify, test, provenance, atomicity... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,t... |
-| 2026-07-24T00:00:00Z | roadmap:061:c6b5382b | status-change | bootstrap | packaging, release, distribution | ROADMAP.md:1668 |
 | 2026-07-24T10:21:50Z | history:467:9e9791e2 | session-event | changed | security, mirl, surface, pyproject, ci, docs, verify, han... | LICENSE,LICENSES/Apache-2.0.txt,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,... |
 | 2026-07-24T10:24:48Z | history:468:e8590966 | session-event | done | ci, security, pyproject, verify, handoff, status | .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,ROADMA... |
 | 2026-07-24T12:53:45Z | history:469:3b2e4a9a | session-event | done | agent, surface, pyproject, security, test, handoff, docs | seam_runtime/public_api.py,seam_runtime/server.py,tests/audit/test_public_sdk... |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-02T13:29:22Z | history:657:34d59286 | session-event | done | docs, website, security, verify, correction | docs/audits/2026-10-02-documentation-drift-audit.md,https://github.com/Blackh... |
 | 2026-10-03T03:09:45Z | history:658:e7d5a279 | session-event | changed | docs, correction, mirl, verify, continuity, wiki, website... | docs/TERMINOLOGY.md,tools/docs/verify_terminology.py,tests/audit/test_termino... |
 | 2026-10-03T03:34:13Z | history:659:36ce3cfd | session-event | changed | ci, docs, correction, verify, tests, continuity | tools/docs/verify_terminology.py,https://github.com/Canticle-AI-Research/Seam... |
+| 2026-10-03T18:43:20Z | history:660:f2f052af | session-event | done | docs, wiki, verify, audit, continuity | docs/DOCUMENTATION_MAP.md,docs/audits/2026-10-02-documentation-drift-audit.md |
+| 2026-10-03T22:03:33Z | history:661:8646ce7a | session-event | changed | docs, wiki, navigation, verify, continuity, worktree | docs/DOCUMENTATION_MAP.md,PROJECT_STATUS.md,https://github.com/Canticle-AI-Re... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0525.cross.md | 2026-04-15T00:00:00Z..2026-07-23T09:34:00Z | 525 | (multi) | (multi) |
+| 0001-0527.cross.md | 2026-04-15T00:00:00Z..2026-07-24T00:00:00Z | 527 | (multi) | (multi) |

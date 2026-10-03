@@ -21508,3 +21508,41 @@ Corrected the sole required-CI failure on the terminology-correction head from H
 
 The tracked Python set passes Ruff, the terminology and wiki audit slice passes 54 tests, and `git diff --check` passes. A literal local `ruff check .` also reported pre-existing findings only inside preserved untracked `.disposable/` and `.seam/orchestration/` operator artifacts; those paths are outside the tracked PR and were not modified. This entry supersedes the readiness state of HISTORY#658, not its semantic terminology evidence. The unrelated reports-pages worktree remains NOT_QUALIFIED.
 ---END-ENTRY-#659---
+
+---BEGIN-ENTRY-#660---
+id: 660
+date: 2026-10-03T18:43:20Z
+agent: claude
+status: done
+topics: docs, wiki, verify, audit, continuity
+commits: pending
+refs: docs/DOCUMENTATION_MAP.md,docs/audits/2026-10-02-documentation-drift-audit.md
+supersedes: none
+tokens: 475
+---
+Re-verified the documentation-drift audit (HISTORY#653-659, PR #277) against code and live state, and closed the wiki reachability gap it left. Verified true at this checkout: requires-python >=3.11; seam-suite 2.4.1rc1; extras bounds (textual >=8.0,<9.0, psycopg <4.0, sentence-transformers <3.0) and all-extras excluding chroma; compose service `pgvector`, container `seam-pgvector`, default port 55432, POSTGRES_USER default seam; installer shims seam, seam-benchmark, seam-dash only; no `seam init` in the 56-subcommand parser; 19 MCP tools; core-storage/4 present; ci.yml runs-on label seam-box; rgba64 surface mode present; hybrid_beats_vector_on_relation key in evals.py; v2.4.0 release assets are wheel and sdist only; BlackhatShiftey/Seam_Runtime returns 404 while commit 0f4b40a exists locally; GitHub Pages returns 404 and the GitHub wiki repo holds two pointer pages. The deterministic doc-drift check is clean for active docs (remaining hits are a status-archive record and skill-template examples). verify_wiki, verify_terminology, verify_integrity, verify_routing, verify_handoffs and both verify_streams pass.
+
+Gap found: verify_wiki traverses only docs/, so 31 tracked pages (README, CONTRIBUTING, installers, benchmarks, tests/docs, branding, retrieval_orchestrator, .seam stream indexes, agent entry files) were not reachable from docs/README.md. Added a "Repository-level documents outside docs/" section to docs/DOCUMENTATION_MAP.md linking them with ownership notes; link existence is enforced by the existing verifier.
+
+Left unchanged by design: SEAM_SPEC_V0.1.md section 27 command surface (governing contract, needs a spec-process decision); ROADMAP.md experimental/ references and docs/roadmap/MEMORY_BENCHMARKS.md `pip install seam[bench]` (planned-state text, flagged by #653). Owner actions from the audit (site, org profile, Discussions, v2.4.0 release body) are not re-checked here.
+---END-ENTRY-#660---
+
+---BEGIN-ENTRY-#661---
+id: 661
+date: 2026-10-03T22:03:33Z
+agent: codex
+status: changed
+topics: docs, wiki, navigation, verify, continuity, worktree
+commits: pending
+refs: docs/DOCUMENTATION_MAP.md,PROJECT_STATUS.md,https://github.com/Canticle-AI-Research/Seam/pull/277
+supersedes: 660
+tokens: 389
+---
+Resumed the existing docs/wiki-baseline-20261003 worktree at 8530717d800d397ba58283710b6e8f0a037aabf8 after the operator authorized a push. Preserved HISTORY#660 and its documentation-map changes; added a current-status pointer identifying this as a branch candidate following PR #277. The shared checkout's unfinished docs/audits/2026-10-03-full-repo-audit.md and docs/proposals/2026-10-03-documentation-runtime-framework.md remain excluded.
+
+Verified the isolated working tree with tools.history.verify_integrity, verify_routing, verify_handoffs, verify_continuity, tools.streams.verify_streams, tools.docs.verify_wiki, verify_terminology, verify_audit_claims --changed-since HEAD, git diff --check, and the canonical working-tree secret/session scanner. The focused tests/audit/test_wiki_navigation.py and tests/audit/test_terminology_contract.py slice also passed. No runtime behavior changed and no new historical TDD claim is made.
+
+Enumerated active worktrees and every existing SessionEnd state root, and dispatched outstanding records to the read-only release orchestrator. The primary queue contains a malformed relative receipt_path plus stale or non-qualified requests; the reports-pages worktree retains its two previously non-qualified requests. These open conditions are preserved and excluded from this documentation-only delivery; no global closeout clearance or supersession is asserted. Unrelated dirty linked worktrees remain operator-owned. The documented one-push SEAM_ALLOW_DIRTY_WORKTREES exception may be used after this branch's exact committed-state qualification and scans, preserving all secret/signature gates.
+
+Next delivery steps are independent committed-state qualification, pushing this branch, and opening a draft follow-up to PR #277. This event does not claim that those later steps have already succeeded, and no protected-main merge or deployment is authorized here.
+---END-ENTRY-#661---
