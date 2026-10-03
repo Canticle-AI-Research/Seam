@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 659
-total_tokens: ~335572
-latest_id: 659
+total_entries: 661
+total_tokens: ~336436
+latest_id: 661
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 661 | 2026-10-03 | changed | 8646ce7a2f3c9e72 | docs,wiki,navigation,verify,+ | 660 |
+| 660 | 2026-10-03 | done | f2f052afd8e4f18e | docs,wiki,verify,audit,+ | none |
 | 659 | 2026-10-03 | changed | 36ce3cfd8fa0bedf | ci,docs,correction,verify,+ | 658 |
 | 658 | 2026-10-03 | changed | e7d5a27939d21dfb | docs,correction,mirl,verify,+ | 657 |
 | 657 | 2026-10-02 | done | 34d592863e643337 | docs,website,security,verify,+ | none |
@@ -690,7 +692,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=15 latest=#623, #622, #621, #620, #619
-- audit: count=131 latest=#658, #653, #641, #632, #597
+- audit: count=132 latest=#660, #658, #653, #641, #632
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -736,7 +738,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=100 latest=#659, #658, #654, #653, #652
+- continuity: count=102 latest=#661, #660, #659, #658, #654
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -766,7 +768,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=106 latest=#659, #658, #657, #656, #655
+- docs: count=108 latest=#661, #660, #659, #658, #657
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -868,7 +870,7 @@ compact: true
 - multihop: count=3 latest=#321, #319, #318
 - namespaces: count=1 latest=#407
 - naming: count=8 latest=#642, #635, #634, #484, #033
-- navigation: count=2 latest=#556, #542
+- navigation: count=3 latest=#661, #556, #542
 - negative-result: count=6 latest=#438, #434, #432, #429, #412
 - nl: count=8 latest=#358, #317, #313, #311, #309
 - node-vectors: count=2 latest=#492, #491
@@ -1005,25 +1007,25 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=462 latest=#659, #658, #657, #656, #653
+- verify: count=464 latest=#661, #660, #659, #658, #657
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - website: count=3 latest=#658, #657, #656
 - webui: count=13 latest=#571, #545, #544, #543, #404
-- wiki: count=3 latest=#658, #557, #556
+- wiki: count=5 latest=#661, #660, #658, #557, #556
 - windows: count=25 latest=#506, #370, #361, #360, #283
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=11 latest=#652, #604, #573, #572, #571
+- worktree: count=12 latest=#661, #652, #604, #573, #572
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
 
 ## status rollup
 
-- roots: 91
-- changed: 72
-- done: 545
+- roots: 92
+- changed: 73
+- done: 546
 - in-progress: 20
 - planned: 22

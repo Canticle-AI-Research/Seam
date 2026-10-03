@@ -5,6 +5,13 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-03 — wiki navigation baseline prepared for review.** The
+[documentation map](docs/DOCUMENTATION_MAP.md) now includes repository-level
+entry points, benchmark and test references, branding notes, and derived
+stream indexes outside `docs/`. HISTORY#660 records the bounded verification;
+HISTORY#661 records delivery checks and preserved closeout conditions. This
+candidate follows documentation-audit PR #277 and has not merged into `main`.
+
 **2026-10-02 — documentation drift audit corrected the active docs.** A
 whole-surface audit (repo docs, GitHub-facing surfaces, canticle.cc) fixed
 stale Track S state in the ledger and status streams ("S8 is next" → frozen

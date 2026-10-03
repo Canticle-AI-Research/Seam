@@ -117,6 +117,41 @@ directly here as well:
 - [SOP index](SOP_INDEX.md)
 - [Advisor/executor planning artifact](superpowers/plans/2026-05-22-advisor-executor-loop.md) — a plan artifact, not implementation evidence.
 
+### Repository-level documents outside `docs/`
+
+These pages are owned by the directory they live in. The wiki links them so
+they are reachable, but does not restate their contents.
+
+- **Entry points** — [README](../README.md) (product landing and install),
+  [CONTRIBUTING](../CONTRIBUTING.md), [SECURITY](../SECURITY.md), and
+  [installer guide](../installers/README.md).
+- **Agent entry files** — [AGENTS](../AGENTS.md) is the canonical protocol;
+  [CLAUDE](../CLAUDE.md), [GEMINI](../GEMINI.md), [QWEN](../QWEN.md), and
+  [ANTIGRAVITY](../ANTIGRAVITY.md) are model-specific pointers to it.
+- **Chronology** — [HISTORY](../HISTORY.md) is append-only; read it through
+  the [history index](../HISTORY_INDEX.md) and bounded context packs.
+- **Benchmarks** — [benchmarks README](../benchmarks/README.md),
+  [results](../benchmarks/RESULTS.md), [benchmark log](../benchmarks/BENCHMARK_LOG.md),
+  [benchmark blueprint](../benchmarks/SEAM_BENCHMARK_BLUEPRINT_V1.md),
+  [external harness index](../benchmarks/external/README.md)
+  ([BEAM](../benchmarks/external/beam/README.md),
+  [LongMemEval](../benchmarks/external/longmemeval/README.md),
+  [Mem0 harness](../benchmarks/external/mem0_harness/README.md)), and the
+  [holdout fixtures](../benchmarks/fixtures/holdout/README.md) and
+  [holdout runs](../benchmarks/runs/holdout/README.md).
+- **Qualification evidence** — [test-evidence index](../tests/docs/README.md)
+  and its [pgvector artifact note](../tests/docs/artifacts/pgvector.md);
+  [SQLite history fixtures](../tests/fixtures/sqlite_history/README.md).
+- **Code-adjacent** — [retrieval orchestrator](../seam_runtime/retrieval_orchestrator/README.md).
+- **Branding** — [CLI aesthetic principles](../branding/references/cli-aesthetic-design-principles.md)
+  and [retro direction](../branding/retro-direction.md), alongside the
+  [branding hub](../branding/README.md).
+- **Derived streams** — [`.seam/` cross index](../.seam/cross_index.md);
+  stream indexes for [history](../.seam/streams/history/index.md),
+  [roadmap](../.seam/streams/roadmap/index.md), and
+  [experience](../.seam/streams/experience/index.md). These are generated
+  routing aids, not authored sources of truth.
+
 ## Historical and non-current material
 
 The following paths are deliberately retained for provenance. They are
