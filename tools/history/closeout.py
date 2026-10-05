@@ -50,6 +50,7 @@ PREFLIGHT_GATES: tuple[tuple[str, tuple[str, ...]], ...] = (
     ("verify_continuity", ("tools.history.verify_continuity",)),
     ("verify_streams", ("tools.streams.verify_streams",)),
     ("verify_wiki", ("tools.docs.verify_wiki",)),
+    ("verify_doc_references", ("tools.docs.sync_references", "--check")),
     ("verify_audit_claims", ("tools.docs.verify_audit_claims", "--changed-since", "HEAD")),
 )
 

@@ -13,7 +13,7 @@ coverage, open the [documentation map](DOCUMENTATION_MAP.md).
 | --- | --- | --- |
 | Organize the launch | [Product map](PRODUCTS.md) | [Launch plan](roadmap/SEAM_LAUNCH.md), [packaging migration](status/packaging-licensing.md), and [current handoff](handoffs/INDEX.md) |
 | Understand what SEAM is | [SEAM governing specification](../SEAM_SPEC_V0.1.md) | [MIRL v1 contract](MIRL_V1.md) and [engineering architecture](engineering/01_ARCHITECTURE.md) |
-| Install and use SEAM | [Operator guide](SEAM_OPERATOR_GUIDE.md) | [Setup](setup.md), [how-to runbooks](howto/README.md), and [troubleshooting](errors.md) |
+| Install and use SEAM | [Operator guide][seam:operator-guide] | [Setup][seam:setup], [how-to runbooks][seam:howto], and [troubleshooting][seam:troubleshooting] |
 | Understand the architecture | [Engineering manual](engineering/README.md) | [RAG architecture](RAG_ARCHITECTURE.md), [knowledge graph](KNOWLEDGE_GRAPH.md), and [reasoning graph](REASONING_GRAPH.md) |
 | Continue or resume a SEAM initiative with Codex | [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) | [Codex agent orchestration mechanics](SOP_AGENT_ORCHESTRATION.md), [engineering change SOP](engineering/06_ENGINEERING_CHANGE_SOP.md), and [current handoff](handoffs/INDEX.md) |
 | Keep Claude memory consistent across checkouts | [Claude auto memory](CLAUDE_MEMORY.md) | [Repository policy](../REPO_LEDGER.md) and [current handoff](handoffs/INDEX.md) |
@@ -56,6 +56,10 @@ without promoting a weaker source into a stronger claim:
 
 ## Documentation collections
 
+- [CLI definition reference][seam:cli-reference] — generated argument,
+  alias, default and defining-scope metadata from the actual parser.
+- [Documentation safeguards][seam:documentation-safeguards] — local reference
+  updates, checks, provenance and explicit prose review.
 - [Complete documentation map](DOCUMENTATION_MAP.md) — progressive-disclosure
   inventory of every active Markdown page under `docs/`.
 - [Standard operating procedures](SOP_INDEX.md) — operator procedures and
@@ -86,3 +90,15 @@ without promoting a weaker source into a stronger claim:
   same way.
 - Put current state in the status system, chronology in history, stable policy
   in the repo ledger, and implementation evidence in code, tests, and artifacts.
+
+<!-- seam-docs:links:start -->
+[seam:cli-reference]: reference/CLI_REFERENCE.md
+[seam:documentation-safeguards]: DOCUMENTATION_SAFEGUARDS.md
+[seam:engineering]: engineering/README.md
+[seam:howto]: howto/README.md
+[seam:installers]: ../installers/README.md
+[seam:operator-guide]: SEAM_OPERATOR_GUIDE.md
+[seam:setup]: setup.md
+[seam:troubleshooting]: errors.md
+[seam:wiki]: README.md
+<!-- seam-docs:links:end -->

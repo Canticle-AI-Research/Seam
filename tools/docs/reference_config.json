@@ -1,0 +1,16 @@
+{
+  "schema": "seam-doc-references/1",
+  "links": {
+    "cli-reference": "docs/reference/CLI_REFERENCE.md",
+    "documentation-safeguards": "docs/DOCUMENTATION_SAFEGUARDS.md",
+    "engineering": "docs/engineering/README.md",
+    "howto": "docs/howto/README.md",
+    "installers": "installers/README.md",
+    "operator-guide": "docs/SEAM_OPERATOR_GUIDE.md",
+    "setup": "docs/setup.md",
+    "troubleshooting": "docs/errors.md",
+    "wiki": "docs/README.md"
+  },
+  "managed_pages": ["README.md", "docs/README.md"],
+  "command_pages": ["docs/reference/CLI_REFERENCE.md"]
+}

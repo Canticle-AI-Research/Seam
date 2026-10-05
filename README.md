@@ -7,8 +7,25 @@ SQLite, retrieves compact context with lexical, graph, temporal, and vector
 signals, tracks provenance, exposes a dashboard/API, and gates benchmark claims
 before they are treated as real progress.
 
-> **Documentation:** Start at the [SEAM Wiki](docs/README.md) for task-first
+> **Documentation:** Start at the [SEAM Wiki][seam:wiki] for task-first
 > routes into operator guides, architecture, current state, evidence, and plans.
+
+Command definitions are generated from the actual CLI in the
+[CLI definition reference][seam:cli-reference]. Maintainers can use the
+[documentation safeguards][seam:documentation-safeguards] to regenerate these
+definitions and shared links, with affected prose held for review.
+
+<!-- seam-docs:links:start -->
+[seam:cli-reference]: docs/reference/CLI_REFERENCE.md
+[seam:documentation-safeguards]: docs/DOCUMENTATION_SAFEGUARDS.md
+[seam:engineering]: docs/engineering/README.md
+[seam:howto]: docs/howto/README.md
+[seam:installers]: installers/README.md
+[seam:operator-guide]: docs/SEAM_OPERATOR_GUIDE.md
+[seam:setup]: docs/setup.md
+[seam:troubleshooting]: docs/errors.md
+[seam:wiki]: docs/README.md
+<!-- seam-docs:links:end -->
 
 The launch product family is **SEAM Suite** (`seam-suite`, self-hosted TUI,
 benchmark glassbox, and browser graph dashboard), **SEAM Client** (the paid
@@ -328,11 +345,11 @@ claude-mem comparison, retrieval mode details, and agent bridge notes.
 
 ## Setup Details
 
-- Command cookbook: [docs/setup.md](docs/setup.md)
+- Command cookbook: [docs/setup.md][seam:setup]
 - Fresh Linux resume checks: [docs/setup.md#resume-current-repo-state-on-fresh-linux](docs/setup.md#resume-current-repo-state-on-fresh-linux)
-- Installer reference: [installers/README.md](installers/README.md)
-- Troubleshooting: [docs/errors.md](docs/errors.md)
-- Task runbooks: [docs/howto/README.md](docs/howto/README.md)
+- Installer reference: [installers/README.md][seam:installers]
+- Troubleshooting: [docs/errors.md][seam:troubleshooting]
+- Task runbooks: [docs/howto/README.md][seam:howto]
 - Active/inactive code layout: [docs/CODE_LAYOUT.md](docs/CODE_LAYOUT.md)
 
 ## Operator Manual

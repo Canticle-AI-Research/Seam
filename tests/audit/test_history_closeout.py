@@ -41,7 +41,7 @@ BARE_GATE_RE = re.compile(r'^"\$PY" -m (tools\.\S+?)((?: [^|]*?)?)\s*(\|\|\s*exi
 
 # Hook-only scoping arguments that narrow a gate to the staged tree. They make
 # a gate cheaper, never weaker, so they are not drift.
-STAGED_SCOPED = {"verify_wiki", "verify_agent_config"}
+STAGED_SCOPED = {"verify_wiki", "verify_agent_config", "verify_doc_references"}
 
 
 def _hook_gates() -> tuple[dict[str, tuple[str, ...]], list[str], set[str]]:
