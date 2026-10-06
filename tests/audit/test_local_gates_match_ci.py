@@ -37,6 +37,7 @@ CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 SUPPRESSION_FLAG = "--no-recorded-fact-audit"
 WIKI_GATE_MODULE = "tools.docs.verify_wiki"
 WIKI_STAGED_FLAG = "--staged"
+REFERENCE_GATE_MODULE = "tools.docs.sync_references"
 AGENT_CONFIG_MODULE = "tools.git.verify_agent_config"
 REQUIRED_GATE_MODULES = {
     AGENT_CONFIG_MODULE,
@@ -46,6 +47,7 @@ REQUIRED_GATE_MODULES = {
     "tools.history.verify_routing",
     "tools.streams.verify_streams",
     WIKI_GATE_MODULE,
+    REFERENCE_GATE_MODULE,
 }
 
 # There are THREE local gate locations, not two. The first draft of this file
@@ -357,6 +359,47 @@ def test_ci_enforces_wiki_navigation():
         if "run" in step
     ]
     assert f"python -m {WIKI_GATE_MODULE}" in runs
+
+
+def test_required_hygiene_checks_references_without_generating_or_bypassing():
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    steps = [step for step in workflow["jobs"]["repo-hygiene"]["steps"]
+             if REFERENCE_GATE_MODULE in step.get("run", "")]
+    assert len(steps) == 1
+    assert "if" not in steps[0] and not steps[0].get("continue-on-error")
+    assert steps[0]["run"] == f"python -m {REFERENCE_GATE_MODULE} --check"
+
+
+def test_required_hygiene_runs_documentation_regressions():
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["repo-hygiene"]["steps"]
+    suites = [step for step in steps if "pytest tools/docs/test_sync_references.py" in step.get("run", "")]
+    assert len(suites) == 1
+    assert "if" not in suites[0] and not suites[0].get("continue-on-error")
+    assert suites[0]["run"] == (
+        "python -m pytest tools/docs/test_sync_references.py "
+        "tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q"
+    )
+    installs = [step["run"] for step in steps if "pip install" in step.get("run", "")]
+    assert any("pytest" in run for run in installs)
+
+
+def test_commit_hook_checks_exact_staged_references():
+    calls = [call for call in _script_gate_invocations(COMMIT_HOOK.read_text(encoding="utf-8"))
+             if call.module == REFERENCE_GATE_MODULE]
+    assert len(calls) == 1 and calls[0].aborts
+    assert calls[0].args == ("--check", "--staged")
+
+
+def test_scheduled_reference_check_has_no_publication_or_write_permission():
+    path = REPO_ROOT / ".github/workflows/documentation-check.yml"
+    workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
+    assert workflow["permissions"] == {"contents": "read"}
+    assert set(workflow["on"]) == {"schedule", "workflow_dispatch"}
+    assert workflow["jobs"]["documentation-check"]["runs-on"] == ["self-hosted", "seam-box"]
+    runs = [step.get("run", "") for step in workflow["jobs"]["documentation-check"]["steps"]]
+    assert f"python -m {REFERENCE_GATE_MODULE} --check" in runs
+    assert all("--update" not in run and "git push" not in run for run in runs)
 
 
 def test_the_fact_audit_actually_rejects_an_unscoped_count_claim(tmp_path):

@@ -21400,3 +21400,59 @@ Registered `docs/handoffs/2026-09-30-agent-config-gates-landed-next.md` as the c
 
 The unrelated reports worktree still retains non-qualified requests `01a095ac-6f5c-70b0-b7a4-972e4384e352-f347ee305abc1548` and `01a096e3-826a-7a62-aed3-62a69efcd9c2-7e023d93071f9c1b`. They remain preserved open conditions and this handoff does not claim global write-boundary clearance.
 ---END-ENTRY-#652---
+
+---BEGIN-ENTRY-#653---
+id: 653
+date: 2026-10-05T21:12:54Z
+agent: codex
+status: in-progress
+topics: docs, command, provenance, ci, gates, verify
+commits: pending
+refs: tools/docs/sync_references.py,tools/docs/reference_config.json,docs/DOCUMENTATION_SAFEGUARDS.md,.github/workflows/documentation-check.yml
+supersedes: none
+tokens: 598
+---
+Created a local documentation safeguard candidate from protected-main source fe528a5375f5a189c6d5338e66345e2a526b3f71. The new parser-derived reference retains global and parent argument scope, aliases, arity, defaults, constants and source identities. Canonical link definitions regenerate only registered blocks. Changed command/source definitions and detected links queue authored prose for explicit change review; empty metadata, unsafe outputs and lost baselines fail closed. Historical and licensing text cannot be rewritten by the generator.
+
+Extended the existing repo-hygiene command set, tracked pre-commit source (exact staged check), Claude preflight and closeout, plus a read-only daily/manual workflow candidate and PR documentation-impact checklist. No hooks were installed and no workflow was remotely enabled.
+
+Verification witnessed locally before this entry: python3 -m pytest tools/docs/test_sync_references.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q -rA completed without failed or skipped cases. Ruff and the read-only reference check passed. Initial safety, staged, wiring, source-change and fragment/baseline cases failed before the corresponding changes; an initial missing-module failure alone is not behavioral TDD proof. The existing closeout-parity test also exposed a missing staged-scope allowance, which was corrected. An over-broad green-command description in the ignored session record was corrected against exact saved logs, with the first invalid description preserved in the external audit output folder. REPO_LEDGER's new paragraph/date was acknowledged only as a reviewed change; existing assertions and license terms were not admitted by that acknowledgement.
+
+This is in-progress local work: no commit, push, merge, deployment, provider call, package publication, application updater, dependency doctor semantic change or M0-M5/BIL3 implementation. Existing dirty checkouts and the unfinished full-corpus audit remain preserved. Website equivalence, full wiki completeness, GLM attribution evidence gaps and owner licensing decisions remain open. Next: review the local candidate and complete the separate full audit before owner signoff; do not infer documentation completion from mechanical gates. Session-end gates will run through the canonical closeout chain; this body does not pre-claim their result.
+---END-ENTRY-#653---
+
+---BEGIN-ENTRY-#654---
+id: 654
+date: 2026-10-05T21:42:11Z
+agent: codex
+status: in-progress
+topics: docs, command, provenance, ci, gates, verify, atomicity, correction
+commits: pending
+refs: tools/docs/sync_references.py,tools/docs/test_sync_references.py,docs/DOCUMENTATION_SAFEGUARDS.md
+supersedes: 653
+tokens: 542
+---
+Corrected the isolated unpublished documentation safeguards after independent frozen review found review-loss and link/path validation defects. Replacement preparation now stages recovery copies and rolls back recoverable failures; persistent recovery failures retain originals and fail, while process death remains outside filesystem-wide atomicity. Saved state schema2 validates required fields and binds the complete catalog, including source revisions, so incomplete/interrupted baselines cannot reset pending obligations. Explicit one-time local migration preserved all existing records; unsupported versions never auto-reset.
+
+Registered canonical-ID consumers now require managed definitions and queue affected prose on target changes; unused ID removal regenerates blocks. Every added/changed/removed active authored Markdown page queues review, with unregistered marker-block prose preserved in full. Nested generated copies use correct relative catalog links. Noncanonical paths, URL controls and credential query fields fail before writes. Generated payloads use the existing content-free secret/session pattern scanner; this is bounded pattern detection, not confidentiality or publication approval.
+
+PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tools/docs/test_sync_references.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q -rA passed 92 cases, zero failures/skips, logged externally in audit_work/doc-safeguards-20261005/review-corrections/targeted-tests-verified.txt. Actual failure regressions and earlier invalid/scaffolding evidence remain preserved, without treating gates as semantic proof. Full documentation/wiki audit, website equivalence and licensing decisions remain unfinished; generated references remain local review candidates. No runtime/application updater or controlling license changes, commit, push, merge, deployment, provider call or publication. Next: reconcile corrected independent verdict and staged/preservation/idempotence receipts, then complete the separate full corpus/licensing audit before explicit owner documentation signoff. This is local candidate chronology, not main authority.
+---END-ENTRY-#654---
+
+---BEGIN-ENTRY-#655---
+id: 655
+date: 2026-10-05T22:42:51Z
+agent: codex
+status: in-progress
+topics: docs, command, provenance, ci, gates, verify
+commits: pending
+refs: .github/workflows/ci.yml,tests/audit/test_local_gates_match_ci.py,PROJECT_STATUS.md,tools/docs/sync_references.py
+supersedes: 654
+tokens: 478
+---
+The owner explicitly authorized publishing the reviewed documentation safeguards as a draft PR to Canticle-AI-Research/Seam. Fresh remote inspection confirmed protected main remains fe528a5375f5a189c6d5338e66345e2a526b3f71, with no existing candidate branch or matching PR. Draft publication does not approve merge, website/wiki deployment, package publication, full documentation completion or later product work.
+
+Publication recheck found the new tools/docs regression module was absent from the existing broad CI test paths. Added unconditional execution of the offline safeguard/gate-parity bundle to the existing required repo-hygiene job and pytest to its existing verification dependency step. A new parity test failed before this wiring and passed afterward. PYTHONDONTWRITEBYTECODE=1 python3 -m pytest tools/docs/test_sync_references.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q -rA passed93 cases, with zero failures/skips. Ruff, dependency contract and the content-free working-tree secret scan passed. The parser generator and its direct tests remain byte-identical to the independently reviewed correction.
+
+Updated only the candidate status card to record draft-publication authorization and acknowledged that exact prose change after review. Full documentation/wiki audit, website equivalence and licensing reconciliation remain unfinished. Private audit corpus, proposed license files, ignored local orchestration records and snapshots are excluded from the publication candidate; existing source/runtime and license grants are unchanged. Separate bundled Doctor maintenance/runtime repair, setup, update and account features are future work and are not implemented here. Next: complete canonical/staged gates, commit the scoped candidate, push only its branch, create the draft PR and monitor exact-head required/advisory checks; no merge or deployment.
+---END-ENTRY-#655---

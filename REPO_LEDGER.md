@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-09-08
+Last updated: 2026-10-05
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -30,6 +30,15 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- The local documentation safeguard candidate derives command metadata from
+  the actual CLI factory and shared link definitions from
+  `tools/docs/reference_config.json`. `tools.docs.sync_references --check`
+  rejects stale outputs and pending authored-prose reviews; `--update`
+  regenerates only registered references. Source revision hashes describe the
+  catalog's named scope, not runtime or release qualification. Licensing and
+  notice texts are excluded from automated rewriting. See
+  `docs/DOCUMENTATION_SAFEGUARDS.md`; this does not complete the full audit,
+  change license terms or establish a live website deployment.
 - **The SEAM spec is the governing contract.** `SEAM_SPEC_V0.1.md` (the four-layer
   RAW/IR/PACK/LENS model, the north star "maximum durable intelligence per token",
   the loss model RAW=phrasing/IR=meaning/PACK=utility, the NL<->IR<->PACK<->NL

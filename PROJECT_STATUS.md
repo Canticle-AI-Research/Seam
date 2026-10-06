@@ -5,6 +5,17 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-05 — local documentation safeguard candidate.** On
+`codex/docs-safeguards-20261005`, generated CLI definitions and canonical shared
+links have an explicit update/check workflow and a prose-review queue. See
+[documentation safeguards](docs/DOCUMENTATION_SAFEGUARDS.md). This local
+candidate is authorized for publication as a draft PR; it has not been merged
+or deployed. The exhaustive documentation
+audit, website equivalence and licensing reconciliation remain unfinished;
+formation, packaging publication and application-update implementation remain paused
+pending owner decisions. Mechanical gates do not establish full documentation
+correctness.
+
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
 roughly $50 is on Claude.ai, not the API Console. The explicit
 [`claude-code` answerer/judge](docs/CLAUDE_CODE_BENCHMARKS.md) uses the

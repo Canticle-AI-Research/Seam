@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 652
-total_tokens: ~332685
-latest_id: 652
+total_entries: 655
+total_tokens: ~334303
+latest_id: 655
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 655 | 2026-10-05 | in-progress | 9eec662fc1068db0 | docs,command,provenance,ci,+ | 654 |
+| 654 | 2026-10-05 | in-progress | 708e332245948645 | docs,command,provenance,ci,+ | 653 |
+| 653 | 2026-10-05 | in-progress | 0af9e1aae3205879 | docs,command,provenance,ci,+ | none |
 | 652 | 2026-09-30 | done | 8162e73df5517f61 | handoff,continuity,verify,status,+ | 651 |
 | 651 | 2026-09-30 | done | 1fdf208ae016de12 | handoff,continuity,verify,status,+ | 650 |
 | 650 | 2026-09-29 | done | 79f0dbf9608567b8 | ci,gates,config,security,+ | 649 |
@@ -682,7 +685,7 @@ compact: true
 - api: count=6 latest=#611, #610, #609, #608, #541
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
-- atomicity: count=15 latest=#623, #622, #621, #620, #619
+- atomicity: count=16 latest=#654, #623, #622, #621, #620
 - audit: count=129 latest=#641, #632, #597, #596, #595
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
@@ -706,7 +709,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=77 latest=#652, #651, #650, #649, #648
+- ci: count=80 latest=#655, #654, #653, #652, #651
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -714,7 +717,7 @@ compact: true
 - closeout: count=1 latest=#409
 - codec: count=13 latest=#132, #131, #130, #129, #128
 - codeql: count=6 latest=#330, #309, #301, #300, #299
-- command: count=70 latest=#393, #389, #386, #251, #241
+- command: count=73 latest=#655, #654, #653, #393, #389
 - commonmark: count=1 latest=#556
 - comparator: count=2 latest=#415, #414
 - comparison: count=1 latest=#333
@@ -734,7 +737,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=25 latest=#639, #638, #632, #631, #630
+- correction: count=26 latest=#654, #639, #638, #632, #631
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -759,7 +762,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=99 latest=#647, #646, #643, #642, #641
+- docs: count=102 latest=#655, #654, #653, #647, #646
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -785,7 +788,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=5 latest=#607, #606, #510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=15 latest=#652, #650, #649, #648, #588
+- gates: count=18 latest=#655, #654, #653, #652, #650
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - ghost: count=2 latest=#609, #608
@@ -903,7 +906,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=119 latest=#620, #619, #618, #617, #616
 - prov: count=1 latest=#316
-- provenance: count=33 latest=#628, #612, #604, #603, #602
+- provenance: count=36 latest=#655, #654, #653, #628, #612
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -998,7 +1001,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=457 latest=#652, #651, #650, #649, #648
+- verify: count=460 latest=#655, #654, #653, #652, #651
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1014,8 +1017,8 @@ compact: true
 
 ## status rollup
 
-- roots: 86
+- roots: 87
 - changed: 70
 - done: 540
-- in-progress: 20
+- in-progress: 23
 - planned: 22

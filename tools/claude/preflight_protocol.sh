@@ -71,6 +71,7 @@ run_gate "verify_handoffs"  "$PY" -m tools.history.verify_handoffs
 run_gate "verify_continuity" "$PY" -m tools.history.verify_continuity
 run_gate "verify_streams"   "$PY" -m tools.streams.verify_streams
 run_gate "verify_wiki"      "$PY" -m tools.docs.verify_wiki
+run_gate "verify_doc_references" "$PY" -m tools.docs.sync_references --check
 
 if [ "$FAIL" -ne 0 ]; then
   echo "" >&2
