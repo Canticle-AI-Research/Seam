@@ -21522,3 +21522,44 @@ diff and qualified receipt. Continue the full historical/factual audit and ask
 licensing decisions one at a time. Do not advance product work or publish until
 the relevant owner signoff.
 ---END-ENTRY-#656---
+
+---BEGIN-ENTRY-#657---
+id: 657
+date: 2026-10-07T17:30:50Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: 11d2b41220483725d03d11f0c9907ce2aeeb257f
+refs: PROJECT_STATUS.md,installers/README.md,docs/errors.md,tests/audit/test_operator_env_runbooks.py,docs/reference/reference_state.json
+supersedes: 656
+tokens: 417
+---
+Published the eight source-backed installer/troubleshooting corrections for
+review in PR #281. Initial branch commit
+11d2b41220483725d03d11f0c9907ce2aeeb257f is based on protected main
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3; GitHub confirmed its exact tree
+ad5255190c2a5d3d5a1bed6a10521a36a07d3b48. The interrupted API upload left
+three verified unreferenced blobs; authenticated Git transport completed the
+branch publication without recreating a clone or modifying credentials/hooks.
+
+The original candidate's fifteen local checks passed on its exact bytes. The
+focused command covered tools/docs/test_sync_references.py,
+tests/audit/test_local_gates_match_ci.py, tests/audit/test_history_closeout.py
+and tests/audit/test_operator_env_runbooks.py: 101 cases, zero errors, failures
+or skips. These are scoped checks, not whole-product or full-audit proof.
+PowerShell execution remains unavailable; its syntax and non-overwrite behavior
+were source-reviewed only. Actual operator env files and services were not used.
+
+This follow-up updates PROJECT_STATUS to link the published draft PR rather
+than continue describing it as local-only, and regenerates its history/reference
+metadata. It changes no installer/runtime behavior or controlling license.
+Required checks are repo-hygiene, chroma-real-smoke and locomo-quickstart-bil2;
+their current result must be verified on the final pushed head before merge.
+No merge, deployment, private-content publication or release is asserted here.
+
+Full documentation signoff, website equivalence, scientific claims, exact GLM
+attribution and licensing reconciliation remain open. Pricing and notice-clause
+work stay separate. PyPI, M0–M5, effective license activation and website security
+or account-permission changes remain paused. The owner's settled-docs publication
+authorization does not remove these boundaries.
+---END-ENTRY-#657---
