@@ -12,7 +12,7 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "f7e5b39d3f1b8ef1aee8cefff00dd5e951b8a06e1ad64e97e59c6dabfe6c4a33",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "8e38856ae7f027d178641f14550365950027b820c0c0111977877a14cdac1d6e",
+    "PROJECT_STATUS.md": "421f74aa2cf6f35abc9926750d514ad3521187d3b3385d0866ab58767618d1f9",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "a4500760cec1eac05610d8cb068ac78a7aed3e9ed9738f51da7716cdfa30fee0",
     "REPO_LEDGER.md": "cf1b49a7f015bd6d5329e5b3c68f70e2fa0113b2de6d9a17e5f313c92864a14b",
@@ -108,7 +108,7 @@
     "docs/engineering/templates/INCIDENT_REPORT.md": "cfd3262b8902ffac636888c7b209c04d4f64d1d1ad0518555683bdf6b301f45d",
     "docs/engineering/templates/README.md": "b60e62bca4f20c51317c125f7e8f0c4f272f33e41d4daa90c7f55873e3a94d3c",
     "docs/engineering/templates/THREAT_MODEL_DELTA.md": "d98ed44d5da7d3d32fa218ae2499e93e818ab9f124d1961b19bdf2899911fb0e",
-    "docs/errors.md": "44f030f3b4d52120aa1b1dbaf69fe7e5fa1a68cef25432f1fdf38c944e1147bc",
+    "docs/errors.md": "bf12f7b95799df64057d767062f6f5a36fe72f3a403a2cc7091f43bc2a59a522",
     "docs/handoffs/INDEX.md": "7cc59d77fca5756e06a0daa91b687921dcf77b6ab6c27137cb0694bd16f12c66",
     "docs/howto/README.md": "82475aeb4582027f3547d60513c06380ad53f1cd3b88800c7dd23c15b378df73",
     "docs/kb/README.md": "64b5d293ac1b0c699a9cca5302a8432f5ad8c522f6186c411c391ecc2e2904d4",
@@ -171,7 +171,7 @@
     "docs/status/retrieval.md": "bfa2812175ee69bda9a9665a9b47d132feadaaf468812b219ccc15c44c105edd",
     "docs/status/surfaces.md": "c2e0340b264192872ac40108c6bacacacc2765c24dae3a96c60d0fb59f716405",
     "docs/status/workspace.md": "9ce2ebf4b12372d4440a21ffbada0544cc7981548e50fc55317caaa38ee2ab5e",
-    "installers/README.md": "d12be7076d74e7fc8d65f8b49dbbd125d9a6af59c2977202c8df215212b2d1ef",
+    "installers/README.md": "dfec1835eda0cb2b7f6e45b8dd62d8a02f934f4c381c25b7ca42b0a6c68ebc51",
     "seam_runtime/retrieval_orchestrator/README.md": "47b13ed0f34ca57c942801ffd5767cf7b67924ac105f5879bf0ca3598cdd5da4",
     "skills/seam-engineer/SKILL.md": "fbe0e60f01259a2dd7b1b7fa8f333124c71038a6f921e46ace27db0cd01d436b",
     "tests/docs/README.md": "1f54428a7ced5512f89963104e6720c4389b494149e7f0ebd830edb86d5582e5",
@@ -197,7 +197,7 @@
   "review_acknowledgements": {
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "8e38856ae7f027d178641f14550365950027b820c0c0111977877a14cdac1d6e",
+      "document_sha256": "421f74aa2cf6f35abc9926750d514ad3521187d3b3385d0866ab58767618d1f9",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -216,6 +216,26 @@
     "docs/DOCUMENTATION_SAFEGUARDS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "b764f83e62661e993cc9f29ee7563c51a64bf8965e1efa7c312cedef226dcbdf",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/errors.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "bf12f7b95799df64057d767062f6f5a36fe72f3a403a2cc7091f43bc2a59a522",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "installers/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "dfec1835eda0cb2b7f6e45b8dd62d8a02f934f4c381c25b7ca42b0a6c68ebc51",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

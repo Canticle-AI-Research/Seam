@@ -2,38 +2,39 @@
 
 This folder is the direct install surface for SEAM.
 
-## One-Line Private Repo Install
+## Source Checkout Installation
 
-Run `gh auth login` first for private repo access.
+For these GitHub CLI commands, authenticate with `gh auth login` if needed.
+Review the attached license terms before using the software.
 
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 macOS repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 macOS operator guide: [docs/MACOS.md](../docs/MACOS.md)
@@ -135,7 +136,7 @@ checked by `python -m tools.ci.verify_dependency_contract`.
 
 | Extra | Package installed | When you need it |
 |---|---|---|
-| `dash` | `textual>=0.50`, `httpx` | Textual dashboard |
+| `dash` | `textual>=8.0,<9.0`, `httpx>=0.24,<1.0` | Textual dashboard |
 | `server` | `fastapi`, `uvicorn`, `python-multipart` | REST API |
 | `pgvector` | `psycopg[binary]>=3.0` | PostgreSQL PgVector backend |
 | `sbert` | `sentence-transformers>=2.0` | Local neural embeddings |
@@ -152,7 +153,7 @@ Install an extra into the managed runtime:
 Windows:
 
 ```powershell
-%LOCALAPPDATA%\SEAM\runtime\Scripts\python.exe -m pip install -e "C:\path\to\Seam[all-extras]"
+& "$env:LOCALAPPDATA\SEAM\runtime\Scripts\python.exe" -m pip install -e "C:\path\to\Seam[all-extras]"
 ```
 
 Linux / WSL2:
@@ -170,13 +171,23 @@ macOS:
 ## PgVector
 
 PgVector is optional. Keep credentials in a local env file outside git.
+Initialize that file only if it is absent. Keep an existing file and its values;
+review required settings locally before starting the service. If initialization
+fails, stop and inspect the path before continuing.
 
 ```bash
-mkdir -p "$HOME/.config/seam"
-cp .env.example "$HOME/.config/seam/.env"
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+localEnv="$HOME/.config/seam/.env"
+mkdir -p "$HOME/.config/seam" || exit 1
+if [ -e "$localEnv" ] || [ -L "$localEnv" ]; then
+    [ -f "$localEnv" ] && [ -r "$localEnv" ] || { printf '%s\n' 'Local env path must be a readable file; stop here.' >&2; exit 1; }
+else
+    [ -f .env.example ] && [ -r .env.example ] || { printf '%s\n' 'Missing or unreadable .env.example; stop here.' >&2; exit 1; }
+    (umask 077; set -C; cat .env.example > "$localEnv") || { printf '%s\n' 'Initialization failed; inspect the local env path before continuing.' >&2; exit 1; }
+fi
+# Edit the local file as needed; keep existing values and do not commit it.
+docker compose --env-file "$localEnv" up -d pgvector
 set -a
-. "$HOME/.config/seam/.env"
+. "$localEnv"
 set +a
 seam doctor
 ```
@@ -186,7 +197,7 @@ before running SEAM with PgVector. Do not write the DSN into repo files.
 
 ## Public Release Installer Shape
 
-These are not active private-repo commands yet:
+These placeholders are not active installer commands:
 
 ```powershell
 irm https://example.com/seam/install.ps1 | iex

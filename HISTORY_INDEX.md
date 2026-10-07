@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 655
-total_tokens: ~334303
-latest_id: 655
+total_entries: 656
+total_tokens: ~334982
+latest_id: 656
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 656 | 2026-10-06 | in-progress | 92c29e23680d0dc4 | docs,audit,installer,pgvector,+ | 655 |
 | 655 | 2026-10-05 | in-progress | 9eec662fc1068db0 | docs,command,provenance,ci,+ | 654 |
 | 654 | 2026-10-05 | in-progress | 708e332245948645 | docs,command,provenance,ci,+ | 653 |
 | 653 | 2026-10-05 | in-progress | 0af9e1aae3205879 | docs,command,provenance,ci,+ | none |
@@ -686,7 +687,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=129 latest=#641, #632, #597, #596, #595
+- audit: count=130 latest=#656, #641, #632, #597, #596
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -762,7 +763,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=102 latest=#655, #654, #653, #647, #646
+- docs: count=103 latest=#656, #655, #654, #653, #647
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -778,7 +779,7 @@ compact: true
 - experiment: count=1 latest=#273
 - extraction: count=1 latest=#493
 - extractor: count=1 latest=#313
-- extras: count=1 latest=#022
+- extras: count=2 latest=#656, #022
 - fairness: count=1 latest=#333
 - fidelity: count=7 latest=#313, #311, #308, #307, #306
 - fix: count=1 latest=#411
@@ -819,7 +820,7 @@ compact: true
 - inference: count=1 latest=#413
 - infra: count=3 latest=#453, #425, #271
 - ingest: count=2 latest=#317, #303
-- installer: count=16 latest=#360, #352, #337, #204, #177
+- installer: count=17 latest=#656, #360, #352, #337, #204
 - instrumentation: count=1 latest=#366
 - integrity: count=16 latest=#587, #547, #531, #530, #529
 - isolation: count=2 latest=#275, #274
@@ -887,7 +888,7 @@ compact: true
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
-- pgvector: count=36 latest=#648, #640, #490, #489, #488
+- pgvector: count=37 latest=#656, #648, #640, #490, #489
 - plan: count=25 latest=#645, #634, #620, #511, #437
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
@@ -1001,12 +1002,12 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=460 latest=#655, #654, #653, #652, #651
+- verify: count=461 latest=#656, #655, #654, #653, #652
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
 - wiki: count=2 latest=#557, #556
-- windows: count=25 latest=#506, #370, #361, #360, #283
+- windows: count=26 latest=#656, #506, #370, #361, #360
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
@@ -1020,5 +1021,5 @@ compact: true
 - roots: 87
 - changed: 70
 - done: 540
-- in-progress: 23
+- in-progress: 24
 - planned: 22

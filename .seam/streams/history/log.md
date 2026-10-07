@@ -21456,3 +21456,69 @@ Publication recheck found the new tools/docs regression module was absent from t
 
 Updated only the candidate status card to record draft-publication authorization and acknowledged that exact prose change after review. Full documentation/wiki audit, website equivalence and licensing reconciliation remain unfinished. Private audit corpus, proposed license files, ignored local orchestration records and snapshots are excluded from the publication candidate; existing source/runtime and license grants are unchanged. Separate bundled Doctor maintenance/runtime repair, setup, update and account features are future work and are not implemented here. Next: complete canonical/staged gates, commit the scoped candidate, push only its branch, create the draft PR and monitor exact-head required/advisory checks; no merge or deployment.
 ---END-ENTRY-#655---
+
+---BEGIN-ENTRY-#656---
+id: 656
+date: 2026-10-06T05:33:33Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, pgvector, windows, extras, verify
+commits: none
+refs: PROJECT_STATUS.md,docs/errors.md,installers/README.md,tests/audit/test_operator_env_runbooks.py,docs/reference/reference_state.json
+supersedes: 655
+tokens: 679
+---
+Applied source-backed installer and troubleshooting corrections locally on
+codex/docs-current-authority-20261006, based on main
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3. Corrected PowerShell environment
+expansion, dashboard extra bounds, required versus optional Doctor dependencies,
+Compose service selectors and loopback/default port description, and the
+canonical repository route. Initialization now preserves existing operator env
+files and stops on failure. Benchmark troubleshooting preserves the failed
+original and distinguishes ordinary suite verification from sealed BIL checks.
+PROJECT_STATUS.md supersedes its dated pre-merge safeguard headline using the
+verified PR279 merge. No runtime, Doctor implementation, effective licensing,
+configuration, hook, service, provider, package or deployment change occurred.
+
+Reviewed the complete changed operator pages and acknowledged their prose
+review queue through tools.docs.sync_references. Added
+tests/audit/test_operator_env_runbooks.py, exercising the actual documented Bash
+initializer only in temporary fixtures before the Docker line; HOME and actual
+operator files are never modified. The first witnessed run against the old
+instructions failed, and the corrected instructions passed. The new cases cover
+private first copy, retained bytes/permissions, absent template and directory
+destination. PowerShell is unavailable here: its examples have source review
+only, and Windows execution remains unresolved.
+
+Before this chronology append, the command `python -m pytest
+tools/docs/test_sync_references.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_history_closeout.py tests/audit/test_operator_env_runbooks.py -q`
+passed 101 cases with zero failures or skips in a scoped temporary verification
+environment. Whole-repository Ruff, diff hygiene, unchanged canonical agent,
+history integrity/routing/handoff/continuity, stream/status, wiki, reference and
+dependency-contract checks passed. The changed-audit-report check selected no
+reports; it is not full corpus validation. The secret scan passed with its
+declared policy exclusions. These results precede the appended chronology;
+repeat the canonical gates on the resulting tree before final handoff.
+
+Preserve all earlier history and generated archive chunks. Derive the new
+cross-index with the stock generator into a separate output directory, copy its
+exact bytes into the source tree and retain the prior unreferenced chunk to
+honor the no-deletion instruction. No gate flags or tool implementations are
+weakened. The local branch remains uncommitted and unpublished under the owner's
+local-only authorization.
+
+Full documentation and wiki completion is not claimed. Whole chronology bodies,
+unresolved source/artifact/scientific claims, deployed-site equivalence and
+entitlement evidence remain open. Licensing questionnaire decisions are still
+pending and effective license bytes remain unchanged. Separate GLM Litigation
+coding review is blocked; no coding-review consensus or publication readiness
+is inferred. Historical verification inheritance between HISTORY#099 and
+HISTORY#100 remains unsupported by the supplied original receipts. Preserve
+both events rather than making a present rerun into an earlier test receipt.
+
+Next: rerun canonical gates on this resulting local tree and review its exact
+diff and qualified receipt. Continue the full historical/factual audit and ask
+licensing decisions one at a time. Do not advance product work or publish until
+the relevant owner signoff.
+---END-ENTRY-#656---
