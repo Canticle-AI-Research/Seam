@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 657
-total_tokens: ~335399
-latest_id: 657
+total_entries: 658
+total_tokens: ~335695
+latest_id: 658
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 658 | 2026-10-07 | in-progress | 7b7bd6a857773912 | docs,audit,installer,verify | 657 |
 | 657 | 2026-10-07 | in-progress | 761ac29266d2ed1e | docs,audit,installer,verify | 656 |
 | 656 | 2026-10-06 | in-progress | 92c29e23680d0dc4 | docs,audit,installer,pgvector,+ | 655 |
 | 655 | 2026-10-05 | in-progress | 9eec662fc1068db0 | docs,command,provenance,ci,+ | 654 |
@@ -688,7 +689,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=131 latest=#657, #656, #641, #632, #597
+- audit: count=132 latest=#658, #657, #656, #641, #632
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -764,7 +765,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=104 latest=#657, #656, #655, #654, #653
+- docs: count=105 latest=#658, #657, #656, #655, #654
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -821,7 +822,7 @@ compact: true
 - inference: count=1 latest=#413
 - infra: count=3 latest=#453, #425, #271
 - ingest: count=2 latest=#317, #303
-- installer: count=18 latest=#657, #656, #360, #352, #337
+- installer: count=19 latest=#658, #657, #656, #360, #352
 - instrumentation: count=1 latest=#366
 - integrity: count=16 latest=#587, #547, #531, #530, #529
 - isolation: count=2 latest=#275, #274
@@ -1003,7 +1004,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=462 latest=#657, #656, #655, #654, #653
+- verify: count=463 latest=#658, #657, #656, #655, #654
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1022,5 +1023,5 @@ compact: true
 - roots: 87
 - changed: 70
 - done: 540
-- in-progress: 25
+- in-progress: 26
 - planned: 22

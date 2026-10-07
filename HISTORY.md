@@ -21563,3 +21563,37 @@ work stay separate. PyPI, M0–M5, effective license activation and website secu
 or account-permission changes remain paused. The owner's settled-docs publication
 authorization does not remove these boundaries.
 ---END-ENTRY-#657---
+
+---BEGIN-ENTRY-#658---
+id: 658
+date: 2026-10-07T17:47:24Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: 489805f30b6360433aaeff5107e1333f58a9c014
+refs: PROJECT_STATUS.md,installers/README.md,docs/errors.md,tests/audit/test_operator_env_runbooks.py,docs/reference/reference_state.json
+supersedes: 657
+tokens: 296
+---
+Correct one provenance overstatement in HISTORY#657. The resumed read-only
+lookup proved that three candidate blob identities already existed on GitHub
+and six were absent, while the candidate branch still pointed to base
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3. Those observations do not establish
+which action created the three existing blobs or whether other Git refs
+already referenced them. Retract #657's phrase that the interrupted upload
+left three unreferenced blobs. Preserve that prior event as history; use this
+correction for the current interpretation. The branch publication and exact
+commit/tree verification remain supported by their independent receipts.
+
+The eight installer/troubleshooting corrections and their regression tests
+are unchanged. This entry and its derived history/index/snapshot state are
+the only source changes in this follow-up; no effective licensing, runtime,
+Doctor, configuration, hooks, website/security, pricing or package changes
+are introduced. Full documentation and licensing signoff remain open.
+
+PR #281 remains draft. The preceding head
+489805f30b6360433aaeff5107e1333f58a9c014 passed repo-hygiene,
+chroma-real-smoke and locomo-quickstart-bil2; those results do not certify the
+next head. Run the unchanged local gates and verify the required checks on
+the new pushed head before reporting that head as qualified for review.
+---END-ENTRY-#658---
