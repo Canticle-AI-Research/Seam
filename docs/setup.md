@@ -85,14 +85,32 @@ seam dashboard --snapshot --no-clear
 
 Windows PowerShell:
 
+Open PowerShell in the reviewed SEAM checkout root containing `seam.py`,
+`pyproject.toml`, and `requirements.txt`. If needed, use
+`Set-Location -LiteralPath 'C:\path\to\Seam'`, replacing the placeholder with
+your actual checkout path. Use Python 3.11 or newer.
+
 ```powershell
-cd C:\Users\iwana\OneDrive\Documents\Codex
-python -m venv .venv
-.\.venv\Scripts\python.exe -m pip install --upgrade pip
-.\.venv\Scripts\python.exe -m pip install -r requirements.txt
-.\.venv\Scripts\python.exe -m pip install -e ".[dash]"
-.\.venv\Scripts\python.exe -m pytest test_seam_all\test_seam.py tools\history\test_history_tools.py
-.\.venv\Scripts\python.exe seam.py doctor
+& {
+    $ErrorActionPreference = "Stop"
+    if (-not (Test-Path -LiteralPath .\seam.py -PathType Leaf) -or
+        -not (Test-Path -LiteralPath .\pyproject.toml -PathType Leaf) -or
+        -not (Test-Path -LiteralPath .\requirements.txt -PathType Leaf)) {
+        throw "Run this block from the reviewed SEAM checkout root."
+    }
+    python -m venv .venv
+    if ($LASTEXITCODE -ne 0) { throw "Virtual environment creation failed; stop before dependency installation." }
+    .\.venv\Scripts\python.exe -m pip install --upgrade pip
+    if ($LASTEXITCODE -ne 0) { throw "pip upgrade failed; stop before dependency installation." }
+    .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+    if ($LASTEXITCODE -ne 0) { throw "Requirements installation failed; stop before editable installation." }
+    .\.venv\Scripts\python.exe -m pip install -e ".[dash]"
+    if ($LASTEXITCODE -ne 0) { throw "Editable installation failed; stop before testing." }
+    .\.venv\Scripts\python.exe -m pytest test_seam_all\test_seam.py tools\history\test_history_tools.py
+    if ($LASTEXITCODE -ne 0) { throw "Scoped regression tests failed; stop before Doctor." }
+    .\.venv\Scripts\python.exe seam.py doctor
+    if ($LASTEXITCODE -ne 0) { throw "Doctor failed; inspect its output." }
+}
 ```
 
 macOS bash:

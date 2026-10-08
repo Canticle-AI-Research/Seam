@@ -320,7 +320,9 @@ On macOS, global shims live in `~/.local/bin/`. Point your MCP client at
 
 ## 6. Testing SEAM
 
-### Run the full suite
+<a id="run-the-full-suite"></a>
+
+### Run the scoped runtime regression file
 
 Windows:
 
@@ -333,6 +335,12 @@ macOS / Linux:
 ```bash
 ./.venv/bin/python -m pytest test_seam_all/test_seam.py -q
 ```
+
+These commands select only `test_seam_all/test_seam.py`. Broader test discovery
+is defined in the [test discovery configuration](../pytest.ini). The
+[CI workflow](../.github/workflows/ci.yml) defines broader non-external coverage
+and separate real-adapter jobs. Those files describe configured coverage; this
+section is not a report that those jobs ran.
 
 ### Run one specific test
 

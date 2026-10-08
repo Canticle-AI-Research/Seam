@@ -46,7 +46,7 @@
     "docs/HOLOGRAPHIC_SURFACE.md": "0c417f80d944e71f5c0ba7b39e79edde1604a3c42c7ddd5f78373e915c6e1d85",
     "docs/IMPROVEMENT_EXPERIMENTS.md": "e119f8627654eb72b6841cf3d5ee93be79462908003e0d439e03f284b03ecefe",
     "docs/KNOWLEDGE_GRAPH.md": "dd87449b041882c76bf753d55b1ccdb38a419169916c8c5fe519524987c72f35",
-    "docs/MACOS.md": "7105a4ba181b8f30097352901a66942063a64b7dcf697037a89de1063ab2d815",
+    "docs/MACOS.md": "2b43d74f33519148924bb4a32f66a5316dd87efb9bf9bc59daab3fb87240c267",
     "docs/MIRL_V1.md": "9588d87379bc48e139d28210de360c17e29ea5e3b7f82e8a2ab7af0944177d9b",
     "docs/PGVECTOR_LOCAL.md": "55c186970610f05eea1b21085476448ad5212391f8d98b50cc08be946d848c76",
     "docs/PRODUCTS.md": "81222cb809db36c512dc27cb952e47e868daf5157dc8195b026f24d667c2dfd5",
@@ -57,7 +57,7 @@
     "docs/REASONING_GRAPH.md": "6cf7b938a67287b51ecd03528e1205de39ba60abf07d24c806b8193c7e1ff805",
     "docs/REPORTS_AND_EVIDENCE.md": "6696e2c168cb61180df393be4d3e5e46a8b5d5a83f252fe11e92eb992b82f1e8",
     "docs/RETRIEVAL_EVAL_V1.md": "065d43a0a0e4eae944e9541717a563ae0473a3e6c421200346118e7301b38fe9",
-    "docs/SEAM_OPERATOR_GUIDE.md": "c66de2184f79509ec7f140728c8e2e6059e25ad15acabf0f090ad2be94bf03dc",
+    "docs/SEAM_OPERATOR_GUIDE.md": "45f8bc8f7cd2c16c773593c48c7a30cf65d2b179a3cf0e426688381b55c5e187",
     "docs/SELF_HOST_SECURITY.md": "763f3023898dd26e2fca6a7a21182c0b6a07eb66ffe1fea1309b5c9ec17f0205",
     "docs/SOP_ADVISOR_EXECUTOR_LOOP.md": "b2b018793c28c47aa075f5699ed18cd464db4b05d9f3b8eb29048fd3ffd998ac",
     "docs/SOP_AGENT_ORCHESTRATION.md": "cfd06a0f07287d132e7277bfd737803690818d4063c818350c56cf44a2812058",
@@ -160,7 +160,7 @@
     "docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md": "c1f32cb8a2142b1969e5c0f0cd3f57d9b5822a05a3761abcc4f7c8b2627ae6fa",
     "docs/roadmap/TRUST_SECURITY_AUDITABILITY.md": "8158adc48e7ab1a3f2ad69a714e6405853a524c0b2c6cf00de819d3c68ce3564",
     "docs/roadmap/TUI_OPERATOR_SURFACE.md": "acf183be274d423580dc81aa4e813b289eeda88a59910119e801675581509761",
-    "docs/setup.md": "3f5dc80963b11ff62e212acf51258e6aec7fdd9ae8a4a54bd2d9d37bc30b8589",
+    "docs/setup.md": "4d9a976669ed0138110d8e994a6b8c67e0bb4368166719d6107666f2dbae013a",
     "docs/status/benchmarks.md": "91fd1e0b5fb27974d4e5a93f4112d227d9409398c10112552f9bdf107c5c2d53",
     "docs/status/compression-visual.md": "db8c10dd70f0ec78971aa9a6e9a0224b94152f728ff4b7e0b97c5fd86e970893",
     "docs/status/deferred.md": "abfb767d4a8499c26b0b36598c82fc9ee0a8cad685d9e5e576835d8a81b444a7",
@@ -245,7 +245,7 @@
     },
     "docs/MACOS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "7105a4ba181b8f30097352901a66942063a64b7dcf697037a89de1063ab2d815",
+      "document_sha256": "2b43d74f33519148924bb4a32f66a5316dd87efb9bf9bc59daab3fb87240c267",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -275,7 +275,7 @@
     },
     "docs/SEAM_OPERATOR_GUIDE.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "c66de2184f79509ec7f140728c8e2e6059e25ad15acabf0f090ad2be94bf03dc",
+      "document_sha256": "45f8bc8f7cd2c16c773593c48c7a30cf65d2b179a3cf0e426688381b55c5e187",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -315,7 +315,7 @@
     },
     "docs/setup.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "3f5dc80963b11ff62e212acf51258e6aec7fdd9ae8a4a54bd2d9d37bc30b8589",
+      "document_sha256": "4d9a976669ed0138110d8e994a6b8c67e0bb4368166719d6107666f2dbae013a",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

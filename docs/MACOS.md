@@ -342,10 +342,17 @@ More symptoms: [errors.md](errors.md).
 
 ## Uninstall
 
+Stop SEAM and any agents writing to its database before uninstalling. For the
+default managed installation, the removal targets are the runtime and its three
+command shims. If you use a custom `SEAM_DB_PATH`, first confirm that the database
+and any associated files are outside the removal targets below.
+
 ```bash
-rm -rf "$HOME/Library/Application Support/SEAM"
+rm -rf "$HOME/Library/Application Support/SEAM/runtime"
 rm -f "$HOME/.local/bin/seam" "$HOME/.local/bin/seam-benchmark" "$HOME/.local/bin/seam-dash"
 ```
+
+These commands retain the default `state/` directory and its `seam.db` database.
 
 Remove the `# >>> SEAM installer >>>` block from `~/.zprofile`, `~/.bashrc`, and `~/.profile` manually.
 
@@ -354,3 +361,13 @@ Repo-local dev only:
 ```bash
 rm -rf .venv
 ```
+
+### Intentional data deletion
+
+Deleting persistent data is a separate destructive action. Identify the effective
+`SEAM_DB_PATH` and any associated database files before deciding what to delete;
+the default managed location is `~/Library/Application Support/SEAM/state/`.
+Stop all writers, decide which data you intend to retain, and verify your
+retention or backup procedure before deleting data. This guide does not provide
+a verified backup or restore procedure. Data deletion requires an explicit
+operator decision and is not part of the ordinary uninstall commands above.
