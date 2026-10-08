@@ -21636,3 +21636,61 @@ checks and verify required CI on the corrected pushed head before describing
 that head as qualified for owner review. PR #281 remains draft; no merge,
 deployment, PyPI, M0–M5 or paid Windows workflow dispatch is authorized here.
 ---END-ENTRY-#659---
+
+---BEGIN-ENTRY-#660---
+id: 660
+date: 2026-10-08T19:12:22Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, pgvector, verify
+commits: pending
+refs: README.md,installers/README.md,docs/errors.md,docs/PGVECTOR_LOCAL.md,docs/SEAM_OPERATOR_GUIDE.md,docs/setup.md,docs/MACOS.md,SEAM_SPEC_V0.1.md,docs/MIRL_V1.md,tools/history/closeout.py,docs/audits/2026-07-20-memory-competitor-ratchet.md,docs/kb/memory-systems/seam-positioning.md,seam_runtime/retrieval_orchestrator/README.md,tests/audit/test_operator_env_runbooks.py,docs/kb/memory-systems/mem0.md,docs/reference/reference_state.json
+supersedes: 659
+tokens: 710
+---
+Prepared the independently reviewed factual documentation correction on
+`codex/docs-reviewed-followup-20261008`, based on PR281 source
+`be4cffb99b4af9d7fda3d9ac282e08b925c8b906`. The approved input patch is
+52,268 bytes, SHA256
+a3ac3486683e38b3aa9ed36d9b1208a7236852146562d679c34a3fbb0450d1dc.
+Each applied candidate file matches its reviewed after hash.
+
+The runbooks resolve pgvector settings through Compose without sourcing dotenv,
+preserve private env files, quote connection values, and require explicit Doctor
+reachability after startup. Source clone examples stop until a reviewed full
+commit is selected and checked out. Standalone stats examples are removed or
+qualified against the parser-only registration; interactive /stats is separate.
+The spec/MIRL annotations preserve the broad design contract and canonical record
+contract without claiming chronological replacement or implementation completion.
+Current package and local-versus-public SDK descriptions follow the scoped source
+and artifact evidence. Closeout changes only its explanatory docstring.
+
+Dated Mem0 annotations preserve the original historical text while identifying
+Table1 LLM-as-a-Judge J means and withholding unmatched SEAM winner/budget claims.
+Primary source anchors are arXiv2504.19413v1 Table1 S3.T1 and Docker Compose
+v5.5.1 config.go lines191-193. Correct baseline means do not verify SEAM runs.
+
+Verification on the applied tree: `python -m pytest -q -o addopts=
+-p no:cacheprovider tests/audit/test_operator_env_runbooks.py
+tools/docs/test_sync_references.py tests/audit/test_history_closeout.py
+tests/audit/test_local_gates_match_ci.py tests/audit/test_wiki_navigation.py`
+passed. `python -m ruff check tools/history/closeout.py
+tests/audit/test_operator_env_runbooks.py` passed. The managed documentation
+state acknowledges only the explicitly reviewed changes in the flagged pages;
+registry, command-contract and scope fields remain unchanged. The original
+before-fixture causal interpretation stays retracted. Retained command receipts
+qualify only the identical DSN snippet, SHA256
+37f7a8e949c3c00f2dde22d586f3f9d9eaaa0089d2e2f002bc5dedb9e253cc21,
+not their superseded whole-patch hash or a live service.
+
+Read-only `gh api` main and `gh pr view 281` requests verified protected main
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3 and PR281 open, draft, unmerged at the
+reviewed base. Prepare the follow-up draft against PR281's branch
+`codex/docs-current-authority-20261006`; do not move that branch or merge PR281.
+Native Windows/macOS, live PostgreSQL, full public-wiki completion, protected-site
+parity, original empirical contracts and licensing reconciliation remain open.
+No full-audit issue is closed. No runtime, installer, hook, config or controlling
+license changes, new checkout, package publication, deployment or provider call
+occurred. Required closeout gates and final staged verification still govern the
+publication boundary; no documentation-complete or MVP signoff is inferred.
+---END-ENTRY-#660---

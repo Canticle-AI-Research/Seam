@@ -1,3 +1,39 @@
+# SEAM positioning — evidence and comparison limits
+
+Current interpretation dated 2026-10-08. This page identifies SEAM mechanisms
+and evidence requirements; it does not establish a competitive leaderboard.
+The earlier positioning body is retained below as historical source.
+
+## Current comparison boundary
+
+[Mem0's primary paper, Table 1](https://arxiv.org/html/2504.19413v1#S3.T1)
+reports Mem0 LLM-as-a-Judge (J) means: single-hop 67.13, multi-hop 51.15,
+open-domain 72.93 and temporal 55.51. Its `s=10` parameter describes similar memories compared during updating, not
+a demonstrated ten-memory answer-retrieval cutoff. Judge repetition counts
+also do not establish a retrieval budget.
+
+The historical SEAM figures below (87.16, 88.65, 86.46 and 71.96, labeled
+top_k=200) do not by themselves establish matched input, reader, judge,
+category, context-budget or per-case contracts. The claims "LEADS ALL FOUR"
+and "budget-matched", and the alleged ~1.3x token ratio, remain unsupported
+without the exact corresponding run receipts. Do not publish them as wins.
+Use [baseline context](mem0.md#published-table-1-j-means) and
+[benchmark methodology](../eval-methodology/benchmark-traps.md).
+
+Source-grounded MIRL records, RAW/SPAN provenance, reversible representations,
+derived graph retrieval and gated improvement are mechanisms to evaluate.
+Their existence does not prove that every extracted claim is true, that all
+competitors lack equivalent features, or that SEAM wins on quality, latency or
+cost. Describe capability, tested configuration and qualification limit
+together. Temporal gaps and development priority require SEAM's own exact
+case evidence; an unmatched competitor number does not establish that gap.
+
+## Historical positioning body — retained, not current claim authority
+
+The text below is preserved from commit
+`be4cffb99b4af9d7fda3d9ac282e08b925c8b906`. The correction above governs its
+current use; historical roadmap/champion labels do not establish today's state.
+
 # SEAM positioning — where the daylight actually is
 
 Grounded in SEAM's own runs and roadmap (HISTORY, REPO_LEDGER, memory). Use this

@@ -7,34 +7,67 @@ This folder is the direct install surface for SEAM.
 For these GitHub CLI commands, authenticate with `gh auth login` if needed.
 Review the attached license terms before using the software.
 
+Replace `REPLACE_WITH_REVIEWED_COMMIT_SHA` in each clone/install block with
+the full 40-character commit SHA you reviewed. Leaving the placeholder stops
+before cloning. The installer runs only after checkout of the selected SHA.
+
 Windows PowerShell:
 
 ```powershell
-gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+& {
+    $ErrorActionPreference = "Stop"
+    $seamRevision = "REPLACE_WITH_REVIEWED_COMMIT_SHA"
+    if ($seamRevision -notmatch '^[0-9a-fA-F]{40}$') {
+        throw "Select a reviewed full commit SHA before cloning or installing."
+    }
+    gh repo clone Canticle-AI-Research/Seam Seam
+    if ($LASTEXITCODE -ne 0) { throw "Clone failed; stop before installation." }
+    git -C Seam checkout --detach $seamRevision
+    if ($LASTEXITCODE -ne 0) { throw "Reviewed revision checkout failed; stop before installation." }
+    Set-Location -LiteralPath Seam -ErrorAction Stop
+    powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+    if ($LASTEXITCODE -ne 0) { throw "Installer failed; inspect its output." }
+}
 ```
 
 macOS:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 macOS repo-local development:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 macOS operator guide: [docs/MACOS.md](../docs/MACOS.md)
@@ -184,16 +217,13 @@ else
     [ -f .env.example ] && [ -r .env.example ] || { printf '%s\n' 'Missing or unreadable .env.example; stop here.' >&2; exit 1; }
     (umask 077; set -C; cat .env.example > "$localEnv") || { printf '%s\n' 'Initialization failed; inspect the local env path before continuing.' >&2; exit 1; }
 fi
-# Edit the local file as needed; keep existing values and do not commit it.
-docker compose --env-file "$localEnv" up -d pgvector
-set -a
-. "$localEnv"
-set +a
-seam doctor
+# End private env initialization. Edit the file locally; never commit it.
 ```
 
-Set `SEAM_PGVECTOR_DSN` in your local shell/profile from those local env values
-before running SEAM with PgVector. Do not write the DSN into repo files.
+Continue with [Local Pgvector](../docs/PGVECTOR_LOCAL.md#point-seam-at-it)
+to resolve the selected settings, quote the DSN, start the `pgvector` service,
+and check it with `doctor`. Do not source the Compose env file as shell code
+or write the resolved configuration or DSN into repository files.
 
 ## Public Release Installer Shape
 

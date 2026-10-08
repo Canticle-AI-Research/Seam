@@ -23,6 +23,36 @@ SEAM is not optimized for human readability. It is optimized for:
 - cross-system portability
 - progressive token compression
 
+## Contract relationship and current format — clarification 2026-10-08
+
+This is SEAM's broader system/design specification. MIRL is its canonical
+memory IR, with the current record contract defined in
+[MIRL v1](docs/MIRL_V1.md). These are complementary contracts. Both paths first
+appear in repository commit `1507042c9e058ecd03a646328c5ef1b9337d51fd`;
+that shared recorded origin does not establish pre-Git design chronology or
+that one whole document superseded the other.
+
+The original symbol-tag grammar below (`@`, `#`, `~`, and `field=value`), its
+JSON sketches, proposed SQL tables, and illustrative CLI/API shapes are design
+material preserved for provenance. They are not the current MIRL serializer
+or installed command reference. Current MIRL text is
+`KIND|record_id|<canonical_json_payload_without_id_and_kind>`; the implementation
+is [MIRLRecord](seam_runtime/mirl.py), and installed command definitions are in
+the [CLI reference](docs/reference/CLI_REFERENCE.md).
+
+Temporal and provenance metadata already belongs to MIRL: `created_at`,
+`updated_at`, `t0`, `t1`, `prov`, `evidence`, and `attrs`. This spec is not an
+extra temporal record format that must be combined with MIRL. Do not infer a
+data migration or newly built capability from this clarification.
+
+The original semantic recoverability discussion and starting thresholds are
+design goals, not proof of byte-exact reconstruction or current acceptance
+gates. Use the explicit exact/context/narrative PACK and readable-compression
+contracts in MIRL v1 and the versioned verification evidence. A passing
+improvement gate still requires the operator approval described in
+[Knowledge Graph](docs/KNOWLEDGE_GRAPH.md#graph-derived-improvement-ratchet).
+The original spec body follows unchanged.
+
 ## 1. Design Goals
 
 SEAM exists to solve one problem:

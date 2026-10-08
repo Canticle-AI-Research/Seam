@@ -20,8 +20,12 @@ RUNBOOKS = ("installers/README.md", "docs/errors.md")
 def _initialize(path: str, fixture_root: Path) -> subprocess.CompletedProcess[str]:
     text = (REPO_ROOT / path).read_text(encoding="utf-8")
     blocks = re.findall(r"```bash\n(.*?)\n```", text, flags=re.DOTALL)
-    block = next(block for block in blocks if ".env.example" in block and "docker compose" in block)
-    initialization = block.split("docker compose", 1)[0]
+    matching = [block for block in blocks if ".env.example" in block]
+    assert len(matching) == 1, f"{path}: expected exactly one Bash env initialization block"
+    block = matching[0]
+    sentinel = "# End private env initialization"
+    assert block.count(sentinel) == 1, f"{path}: expected exactly one initialization sentinel"
+    initialization = block.split(sentinel, 1)[0]
     # Replace only the home-path binding; preserve the documented shell logic.
     # HOME itself is never changed, and no service/runtime command is executed.
     initialization = initialization.replace("$HOME", "$SEAM_RUNBOOK_TEST_ROOT")
@@ -74,3 +78,32 @@ def test_env_initialization_rejects_a_directory_destination(path: str, tmp_path:
     assert result.returncode != 0
     assert target.is_dir()
     assert list(target.iterdir()) == []
+
+
+@pytest.mark.parametrize("path", RUNBOOKS)
+@pytest.mark.parametrize("defect", ("missing_block", "multiple_blocks", "missing_sentinel", "duplicate_sentinel"))
+def test_env_initialization_rejects_unsafe_extraction_before_execution(
+    path: str, defect: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runbook = (REPO_ROOT / path).read_text(encoding="utf-8")
+    blocks = re.findall(r"```bash\n(.*?)\n```", runbook, flags=re.DOTALL)
+    block = next(block for block in blocks if ".env.example" in block)
+    if defect == "missing_block":
+        runbook = runbook.replace(".env.example", "REMOVED_TEMPLATE_MARKER")
+    elif defect == "multiple_blocks":
+        runbook += "\n```bash\n" + block + "\n```\n"
+    elif defect == "missing_sentinel":
+        runbook = runbook.replace("# End private env initialization", "REMOVED_SENTINEL")
+    else:
+        runbook = runbook.replace(block, block.replace("# End private env initialization", "# End private env initialization\n# End private env initialization", 1), 1)
+    source = tmp_path / "runbooks"
+    target = source / path
+    target.parent.mkdir(parents=True)
+    target.write_text(runbook, encoding="utf-8")
+    monkeypatch.setitem(_initialize.__globals__, "REPO_ROOT", source)
+    def forbidden_execution(*args, **kwargs):
+        pytest.fail("Malformed documentation must be rejected before shell execution")
+    monkeypatch.setattr(subprocess, "run", forbidden_execution)
+    expected = "exactly one Bash env initialization block" if defect.endswith("blocks") or defect == "missing_block" else "exactly one initialization sentinel"
+    with pytest.raises(AssertionError, match=expected):
+        _initialize(path, tmp_path / "fixture")

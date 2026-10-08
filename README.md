@@ -61,8 +61,11 @@ Install with REST API and dashboard extras:
 python -m pip install ".[server,dash]"
 ```
 
-Use a reviewed commit or release tag for a reproducible checkout; the naming
-candidate is not on `main` until its PR merges. Public repository visibility does not change the
+Use a reviewed commit or release tag for a reproducible checkout. The
+`seam-suite` naming change merged in PR256 at commit
+`7bd47d203bc8094020e7c9537d6a9ea0b7ab50d0`; source metadata names
+`seam-suite` version `2.4.1rc1`. This source merge does not qualify or publish
+an index artifact. Public repository visibility does not change the
 [license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
@@ -83,8 +86,12 @@ credentials remain separately provisioned.
 
 ## Local Python SDK
 
-Agents can use one local SDK for canonical knowledge and non-canonical public
-reasoning records:
+Authorized runtime users can use the local `seam_runtime.SeamSDK` for
+canonical knowledge and non-canonical reasoning records. This in-process
+interface belongs to the runtime checkout; installing the separate `seam-client`
+HTTP package does not provide it. Its import path does not create an additional
+license grant. Reasoning records expose concise justifications, as described
+below:
 
 ```python
 from seam_runtime import SeamSDK
@@ -121,28 +128,57 @@ The installer flows below are for authorized source-development use under
 [LICENSE](LICENSE). They use the GitHub CLI with the canonical repository;
 public visibility does not replace the required use authorization.
 
+For each clone/install block, replace `REPLACE_WITH_REVIEWED_COMMIT_SHA`
+with the full 40-character commit SHA you reviewed. The placeholder stops
+before cloning; installation runs only after that revision is checked out.
+
 Windows PowerShell:
 
 ```powershell
-gh repo clone Canticle-AI-Research/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+& {
+    $ErrorActionPreference = "Stop"
+    $seamRevision = "REPLACE_WITH_REVIEWED_COMMIT_SHA"
+    if ($seamRevision -notmatch '^[0-9a-fA-F]{40}$') {
+        throw "Select a reviewed full commit SHA before cloning or installing."
+    }
+    gh repo clone Canticle-AI-Research/Seam Seam
+    if ($LASTEXITCODE -ne 0) { throw "Clone failed; stop before installation." }
+    git -C Seam checkout --detach $seamRevision
+    if ($LASTEXITCODE -ne 0) { throw "Reviewed revision checkout failed; stop before installation." }
+    Set-Location -LiteralPath Seam -ErrorAction Stop
+    powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+    if ($LASTEXITCODE -ne 0) { throw "Installer failed; inspect its output." }
+}
 ```
 
 macOS:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 Repo-local Linux development bootstrap:
 
 ```bash
-gh repo clone Canticle-AI-Research/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 ## Agent Setup Prompt

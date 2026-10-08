@@ -2,6 +2,13 @@
 
 MIRL is the canonical memory IR inside SEAM.
 
+The broader [SEAM specification](../SEAM_SPEC_V0.1.md) governs the system/design
+contract. Its original symbol-tag grammar is preserved design material; this
+document defines the current MIRL record text and fields. The document label
+"v1" is not a claim that runtime records use `ver=1`: the current
+`seam_runtime.mirl.SCHEMA_VERSION` is `mirl/0.1`. Temporal and provenance fields
+are already part of MIRL, as listed below.
+
 ## Readable Lossless Compression Contract
 
 SEAM compression is not complete when it only produces an opaque compressed
