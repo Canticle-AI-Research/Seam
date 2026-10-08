@@ -21597,3 +21597,42 @@ chroma-real-smoke and locomo-quickstart-bil2; those results do not certify the
 next head. Run the unchanged local gates and verify the required checks on
 the new pushed head before reporting that head as qualified for review.
 ---END-ENTRY-#658---
+
+---BEGIN-ENTRY-#659---
+id: 659
+date: 2026-10-08T16:37:04Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: e0e0cc0903be111d481e61e962204c311bbafa90
+refs: tests/audit/test_operator_env_runbooks.py,tests/conftest.py,.github/workflows/ci-windows.yml
+supersedes: 658
+tokens: 327
+---
+Correct the platform scope of the eight operator env-runbook fixtures in draft
+PR #281. They extract and execute Bash initialization prefixes and assert
+POSIX file modes. The manual Windows workflow collects the module through
+pytest tests/, but native Windows does not provide these mode semantics.
+This portability finding is source-derived, not a witnessed Windows failure.
+
+Mark only this POSIX Bash fixture module unavailable on Windows, with an
+explicit Windows reason accepted by the existing strict no-skip policy.
+PowerShell behavior is outside these fixtures and remains source-reviewed
+only; no supported Windows test or runtime behavior is hidden or changed.
+The eight fixtures pass on the local POSIX environment. The isolated marker
+predicate is true for nt, false for posix, and its reason matches the existing
+allowlist; this is source/policy verification, not native Windows execution.
+
+Keep the full-documentation and current-built release closeout open. Inherited
+DSN defaults, a BOM-prefixed env template and unguarded Windows clone sequences
+are separate current-operator findings; this commit does not resolve them.
+The beginner setup target must distinguish recommended full components from
+reduced capabilities. Future Doctor and parked Litigation are not invented
+current-release prerequisites. No runtime, licensing, configuration, hook,
+website, package or provider changes are introduced.
+
+Preserve all previous history and archive chunks. Run the unchanged local
+checks and verify required CI on the corrected pushed head before describing
+that head as qualified for owner review. PR #281 remains draft; no merge,
+deployment, PyPI, M0–M5 or paid Windows workflow dispatch is authorized here.
+---END-ENTRY-#659---

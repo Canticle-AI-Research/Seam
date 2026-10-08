@@ -1,4 +1,4 @@
-"""Exercise documented env initialization in disposable files, without services."""
+"""Exercise documented POSIX Bash env initialization without starting services."""
 
 import os
 import re
@@ -7,6 +7,11 @@ import subprocess
 from pathlib import Path
 
 import pytest
+
+pytestmark = pytest.mark.skipif(
+    os.name == "nt",
+    reason="Windows does not provide POSIX file-mode semantics for these Bash fixtures.",
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 RUNBOOKS = ("installers/README.md", "docs/errors.md")

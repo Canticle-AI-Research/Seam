@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 724
+total_events: 725
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-23T09:34:00Z | history:465:f120ba7d | session-event | done | vector, retrieval, memory, verify, test | seam_runtime/vector.py,seam_runtime/vector_adapters.py,seam_runtime/retrieval... |
 | 2026-07-23T16:42:06Z | history:466:dfaafd98 | session-event | done | graph, memory, agent, verify, test, provenance, atomicity... | seam_runtime/reasoning_graph.py,seam_runtime/sdk.py,seam_runtime/storage.py,t... |
 | 2026-07-24T00:00:00Z | roadmap:061:c6b5382b | status-change | bootstrap | packaging, release, distribution | ROADMAP.md:1668 |
 | 2026-07-24T10:21:50Z | history:467:9e9791e2 | session-event | changed | security, mirl, surface, pyproject, ci, docs, verify, han... | LICENSE,LICENSES/Apache-2.0.txt,NOTICE,COMMERCIAL_LICENSE.md,CONTRIBUTING.md,... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-06T05:33:33Z | history:656:92c29e23 | session-event | in-progress | docs, audit, installer, pgvector, windows, extras, verify | PROJECT_STATUS.md,docs/errors.md,installers/README.md,tests/audit/test_operat... |
 | 2026-10-07T17:30:50Z | history:657:761ac292 | session-event | in-progress | docs, audit, installer, verify | PROJECT_STATUS.md,installers/README.md,docs/errors.md,tests/audit/test_operat... |
 | 2026-10-07T17:47:24Z | history:658:7b7bd6a8 | session-event | in-progress | docs, audit, installer, verify | PROJECT_STATUS.md,installers/README.md,docs/errors.md,tests/audit/test_operat... |
+| 2026-10-08T16:37:04Z | history:659:c7515f46 | session-event | in-progress | docs, audit, installer, verify | tests/audit/test_operator_env_runbooks.py,tests/conftest.py,.github/workflows... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0524.cross.md | 2026-04-15T00:00:00Z..2026-07-23T08:59:28Z | 524 | (multi) | (multi) |
+| 0001-0525.cross.md | 2026-04-15T00:00:00Z..2026-07-23T09:34:00Z | 525 | (multi) | (multi) |
