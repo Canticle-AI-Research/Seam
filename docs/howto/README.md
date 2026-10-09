@@ -7,6 +7,10 @@ These commands assume the global `seam` shim from the installer is on `PATH`. If
 you are working from a repo-local dev checkout, replace `seam` with
 `.\.venv\Scripts\seam.exe` (Windows) or `./.venv/bin/seam` (macOS / Linux).
 
+Follow [database path selection](../SEAM_OPERATOR_GUIDE.md#database-path-selection)
+when switching between these managed-shim and direct-entrypoint forms, or when
+connecting MCP to the same SQLite store.
+
 macOS install and layout: [MACOS.md](../MACOS.md)
 
 ## 1) Ingest, Search, Retrieve

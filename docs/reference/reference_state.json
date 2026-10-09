@@ -1,6 +1,6 @@
 {
   "baseline_is_identity_not_semantic_approval": true,
-  "catalog_sha256": "547d007709aeacb09365cf006c7a123671233fb78dbae54e50c2126710e6b478",
+  "catalog_sha256": "39ff65847645ba829c34cf193b4bd451dc017061aec89a04da12501110d35638",
   "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
   "documents": {
     ".github/RELEASE_CHECKLIST.md": "f5c152df77f5db80ecf4831c840d75ba69c13ffb9492704f7f58944832ab7b83",
@@ -12,9 +12,9 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "f7e5b39d3f1b8ef1aee8cefff00dd5e951b8a06e1ad64e97e59c6dabfe6c4a33",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "2bbd74f1ac352a1d2ac5095f53ca929fb208567bb261366f12b818ced3294f3d",
+    "PROJECT_STATUS.md": "adaf264c448d2e7ec25b6a49113e2913f630d78893b9496b2243b61194d9890a",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
-    "README.md": "9b8cfbeeeeb4f83f93f9ac74adbf0820ad53675006ed008bb17fbeb483557f88",
+    "README.md": "71f1993c004508d11c11e2d1f1539fbfd5adb765a4a9a5dd9a334a68f99d5248",
     "REPO_LEDGER.md": "cf1b49a7f015bd6d5329e5b3c68f70e2fa0113b2de6d9a17e5f313c92864a14b",
     "ROADMAP.md": "5b6455e4a616eeec0f0e87eeb3beea09a2a2be568a55cfbaa304189d43466bb1",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
@@ -46,7 +46,7 @@
     "docs/HOLOGRAPHIC_SURFACE.md": "0c417f80d944e71f5c0ba7b39e79edde1604a3c42c7ddd5f78373e915c6e1d85",
     "docs/IMPROVEMENT_EXPERIMENTS.md": "e119f8627654eb72b6841cf3d5ee93be79462908003e0d439e03f284b03ecefe",
     "docs/KNOWLEDGE_GRAPH.md": "dd87449b041882c76bf753d55b1ccdb38a419169916c8c5fe519524987c72f35",
-    "docs/MACOS.md": "2b43d74f33519148924bb4a32f66a5316dd87efb9bf9bc59daab3fb87240c267",
+    "docs/MACOS.md": "6bbb72ee28f44f3307bbec532ec8d61aaadebb15fd77514f16c4203c1656139f",
     "docs/MIRL_V1.md": "9588d87379bc48e139d28210de360c17e29ea5e3b7f82e8a2ab7af0944177d9b",
     "docs/PGVECTOR_LOCAL.md": "55c186970610f05eea1b21085476448ad5212391f8d98b50cc08be946d848c76",
     "docs/PRODUCTS.md": "81222cb809db36c512dc27cb952e47e868daf5157dc8195b026f24d667c2dfd5",
@@ -57,7 +57,7 @@
     "docs/REASONING_GRAPH.md": "6cf7b938a67287b51ecd03528e1205de39ba60abf07d24c806b8193c7e1ff805",
     "docs/REPORTS_AND_EVIDENCE.md": "6696e2c168cb61180df393be4d3e5e46a8b5d5a83f252fe11e92eb992b82f1e8",
     "docs/RETRIEVAL_EVAL_V1.md": "065d43a0a0e4eae944e9541717a563ae0473a3e6c421200346118e7301b38fe9",
-    "docs/SEAM_OPERATOR_GUIDE.md": "45f8bc8f7cd2c16c773593c48c7a30cf65d2b179a3cf0e426688381b55c5e187",
+    "docs/SEAM_OPERATOR_GUIDE.md": "bebba16836a320e1105dedd50c9a46af7ae89f50e6072078fc608c4a44ea8509",
     "docs/SELF_HOST_SECURITY.md": "763f3023898dd26e2fca6a7a21182c0b6a07eb66ffe1fea1309b5c9ec17f0205",
     "docs/SOP_ADVISOR_EXECUTOR_LOOP.md": "b2b018793c28c47aa075f5699ed18cd464db4b05d9f3b8eb29048fd3ffd998ac",
     "docs/SOP_AGENT_ORCHESTRATION.md": "cfd06a0f07287d132e7277bfd737803690818d4063c818350c56cf44a2812058",
@@ -110,7 +110,7 @@
     "docs/engineering/templates/THREAT_MODEL_DELTA.md": "d98ed44d5da7d3d32fa218ae2499e93e818ab9f124d1961b19bdf2899911fb0e",
     "docs/errors.md": "8d298e338d36fe822cbe125aa79b22070eee5de3f376059b1970959fd2bf1ec0",
     "docs/handoffs/INDEX.md": "7cc59d77fca5756e06a0daa91b687921dcf77b6ab6c27137cb0694bd16f12c66",
-    "docs/howto/README.md": "82475aeb4582027f3547d60513c06380ad53f1cd3b88800c7dd23c15b378df73",
+    "docs/howto/README.md": "1503b123eeea2cdc9b38ccca4b826cefca5fee10a9de557e116cdcc859b8e09d",
     "docs/kb/README.md": "64b5d293ac1b0c699a9cca5302a8432f5ad8c522f6186c411c391ecc2e2904d4",
     "docs/kb/eval-methodology/benchmark-traps.md": "6bfaf8c57c9387d4d35e35e51e3516cb835701dfedc157b22a0f8f3dc0afa087",
     "docs/kb/eval-methodology/locomo-mem0-harness.md": "0107ed75edf656bc92e5292daa9c0cc56f6737f61a40511bcbba0df43c0e8d61",
@@ -160,7 +160,7 @@
     "docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md": "c1f32cb8a2142b1969e5c0f0cd3f57d9b5822a05a3761abcc4f7c8b2627ae6fa",
     "docs/roadmap/TRUST_SECURITY_AUDITABILITY.md": "8158adc48e7ab1a3f2ad69a714e6405853a524c0b2c6cf00de819d3c68ce3564",
     "docs/roadmap/TUI_OPERATOR_SURFACE.md": "acf183be274d423580dc81aa4e813b289eeda88a59910119e801675581509761",
-    "docs/setup.md": "4d9a976669ed0138110d8e994a6b8c67e0bb4368166719d6107666f2dbae013a",
+    "docs/setup.md": "d951b265a5e096798074fc059d5df055b2b9088c60b0f8971e94979e3c5438e6",
     "docs/status/benchmarks.md": "91fd1e0b5fb27974d4e5a93f4112d227d9409398c10112552f9bdf107c5c2d53",
     "docs/status/compression-visual.md": "db8c10dd70f0ec78971aa9a6e9a0224b94152f728ff4b7e0b97c5fd86e970893",
     "docs/status/deferred.md": "abfb767d4a8499c26b0b36598c82fc9ee0a8cad685d9e5e576835d8a81b444a7",
@@ -171,7 +171,7 @@
     "docs/status/retrieval.md": "bfa2812175ee69bda9a9665a9b47d132feadaaf468812b219ccc15c44c105edd",
     "docs/status/surfaces.md": "c2e0340b264192872ac40108c6bacacacc2765c24dae3a96c60d0fb59f716405",
     "docs/status/workspace.md": "9ce2ebf4b12372d4440a21ffbada0544cc7981548e50fc55317caaa38ee2ab5e",
-    "installers/README.md": "a2982a7c534047b4b675701c34b3aa2c8eecb206cfecb2a48f32ed7dbb2a0f3b",
+    "installers/README.md": "af19105070c12fb0f8b789671a617bb77da47d8df86bbac6e774e38edd017186",
     "seam_runtime/retrieval_orchestrator/README.md": "73da05769664f7026fb60c66845168c2da9a03c0dff877b5318f7722efd6149d",
     "skills/seam-engineer/SKILL.md": "fbe0e60f01259a2dd7b1b7fa8f333124c71038a6f921e46ace27db0cd01d436b",
     "tests/docs/README.md": "1f54428a7ced5512f89963104e6720c4389b494149e7f0ebd830edb86d5582e5",
@@ -195,43 +195,176 @@
   },
   "pending_reviews": {},
   "review_acknowledgements": {
+    "AGENTS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "7b8911538b6a54b34e21e2fc11f3b2d470bbbd28272ebea7081a91aefcb71151",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "2bbd74f1ac352a1d2ac5095f53ca929fb208567bb261366f12b818ced3294f3d",
+      "document_sha256": "adaf264c448d2e7ec25b6a49113e2913f630d78893b9496b2243b61194d9890a",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "README.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "9b8cfbeeeeb4f83f93f9ac74adbf0820ad53675006ed008bb17fbeb483557f88",
+      "document_sha256": "71f1993c004508d11c11e2d1f1539fbfd5adb765a4a9a5dd9a334a68f99d5248",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "cf1b49a7f015bd6d5329e5b3c68f70e2fa0113b2de6d9a17e5f313c92864a14b",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
-        "hand-written command content added/changed; review against current definitions"
+        "CLI source revisions changed; review hand-written command behavior claims"
       ],
-      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification."
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "ROADMAP.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "5b6455e4a616eeec0f0e87eeb3beea09a2a2be568a55cfbaa304189d43466bb1",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "SEAM_SPEC_V0.1.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
-        "hand-written content added/changed; review the authored change"
+        "CLI source revisions changed; review hand-written command behavior claims"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "7a899ba1aa6994cf6a6a2daba07e2a8c35b6470624a9e44e1683a1da980ff087",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/RESULTS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c991921f3cb6544222ff349c03760294ed0811750e8bd27e02a9d1e8b622d15f",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/external/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "b959a307f07b6ff495b543b942ae434ee558b24f6bbcb6451c56a952a1835716",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/external/beam/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "58fb028f56acfa4604773879027822304123b5f2e8636a898a7824760e2abeb4",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/external/longmemeval/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "e430a46ff98cf926ce8a946a3b002ff354275b4a5a62ef4dde10405424ed94ef",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/external/mem0_harness/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "2b829a16c8e424f10aa3516627b5bb62ee385f41af0e4128c3e9cba3851c70cf",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "benchmarks/runs/holdout/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "40b949472f9633e9d8b937ea6501a0c11db7cba5d433c385831bd2d5e9ce5f11",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "branding/retro-direction.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "d27eb747b0568a11cc2f705f9b0c2cae361924e7b3f0b97ff9c5087296195c87",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/BENCHMARK_RUN_RECORDS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "6ff7f6e984a20638e5e8f3735bca27e390a0f522a38967a91a1f90867864a1e1",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/BENCHMARK_SOP.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "867b4abe1cc7db674f590951e58eaa39c82c005fe86bbc5db7944c40ba11f82e",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/CODE_LAYOUT.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "3ea39e8667729e4e86ce6aae3ba6acc086d87c0d39aba03a1f3bd0d3dfbd2702",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "docs/DOCUMENTATION_SAFEGUARDS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
@@ -243,15 +376,56 @@
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
     },
-    "docs/MACOS.md": {
+    "docs/ENGINEERING_LOG.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "2b43d74f33519148924bb4a32f66a5316dd87efb9bf9bc59daab3fb87240c267",
+      "document_sha256": "34dc2e3aa0bc30412c2b51575d578acec62ac0c5be1d64ac5323eb08331ed2b9",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/HOLOGRAPHIC_SURFACE.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "0c417f80d944e71f5c0ba7b39e79edde1604a3c42c7ddd5f78373e915c6e1d85",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/IMPROVEMENT_EXPERIMENTS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "e119f8627654eb72b6841cf3d5ee93be79462908003e0d439e03f284b03ecefe",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/KNOWLEDGE_GRAPH.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "dd87449b041882c76bf753d55b1ccdb38a419169916c8c5fe519524987c72f35",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/MACOS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "6bbb72ee28f44f3307bbec532ec8d61aaadebb15fd77514f16c4203c1656139f",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "docs/MIRL_V1.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
@@ -268,30 +442,272 @@
       "document_sha256": "55c186970610f05eea1b21085476448ad5212391f8d98b50cc08be946d848c76",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
-        "hand-written content added/changed; review the authored change"
+        "CLI source revisions changed; review hand-written command behavior claims"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/RAG_ARCHITECTURE.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "f87ab0ea0f6ec9704f24287eea4e9dbfcb0c29362f52d7a195f862252c090d49",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "docs/SEAM_OPERATOR_GUIDE.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "45f8bc8f7cd2c16c773593c48c7a30cf65d2b179a3cf0e426688381b55c5e187",
+      "document_sha256": "bebba16836a320e1105dedd50c9a46af7ae89f50e6072078fc608c4a44ea8509",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_BENCHMARKABLE_STATE_ROADMAP.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "43269d3e5ed93d972734484acc33af8b3f05b768d11738ca1996f0564aaec805",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "1f99faa7f45cecddf566080ce22dcfb6477f9bc29806ba195b6861cde622db7c",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_CI_HARDENING_DEEPSEEK.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "853a213b7df80dd76b0b3679ba41b555245c9d5ec85605d386dc40ddfc94dec3",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_CRITICAL_BENCHMARKABILITY_FIX.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "36467951061f3ebba048f82ed4687d438ccd320967390d64a361e9612066d078",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "baee652faf13f6fec5417e8f82f1fceeba300293dc5400f0b15b739d0a8a774b",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_DEEP_AUDIT_DEEPSEEK_EXECUTION.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "e0ffff758976781d11d0f29c2f083535a49f90361223bacd9fe48f03b3561b54",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_DEEP_AUDIT_REMEDIATION_BLUEPRINT.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "d4fa21e5ce8b2d31ebc9825722910baf67ab11a25848d4c44a7c3196a7970309",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "f430526e6270c354e97f92185529b58d9413c7e4faaeb78e4918b1c6bd9e8865",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_EXTERNAL_BENCH_LOCOMO_SEAM_ADAPTER.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "7838b13962f399c4761996154fd607a8faccbb07f2da5f7d90e3c44c707d32c1",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "077112b83a4d7bfb071b1e5d5551b3f42b93e7757a904f51be5e4bceba576196",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_EXTERNAL_BENCH_PHASE1_REGISTRY.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "608f23165072ad68d7971803a34572d0234eab45e926d6bab86f0c19106e1322",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "76f25e43b2b15eb3ab4b4f5ea096df22d9d0acc3e74d3df6e155f905c7c69738",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_MODEL_INTEGRATION.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "591a4a46cf806f69ba02176ae49d8ca5ec63aeebffa9f7d2b6ef4403a685caf5",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c36d89607cd24417dcfeafda08b6c20ba222b03dd0cd28fe09c4d5aab7a4d0cf",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_SEAM_CODEX_WORKFLOW.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "35cd2db27a79ec9834051b8af6d1392bacceef9eb9c277b3302d2449a5aa2d16",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_K_BIL_PHASE1_DEEPSEEK.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "228af48c1bcd2b158c4984d8ca6a88fd054de0315579372dc689c78f30c54f89",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_K_BIL_PHASE1_REPAIR_HANDOFF.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "120072a6b4f9139ebc25cb32cff764f5992cb8b8ce477ba570f01d736a8f0f96",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_M_P0_DEEPSEEK.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "ccbf7d1a1c99016db7a3b75e8092cab4007529315930f71cbccef55c7c2c50c8",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_M_P1_REAL_BENCHMARK_RUNS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "e5209b8aca57d8c3ae1a81bce4c061d9f4a59914fed5eb55dde33175695f3417",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_M_P2_LOCOMO_RETRIEVAL_WIRING.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "143056554bacdececb10ea45fc1290062c630ed3cf050ffb35ca551caf7829d1",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_M_P3_LOCOMO_SCORE_IMPROVEMENTS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "39e299a0689e8cee63755ba9ea42a59eaba54f239d3467029db9ec0a7bb08f62",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/SOP_TRACK_M_P4_SCORE_IMPROVEMENTS_AND_MEASUREMENT.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "0b585a66c6c284709a26acc51b8b3e77ea6d69f2480a9954eb4429fe7338ef30",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "docs/errors.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "8d298e338d36fe822cbe125aa79b22070eee5de3f376059b1970959fd2bf1ec0",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/howto/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "1503b123eeea2cdc9b38ccca4b826cefca5fee10a9de557e116cdcc859b8e09d",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "docs/kb/memory-systems/mem0.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
@@ -313,25 +729,247 @@
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
     },
-    "docs/setup.md": {
+    "docs/pricing-tiers.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "4d9a976669ed0138110d8e994a6b8c67e0bb4368166719d6107666f2dbae013a",
+      "document_sha256": "f8a748a7eaa30dd08c7327037519e3a28e503af5a4fbaf0922d228d926754c96",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/prompts/DEEPSEEK_TRACK_K_BIL_PHASE1_PROMPT.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "a7874c34c1757ed2830cf3c9cfd3f4f214eab5f6bb3c434fef06c101483812f3",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/prompts/DEEPSEEK_TRACK_M_P0_PROMPT.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "f978b9a7a3640b6897f4388fa7d28d1c59bb8553e1432662fb1d49656f3f763e",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/prompts/DEEPSEEK_TRACK_M_P1_REAL_BENCHMARK_RUNS_PROMPT.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "e4f325c77bbb0f1f7107c70ba09e841f0c3e5bcd26e2f4b2180abf61fdd6bcbd",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/AGENT_COMPILER.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "9b6a94595b86e25259781b7ce02536439d6e7cb06eafb786967fdfa9e570015c",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/COMPETITIVE_ROADMAP.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "b466993c415a4d27b744b7177b94514647b53a6269f434d58060e8402d7afe66",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/CONTEXT_STREAMS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c31131712017d382206cf9578a860c5f3fe3efbc1eed9ff79e2b72397f8478eb",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/MEMORY_BENCHMARKS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "b7226da200435cbcea6e2af7d55b381fc584221070d9e1adbc97d508681ddfec",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/MEMORY_FORMATION.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "38f0efc2be24619ec18c88a728c76056eb9319a438ea404c56b34e760e13fc29",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "82bbae15122ad39e5dde94669389ce715225a1d257ece2f7f7a86bc23afb6d83",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/PROMPT_CODEC.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "6564f7ce761ecccc7f02bd71520fa7578aefb5dcda8f58b0514a509044ad49a8",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/SEAM_LAUNCH.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c8608f3abdcfd37fe5d64b795e9c647861aa1ba2bcf58949f399ee51adc4b818",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/SEAM_QUERY_ENGINE_SQL2_LEARNINGS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "82bf346a79d1e295c0f6b635bff33fd855f6d2d9307386856bf5b055a30bf9d0",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/SKILLS_COMPILER.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "02e1c2ae9d692a27ac6e8612f08e5c6aaf67cfd2badb0e8d3cd309b774716394",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/SKILL_FACTORY.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "86a5effd30f77766c9bc38449dca009915ad099a2c35dfc8fab951d4bf528cb5",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c1f32cb8a2142b1969e5c0f0cd3f57d9b5822a05a3761abcc4f7c8b2627ae6fa",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/TRUST_SECURITY_AUDITABILITY.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "8158adc48e7ab1a3f2ad69a714e6405853a524c0b2c6cf00de819d3c68ce3564",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/roadmap/TUI_OPERATOR_SURFACE.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "acf183be274d423580dc81aa4e813b289eeda88a59910119e801675581509761",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/setup.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "d951b265a5e096798074fc059d5df055b2b9088c60b0f8971e94979e3c5438e6",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/status/benchmarks.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "91fd1e0b5fb27974d4e5a93f4112d227d9409398c10112552f9bdf107c5c2d53",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/status/compression-visual.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "db8c10dd70f0ec78971aa9a6e9a0224b94152f728ff4b7e0b97c5fd86e970893",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/status/operations.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "feb11134587de0df1756af0b11b45635ea62d816ad9d472086ac880799c7cb97",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "docs/status/surfaces.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c2e0340b264192872ac40108c6bacacacc2765c24dae3a96c60d0fb59f716405",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "installers/README.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "a2982a7c534047b4b675701c34b3aa2c8eecb206cfecb2a48f32ed7dbb2a0f3b",
+      "document_sha256": "af19105070c12fb0f8b789671a617bb77da47d8df86bbac6e774e38edd017186",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
-      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     },
     "seam_runtime/retrieval_orchestrator/README.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
@@ -342,6 +980,26 @@
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "tests/docs/r2-acquisition-parity.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "f4e4e6c07108677ba9c75ed572bd48e35469b78538db5d97aecef0dcc27be1c9",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
+    },
+    "tests/docs/r2-sqlite-scale.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c4dfdeaeff8b6985d68dd1f4cdfd59af9512ab3932cd2673cd2be6f16d540e1c",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "CLI source revisions changed; review hand-written command behavior claims"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "08fd9250e3b53e27fdafd13603bc2322d52340b0f800d9074843c9e7b5a9ca77"
     }
   },
   "schema": "seam-doc-reference-state/2",

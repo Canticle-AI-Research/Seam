@@ -170,6 +170,11 @@ Then read:
 4. `docs/CODE_LAYOUT.md`
 5. `docs/DATA_ROUTING.md` for history, routing, audit, or context-budget work
 
+For the database used by these commands, follow
+[database path selection](SEAM_OPERATOR_GUIDE.md#database-path-selection),
+especially when mixing global installer shims with repo-local CLI or MCP
+entrypoints.
+
 ## First Memory Flow
 
 ```powershell

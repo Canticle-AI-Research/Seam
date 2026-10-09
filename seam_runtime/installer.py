@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import platform
+import shlex
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -201,16 +202,19 @@ def ensure_persistence(layout: InstallLayout) -> Path:
 
 
 def render_windows_cmd_shim(target_executable: Path, repo_root: Path, bootstrap_hint: str, persistent_db_path: Path) -> str:
-    target_text = str(target_executable)
-    db_text = str(persistent_db_path)
-    repo_text = str(repo_root)
+    # Percent signs in generated batch-file literals must not expand as variables.
+    target_text = str(target_executable).replace("%", "%%")
+    db_text = str(persistent_db_path).replace("%", "%%")
+    repo_text = str(repo_root).replace("%", "%%")
+    hint_text = bootstrap_hint.replace("%", "%%")
     return (
         "@echo off\n"
+        "setlocal DisableDelayedExpansion\n"
         f'set "SEAM_EXE={target_text}"\n'
-        f'set "SEAM_DB_PATH={db_text}"\n'
+        f'if not defined SEAM_DB_PATH set "SEAM_DB_PATH={db_text}"\n'
         'if not exist "%SEAM_EXE%" (\n'
-        f"  echo SEAM is not installed at {repo_text}\n"
-        f'  echo Run: {bootstrap_hint}\n'
+        f'  echo SEAM is not installed at "{repo_text}"\n'
+        f"  echo Run: {hint_text}\n"
         "  exit /b 1\n"
         ")\n"
         '"%SEAM_EXE%" %*\n'
@@ -224,11 +228,14 @@ def render_posix_shim(target_executable: Path, repo_root: Path, bootstrap_hint: 
     repo_text = repo_root.as_posix() if isinstance(repo_root, Path) else str(repo_root)
     return (
         "#!/usr/bin/env sh\n"
-        f'SEAM_EXE="{target_text}"\n'
-        f'export SEAM_DB_PATH="{db_text}"\n'
+        f"SEAM_EXE={shlex.quote(target_text)}\n"
+        'if [ -z "${SEAM_DB_PATH:-}" ]; then\n'
+        f"  SEAM_DB_PATH={shlex.quote(db_text)}\n"
+        "fi\n"
+        "export SEAM_DB_PATH\n"
         'if [ ! -x "$SEAM_EXE" ]; then\n'
-        f'  echo "SEAM is not installed at {repo_text}"\n'
-        f'  echo "Run: {bootstrap_hint}"\n'
+        f"  printf '%s\\n' {shlex.quote('SEAM is not installed at ' + repo_text)}\n"
+        f"  printf '%s\\n' {shlex.quote('Run: ' + bootstrap_hint)}\n"
         "  exit 1\n"
         "fi\n"
         'exec "$SEAM_EXE" "$@"\n'

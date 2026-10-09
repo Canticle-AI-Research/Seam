@@ -21748,3 +21748,72 @@ documentation/wiki signoff remain unqualified. No full-audit issue is closed.
 No runtime, installer, license, security, config or hook change, new checkout,
 merge, deployment, package publication or provider call occurs in this slice.
 ---END-ENTRY-#661---
+
+---BEGIN-ENTRY-#662---
+id: 662
+date: 2026-10-09T00:59:18Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, operator, verify
+commits: pending
+refs: seam_runtime/installer.py,tests/audit/test_database_path_selection.py,test_seam_all/test_seam.py,README.md,docs/MACOS.md,docs/SEAM_OPERATOR_GUIDE.md,docs/setup.md,docs/howto/README.md,installers/README.md,PROJECT_STATUS.md,docs/reference/command_catalog.json,docs/reference/reference_state.json
+supersedes: 661
+tokens: 780
+---
+Prepare the independently reviewed launcher database-selection correction on
+codex/launcher-db-selection-20261009, based on unchanged reviewed PR284 source
+58938be53b63760d75c4908369cc00b67f89d2a5. Exact reviewed input patch:
+27,847 bytes, SHA256
+05a36abd2536d613d74dcd162d050ffe047cb35a91c3252bc188a21f1e51d988.
+Every applied candidate file matches its reviewed after hash.
+
+The managed Windows CMD and POSIX shims now preserve a nonempty inherited
+SEAM_DB_PATH and supply the managed platform default when unset or empty.
+Explicit main CLI --db still wins and precedes its subcommand. Direct CLI/MCP
+fallback remains cwd-relative seam.db. POSIX rendering quotes literal paths
+and diagnostics; CMD guards the default, disables delayed expansion locally
+and doubles percent signs in generated literals. The installer still writes
+the same seam, seam-benchmark and seam-dash targets. Existing installed shims
+require regeneration; package upgrades alone do not rewrite them. No database
+is moved, deleted, linked or migrated, and no actual installation is run.
+
+Current operator docs explain these boundaries and point to the actual managed
+MCP console path. Doctor runtime and its separate maintenance store are
+unchanged. Future corpus discovery/repair is planned, not implemented; the
+installer's Doctor check still selects the managed default explicitly.
+
+The focused module reproduced 16 failures and 38 passes on this exact source
+baseline before the runtime edits. The applied tree passed the recorded command:
+python -m pytest -q -o addopts= -p no:cacheprovider
+tests/audit/test_database_path_selection.py
+test_seam_all/test_seam.py::InstallerLinuxTests
+test_seam_all/test_seam.py::SeamTests::test_installer_windows_shim_sets_persistent_db
+test_seam_all/test_seam.py::SeamTests::test_installer_posix_shim_sets_persistent_db
+test_seam_all/test_seam.py::SeamTests::test_default_runtime_db_path_prefers_env
+tests/audit/test_operator_documentation_safety.py
+tests/audit/test_operator_env_runbooks.py tools/docs/test_sync_references.py
+tests/audit/test_history_closeout.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_wiki_navigation.py.
+Result: 252 scoped tests passed without skips. Both affected test modules
+collected 243 cases; collection is not execution of that complete set. Ruff
+passed for seam_runtime/installer.py and the new focused test module.
+Independent review reproduced the final red/green and additional disposable
+Linux probes; it approved the exact baseline candidate within native limits.
+
+Documentation reference state records the exact changed prose and the flagged
+installer-source revision exposure. The generated CLI command contract is
+identical. Exact-hash prior full-content receipts were reused where available;
+current unmatched spec, pgvector and troubleshooting bodies were fully read.
+The acknowledgement concerns this source change only, not every page assertion,
+licensing, historical outcome or full documentation correctness.
+
+Read-only gh api verified PR281's separate merge on main d6e7c86 and the
+published prerequisite heads. This work does not reset/rebase or move those
+heads. Publish a separate draft stacked on PR284; merge remains blocked until
+dependencies land, exact-current-head review/checks and the explicit native
+boundary decision. Native Windows/macOS, installed-client activation, live
+website parity and licensing/full-documentation signoff remain unqualified.
+No paid workflow/provider call, package publication, deployment, effective
+license change, future Doctor implementation or M0-M5 advance is authorized by
+this narrow correction. Required chronology and staged gates still apply.
+---END-ENTRY-#662---

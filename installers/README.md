@@ -149,6 +149,13 @@ Default persistent database paths:
 - macOS: `~/Library/Application Support/SEAM/state/seam.db`
 - Linux / WSL2: `~/.local/share/seam/state/seam.db`
 
+The generated shims use these paths when `SEAM_DB_PATH` is unset or empty,
+and preserve a nonempty value. Re-run the reviewed platform installer in default
+mode to regenerate older shims; upgrading Python packages alone does not update
+them. This changes path selection and does not migrate a database.
+Follow [database path selection](../docs/SEAM_OPERATOR_GUIDE.md#database-path-selection)
+for explicit `--db` precedence and direct-entrypoint defaults.
+
 ## First Memory Check
 
 ```text

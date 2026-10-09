@@ -2658,7 +2658,9 @@ claim c1:
             '"/repos/seam/installers/install_seam_linux.sh"',
             Path("/home/iwana/.local/share/seam/state/seam.db"),
         )
-        self.assertIn('export SEAM_DB_PATH="/home/iwana/.local/share/seam/state/seam.db"', shim)
+        self.assertIn('if [ -z "${SEAM_DB_PATH:-}" ]; then', shim)
+        self.assertIn("  SEAM_DB_PATH=/home/iwana/.local/share/seam/state/seam.db", shim)
+        self.assertIn("export SEAM_DB_PATH\n", shim)
 
     def test_default_runtime_db_path_prefers_env(self) -> None:
         original = os.environ.get("SEAM_DB_PATH")
@@ -3501,8 +3503,10 @@ class InstallerLinuxTests(unittest.TestCase):
             Path("/home/user/.local/share/seam/state/seam.db"),
         )
         self.assertTrue(shim.startswith("#!/usr/bin/env sh\n"))
-        self.assertIn('SEAM_EXE="/home/user/.local/share/seam/runtime/bin/seam"', shim)
-        self.assertIn('export SEAM_DB_PATH="/home/user/.local/share/seam/state/seam.db"', shim)
+        self.assertIn("SEAM_EXE=/home/user/.local/share/seam/runtime/bin/seam", shim)
+        self.assertIn('if [ -z "${SEAM_DB_PATH:-}" ]; then', shim)
+        self.assertIn("  SEAM_DB_PATH=/home/user/.local/share/seam/state/seam.db", shim)
+        self.assertIn("export SEAM_DB_PATH\n", shim)
         self.assertIn('if [ ! -x "$SEAM_EXE" ]', shim)
         self.assertIn('exec "$SEAM_EXE" "$@"', shim)
 
@@ -3642,7 +3646,7 @@ class InstallerLinuxTests(unittest.TestCase):
             self.assertTrue(dashboard_shim.exists())
             content = dashboard_shim.read_text(encoding="utf-8")
             self.assertIn("seam-dash", content)
-            self.assertIn('export SEAM_DB_PATH=', content)
+            self.assertIn("export SEAM_DB_PATH\n", content)
 
     def test_write_shims_uses_macos_bootstrap_hint_on_macos(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:

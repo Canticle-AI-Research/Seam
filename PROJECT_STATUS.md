@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-09 — reviewed launcher path-selection candidate.**
+The independently reviewed change preserves a nonempty `SEAM_DB_PATH` in the
+managed command shims and keeps the managed default when it is unset or empty.
+See [database path selection](docs/SEAM_OPERATOR_GUIDE.md#database-path-selection)
+and HISTORY#662. This candidate is stacked on the reviewed PR #284 revision;
+its dependencies, exact-head checks and native-platform boundary remain the
+merge conditions. Existing installed shims require regeneration. Future Doctor
+corpus discovery/repair remains planned. Full documentation, website parity and
+licensing signoff remain open; no package or effective license change follows.
+
 **2026-10-07 — documentation safeguards merged; runbook corrections published for review.**
 [PR #279](https://github.com/Canticle-AI-Research/Seam/pull/279) merged at
 `582bf0ca04be5eb44879a06c5589167d3ccf4bf3`. Generated CLI definitions and
