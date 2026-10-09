@@ -21845,3 +21845,27 @@ Keep native readiness and merge blocked until all five actual jobs succeed with 
 
 No user database, license text, package version/release, future Doctor repair, M0–M5/PyPI/BIL3 implementation or deployment changed. Full documentation/wiki, live website parity/access, historical/scientific claim dispositions, reliable GLM attribution and sequential owner licensing decisions remain open. Prior test/CI gates are not documentation completion evidence.
 ---END-ENTRY-#663---
+
+---BEGIN-ENTRY-#664---
+id: 664
+date: 2026-10-09T02:57:34Z
+agent: codex
+status: in-progress
+topics: ci, installer, verify, windows, macos, linux, audit, docs
+commits: pending
+refs: .github/workflows/native-launchers.yml,tests/audit/test_native_launcher_harness.py,PROJECT_STATUS.md
+supersedes: 663
+tokens: 610
+---
+R2 was normally integrated and published on PR #285 as signed head `a6a77dd57a542b3fb2b37db6d69ffe21192c6dd3`, tree `ccb80aa3556423dcef98587170134516a1b8fbb6`. HTTPS was refused for missing OAuth workflow scope; verified existing SSH published without credential/security/Git configuration changes. Exact staged, secret/signature and preservation checks passed.
+
+Actual native run https://github.com/Canticle-AI-Research/Seam/actions/runs/37875247929 failed workflow validation before allocation: the published workflow's line62 uses unsupported job-env `runner.environment`. The Actions API reported zero jobs and the public run page supplied that exact error via `gh api`. No Windows/macOS/Linux execution or qualification follows from this attempt.
+
+Independent R3 review checked all eleven workflow expressions against GitHub's official context-availability table and approved exact patch SHA-256 `cee84d848055116395cc50d6a3900f864a29cd78caa67a87ae4dc3d3d30d3903`. Applied the two reviewed workflow/test bodies: move actual `SEAM_NATIVE_RUNNER_ENVIRONMENT: ${{ runner.environment }}` into the existing qualification step's env and add the supported-job-context regression. The driver guard, installer/runtime/native-driver bytes, labels, triggers, permissions, callers and cost route are unchanged. GitHub supports `runner` at step env, not job env; local context fixtures remain narrower than whole-workflow validation.
+
+Before the fix, exact R3 fixtures against the published R2 workflow reported one failed and42passed; the new context-scope regression was the sole failure. Independent R3 fixtures reported43passed with no skips. Applied source command `python -m pytest -q -o addopts= -p no:cacheprovider tests/audit/test_native_launcher_harness.py` reported43passed in10.56seconds, zero failures/skips. Repository-context Ruff passed both native driver and fixture files. These are local fixtures/static checks, not native clean-install evidence. The bounded current-status update was read and its reference review acknowledged; no broader historical/documentation/rights approval is inferred.
+
+Next: publish the corrected candidate head through existing SSH and witness all five unchanged standard public-hosted OS/Python lanes. Require successful qualified receipts on the same final reviewed head, all required/advisory checks and final scope review before merge. Zero allocated jobs, skipped workflow conclusions, static reviews and local tests cannot qualify a lane. Retain the stated fresh-terminal/profile/registry, MCP-client, corpus/provider, UI/WSL, other OS/Python and Windows/caller-shape exclusions.
+
+No actual user database, runtime/Doctor repair, license text, package release, paid provisioning or deployment changed. Actual install/owned-fixture operations remain restricted to approved throwaway standard hosted VMs. Documentation and licensing decisions remain separate open conditions.
+---END-ENTRY-#664---

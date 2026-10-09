@@ -6,6 +6,7 @@ import inspect
 import json
 import os
 import platform
+import re
 import sys
 from dataclasses import replace
 from pathlib import Path
@@ -74,6 +75,24 @@ def test_workflow_has_explicit_free_public_native_route_and_exact_head():
                    for x in job["steps"])
     assert set(data["jobs"]) == {"native-launchers"}
     assert "self-hosted" not in json.dumps(data) and "seam-box" not in json.dumps(data)
+
+
+
+def test_workflow_job_env_uses_supported_github_contexts():
+    # Official context-availability table: job env excludes runner; step env
+    # permits it. This catches GitHub's rejected pre-allocation definition.
+    # https://docs.github.com/en/actions/reference/workflows-and-actions/contexts
+    root = Path(__file__).resolve().parents[2]
+    data = yaml.load((root / ".github/workflows/native-launchers.yml").read_text(), Loader=yaml.BaseLoader)
+    supported = {"github", "needs", "strategy", "matrix", "vars", "secrets", "inputs"}
+    for job in data["jobs"].values():
+        for name, value in job.get("env", {}).items():
+            for expression in re.findall(r"\$\{\{(.*?)\}\}", value):
+                roots = set(re.findall(r"(?<![\w.])([A-Za-z_]\w*)\s*\.", expression))
+                assert roots <= supported, ("unsupported job env context", name, roots - supported)
+    step = next(step for step in data["jobs"]["native-launchers"]["steps"]
+                if step.get("name") == "Execute clean native platform install and regenerated launcher probes")
+    assert step.get("env", {}).get("SEAM_NATIVE_RUNNER_ENVIRONMENT") == "${{ runner.environment }}"
 
 
 @pytest.fixture
