@@ -248,6 +248,9 @@ Steps:
    `seam-mcp`
    Or, when pgvector is needed and Docker is available:
    `seam-mcp --ensure-pgvector`
+   Select the same SQLite database used by the CLI. Follow database path
+   selection in `docs/SEAM_OPERATOR_GUIDE.md#database-path-selection`, including
+   the direct executable path and `--db` or environment-default distinction.
    Verify the server actually responds: issue an MCP tool-list/discovery call
    against the running process and confirm SEAM's tools (memory search/get,
    context, ingest) appear before reporting MCP as configured.
@@ -410,11 +413,15 @@ Start with [docs/errors.md](docs/errors.md). Current indexed failure types inclu
 - Benchmark bundle verification failure
 - `HTTP 429` provider quota or rate-limit symptoms
 
-Default persistent database paths:
+Default database paths used by installer-managed shims when `SEAM_DB_PATH` is unset or empty:
 
 - Windows: `%LOCALAPPDATA%\SEAM\state\seam.db`
 - macOS: `~/Library/Application Support/SEAM/state/seam.db`
 - Linux / WSL2: `~/.local/share/seam/state/seam.db`
+
+Follow [database path selection](docs/SEAM_OPERATOR_GUIDE.md#database-path-selection)
+when choosing a custom database or mixing managed shims with direct CLI/MCP
+entrypoints.
 
 ## Optional Extras
 

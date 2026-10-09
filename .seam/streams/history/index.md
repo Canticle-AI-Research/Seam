@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 661
-total_tokens: ~337415
-latest_id: 661
+total_entries: 664
+total_tokens: ~339821
+latest_id: 664
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 664 | 2026-10-09 | in-progress | 9b1b0f0fe99a83c3 | ci,installer,verify,windows,+ | 663 |
+| 663 | 2026-10-09 | in-progress | e6bdad25b38359fa | ci,installer,operator,verify,+ | 662 |
+| 662 | 2026-10-09 | in-progress | e1bf77ecc06e1792 | docs,audit,installer,operator,+ | 661 |
 | 661 | 2026-10-08 | in-progress | d48167b7c8d1e072 | docs,audit,installer,verify | 660 |
 | 660 | 2026-10-08 | in-progress | 7394ef0973c287fa | docs,audit,installer,pgvector,+ | 659 |
 | 659 | 2026-10-08 | in-progress | c7515f46c9282b5f | docs,audit,installer,verify | 658 |
@@ -692,7 +695,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=135 latest=#661, #660, #659, #658, #657
+- audit: count=138 latest=#664, #663, #662, #661, #660
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -715,7 +718,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=80 latest=#655, #654, #653, #652, #651
+- ci: count=82 latest=#664, #663, #655, #654, #653
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -768,7 +771,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=108 latest=#661, #660, #659, #658, #657
+- docs: count=111 latest=#664, #663, #662, #661, #660
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -825,7 +828,7 @@ compact: true
 - inference: count=1 latest=#413
 - infra: count=3 latest=#453, #425, #271
 - ingest: count=2 latest=#317, #303
-- installer: count=22 latest=#661, #660, #659, #658, #657
+- installer: count=25 latest=#664, #663, #662, #661, #660
 - instrumentation: count=1 latest=#366
 - integrity: count=16 latest=#587, #547, #531, #530, #529
 - isolation: count=2 latest=#275, #274
@@ -840,7 +843,7 @@ compact: true
 - licensing: count=6 latest=#501, #482, #477, #476, #475
 - lifecycle: count=3 latest=#623, #575, #574
 - lint: count=1 latest=#357
-- linux: count=7 latest=#521, #177, #173, #136, #135
+- linux: count=9 latest=#664, #663, #521, #177, #173
 - live-verification: count=1 latest=#368
 - llm: count=1 latest=#313
 - loader: count=1 latest=#325
@@ -850,7 +853,7 @@ compact: true
 - loop: count=8 latest=#332, #312, #297, #293, #292
 - lossless: count=1 latest=#288
 - lx1: count=6 latest=#206, #197, #088, #018, #011
-- macos: count=4 latest=#354, #353, #352, #337
+- macos: count=6 latest=#664, #663, #354, #353, #352
 - maintenance: count=1 latest=#301
 - manual: count=1 latest=#331
 - mcp: count=26 latest=#642, #520, #491, #487, #483
@@ -881,7 +884,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=11 latest=#636, #635, #598, #597, #595
+- operator: count=13 latest=#663, #662, #636, #635, #598
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -1007,12 +1010,12 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=466 latest=#661, #660, #659, #658, #657
+- verify: count=469 latest=#664, #663, #662, #661, #660
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
 - wiki: count=2 latest=#557, #556
-- windows: count=26 latest=#656, #506, #370, #361, #360
+- windows: count=28 latest=#664, #663, #656, #506, #370
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
@@ -1026,5 +1029,5 @@ compact: true
 - roots: 87
 - changed: 70
 - done: 540
-- in-progress: 29
+- in-progress: 32
 - planned: 22

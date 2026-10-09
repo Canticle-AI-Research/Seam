@@ -30,7 +30,7 @@ where they differ.
 - **SQLite vector index** — stored inside that same SQLite file unless pgvector is enabled
 - **pgvector database** — separate Postgres container `seam-pgvector` at the selected localhost port (default 55432)
 
-**Default persistent database** (set automatically by the installer shims):
+**Managed default database** (used when `SEAM_DB_PATH` is unset or empty):
 
 | Platform | Path |
 |---|---|
@@ -38,7 +38,73 @@ where they differ.
 | macOS | `~/Library/Application Support/SEAM/state/seam.db` |
 | Linux / WSL2 | `~/.local/share/seam/state/seam.db` |
 
-Override any time with `SEAM_DB_PATH` in the shell or MCP client env.
+### Database path selection
+
+The installer-managed `seam`, `seam-benchmark`, and `seam-dash` shims
+preserve a nonempty inherited `SEAM_DB_PATH`. Unset or empty values select the
+platform default above. This applies to the generated Windows CMD and
+macOS / Linux POSIX shims. Set an absolute path to keep launches from different
+working directories on the same store:
+
+```powershell
+$env:SEAM_DB_PATH = "C:\path\to\custom\seam.db"
+seam memory search "persistent memory"
+```
+
+```bash
+export SEAM_DB_PATH="$HOME/path/to/custom/seam.db"
+seam memory search "persistent memory"
+```
+
+For the main `seam` CLI, an explicit `--db` takes precedence over the environment
+and the managed default. Pass it before the subcommand:
+
+```powershell
+seam --db "C:\path\to\custom\seam.db" memory search "persistent memory"
+```
+
+```bash
+seam --db "$HOME/path/to/custom/seam.db" memory search "persistent memory"
+```
+
+Direct `seam` console scripts, `python seam.py`, and direct `seam-mcp`
+entrypoints use `SEAM_DB_PATH` as their default. When it is empty or unset,
+they default to `seam.db` in the current working directory, rather than the
+managed state path. Relative environment values are kept as supplied; they are
+resolved from the launched process's working directory, and are not expanded
+as shell expressions. Use an absolute path for shared CLI/MCP use.
+The direct `seam-mcp --db <path>` option also takes precedence over its
+environment default. A managed `seam --db <path> mcp stdio` launch selects
+that path before starting the bridge.
+
+The installer creates three global shims; `seam-mcp` is a console script in
+the selected Python environment. Give the MCP client its full executable
+path and the same database path used by the CLI. See the
+[macOS MCP example](MACOS.md#mcp-cursor-claude-desktop-other-mcp-clients).
+
+The `seam-dash` shim follows the same environment/default selection; its own
+`--db` option takes precedence. Direct `seam-dash` and `seam-tui` launches apply
+the TUI settings file before choosing their default; existing process
+environment values take precedence over that file. A managed dashboard shim
+sets a nonempty process default before that settings file is considered. See the
+[settings implementation](../seam_runtime/config.py).
+For database-selected benchmarks, use `seam --db <path> benchmark ...` or set
+`SEAM_DB_PATH`; the `seam-benchmark` convenience entrypoint prepends benchmark
+subcommands, so the main CLI's global `--db` belongs before `benchmark`.
+
+Updating source or Python packages alone does not rewrite already installed shims.
+After selecting the reviewed revision containing this launcher change, re-run
+its platform installer in default mode to regenerate all three shims, then check
+which `seam` executable your terminal or client uses. Older shims overwrite
+inherited `SEAM_DB_PATH`; until regenerated, use the main CLI's explicit `--db`
+or a direct runtime entrypoint. Choosing another path does not migrate existing
+records. Keep the existing database and choose its location deliberately.
+
+Doctor's `Default DB` field is the environment-derived default. It does not
+report a supplied `--db` value or automatically discover or repair a moved
+corpus database; see the [Doctor report implementation](../seam_runtime/doctor.py).
+The installer runs its Doctor check against the managed default path. It does
+not qualify a custom database's contents, identity, or accessibility.
 
 ## 3. Environment setup
 
@@ -314,9 +380,13 @@ seam mcp stdio
 seam-mcp --ensure-pgvector
 ```
 
-On macOS, global shims live in `~/.local/bin/`. Point your MCP client at
-`seam-mcp` and set `SEAM_DB_PATH` if you use a non-default database. See
-[MACOS.md](MACOS.md) for a sample client config.
+For the direct `seam-mcp` form, use the executable from your selected Python
+environment, with its full path in the MCP client configuration. Select the
+same SQLite path as your CLI using `--db` or its direct-entrypoint environment
+default; follow [database path selection](#database-path-selection).
+The default macOS installer creates three shims in `~/.local/bin/`; the direct
+MCP executable lives under the managed runtime. See
+[MACOS.md](MACOS.md#mcp-cursor-claude-desktop-other-mcp-clients) for the sample.
 
 ## 6. Testing SEAM
 

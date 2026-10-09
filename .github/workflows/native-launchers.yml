@@ -1,0 +1,79 @@
+name: Native launcher qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/native-launchers.yml'
+      - 'tools/ci/native_launcher_smoke.py'
+      - 'tests/audit/test_native_launcher_harness.py'
+      - 'seam_runtime/installer.py'
+      - 'installers/**'
+      - 'seam.py'
+      - 'seam_runtime/cli.py'
+      - 'seam_runtime/dashboard.py'
+      - 'seam_runtime/config.py'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-launchers-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Standard hosted minutes are free for public repositories. Larger runners
+  # are excluded. Fork/private routes allocate no job and remain unqualified:
+  # readiness requires all five successful qualified receipts on the exact head,
+  # never merely a green/skipped workflow conclusion. No persistent runner path.
+  native-launchers:
+    if: ${{ github.event.repository.private == false && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: ubuntu-24.04
+            system: Linux
+            python: '3.11'
+            architecture: x64
+          - label: ubuntu-24.04
+            system: Linux
+            python: '3.12'
+            architecture: x64
+          - label: windows-2022
+            system: Windows
+            python: '3.12'
+            architecture: x64
+          - label: macos-15
+            system: Darwin
+            python: '3.12'
+            architecture: arm64
+          - label: macos-15-intel
+            system: Darwin
+            python: '3.12'
+            architecture: x64
+    runs-on: ${{ matrix.label }}
+    timeout-minutes: 20
+    env:
+      PYTHONDONTWRITEBYTECODE: '1'
+      SEAM_NATIVE_PUBLIC_REPOSITORY: ${{ github.event.repository.private == false }}
+      SEAM_NATIVE_RUNNER_LABEL: ${{ matrix.label }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install bounded verification dependencies
+        run: python -m pip install ".[dash,lint]" pytest
+      - name: Execute clean native platform install and regenerated launcher probes
+        shell: bash
+        env:
+          SEAM_NATIVE_RUNNER_ENVIRONMENT: ${{ runner.environment }}
+        run: python -m tools.ci.native_launcher_smoke --expected-system "${{ matrix.system }}" --expected-python "${{ matrix.python }}" --expected-architecture "${{ matrix.architecture }}" --report "${RUNNER_TEMP}/native-launcher-receipt.json"
+      # No artifact/cache upload: evidence stays in the ordinary job log.
+      # This is an OS/Python-specific qualification, not blanket platform support.

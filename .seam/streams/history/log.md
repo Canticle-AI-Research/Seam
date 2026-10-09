@@ -21748,3 +21748,124 @@ documentation/wiki signoff remain unqualified. No full-audit issue is closed.
 No runtime, installer, license, security, config or hook change, new checkout,
 merge, deployment, package publication or provider call occurs in this slice.
 ---END-ENTRY-#661---
+
+---BEGIN-ENTRY-#662---
+id: 662
+date: 2026-10-09T00:59:18Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, operator, verify
+commits: pending
+refs: seam_runtime/installer.py,tests/audit/test_database_path_selection.py,test_seam_all/test_seam.py,README.md,docs/MACOS.md,docs/SEAM_OPERATOR_GUIDE.md,docs/setup.md,docs/howto/README.md,installers/README.md,PROJECT_STATUS.md,docs/reference/command_catalog.json,docs/reference/reference_state.json
+supersedes: 661
+tokens: 780
+---
+Prepare the independently reviewed launcher database-selection correction on
+codex/launcher-db-selection-20261009, based on unchanged reviewed PR284 source
+58938be53b63760d75c4908369cc00b67f89d2a5. Exact reviewed input patch:
+27,847 bytes, SHA256
+05a36abd2536d613d74dcd162d050ffe047cb35a91c3252bc188a21f1e51d988.
+Every applied candidate file matches its reviewed after hash.
+
+The managed Windows CMD and POSIX shims now preserve a nonempty inherited
+SEAM_DB_PATH and supply the managed platform default when unset or empty.
+Explicit main CLI --db still wins and precedes its subcommand. Direct CLI/MCP
+fallback remains cwd-relative seam.db. POSIX rendering quotes literal paths
+and diagnostics; CMD guards the default, disables delayed expansion locally
+and doubles percent signs in generated literals. The installer still writes
+the same seam, seam-benchmark and seam-dash targets. Existing installed shims
+require regeneration; package upgrades alone do not rewrite them. No database
+is moved, deleted, linked or migrated, and no actual installation is run.
+
+Current operator docs explain these boundaries and point to the actual managed
+MCP console path. Doctor runtime and its separate maintenance store are
+unchanged. Future corpus discovery/repair is planned, not implemented; the
+installer's Doctor check still selects the managed default explicitly.
+
+The focused module reproduced 16 failures and 38 passes on this exact source
+baseline before the runtime edits. The applied tree passed the recorded command:
+python -m pytest -q -o addopts= -p no:cacheprovider
+tests/audit/test_database_path_selection.py
+test_seam_all/test_seam.py::InstallerLinuxTests
+test_seam_all/test_seam.py::SeamTests::test_installer_windows_shim_sets_persistent_db
+test_seam_all/test_seam.py::SeamTests::test_installer_posix_shim_sets_persistent_db
+test_seam_all/test_seam.py::SeamTests::test_default_runtime_db_path_prefers_env
+tests/audit/test_operator_documentation_safety.py
+tests/audit/test_operator_env_runbooks.py tools/docs/test_sync_references.py
+tests/audit/test_history_closeout.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_wiki_navigation.py.
+Result: 252 scoped tests passed without skips. Both affected test modules
+collected 243 cases; collection is not execution of that complete set. Ruff
+passed for seam_runtime/installer.py and the new focused test module.
+Independent review reproduced the final red/green and additional disposable
+Linux probes; it approved the exact baseline candidate within native limits.
+
+Documentation reference state records the exact changed prose and the flagged
+installer-source revision exposure. The generated CLI command contract is
+identical. Exact-hash prior full-content receipts were reused where available;
+current unmatched spec, pgvector and troubleshooting bodies were fully read.
+The acknowledgement concerns this source change only, not every page assertion,
+licensing, historical outcome or full documentation correctness.
+
+Read-only gh api verified PR281's separate merge on main d6e7c86 and the
+published prerequisite heads. This work does not reset/rebase or move those
+heads. Publish a separate draft stacked on PR284; merge remains blocked until
+dependencies land, exact-current-head review/checks and the explicit native
+boundary decision. Native Windows/macOS, installed-client activation, live
+website parity and licensing/full-documentation signoff remain unqualified.
+No paid workflow/provider call, package publication, deployment, effective
+license change, future Doctor implementation or M0-M5 advance is authorized by
+this narrow correction. Required chronology and staged gates still apply.
+---END-ENTRY-#662---
+
+---BEGIN-ENTRY-#663---
+id: 663
+date: 2026-10-09T02:29:00Z
+agent: codex
+status: in-progress
+topics: ci, installer, operator, verify, windows, macos, linux, audit, docs
+commits: pending
+refs: .github/workflows/native-launchers.yml,tools/ci/native_launcher_smoke.py,tests/audit/test_native_launcher_harness.py,PROJECT_STATUS.md
+supersedes: 662
+tokens: 1016
+---
+Integrated current main `9a5749e90035f475155843b9063650d43f1354d7` by a normal conflict-free merge with the existing PR #285 launcher candidate `0f957296a1be5cfe9c7022b9c537b686afa6dbe8`; the initial merge index tree stayed exactly `84296703d110fab3e9da937f40ff7a83b078b0c1`. Main's tree was identical to the independently reviewed PR #284 baseline, so no runtime reconciliation edit was needed. Preserved all existing branches/checkouts; no reset, rebase or force publication.
+
+Applied the independently approved R2 verification patch, SHA-256 `db657a35ce3b99cd3ce3097d1e33ff8501c52f104f4b56d742ebab42707bfa73`, exactly three added files: `.github/workflows/native-launchers.yml`, `tools/ci/native_launcher_smoke.py`, and `tests/audit/test_native_launcher_harness.py`. Runtime installer bytes remain those independently reviewed at #662. The R1 packet was rejected for persistent-runner allocation, success-on-cleanup-failure, missing native literal/delayed-expansion witnesses and insufficient regeneration/store preservation. R2 removes the refusal job, clears failed qualification, adds bounded `/v:on` and baked POSIX literal cases, and protects owned SQLite/metadata and stale launcher bytes across the planned actual clean-install/package-only/regeneration pipeline.
+
+Independent exact R2 local fixtures reported 42 passed and no skips; the exact R2 tests against R1 driver AND workflow reported 11 failed and 31 passed. This is a harness review-regression negative control, not eleven runtime product defects. Those reviewed verification bodies matched before/after application here.
+
+The integrated focused local command below reported 294 passed in 32.96 seconds, zero failures/skips. It combines the launcher/operator/documentation/continuity slice with local native-harness fixtures. It does not execute the guarded real clean installer or qualify Windows/macOS installed launcher behavior. Repository-context Ruff passed both added Python files; source-level reference checking initially rejected the changed status-page review receipt, then its fully read pending headline was explicitly acknowledged. This receipt is a bounded status update, not historical factual, licensing or full-corpus approval.
+
+`python -m pytest -q -o addopts= -p no:cacheprovider tests/audit/test_native_launcher_harness.py tests/audit/test_database_path_selection.py test_seam_all/test_seam.py::InstallerLinuxTests test_seam_all/test_seam.py::SeamTests::test_installer_windows_shim_sets_persistent_db test_seam_all/test_seam.py::SeamTests::test_installer_posix_shim_sets_persistent_db test_seam_all/test_seam.py::SeamTests::test_default_runtime_db_path_prefers_env tests/audit/test_operator_documentation_safety.py tests/audit/test_operator_env_runbooks.py tools/docs/test_sync_references.py tests/audit/test_history_closeout.py tests/audit/test_local_gates_match_ci.py tests/audit/test_wiki_navigation.py`
+
+The workflow proposes only standard public-hosted VM lanes: Ubuntu 24.04 x64 with Python 3.11 and 3.12, Windows Server 2022 x64/Python 3.12, macOS 15 ARM64/Python 3.12 and macOS 15 Intel/Python 3.12. Fork/private events allocate no native job and remain unqualified; five successful qualified exact-head receipts are required, not a green skipped aggregate. No artifact/cache upload, credential/security/runner configuration change, paid provisioning, native job dispatch or actual native clean install has occurred at this local closeout point. Publication to the existing PR branch and actual five-lane execution are authorized next.
+
+Keep native readiness and merge blocked until all five actual jobs succeed with qualified receipts for the same final candidate head, all required/advisory checks pass and final exact-head scope is verified. The driver intercepts runtime construction/benchmark execution after actual installation; real corpus/provider work, fresh-terminal profile/registry discovery, installed MCP-client activation, desktop UI/WSL and other OS/Python versions remain outside qualification. CMD `/v:on` caller-typed exclamation marks and caller-specific embedded-double-quote/paired-percent arguments are bounded exclusions; inherited/baked exclamation marks are retained. Windows baked shim paths remain ASCII. Package-only evidence is a forced reinstall of the exact checked-out version; owned fixture hashes qualify bytes, not ACL/metadata.
+
+No user database, license text, package version/release, future Doctor repair, M0–M5/PyPI/BIL3 implementation or deployment changed. Full documentation/wiki, live website parity/access, historical/scientific claim dispositions, reliable GLM attribution and sequential owner licensing decisions remain open. Prior test/CI gates are not documentation completion evidence.
+---END-ENTRY-#663---
+
+---BEGIN-ENTRY-#664---
+id: 664
+date: 2026-10-09T02:57:34Z
+agent: codex
+status: in-progress
+topics: ci, installer, verify, windows, macos, linux, audit, docs
+commits: pending
+refs: .github/workflows/native-launchers.yml,tests/audit/test_native_launcher_harness.py,PROJECT_STATUS.md
+supersedes: 663
+tokens: 610
+---
+R2 was normally integrated and published on PR #285 as signed head `a6a77dd57a542b3fb2b37db6d69ffe21192c6dd3`, tree `ccb80aa3556423dcef98587170134516a1b8fbb6`. HTTPS was refused for missing OAuth workflow scope; verified existing SSH published without credential/security/Git configuration changes. Exact staged, secret/signature and preservation checks passed.
+
+Actual native run https://github.com/Canticle-AI-Research/Seam/actions/runs/37875247929 failed workflow validation before allocation: the published workflow's line62 uses unsupported job-env `runner.environment`. The Actions API reported zero jobs and the public run page supplied that exact error via `gh api`. No Windows/macOS/Linux execution or qualification follows from this attempt.
+
+Independent R3 review checked all eleven workflow expressions against GitHub's official context-availability table and approved exact patch SHA-256 `cee84d848055116395cc50d6a3900f864a29cd78caa67a87ae4dc3d3d30d3903`. Applied the two reviewed workflow/test bodies: move actual `SEAM_NATIVE_RUNNER_ENVIRONMENT: ${{ runner.environment }}` into the existing qualification step's env and add the supported-job-context regression. The driver guard, installer/runtime/native-driver bytes, labels, triggers, permissions, callers and cost route are unchanged. GitHub supports `runner` at step env, not job env; local context fixtures remain narrower than whole-workflow validation.
+
+Before the fix, exact R3 fixtures against the published R2 workflow reported one failed and42passed; the new context-scope regression was the sole failure. Independent R3 fixtures reported43passed with no skips. Applied source command `python -m pytest -q -o addopts= -p no:cacheprovider tests/audit/test_native_launcher_harness.py` reported43passed in10.56seconds, zero failures/skips. Repository-context Ruff passed both native driver and fixture files. These are local fixtures/static checks, not native clean-install evidence. The bounded current-status update was read and its reference review acknowledged; no broader historical/documentation/rights approval is inferred.
+
+Next: publish the corrected candidate head through existing SSH and witness all five unchanged standard public-hosted OS/Python lanes. Require successful qualified receipts on the same final reviewed head, all required/advisory checks and final scope review before merge. Zero allocated jobs, skipped workflow conclusions, static reviews and local tests cannot qualify a lane. Retain the stated fresh-terminal/profile/registry, MCP-client, corpus/provider, UI/WSL, other OS/Python and Windows/caller-shape exclusions.
+
+No actual user database, runtime/Doctor repair, license text, package release, paid provisioning or deployment changed. Actual install/owned-fixture operations remain restricted to approved throwaway standard hosted VMs. Documentation and licensing decisions remain separate open conditions.
+---END-ENTRY-#664---

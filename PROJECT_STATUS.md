@@ -5,6 +5,22 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-09 — launcher candidate integrated; native qualification pending.**
+The independently reviewed change preserves a nonempty `SEAM_DB_PATH` in the
+managed command shims and keeps the managed default when it is unset or empty.
+See [database path selection](docs/SEAM_OPERATOR_GUIDE.md#database-path-selection)
+and HISTORY#662–664. The candidate is reconciled normally with current main;
+its runtime bytes and the independently approved three-file native verifier
+are preserved. The first native workflow failed validation before allocation;
+its independently reviewed context correction supplies actual hosted-runner
+metadata at the qualification step. Five standard hosted OS/Python jobs must
+actually succeed and
+emit qualified receipts on the final exact head, alongside required/advisory
+checks and final review, before merge. Local fixtures are limited evidence.
+Existing installed shims require regeneration. Future Doctor corpus
+discovery/repair remains planned. Full documentation, website parity and
+licensing signoff remain open; no package or effective license change follows.
+
 **2026-10-07 — documentation safeguards merged; runbook corrections published for review.**
 [PR #279](https://github.com/Canticle-AI-Research/Seam/pull/279) merged at
 `582bf0ca04be5eb44879a06c5589167d3ccf4bf3`. Generated CLI definitions and

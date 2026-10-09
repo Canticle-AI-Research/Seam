@@ -107,7 +107,7 @@ no build step.
 - Creates a dedicated runtime under `~/Library/Application Support/SEAM/`
 - Installs SEAM into that runtime with the `[dash]` extra
 - Writes global command shims to `~/.local/bin/` (`seam`, `seam-benchmark`, `seam-dash`)
-- Sets `SEAM_DB_PATH` in each shim to the persistent database
+- Preserves a nonempty `SEAM_DB_PATH` in each shim; unset or empty uses the managed database
 - Appends a marked `PATH` block to `~/.profile`, `~/.bashrc`, and/or `~/.zprofile`
   (skipped if already present)
 - Runs `seam doctor`
@@ -125,18 +125,34 @@ no build step.
 |---|---|
 | `~/Library/Application Support/SEAM/runtime/` | Managed Python venv (default install) |
 | `~/Library/Application Support/SEAM/state/seam.db` | Default persistent SQLite database |
-| `~/.local/bin/seam` | Global command shim (sets `SEAM_DB_PATH`) |
+| `~/.local/bin/seam` | Global command shim (supplies the default if `SEAM_DB_PATH` is unset or empty) |
 | `~/.local/bin/seam-benchmark` | Benchmark shim |
 | `~/.local/bin/seam-dash` | Textual dashboard shim |
 | `repo/.venv/` | Repo-local dev venv (`--dev` mode only) |
 | `~/.config/seam/.env` | Recommended location for local credentials (never commit) |
 
-Override the database path any time:
+The installer-managed `seam`, `seam-benchmark`, and `seam-dash` shims preserve
+a nonempty `SEAM_DB_PATH`. Unset or empty values use the managed state path above:
 
 ```bash
 export SEAM_DB_PATH="$HOME/path/to/custom/seam.db"
-seam doctor
+seam memory search "persistent memory"
 ```
+
+An explicit main CLI `--db` wins; put it before the subcommand:
+
+```bash
+seam --db "$HOME/path/to/custom/seam.db" memory search "persistent memory"
+```
+
+Direct console scripts in the managed runtime, and repo-local commands such as
+`python seam.py`, use `SEAM_DB_PATH` or fall back to `seam.db` in their current
+working directory when it is unset or empty. Use the same absolute database
+path for CLI and MCP. Re-run the reviewed platform installer in default mode
+to regenerate older shims; a Python-package upgrade alone leaves them unchanged.
+No existing database is moved. See
+[database path selection](SEAM_OPERATOR_GUIDE.md#database-path-selection),
+including the limits of Doctor's `Default DB` field.
 
 ## PATH and shell profiles
 
@@ -248,17 +264,19 @@ Stdio bridge:
 seam mcp stdio
 ```
 
-With auto-start pgvector when Docker is available:
+For auto-start pgvector when Docker is available, launch the direct managed
+MCP executable and select the default persistent database explicitly:
 
 ```bash
-seam-mcp --ensure-pgvector
+"$HOME/Library/Application Support/SEAM/runtime/bin/seam-mcp" \
+    --db "$HOME/Library/Application Support/SEAM/state/seam.db" --ensure-pgvector
 ```
 
 Typical Claude Desktop / Cursor MCP config uses a command like:
 
 ```json
 {
-  "command": "/Users/<you>/.local/bin/seam-mcp",
+  "command": "/Users/<you>/Library/Application Support/SEAM/runtime/bin/seam-mcp",
   "args": [],
   "env": {
     "SEAM_DB_PATH": "/Users/<you>/Library/Application Support/SEAM/state/seam.db"
@@ -266,8 +284,12 @@ Typical Claude Desktop / Cursor MCP config uses a command like:
 }
 ```
 
-Adjust paths if you use a custom `SEAM_DB_PATH` or a dev venv entrypoint
-(`./.venv/bin/seam-mcp`).
+The installer does not create a global `~/.local/bin/seam-mcp` shim.
+This config launches the direct console script, so its `SEAM_DB_PATH` default
+is honored. Set that value to the same absolute database path used by your CLI,
+or supply `["--db", "/absolute/path/to/chosen.db"]` in `args`.
+For a repo-local dev install, use the full path to `repo/.venv/bin/seam-mcp`.
+See [database path selection](SEAM_OPERATOR_GUIDE.md#database-path-selection).
 
 ## Fresh clone resume (developers)
 

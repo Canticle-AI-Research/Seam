@@ -11453,8 +11453,8 @@
       "sha256": "1be7f20671369caae600a272be6691debbee8ee39c0c9519fd0010871df4116e"
     },
     "seam_runtime/installer.py": {
-      "git_blob_sha1": "cbea480811f234fc6b039835b6fa92682f520636",
-      "sha256": "e1a2d995d46fb14dbd1674d09d39a59f6427128e7bf3fd670906d650357457ab"
+      "git_blob_sha1": "d277eeb584fba19374d38d0ae85cdbb85eaf4476",
+      "sha256": "12412276dd0b2105e20ec32bafe2aee789b816442b4cd08617f0ac89f54a343a"
     },
     "seam_runtime/lossless.py": {
       "git_blob_sha1": "aef656788d849d4947fbf3e2df948bf951295db6",
