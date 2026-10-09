@@ -21694,3 +21694,57 @@ license changes, new checkout, package publication, deployment or provider call
 occurred. Required closeout gates and final staged verification still govern the
 publication boundary; no documentation-complete or MVP signoff is inferred.
 ---END-ENTRY-#660---
+
+---BEGIN-ENTRY-#661---
+id: 661
+date: 2026-10-08T20:53:12Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: pending
+refs: docs/MACOS.md,docs/setup.md,docs/SEAM_OPERATOR_GUIDE.md,tests/audit/test_operator_documentation_safety.py,docs/reference/reference_state.json
+supersedes: 660
+tokens: 683
+---
+Prepare the independently reviewed operator-documentation follow-up on
+codex/docs-operator-safety-20261008, based on unchanged PR283 source
+91e9b0f786c654946ccb49b059141be03f5e67a6. The exact reviewed four-path input
+patch is 19,583 bytes, SHA256
+64724876aa99f82db587ed12a1edd3acc9b658339a13e494ca291894aebeb5f5.
+Applied candidate files match the reviewed after hashes.
+
+The macOS ordinary-uninstall example removes the managed runtime and its
+source-defined shims while retaining the default state directory. Custom
+database locations require checking against removal targets; intentional data
+deletion is a separate explicit decision without a generic purge command or a
+claimed backup procedure. Windows development setup explains the reviewed
+checkout root, checks prerequisite files before creating the venv, and checks
+each native Python exit immediately so an earlier failure cannot be masked by
+later Doctor output. The single-file pytest example is labeled as scoped and
+links to broader configured discovery/CI without claiming those jobs ran.
+
+Verification on the applied tree: python -m pytest -q -o addopts=
+-p no:cacheprovider tests/audit/test_operator_documentation_safety.py
+tests/audit/test_operator_env_runbooks.py tools/docs/test_sync_references.py
+tests/audit/test_history_closeout.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_wiki_navigation.py passed 175 scoped tests with no failures or
+skips. Ruff passed for tests/audit/test_operator_documentation_safety.py.
+The strengthened static module rejects missing/misplaced native-exit guards
+at each command position and derives shim names from the installer AST.
+Its same-module comparison rejects both the original documentation and the
+first candidate; no native PowerShell or uninstall command was executed.
+
+Managed documentation state acknowledges only the three reviewed prose changes.
+Required chronology/index/snapshot and canonical checks remain the publication
+boundary. Keep PR281 and PR283 heads unchanged; publish a separate draft stacked
+on codex/docs-reviewed-followup-20261008 after exact staged verification.
+
+The shell database-override discrepancy remains open: both Windows CMD and
+POSIX renderers unconditionally assign SEAM_DB_PATH, while current guides
+promise an environment override without entrypoint qualification. This follow-up
+does not change shim behavior or correct that separate documentation section.
+Native Windows/macOS, live website parity, licensing reconciliation and full
+documentation/wiki signoff remain unqualified. No full-audit issue is closed.
+No runtime, installer, license, security, config or hook change, new checkout,
+merge, deployment, package publication or provider call occurs in this slice.
+---END-ENTRY-#661---
