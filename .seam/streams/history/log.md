@@ -21456,3 +21456,183 @@ Publication recheck found the new tools/docs regression module was absent from t
 
 Updated only the candidate status card to record draft-publication authorization and acknowledged that exact prose change after review. Full documentation/wiki audit, website equivalence and licensing reconciliation remain unfinished. Private audit corpus, proposed license files, ignored local orchestration records and snapshots are excluded from the publication candidate; existing source/runtime and license grants are unchanged. Separate bundled Doctor maintenance/runtime repair, setup, update and account features are future work and are not implemented here. Next: complete canonical/staged gates, commit the scoped candidate, push only its branch, create the draft PR and monitor exact-head required/advisory checks; no merge or deployment.
 ---END-ENTRY-#655---
+
+---BEGIN-ENTRY-#656---
+id: 656
+date: 2026-10-06T05:33:33Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, pgvector, windows, extras, verify
+commits: none
+refs: PROJECT_STATUS.md,docs/errors.md,installers/README.md,tests/audit/test_operator_env_runbooks.py,docs/reference/reference_state.json
+supersedes: 655
+tokens: 679
+---
+Applied source-backed installer and troubleshooting corrections locally on
+codex/docs-current-authority-20261006, based on main
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3. Corrected PowerShell environment
+expansion, dashboard extra bounds, required versus optional Doctor dependencies,
+Compose service selectors and loopback/default port description, and the
+canonical repository route. Initialization now preserves existing operator env
+files and stops on failure. Benchmark troubleshooting preserves the failed
+original and distinguishes ordinary suite verification from sealed BIL checks.
+PROJECT_STATUS.md supersedes its dated pre-merge safeguard headline using the
+verified PR279 merge. No runtime, Doctor implementation, effective licensing,
+configuration, hook, service, provider, package or deployment change occurred.
+
+Reviewed the complete changed operator pages and acknowledged their prose
+review queue through tools.docs.sync_references. Added
+tests/audit/test_operator_env_runbooks.py, exercising the actual documented Bash
+initializer only in temporary fixtures before the Docker line; HOME and actual
+operator files are never modified. The first witnessed run against the old
+instructions failed, and the corrected instructions passed. The new cases cover
+private first copy, retained bytes/permissions, absent template and directory
+destination. PowerShell is unavailable here: its examples have source review
+only, and Windows execution remains unresolved.
+
+Before this chronology append, the command `python -m pytest
+tools/docs/test_sync_references.py tests/audit/test_local_gates_match_ci.py
+tests/audit/test_history_closeout.py tests/audit/test_operator_env_runbooks.py -q`
+passed 101 cases with zero failures or skips in a scoped temporary verification
+environment. Whole-repository Ruff, diff hygiene, unchanged canonical agent,
+history integrity/routing/handoff/continuity, stream/status, wiki, reference and
+dependency-contract checks passed. The changed-audit-report check selected no
+reports; it is not full corpus validation. The secret scan passed with its
+declared policy exclusions. These results precede the appended chronology;
+repeat the canonical gates on the resulting tree before final handoff.
+
+Preserve all earlier history and generated archive chunks. Derive the new
+cross-index with the stock generator into a separate output directory, copy its
+exact bytes into the source tree and retain the prior unreferenced chunk to
+honor the no-deletion instruction. No gate flags or tool implementations are
+weakened. The local branch remains uncommitted and unpublished under the owner's
+local-only authorization.
+
+Full documentation and wiki completion is not claimed. Whole chronology bodies,
+unresolved source/artifact/scientific claims, deployed-site equivalence and
+entitlement evidence remain open. Licensing questionnaire decisions are still
+pending and effective license bytes remain unchanged. Separate GLM Litigation
+coding review is blocked; no coding-review consensus or publication readiness
+is inferred. Historical verification inheritance between HISTORY#099 and
+HISTORY#100 remains unsupported by the supplied original receipts. Preserve
+both events rather than making a present rerun into an earlier test receipt.
+
+Next: rerun canonical gates on this resulting local tree and review its exact
+diff and qualified receipt. Continue the full historical/factual audit and ask
+licensing decisions one at a time. Do not advance product work or publish until
+the relevant owner signoff.
+---END-ENTRY-#656---
+
+---BEGIN-ENTRY-#657---
+id: 657
+date: 2026-10-07T17:30:50Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: 11d2b41220483725d03d11f0c9907ce2aeeb257f
+refs: PROJECT_STATUS.md,installers/README.md,docs/errors.md,tests/audit/test_operator_env_runbooks.py,docs/reference/reference_state.json
+supersedes: 656
+tokens: 417
+---
+Published the eight source-backed installer/troubleshooting corrections for
+review in PR #281. Initial branch commit
+11d2b41220483725d03d11f0c9907ce2aeeb257f is based on protected main
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3; GitHub confirmed its exact tree
+ad5255190c2a5d3d5a1bed6a10521a36a07d3b48. The interrupted API upload left
+three verified unreferenced blobs; authenticated Git transport completed the
+branch publication without recreating a clone or modifying credentials/hooks.
+
+The original candidate's fifteen local checks passed on its exact bytes. The
+focused command covered tools/docs/test_sync_references.py,
+tests/audit/test_local_gates_match_ci.py, tests/audit/test_history_closeout.py
+and tests/audit/test_operator_env_runbooks.py: 101 cases, zero errors, failures
+or skips. These are scoped checks, not whole-product or full-audit proof.
+PowerShell execution remains unavailable; its syntax and non-overwrite behavior
+were source-reviewed only. Actual operator env files and services were not used.
+
+This follow-up updates PROJECT_STATUS to link the published draft PR rather
+than continue describing it as local-only, and regenerates its history/reference
+metadata. It changes no installer/runtime behavior or controlling license.
+Required checks are repo-hygiene, chroma-real-smoke and locomo-quickstart-bil2;
+their current result must be verified on the final pushed head before merge.
+No merge, deployment, private-content publication or release is asserted here.
+
+Full documentation signoff, website equivalence, scientific claims, exact GLM
+attribution and licensing reconciliation remain open. Pricing and notice-clause
+work stay separate. PyPI, M0–M5, effective license activation and website security
+or account-permission changes remain paused. The owner's settled-docs publication
+authorization does not remove these boundaries.
+---END-ENTRY-#657---
+
+---BEGIN-ENTRY-#658---
+id: 658
+date: 2026-10-07T17:47:24Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: 489805f30b6360433aaeff5107e1333f58a9c014
+refs: PROJECT_STATUS.md,installers/README.md,docs/errors.md,tests/audit/test_operator_env_runbooks.py,docs/reference/reference_state.json
+supersedes: 657
+tokens: 296
+---
+Correct one provenance overstatement in HISTORY#657. The resumed read-only
+lookup proved that three candidate blob identities already existed on GitHub
+and six were absent, while the candidate branch still pointed to base
+582bf0ca04be5eb44879a06c5589167d3ccf4bf3. Those observations do not establish
+which action created the three existing blobs or whether other Git refs
+already referenced them. Retract #657's phrase that the interrupted upload
+left three unreferenced blobs. Preserve that prior event as history; use this
+correction for the current interpretation. The branch publication and exact
+commit/tree verification remain supported by their independent receipts.
+
+The eight installer/troubleshooting corrections and their regression tests
+are unchanged. This entry and its derived history/index/snapshot state are
+the only source changes in this follow-up; no effective licensing, runtime,
+Doctor, configuration, hooks, website/security, pricing or package changes
+are introduced. Full documentation and licensing signoff remain open.
+
+PR #281 remains draft. The preceding head
+489805f30b6360433aaeff5107e1333f58a9c014 passed repo-hygiene,
+chroma-real-smoke and locomo-quickstart-bil2; those results do not certify the
+next head. Run the unchanged local gates and verify the required checks on
+the new pushed head before reporting that head as qualified for review.
+---END-ENTRY-#658---
+
+---BEGIN-ENTRY-#659---
+id: 659
+date: 2026-10-08T16:37:04Z
+agent: codex
+status: in-progress
+topics: docs, audit, installer, verify
+commits: e0e0cc0903be111d481e61e962204c311bbafa90
+refs: tests/audit/test_operator_env_runbooks.py,tests/conftest.py,.github/workflows/ci-windows.yml
+supersedes: 658
+tokens: 327
+---
+Correct the platform scope of the eight operator env-runbook fixtures in draft
+PR #281. They extract and execute Bash initialization prefixes and assert
+POSIX file modes. The manual Windows workflow collects the module through
+pytest tests/, but native Windows does not provide these mode semantics.
+This portability finding is source-derived, not a witnessed Windows failure.
+
+Mark only this POSIX Bash fixture module unavailable on Windows, with an
+explicit Windows reason accepted by the existing strict no-skip policy.
+PowerShell behavior is outside these fixtures and remains source-reviewed
+only; no supported Windows test or runtime behavior is hidden or changed.
+The eight fixtures pass on the local POSIX environment. The isolated marker
+predicate is true for nt, false for posix, and its reason matches the existing
+allowlist; this is source/policy verification, not native Windows execution.
+
+Keep the full-documentation and current-built release closeout open. Inherited
+DSN defaults, a BOM-prefixed env template and unguarded Windows clone sequences
+are separate current-operator findings; this commit does not resolve them.
+The beginner setup target must distinguish recommended full components from
+reduced capabilities. Future Doctor and parked Litigation are not invented
+current-release prerequisites. No runtime, licensing, configuration, hook,
+website, package or provider changes are introduced.
+
+Preserve all previous history and archive chunks. Run the unchanged local
+checks and verify required CI on the corrected pushed head before describing
+that head as qualified for owner review. PR #281 remains draft; no merge,
+deployment, PyPI, M0–M5 or paid Windows workflow dispatch is authorized here.
+---END-ENTRY-#659---

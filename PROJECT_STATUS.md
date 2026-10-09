@@ -5,16 +5,21 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-10-05 — local documentation safeguard candidate.** On
-`codex/docs-safeguards-20261005`, generated CLI definitions and canonical shared
-links have an explicit update/check workflow and a prose-review queue. See
-[documentation safeguards](docs/DOCUMENTATION_SAFEGUARDS.md). This local
-candidate is authorized for publication as a draft PR; it has not been merged
-or deployed. The exhaustive documentation
-audit, website equivalence and licensing reconciliation remain unfinished;
-formation, packaging publication and application-update implementation remain paused
-pending owner decisions. Mechanical gates do not establish full documentation
-correctness.
+**2026-10-07 — documentation safeguards merged; runbook corrections published for review.**
+[PR #279](https://github.com/Canticle-AI-Research/Seam/pull/279) merged at
+`582bf0ca04be5eb44879a06c5589167d3ccf4bf3`. Generated CLI definitions and
+canonical shared links have an explicit update/check workflow and prose-review
+queue; see [documentation safeguards](docs/DOCUMENTATION_SAFEGUARDS.md).
+The branch `codex/docs-current-authority-20261006` corrects source-backed
+installer and troubleshooting instructions, including preservation of existing
+operator env files and failed benchmark evidence. See the
+[installer guide](installers/README.md) and [troubleshooting](docs/errors.md).
+The corrections are published for review in
+[PR #281](https://github.com/Canticle-AI-Research/Seam/pull/281); required CI must
+pass before merge. The exhaustive documentation audit, website equivalence and
+licensing reconciliation remain unfinished. Pricing reconciliation is separate
+from these factual fixes. Package publication and effective license changes
+remain paused. Mechanical gates do not establish full documentation correctness.
 
 **2026-09-14 — Claude.ai benchmark transport candidate.** The operator's
 roughly $50 is on Claude.ai, not the API Console. The explicit

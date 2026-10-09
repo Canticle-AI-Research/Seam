@@ -1,6 +1,7 @@
 # SEAM Troubleshooting (Documented Errors)
 
-Use this as the first-stop error playbook. Every section includes exact fix and verify commands.
+Use this as the first-stop error playbook. Each section explains the symptom,
+corrective steps and verification boundaries.
 
 ## Error Index
 
@@ -55,7 +56,9 @@ macOS / Linux / WSL2:
 
 ### Symptom
 
-`seam doctor` shows missing `rich`, `chromadb`, or `tiktoken`.
+`seam doctor` reports a missing required dependency: `rich` or `tiktoken`.
+Chroma is optional; diagnose a missing Chroma adapter separately if you
+intentionally selected it.
 
 ### Fix (Windows)
 
@@ -86,20 +89,34 @@ macOS-specific install help: [MACOS.md](MACOS.md)
 
 `seam doctor` shows PgVector is configured but not reachable.
 
-SEAM's documented operating port for the local pgvector container is `55432`
-(set via `SEAM_PGVECTOR_PORT=55432` in your local env file). The default
-`docker-compose.yaml` mapping is `${SEAM_PGVECTOR_PORT:-5432}:5432`, so the host
-port follows your env var. Use the host port (typically `55432`) in
-`SEAM_PGVECTOR_DSN`.
+The current `docker-compose.yaml` mapping is
+`127.0.0.1:${SEAM_PGVECTOR_PORT:-55432}:5432`. It binds to loopback and defaults
+to host port `55432`; `SEAM_PGVECTOR_PORT` can override that host port. Use the
+selected host port in `SEAM_PGVECTOR_DSN`.
+
+Initialize the local env file only if it is absent. Preserve an existing file
+and its values; review settings locally before starting the service. If
+initialization fails, stop and inspect the path before continuing.
 
 ### Fix (Windows)
 
 ```powershell
 $localEnv = Join-Path ([Environment]::GetFolderPath("MyDocuments")) "SEAM\local\.env"
-New-Item -ItemType Directory -Force -Path (Split-Path $localEnv)
-Copy-Item .env.example $localEnv
+try {
+    New-Item -ItemType Directory -Force -Path (Split-Path $localEnv) -ErrorAction Stop | Out-Null
+    if (Test-Path -LiteralPath $localEnv) {
+        if (-not (Test-Path -LiteralPath $localEnv -PathType Leaf)) {
+            throw "Local env path must be a file."
+        }
+    } else {
+        $template = (Resolve-Path -LiteralPath .env.example -ErrorAction Stop).Path
+        [System.IO.File]::Copy($template, $localEnv, $false)
+    }
+} catch {
+    throw "Initialization failed; inspect the local env path before continuing."
+}
 # Edit $localEnv locally first; do not commit it. Set SEAM_PGVECTOR_PORT=55432.
-docker compose --env-file $localEnv up -d seam-pgvector
+docker compose --env-file $localEnv up -d pgvector
 Get-Content $localEnv | Where-Object { $_ -and $_ -notmatch '^\s*#' } | ForEach-Object {
     $name, $value = $_ -split '=', 2
     Set-Item -Path "Env:$name" -Value $value
@@ -111,12 +128,18 @@ $env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$env:POSTGRES
 ### Fix (Linux / WSL2)
 
 ```bash
-mkdir -p "$HOME/.config/seam"
-cp .env.example "$HOME/.config/seam/.env"
+localEnv="$HOME/.config/seam/.env"
+mkdir -p "$HOME/.config/seam" || exit 1
+if [ -e "$localEnv" ] || [ -L "$localEnv" ]; then
+    [ -f "$localEnv" ] && [ -r "$localEnv" ] || { printf '%s\n' 'Local env path must be a readable file; stop here.' >&2; exit 1; }
+else
+    [ -f .env.example ] && [ -r .env.example ] || { printf '%s\n' 'Missing or unreadable .env.example; stop here.' >&2; exit 1; }
+    (umask 077; set -C; cat .env.example > "$localEnv") || { printf '%s\n' 'Initialization failed; inspect the local env path before continuing.' >&2; exit 1; }
+fi
 # Edit the env file locally; do not commit it. Set SEAM_PGVECTOR_PORT=55432.
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$localEnv" up -d pgvector
 set -a
-. "$HOME/.config/seam/.env"
+. "$localEnv"
 set +a
 export SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$POSTGRES_USER password=$POSTGRES_PASSWORD"
 seam doctor
@@ -158,16 +181,26 @@ The index command completes without an error and reports synced ids.
 
 ### Fix
 
-Re-run benchmark and produce a new verified bundle from current environment:
+Preserve the failing bundle. Record its original path, SHA-256, provenance and
+verification report, then diagnose the reported bundle or case hash failure
+before using that run for a claim. Do not overwrite it or recompute its stored
+hashes to turn the failure into a pass.
 
-```powershell
-.\.venv\Scripts\seam.exe benchmark run all --persist --output seam-benchmark-report.json
-.\.venv\Scripts\seam.exe benchmark verify seam-benchmark-report.json
-```
+If a separate rerun is authorized, write it to a unique output path and retain
+the original. A new bundle is a separate run; its result does not repair or
+validate the failing original.
+
+Use `seam benchmark verify <bundle>` for ordinary suite bundles and
+`seam bench verify <bundle>` for sealed BIL bundles. They have different formats
+and verification checks.
 
 ### Verify
 
-Benchmark verification output indicates `PASS`.
+For the exact file being checked, retain its identity and the individual
+verification results. `seam benchmark verify` checks bundle and case hashes;
+`PASS` does not establish scientific correctness or validate a different file.
+Published claims tied to the failing original remain blocked until their
+evidence is resolved.
 
 ## Error: `HTTP 429` provider quota or rate limit
 
