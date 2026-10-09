@@ -115,14 +115,7 @@ try {
 } catch {
     throw "Initialization failed; inspect the local env path before continuing."
 }
-# Edit $localEnv locally first; do not commit it. Set SEAM_PGVECTOR_PORT=55432.
-docker compose --env-file $localEnv up -d pgvector
-Get-Content $localEnv | Where-Object { $_ -and $_ -notmatch '^\s*#' } | ForEach-Object {
-    $name, $value = $_ -split '=', 2
-    Set-Item -Path "Env:$name" -Value $value
-}
-$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$env:POSTGRES_USER password=$env:POSTGRES_PASSWORD"
-.\.venv\Scripts\seam.exe doctor
+# End private env initialization. Edit the file locally; never commit it.
 ```
 
 ### Fix (Linux / WSL2)
@@ -136,18 +129,19 @@ else
     [ -f .env.example ] && [ -r .env.example ] || { printf '%s\n' 'Missing or unreadable .env.example; stop here.' >&2; exit 1; }
     (umask 077; set -C; cat .env.example > "$localEnv") || { printf '%s\n' 'Initialization failed; inspect the local env path before continuing.' >&2; exit 1; }
 fi
-# Edit the env file locally; do not commit it. Set SEAM_PGVECTOR_PORT=55432.
-docker compose --env-file "$localEnv" up -d pgvector
-set -a
-. "$localEnv"
-set +a
-export SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$POSTGRES_USER password=$POSTGRES_PASSWORD"
-seam doctor
+# End private env initialization. Edit the file locally; never commit it.
 ```
+
+After initialization, follow [Local Pgvector](PGVECTOR_LOCAL.md#point-seam-at-it)
+for the selected database, user and host port, DSN quoting, service start and
+health check. Compose dotenv syntax is not a shell script: the tracked template
+has a UTF-8 BOM, and directly sourcing it can fail. The runbook reads resolved
+Compose configuration without executing the env file or changing its bytes.
 
 ### Verify
 
-Look for: `PgVector: reachable`.
+Look for: `PgVector: reachable`. That establishes connection health for this
+configuration; it does not qualify retrieval quality or a clean install.
 
 ## Error: Chroma path/index sync failure
 

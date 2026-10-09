@@ -14,10 +14,10 @@
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
     "PROJECT_STATUS.md": "2bbd74f1ac352a1d2ac5095f53ca929fb208567bb261366f12b818ced3294f3d",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
-    "README.md": "a4500760cec1eac05610d8cb068ac78a7aed3e9ed9738f51da7716cdfa30fee0",
+    "README.md": "9b8cfbeeeeb4f83f93f9ac74adbf0820ad53675006ed008bb17fbeb483557f88",
     "REPO_LEDGER.md": "cf1b49a7f015bd6d5329e5b3c68f70e2fa0113b2de6d9a17e5f313c92864a14b",
     "ROADMAP.md": "5b6455e4a616eeec0f0e87eeb3beea09a2a2be568a55cfbaa304189d43466bb1",
-    "SEAM_SPEC_V0.1.md": "40ad9e636571c0d24dc80eb0a0ece6e0fca61be6b481b65992c0aba5c52e48a8",
+    "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "f5ad44e57d623bf1daa4dc7e070c8ba4ceb93447fa997ba87fdca91b9f7f4442",
     "benchmarks/BENCHMARK_LOG.md": "6fd1284d7a73814b660eb67ad0ce3dcd2afaa77ee8cb812b2eeb184d93191f5c",
     "benchmarks/README.md": "7a899ba1aa6994cf6a6a2daba07e2a8c35b6470624a9e44e1683a1da980ff087",
@@ -46,9 +46,9 @@
     "docs/HOLOGRAPHIC_SURFACE.md": "0c417f80d944e71f5c0ba7b39e79edde1604a3c42c7ddd5f78373e915c6e1d85",
     "docs/IMPROVEMENT_EXPERIMENTS.md": "e119f8627654eb72b6841cf3d5ee93be79462908003e0d439e03f284b03ecefe",
     "docs/KNOWLEDGE_GRAPH.md": "dd87449b041882c76bf753d55b1ccdb38a419169916c8c5fe519524987c72f35",
-    "docs/MACOS.md": "f4a5d0fd6c4c4883adacbb9d8234e56193426da861f7629ba7bf11fd8f08d687",
-    "docs/MIRL_V1.md": "970524b5abdb6d02561f6aa9df561bf0fcaf6af1b3b70af141d7647d1f4f5c4d",
-    "docs/PGVECTOR_LOCAL.md": "6479882343ec1eb8dae95c3f0c448542e620dc7c6c8bb46508d9cf81542076d0",
+    "docs/MACOS.md": "7105a4ba181b8f30097352901a66942063a64b7dcf697037a89de1063ab2d815",
+    "docs/MIRL_V1.md": "9588d87379bc48e139d28210de360c17e29ea5e3b7f82e8a2ab7af0944177d9b",
+    "docs/PGVECTOR_LOCAL.md": "55c186970610f05eea1b21085476448ad5212391f8d98b50cc08be946d848c76",
     "docs/PRODUCTS.md": "81222cb809db36c512dc27cb952e47e868daf5157dc8195b026f24d667c2dfd5",
     "docs/PROTECTION_MODEL.md": "fc83dae868cb957342cd59dcc27eeef6408880172b064aa53d2232ba88ecf19e",
     "docs/PUBLIC_SDK_API.md": "cc79e4124a6e93304063b08da598a7e9d1f41e03fc46b67da5a4d3cdc1db4a3c",
@@ -57,7 +57,7 @@
     "docs/REASONING_GRAPH.md": "6cf7b938a67287b51ecd03528e1205de39ba60abf07d24c806b8193c7e1ff805",
     "docs/REPORTS_AND_EVIDENCE.md": "6696e2c168cb61180df393be4d3e5e46a8b5d5a83f252fe11e92eb992b82f1e8",
     "docs/RETRIEVAL_EVAL_V1.md": "065d43a0a0e4eae944e9541717a563ae0473a3e6c421200346118e7301b38fe9",
-    "docs/SEAM_OPERATOR_GUIDE.md": "09fa7f0c83db77f227e58335a63e0f04aeac909497cc417122a018db3193df82",
+    "docs/SEAM_OPERATOR_GUIDE.md": "c66de2184f79509ec7f140728c8e2e6059e25ad15acabf0f090ad2be94bf03dc",
     "docs/SELF_HOST_SECURITY.md": "763f3023898dd26e2fca6a7a21182c0b6a07eb66ffe1fea1309b5c9ec17f0205",
     "docs/SOP_ADVISOR_EXECUTOR_LOOP.md": "b2b018793c28c47aa075f5699ed18cd464db4b05d9f3b8eb29048fd3ffd998ac",
     "docs/SOP_AGENT_ORCHESTRATION.md": "cfd06a0f07287d132e7277bfd737803690818d4063c818350c56cf44a2812058",
@@ -108,15 +108,15 @@
     "docs/engineering/templates/INCIDENT_REPORT.md": "cfd3262b8902ffac636888c7b209c04d4f64d1d1ad0518555683bdf6b301f45d",
     "docs/engineering/templates/README.md": "b60e62bca4f20c51317c125f7e8f0c4f272f33e41d4daa90c7f55873e3a94d3c",
     "docs/engineering/templates/THREAT_MODEL_DELTA.md": "d98ed44d5da7d3d32fa218ae2499e93e818ab9f124d1961b19bdf2899911fb0e",
-    "docs/errors.md": "bf12f7b95799df64057d767062f6f5a36fe72f3a403a2cc7091f43bc2a59a522",
+    "docs/errors.md": "8d298e338d36fe822cbe125aa79b22070eee5de3f376059b1970959fd2bf1ec0",
     "docs/handoffs/INDEX.md": "7cc59d77fca5756e06a0daa91b687921dcf77b6ab6c27137cb0694bd16f12c66",
     "docs/howto/README.md": "82475aeb4582027f3547d60513c06380ad53f1cd3b88800c7dd23c15b378df73",
     "docs/kb/README.md": "64b5d293ac1b0c699a9cca5302a8432f5ad8c522f6186c411c391ecc2e2904d4",
     "docs/kb/eval-methodology/benchmark-traps.md": "6bfaf8c57c9387d4d35e35e51e3516cb835701dfedc157b22a0f8f3dc0afa087",
     "docs/kb/eval-methodology/locomo-mem0-harness.md": "0107ed75edf656bc92e5292daa9c0cc56f6737f61a40511bcbba0df43c0e8d61",
     "docs/kb/memory-systems/langmem-letta-cognee.md": "00dcda51fb1bbd5cf5676f8aae33c503260bb5eba6a51ee793e7035b7778b209",
-    "docs/kb/memory-systems/mem0.md": "3973028324a5235c80f7ee943051545c6087c13be5f6573fbc0341675fba4107",
-    "docs/kb/memory-systems/seam-positioning.md": "5a65b67c8d7b361c022fea7f2bdfe46c9dbee87e999689f9861dff757f561527",
+    "docs/kb/memory-systems/mem0.md": "2df1530ecd88302233873739de04679dbb7cd42e00c3233b4cce9752f7e83d11",
+    "docs/kb/memory-systems/seam-positioning.md": "bc86d9660ce5397d4a77b3ae0f3f24b8f711a22bbe9bbc7c7ba6bbffac4d41b9",
     "docs/kb/memory-systems/zep-graphiti.md": "5a827a944d08008bbf08b546efe74a2929182aa1fe8e3ef32ceb882bd817b8d7",
     "docs/kb/seam-internals/derived-facts-grounded-clm.md": "9c796fab21ada917ac95854a5149d07cb0180359b0b94cf75981cd2376bf42f0",
     "docs/kb/seam-internals/lever-graveyard.md": "ab96a1f3e24d30ec5ec307043bf8a9040ac481b9cc2d9ea5e3a93e8020377048",
@@ -160,7 +160,7 @@
     "docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md": "c1f32cb8a2142b1969e5c0f0cd3f57d9b5822a05a3761abcc4f7c8b2627ae6fa",
     "docs/roadmap/TRUST_SECURITY_AUDITABILITY.md": "8158adc48e7ab1a3f2ad69a714e6405853a524c0b2c6cf00de819d3c68ce3564",
     "docs/roadmap/TUI_OPERATOR_SURFACE.md": "acf183be274d423580dc81aa4e813b289eeda88a59910119e801675581509761",
-    "docs/setup.md": "4c1d45af8f632d3c1aceb31aa79cbcb3056dab074551f5b13f2ce37e41672a53",
+    "docs/setup.md": "3f5dc80963b11ff62e212acf51258e6aec7fdd9ae8a4a54bd2d9d37bc30b8589",
     "docs/status/benchmarks.md": "91fd1e0b5fb27974d4e5a93f4112d227d9409398c10112552f9bdf107c5c2d53",
     "docs/status/compression-visual.md": "db8c10dd70f0ec78971aa9a6e9a0224b94152f728ff4b7e0b97c5fd86e970893",
     "docs/status/deferred.md": "abfb767d4a8499c26b0b36598c82fc9ee0a8cad685d9e5e576835d8a81b444a7",
@@ -171,8 +171,8 @@
     "docs/status/retrieval.md": "bfa2812175ee69bda9a9665a9b47d132feadaaf468812b219ccc15c44c105edd",
     "docs/status/surfaces.md": "c2e0340b264192872ac40108c6bacacacc2765c24dae3a96c60d0fb59f716405",
     "docs/status/workspace.md": "9ce2ebf4b12372d4440a21ffbada0544cc7981548e50fc55317caaa38ee2ab5e",
-    "installers/README.md": "dfec1835eda0cb2b7f6e45b8dd62d8a02f934f4c381c25b7ca42b0a6c68ebc51",
-    "seam_runtime/retrieval_orchestrator/README.md": "47b13ed0f34ca57c942801ffd5767cf7b67924ac105f5879bf0ca3598cdd5da4",
+    "installers/README.md": "a2982a7c534047b4b675701c34b3aa2c8eecb206cfecb2a48f32ed7dbb2a0f3b",
+    "seam_runtime/retrieval_orchestrator/README.md": "73da05769664f7026fb60c66845168c2da9a03c0dff877b5318f7722efd6149d",
     "skills/seam-engineer/SKILL.md": "fbe0e60f01259a2dd7b1b7fa8f333124c71038a6f921e46ace27db0cd01d436b",
     "tests/docs/README.md": "1f54428a7ced5512f89963104e6720c4389b494149e7f0ebd830edb86d5582e5",
     "tests/docs/artifacts/pgvector.md": "d2169282d32ffc9cdf842ada94daaed28d79257413d26a180d2872c88964aba4",
@@ -205,6 +205,16 @@
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
     },
+    "README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "9b8cfbeeeeb4f83f93f9ac74adbf0820ad53675006ed008bb17fbeb483557f88",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "cf1b49a7f015bd6d5329e5b3c68f70e2fa0113b2de6d9a17e5f313c92864a14b",
@@ -212,6 +222,16 @@
         "hand-written command content added/changed; review against current definitions"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification."
+    },
+    "SEAM_SPEC_V0.1.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
     },
     "docs/DOCUMENTATION_SAFEGUARDS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
@@ -223,9 +243,79 @@
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
     },
+    "docs/MACOS.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "7105a4ba181b8f30097352901a66942063a64b7dcf697037a89de1063ab2d815",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/MIRL_V1.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "9588d87379bc48e139d28210de360c17e29ea5e3b7f82e8a2ab7af0944177d9b",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/PGVECTOR_LOCAL.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "55c186970610f05eea1b21085476448ad5212391f8d98b50cc08be946d848c76",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/SEAM_OPERATOR_GUIDE.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "c66de2184f79509ec7f140728c8e2e6059e25ad15acabf0f090ad2be94bf03dc",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
     "docs/errors.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "bf12f7b95799df64057d767062f6f5a36fe72f3a403a2cc7091f43bc2a59a522",
+      "document_sha256": "8d298e338d36fe822cbe125aa79b22070eee5de3f376059b1970959fd2bf1ec0",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/kb/memory-systems/mem0.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "2df1530ecd88302233873739de04679dbb7cd42e00c3233b4cce9752f7e83d11",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/kb/memory-systems/seam-positioning.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "bc86d9660ce5397d4a77b3ae0f3f24b8f711a22bbe9bbc7c7ba6bbffac4d41b9",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "docs/setup.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "3f5dc80963b11ff62e212acf51258e6aec7fdd9ae8a4a54bd2d9d37bc30b8589",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -235,7 +325,17 @@
     },
     "installers/README.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "dfec1835eda0cb2b7f6e45b8dd62d8a02f934f4c381c25b7ca42b0a6c68ebc51",
+      "document_sha256": "a2982a7c534047b4b675701c34b3aa2c8eecb206cfecb2a48f32ed7dbb2a0f3b",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "cda1c1b5d54fc2040dee3d2378f70d2789408222ef8adb080402faddb13ef102"
+    },
+    "seam_runtime/retrieval_orchestrator/README.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "73da05769664f7026fb60c66845168c2da9a03c0dff877b5318f7722efd6149d",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

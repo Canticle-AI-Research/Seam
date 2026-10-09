@@ -2,38 +2,73 @@
 
 Copy and paste the section for your environment.
 
-## One-Line Private Repo Install
+<a id="one-line-private-repo-install"></a>
 
-Requires `gh auth login` first.
+## Source Checkout Install
+
+Use a reviewed commit or release tag and the existing license terms. Authenticate
+with `gh auth login` if access requires it. The Windows block stops on clone or
+installer failure; run it as one block. Replace
+`REPLACE_WITH_REVIEWED_COMMIT_SHA` with the full 40-character SHA you reviewed
+before running any clone/install block. Leaving it unchanged stops before cloning.
 
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+& {
+    $ErrorActionPreference = "Stop"
+    $seamRevision = "REPLACE_WITH_REVIEWED_COMMIT_SHA"
+    if ($seamRevision -notmatch '^[0-9a-fA-F]{40}$') {
+        throw "Select a reviewed full commit SHA before cloning or installing."
+    }
+    gh repo clone Canticle-AI-Research/Seam Seam
+    if ($LASTEXITCODE -ne 0) { throw "Clone failed; stop before installation." }
+    git -C Seam checkout --detach $seamRevision
+    if ($LASTEXITCODE -ne 0) { throw "Reviewed revision checkout failed; stop before installation." }
+    Set-Location -LiteralPath Seam -ErrorAction Stop
+    powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+    if ($LASTEXITCODE -ne 0) { throw "Installer failed; inspect its output." }
+}
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 macOS repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh --dev
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh --dev
 ```
 
 Linux / WSL2 repo-local development:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh --dev
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
 Full macOS guide: [docs/MACOS.md](MACOS.md)

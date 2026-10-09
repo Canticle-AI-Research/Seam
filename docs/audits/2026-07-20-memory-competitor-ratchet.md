@@ -2,6 +2,22 @@
 
 Date: 2026-07-20
 
+> **Dated correction — 2026-10-08.** This is a historical audit, not a
+> current leaderboard or implementation queue. Its "Mem0 reference" table
+> below does not match the primary paper's Table 1. For Mem0 (not Mem0g), the
+> paper reports Table 1 LLM-as-a-Judge (J) means: single-hop 67.13, multi-hop
+> 51.15, open-domain 72.93 and temporal 55.51. The old 91.3/92.0/91.2 baselines and inferred "20 points short" gap
+> must not be used as Mem0-paper comparisons. The original text is preserved.
+> Source: [Mem0 paper, Table 1](https://arxiv.org/html/2504.19413v1#S3.T1),
+> [baseline context](../kb/memory-systems/mem0.md#published-table-1-j-means), and
+> [SEAM comparison limits](../kb/memory-systems/seam-positioning.md).
+> Correct baseline numbers alone do not make the historical SEAM runs matched:
+> exact inputs, category mapping, reader/judge settings, retrieval/context
+> budgets and per-case run receipts still require binding. The paper's `s=10`
+> statement means ten similar memories compared during the update phase, not proof of a
+> ten-memory answer-retrieval cutoff. Its judge repetitions are another
+> distinct parameter. No paired paid run or scientific claim is approved here.
+
 Scope: Mem0, Hindsight, Zep/Graphiti, and Cognee, compared against SEAM's
 measured LoCoMo miss buckets. This is an architecture audit, not a blended
 leaderboard. The only score-to-score claim SEAM should make is under a frozen,

@@ -19,7 +19,7 @@ where they differ.
 
 - SQLite for canonical truth, provenance, packs, and metadata
 - SQLite `vector_index` by default for local vector search
-- Optional Postgres + pgvector for a real external vector database (port 55432)
+- Optional Postgres + pgvector (default loopback host port 55432; configurable)
 - Configurable embedding model:
   - default local deterministic hash model (no credentials needed)
   - optional OpenAI-compatible cloud embedding provider
@@ -28,7 +28,7 @@ where they differ.
 
 - **SQLite truth database** — whatever you pass to `--db` (e.g. `seam.db`, `seam_validate.db`)
 - **SQLite vector index** — stored inside that same SQLite file unless pgvector is enabled
-- **pgvector database** — separate Postgres container `seam-pgvector` on `localhost:55432`
+- **pgvector database** — separate Postgres container `seam-pgvector` at the selected localhost port (default 55432)
 
 **Default persistent database** (set automatically by the installer shims):
 
@@ -44,22 +44,47 @@ Override any time with `SEAM_DB_PATH` in the shell or MCP client env.
 
 ### Install (first time)
 
+For clone/install blocks, replace `REPLACE_WITH_REVIEWED_COMMIT_SHA` with
+the full 40-character commit SHA you reviewed. The placeholder stops before
+cloning, and checkout of that SHA must succeed before installation.
+
 Windows PowerShell:
 
 ```powershell
-gh repo clone BlackhatShiftey/Seam Seam; cd Seam; powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+& {
+    $ErrorActionPreference = "Stop"
+    $seamRevision = "REPLACE_WITH_REVIEWED_COMMIT_SHA"
+    if ($seamRevision -notmatch '^[0-9a-fA-F]{40}$') {
+        throw "Select a reviewed full commit SHA before cloning or installing."
+    }
+    gh repo clone Canticle-AI-Research/Seam Seam
+    if ($LASTEXITCODE -ne 0) { throw "Clone failed; stop before installation." }
+    git -C Seam checkout --detach $seamRevision
+    if ($LASTEXITCODE -ne 0) { throw "Reviewed revision checkout failed; stop before installation." }
+    Set-Location -LiteralPath Seam -ErrorAction Stop
+    powershell -ExecutionPolicy Bypass -File .\installers\install_seam_windows.ps1
+    if ($LASTEXITCODE -ne 0) { throw "Installer failed; inspect its output." }
+}
 ```
 
 macOS:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Linux / WSL2:
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_linux.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_linux.sh
 ```
 
 Repo-local development bootstrap:
@@ -85,24 +110,33 @@ Windows (dev checkout):
 
 ```powershell
 python seam.py doctor
-python seam.py --db seam_validate.db stats
 ```
 
 macOS / Linux (dev checkout):
 
 ```bash
 ./.venv/bin/python seam.py doctor
-./.venv/bin/python seam.py --db seam_validate.db stats
 ```
 
 Installed shim (all platforms):
 
 ```bash
 seam doctor
-seam --db seam_validate.db stats
 ```
 
+Standalone `seam ... stats` is not implemented in this source revision,
+although the parser registers the name. Interactive `/stats` is a separate
+command; these examples do not substitute it for a standalone CLI action.
+
 ### Live cloud + pgvector path
+
+First complete [local pgvector configuration](PGVECTOR_LOCAL.md#point-seam-at-it)
+and require its explicit `PgVector: reachable` output before continuing.
+Doctor exit zero alone does not establish that result, and `up -d` does not
+wait for a healthy service. Check startup timing first if initially unreachable.
+Keep any selected custom database, user and host port.
+Cloud embeddings are a separate optional role; setting pgvector does not
+authorize or require a paid provider call.
 
 Credentials stay in a private env file outside the repo (for example
 `~/.config/seam/.env` on macOS / Linux).
@@ -113,10 +147,9 @@ Windows PowerShell:
 $env:OPENAI_API_KEY="your-real-openai-api-key"
 $env:SEAM_EMBEDDING_PROVIDER="openai-compatible"
 $env:SEAM_EMBEDDING_MODEL="text-embedding-3-small"
-$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$env:POSTGRES_USER password=$env:POSTGRES_PASSWORD"
+# Configure SEAM_PGVECTOR_DSN first using docs/PGVECTOR_LOCAL.md.
 
 python seam.py doctor
-python seam.py --db seam_validate.db stats
 ```
 
 macOS / Linux bash:
@@ -125,10 +158,9 @@ macOS / Linux bash:
 export OPENAI_API_KEY="your-real-openai-api-key"
 export SEAM_EMBEDDING_PROVIDER="openai-compatible"
 export SEAM_EMBEDDING_MODEL="text-embedding-3-small"
-export SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$POSTGRES_USER password=$POSTGRES_PASSWORD"
+# Configure SEAM_PGVECTOR_DSN first using docs/PGVECTOR_LOCAL.md.
 
 seam doctor
-seam --db seam_validate.db stats
 ```
 
 ### Start the local pgvector database
@@ -136,16 +168,17 @@ seam --db seam_validate.db stats
 Windows PowerShell:
 
 ```powershell
-docker compose --env-file <path-to-private-env> up -d seam-pgvector
+docker compose --env-file <path-to-private-env> up -d pgvector
 ```
 
 macOS / Linux bash:
 
 ```bash
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
+docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 ```
 
-Image: `pgvector/pgvector:0.8.6-pg18-trixie` | Container: `seam-pgvector` | Port: `55432`
+Image: `pgvector/pgvector:0.8.6-pg18-trixie` | Service: `pgvector` |
+Container: `seam-pgvector` | Host port: `${SEAM_PGVECTOR_PORT:-55432}` on loopback
 
 If the container exists but is stopped:
 
@@ -180,7 +213,7 @@ Key command groups:
 | `decompile` | Decompile persisted record IDs |
 | `trace` | Trace provenance for an object ID |
 | `reconcile` | Reconcile claims and emit relation/state updates |
-| `stats` | Run the glassbox benchmark summary |
+| `stats` | Parser registration only; no standalone dispatch in this revision |
 | `doctor` | Check install health and run smoke test |
 | `benchmark` | Run or inspect SEAM benchmark suites |
 | `surface` | Read/write SEAM-HS/1 holographic memory surfaces |
@@ -336,7 +369,6 @@ Windows:
 ```powershell
 python -m pytest test_seam_all\test_seam.py -q
 python seam.py doctor
-python seam.py --db seam_validate.db stats
 ```
 
 macOS / Linux:
@@ -344,7 +376,6 @@ macOS / Linux:
 ```bash
 ./.venv/bin/python -m pytest test_seam_all/test_seam.py -q
 ./.venv/bin/python seam.py doctor
-./.venv/bin/python seam.py --db seam_validate.db stats
 ```
 
 Use the local baseline when changing core logic. Use the cloud path when
@@ -440,7 +471,7 @@ export SEAM_EMBEDDING_MODEL="text-embedding-3-small"
 | `doctor` says API key missing | Set `OPENAI_API_KEY` in the same shell session |
 | `doctor` says pgvector DSN missing | Set `SEAM_PGVECTOR_DSN` |
 | `doctor` reports `HTTP 429` | Provider is reachable; check quota/billing — see [errors.md](errors.md) |
-| `stats` regresses | Inspect fixture-level `expected_ids`, `rejected_ids`, `rejection_rate` |
+| A verified benchmark result regresses | Inspect fixture-level `expected_ids`, `rejected_ids`, `rejection_rate` |
 | Search returns stale results | Add or strengthen a benchmark fixture |
 | Port 55432 refused | Run `docker ps` and check `seam-pgvector` is running; on macOS confirm Docker Desktop is up |
 | `ModuleNotFoundError: textual` | `pip install -e ".[dash]"` in the active venv — see [errors.md](errors.md) |

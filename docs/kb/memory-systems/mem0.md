@@ -1,5 +1,29 @@
 # mem0 — the LoCoMo incumbent and target to beat
 
+> **Dated qualification — 2026-10-08.** The original architecture and
+> matched-standing notes below are retained from source commit
+> `be4cffb99b4af9d7fda3d9ac282e08b925c8b906` as historical material. The
+> statement "SEAM LEADS all four" is not a verified current matched result.
+> Correct Mem0 baseline numbers do not bind SEAM's dataset, inputs, cutoff,
+> reader/judge settings, budgets or per-case run receipts.
+
+## Published Table 1 J means
+
+[Mem0's primary paper, Table 1](https://arxiv.org/html/2504.19413v1#S3.T1)
+reports these **LLM-as-a-Judge (J) means** for Mem0, not Mem0g and not the
+separate F1 or BLEU-1 columns:
+
+| Question type | J mean |
+|---|---:|
+| Single-hop | 67.13 |
+| Multi-hop | 51.15 |
+| Open-domain | 72.93 |
+| Temporal | 55.51 |
+
+These baseline means alone do not establish a matched SEAM win. The original
+historical body resumes below; its current/implemented labels are dated claims,
+not a new qualification of today's source or a permission to implement.
+
 > Architecture patterns as understood at 2026-07 (knowledge cutoff). Verify
 > specifics against mem0's current docs / `mem0ai/memory-benchmarks` before
 > relying on a number. This page is about *why mem0 wins on LoCoMo*, which is
@@ -61,6 +85,10 @@ losslessness + provenance + fail-closed-when-uncertain — the auditable version
   (`../eval-methodology/locomo-mem0-harness.md`).
 
 ## Current matched standing (HISTORY#429)
+
+> **Current qualification — 2026-10-08.** The matched-standing paragraph
+> below remains historical and unqualified. Its exact combined run/contract
+> receipts are not supplied here; do not cite it as proof of a matched win.
 
 CORRECTED 2026-08-04 -- the previous claim here was inverted. Under the paper's
 gpt-4o-mini contract SEAM LEADS all four: single-hop 87.16 vs 67.13, multi-hop

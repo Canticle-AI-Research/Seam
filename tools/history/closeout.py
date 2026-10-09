@@ -3,16 +3,18 @@ and run the exact gates the canonical pre-commit hook enforces -- in one command
 
 The AGENTS.md Session-End chain otherwise requires a history append/index
 rebuild, history-stream mirroring, conditional roadmap refresh, cross-index
-rebuild, snapshot write, and five verification gates. This wrapper runs them in
-dependency order so the temporal chain is prepared and verified before `git add`,
-which means the pre-commit hook passes on the first try instead of blocking and
-retrying as each missing artifact is discovered.
+rebuild, snapshot write, and required verification gates. This wrapper runs
+them in dependency order so the temporal chain is prepared and checked before
+`git add`. The staged subset and later pushed tree still require verification
+on their own exact inputs.
 
-It changes NO gate behavior: it shells out to the same tested modules with the
-SAME flags as the canonical commit gate AND the required `repo-hygiene` CI check.
-As of HISTORY#536 that includes the recorded-fact audit, so a green closeout is
-no longer weaker than the check that will run on the PR. Pure orchestration; on
-any step failure it exits non-zero. If HISTORY was already appended, re-run with
+It invokes the canonical verification modules before staging. Agent-config,
+wiki and reference checks intentionally inspect the complete working tree
+here; the pre-commit hook checks staged blobs for those gates. These input
+views and flags differ, so a green closeout does not prove a later staged or
+pushed tree passes. As of HISTORY#536 the chain includes the recorded-fact
+audit required by `repo-hygiene`. Pure orchestration; on any step failure it
+exits non-zero. If HISTORY was already appended, re-run with
 ``--resume-entry`` so the derived chain is repaired without appending a duplicate
 entry.
 

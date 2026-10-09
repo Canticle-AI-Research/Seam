@@ -11,35 +11,51 @@ For failures by symptom, see [errors.md](errors.md).
 ## Prerequisites
 
 - **macOS 12+** (Monterey or later recommended)
-- **Python 3.10+** — check with `python3 --version`
+- **Python 3.11+** — check with `python3 --version`
   - If missing: install from [python.org](https://www.python.org/downloads/macos/) or `brew install python`
-- **Git** and **GitHub CLI** (`gh`) for private-repo clone installs — `brew install gh` then `gh auth login`
+- **Git** and **GitHub CLI** (`gh`) for source checkout installs — `brew install gh` then `gh auth login`
 - **Docker Desktop** (optional) — only if you want the Postgres + pgvector backend
 
 ## Install options
 
-### Option A — Private Git package
+<a id="option-a--private-git-package"></a>
+<a id="option-a-private-git-package"></a>
 
-Requires authorization to the private repository and working SSH credentials:
+### Option A — Reviewed source package
+
+Use a fresh virtual environment and a reviewed commit or release tag. Replace
+`<reviewed-commit>` below with that exact revision. SSH access and source
+visibility do not change the applicable [license terms](../LICENSE). This
+installs from source; it is not a qualified PyPI release.
 
 ```bash
 python3 -m pip install --upgrade pip
-python3 -m pip install "seam-runtime[server,dash] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+python3 -m pip install "seam-suite[server,dash] @ git+ssh://git@github.com/Canticle-AI-Research/Seam.git@<reviewed-commit>"
 seam doctor
 ```
 
 Add pgvector or local embeddings when needed:
 
 ```bash
-python3 -m pip install "seam-runtime[pgvector,sbert] @ git+ssh://git@github.com/BlackhatShiftey/Seam.git@main"
+python3 -m pip install "seam-suite[pgvector,sbert] @ git+ssh://git@github.com/Canticle-AI-Research/Seam.git@<reviewed-commit>"
 ```
 
-### Option B — Private repository clone
+<a id="option-b--private-repository-clone"></a>
+<a id="option-b-private-repository-clone"></a>
 
-Requires `gh auth login` first.
+### Option B — Source repository clone
+
+Authenticate with `gh auth login` if access requires it. Replace
+`REPLACE_WITH_REVIEWED_COMMIT_SHA` with the full 40-character SHA you reviewed.
+Leaving the placeholder stops before cloning; the installer runs only after
+checkout of the selected revision.
 
 ```bash
-gh repo clone BlackhatShiftey/Seam Seam && cd Seam && sh ./installers/install_seam_macos.sh
+seamRevision="REPLACE_WITH_REVIEWED_COMMIT_SHA"
+[[ "$seamRevision" =~ ^[0-9a-fA-F]{40}$ ]] || { printf '%s\n' 'Select a reviewed full commit SHA before cloning or installing.' >&2; exit 1; }
+gh repo clone Canticle-AI-Research/Seam Seam &&
+    git -C Seam checkout --detach "$seamRevision" &&
+    cd Seam && sh ./installers/install_seam_macos.sh
 ```
 
 Open a **new terminal** (or `source ~/.zprofile`) so PATH picks up the installer changes, then:
@@ -170,7 +186,7 @@ Base install pulls `requirements.txt` (`rich`, `tiktoken`; `chromadb` is optiona
 | `pgvector` | `psycopg[binary]` | Postgres pgvector backend |
 | `sbert` | `sentence-transformers` | Local neural embeddings |
 | `chroma` | `chromadb` | Chroma vector backend (opt-in) |
-| `all-extras` | all of the above | Full local setup |
+| `all-extras` | supported non-Chroma runtime and benchmark extras | Full local setup; Chroma remains a separate opt-in |
 
 Into the **managed runtime** (default install):
 
@@ -186,30 +202,14 @@ Into the **dev venv**:
 
 ## PgVector with Docker Desktop
 
-PgVector is optional. Keep credentials in a local env file outside git.
-
-```bash
-mkdir -p "$HOME/.config/seam"
-cp .env.example "$HOME/.config/seam/.env"
-# Edit ~/.config/seam/.env with your local password values — never commit this file.
-
-docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector
-set -a
-. "$HOME/.config/seam/.env"
-set +a
-export SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=$POSTGRES_USER password=$POSTGRES_PASSWORD"
-seam doctor
-```
-
-Image: `pgvector/pgvector:0.8.6-pg18-trixie` · Container: `seam-pgvector` · Port: `55432`
-
-Stop when done:
-
-```bash
-docker compose --env-file "$HOME/.config/seam/.env" down
-```
-
-See [PGVECTOR_LOCAL.md](PGVECTOR_LOCAL.md) for more detail (command shapes are the same as Linux once translated from PowerShell).
+PgVector is optional. Docker Desktop must be running for the service start and
+health check. Follow [Local Pgvector](PGVECTOR_LOCAL.md), including private env
+initialization, the Bash configuration block, the selected Python environment,
+and the health check. It preserves an existing env file and selected settings,
+resolves Compose dotenv syntax without sourcing it, and quotes the DSN. The
+service name is `pgvector`; `seam-pgvector` is the container name. The host port
+defaults to `55432` and can be overridden. Native macOS qualification remains
+separate from the runbook's Linux fixtures.
 
 ## Web UI and REST API
 
@@ -303,7 +303,7 @@ Re-run the installer if `~/.local/bin/seam` is missing.
 
 ### `Python 3 is required to install SEAM`
 
-Install Python 3.10+ and ensure `python3` is on PATH:
+Install Python 3.11+ and ensure `python3` is on PATH:
 
 ```bash
 python3 --version
@@ -327,7 +327,7 @@ python3 --version
 ### PgVector unreachable
 
 - Confirm Docker Desktop is running: `docker ps`
-- Start the service: `docker compose --env-file "$HOME/.config/seam/.env" up -d seam-pgvector`
+- Start the service: `docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector`
 - Export `SEAM_PGVECTOR_DSN` in the same shell session before `seam doctor`
 
 ### Gatekeeper / quarantine on downloaded repo

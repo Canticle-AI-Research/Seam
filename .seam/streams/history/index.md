@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 659
-total_tokens: ~336022
-latest_id: 659
+total_entries: 660
+total_tokens: ~336732
+latest_id: 660
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 660 | 2026-10-08 | in-progress | 7394ef0973c287fa | docs,audit,installer,pgvector,+ | 659 |
 | 659 | 2026-10-08 | in-progress | c7515f46c9282b5f | docs,audit,installer,verify | 658 |
 | 658 | 2026-10-07 | in-progress | 7b7bd6a857773912 | docs,audit,installer,verify | 657 |
 | 657 | 2026-10-07 | in-progress | 761ac29266d2ed1e | docs,audit,installer,verify | 656 |
@@ -690,7 +691,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=133 latest=#659, #658, #657, #656, #641
+- audit: count=134 latest=#660, #659, #658, #657, #656
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -766,7 +767,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=106 latest=#659, #658, #657, #656, #655
+- docs: count=107 latest=#660, #659, #658, #657, #656
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -823,7 +824,7 @@ compact: true
 - inference: count=1 latest=#413
 - infra: count=3 latest=#453, #425, #271
 - ingest: count=2 latest=#317, #303
-- installer: count=20 latest=#659, #658, #657, #656, #360
+- installer: count=21 latest=#660, #659, #658, #657, #656
 - instrumentation: count=1 latest=#366
 - integrity: count=16 latest=#587, #547, #531, #530, #529
 - isolation: count=2 latest=#275, #274
@@ -891,7 +892,7 @@ compact: true
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
-- pgvector: count=37 latest=#656, #648, #640, #490, #489
+- pgvector: count=38 latest=#660, #656, #648, #640, #490
 - plan: count=25 latest=#645, #634, #620, #511, #437
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
@@ -1005,7 +1006,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=464 latest=#659, #658, #657, #656, #655
+- verify: count=465 latest=#660, #659, #658, #657, #656
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1024,5 +1025,5 @@ compact: true
 - roots: 87
 - changed: 70
 - done: 540
-- in-progress: 27
+- in-progress: 28
 - planned: 22

@@ -15,8 +15,12 @@ Architecture stance:
 - SQLite remains the canonical source of truth
 - vector indexes, including Chroma, are derived retrieval layers
 - retrieval output should stay traceable back to canonical records and exact payloads
-- the public Python SDK is the stable integration boundary; CLI, REST, MCP, and
-  framework adapters should stay thin over it
+- the local, in-process runtime SDK is the integration boundary for CLI,
+  REST, MCP, and framework adapters
+- the separately distributed `seam-client` HTTP SDK calls the `/v1` service;
+  it does not ship this retrieval layer or the local `SeamSDK`
+- interface names and source visibility do not change the applicable grants;
+  see [LICENSE](../../LICENSE) and [public SDK API](../../docs/PUBLIC_SDK_API.md)
 - graph retrieval remains a projection over canonical RAW/MIRL, never a second
   truth store
 
