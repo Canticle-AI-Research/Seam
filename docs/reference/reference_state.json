@@ -12,7 +12,7 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "f7e5b39d3f1b8ef1aee8cefff00dd5e951b8a06e1ad64e97e59c6dabfe6c4a33",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "adaf264c448d2e7ec25b6a49113e2913f630d78893b9496b2243b61194d9890a",
+    "PROJECT_STATUS.md": "1454feacdb0afed7525518090ccbe804d81d840752b5e90019111f40f2cfdf9a",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "71f1993c004508d11c11e2d1f1539fbfd5adb765a4a9a5dd9a334a68f99d5248",
     "REPO_LEDGER.md": "cf1b49a7f015bd6d5329e5b3c68f70e2fa0113b2de6d9a17e5f313c92864a14b",
@@ -207,7 +207,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "adaf264c448d2e7ec25b6a49113e2913f630d78893b9496b2243b61194d9890a",
+      "document_sha256": "1454feacdb0afed7525518090ccbe804d81d840752b5e90019111f40f2cfdf9a",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

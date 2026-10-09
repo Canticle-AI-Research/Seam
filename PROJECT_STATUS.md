@@ -5,14 +5,17 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-10-09 — reviewed launcher path-selection candidate.**
+**2026-10-09 — launcher candidate integrated; native qualification pending.**
 The independently reviewed change preserves a nonempty `SEAM_DB_PATH` in the
 managed command shims and keeps the managed default when it is unset or empty.
 See [database path selection](docs/SEAM_OPERATOR_GUIDE.md#database-path-selection)
-and HISTORY#662. This candidate is stacked on the reviewed PR #284 revision;
-its dependencies, exact-head checks and native-platform boundary remain the
-merge conditions. Existing installed shims require regeneration. Future Doctor
-corpus discovery/repair remains planned. Full documentation, website parity and
+and HISTORY#662–663. The candidate is reconciled normally with current main;
+its runtime bytes and the independently approved three-file native verifier
+are preserved. Five standard hosted OS/Python jobs must actually succeed and
+emit qualified receipts on the final exact head, alongside required/advisory
+checks and final review, before merge. Local fixtures are limited evidence.
+Existing installed shims require regeneration. Future Doctor corpus
+discovery/repair remains planned. Full documentation, website parity and
 licensing signoff remain open; no package or effective license change follows.
 
 **2026-10-07 — documentation safeguards merged; runbook corrections published for review.**

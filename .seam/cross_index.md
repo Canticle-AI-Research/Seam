@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 728
+total_events: 729
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-24T10:24:48Z | history:468:e8590966 | session-event | done | ci, security, pyproject, verify, handoff, status | .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,ROADMA... |
 | 2026-07-24T12:53:45Z | history:469:3b2e4a9a | session-event | done | agent, surface, pyproject, security, test, handoff, docs | seam_runtime/public_api.py,seam_runtime/server.py,tests/audit/test_public_sdk... |
 | 2026-07-24T15:52:53Z | history:470:31703e92 | session-event | done | agent, ci, pyproject, verify, handoff, status | docs/PUBLIC_SDK_API.md,docs/handoffs/2026-07-24-seam-client-0-1-0-live.md,REA... |
 | 2026-07-27T17:21:39Z | history:471:d5f50357 | session-event | done | docker, mirl, security, bundle, agent, verify, handoff | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/Docker... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-08T19:12:22Z | history:660:7394ef09 | session-event | in-progress | docs, audit, installer, pgvector, verify | README.md,installers/README.md,docs/errors.md,docs/PGVECTOR_LOCAL.md,docs/SEA... |
 | 2026-10-08T20:53:12Z | history:661:d48167b7 | session-event | in-progress | docs, audit, installer, verify | docs/MACOS.md,docs/setup.md,docs/SEAM_OPERATOR_GUIDE.md,tests/audit/test_oper... |
 | 2026-10-09T00:59:18Z | history:662:e1bf77ec | session-event | in-progress | docs, audit, installer, operator, verify | seam_runtime/installer.py,tests/audit/test_database_path_selection.py,test_se... |
+| 2026-10-09T02:29:00Z | history:663:e6bdad25 | session-event | in-progress | ci, installer, operator, verify, windows, macos, linux, a... | .github/workflows/native-launchers.yml,tools/ci/native_launcher_smoke.py,test... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0528.cross.md | 2026-04-15T00:00:00Z..2026-07-24T10:21:50Z | 528 | (multi) | (multi) |
+| 0001-0529.cross.md | 2026-04-15T00:00:00Z..2026-07-24T10:24:48Z | 529 | (multi) | (multi) |

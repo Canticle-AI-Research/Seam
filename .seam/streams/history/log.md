@@ -21817,3 +21817,31 @@ No paid workflow/provider call, package publication, deployment, effective
 license change, future Doctor implementation or M0-M5 advance is authorized by
 this narrow correction. Required chronology and staged gates still apply.
 ---END-ENTRY-#662---
+
+---BEGIN-ENTRY-#663---
+id: 663
+date: 2026-10-09T02:29:00Z
+agent: codex
+status: in-progress
+topics: ci, installer, operator, verify, windows, macos, linux, audit, docs
+commits: pending
+refs: .github/workflows/native-launchers.yml,tools/ci/native_launcher_smoke.py,tests/audit/test_native_launcher_harness.py,PROJECT_STATUS.md
+supersedes: 662
+tokens: 1016
+---
+Integrated current main `9a5749e90035f475155843b9063650d43f1354d7` by a normal conflict-free merge with the existing PR #285 launcher candidate `0f957296a1be5cfe9c7022b9c537b686afa6dbe8`; the initial merge index tree stayed exactly `84296703d110fab3e9da937f40ff7a83b078b0c1`. Main's tree was identical to the independently reviewed PR #284 baseline, so no runtime reconciliation edit was needed. Preserved all existing branches/checkouts; no reset, rebase or force publication.
+
+Applied the independently approved R2 verification patch, SHA-256 `db657a35ce3b99cd3ce3097d1e33ff8501c52f104f4b56d742ebab42707bfa73`, exactly three added files: `.github/workflows/native-launchers.yml`, `tools/ci/native_launcher_smoke.py`, and `tests/audit/test_native_launcher_harness.py`. Runtime installer bytes remain those independently reviewed at #662. The R1 packet was rejected for persistent-runner allocation, success-on-cleanup-failure, missing native literal/delayed-expansion witnesses and insufficient regeneration/store preservation. R2 removes the refusal job, clears failed qualification, adds bounded `/v:on` and baked POSIX literal cases, and protects owned SQLite/metadata and stale launcher bytes across the planned actual clean-install/package-only/regeneration pipeline.
+
+Independent exact R2 local fixtures reported 42 passed and no skips; the exact R2 tests against R1 driver AND workflow reported 11 failed and 31 passed. This is a harness review-regression negative control, not eleven runtime product defects. Those reviewed verification bodies matched before/after application here.
+
+The integrated focused local command below reported 294 passed in 32.96 seconds, zero failures/skips. It combines the launcher/operator/documentation/continuity slice with local native-harness fixtures. It does not execute the guarded real clean installer or qualify Windows/macOS installed launcher behavior. Repository-context Ruff passed both added Python files; source-level reference checking initially rejected the changed status-page review receipt, then its fully read pending headline was explicitly acknowledged. This receipt is a bounded status update, not historical factual, licensing or full-corpus approval.
+
+`python -m pytest -q -o addopts= -p no:cacheprovider tests/audit/test_native_launcher_harness.py tests/audit/test_database_path_selection.py test_seam_all/test_seam.py::InstallerLinuxTests test_seam_all/test_seam.py::SeamTests::test_installer_windows_shim_sets_persistent_db test_seam_all/test_seam.py::SeamTests::test_installer_posix_shim_sets_persistent_db test_seam_all/test_seam.py::SeamTests::test_default_runtime_db_path_prefers_env tests/audit/test_operator_documentation_safety.py tests/audit/test_operator_env_runbooks.py tools/docs/test_sync_references.py tests/audit/test_history_closeout.py tests/audit/test_local_gates_match_ci.py tests/audit/test_wiki_navigation.py`
+
+The workflow proposes only standard public-hosted VM lanes: Ubuntu 24.04 x64 with Python 3.11 and 3.12, Windows Server 2022 x64/Python 3.12, macOS 15 ARM64/Python 3.12 and macOS 15 Intel/Python 3.12. Fork/private events allocate no native job and remain unqualified; five successful qualified exact-head receipts are required, not a green skipped aggregate. No artifact/cache upload, credential/security/runner configuration change, paid provisioning, native job dispatch or actual native clean install has occurred at this local closeout point. Publication to the existing PR branch and actual five-lane execution are authorized next.
+
+Keep native readiness and merge blocked until all five actual jobs succeed with qualified receipts for the same final candidate head, all required/advisory checks pass and final exact-head scope is verified. The driver intercepts runtime construction/benchmark execution after actual installation; real corpus/provider work, fresh-terminal profile/registry discovery, installed MCP-client activation, desktop UI/WSL and other OS/Python versions remain outside qualification. CMD `/v:on` caller-typed exclamation marks and caller-specific embedded-double-quote/paired-percent arguments are bounded exclusions; inherited/baked exclamation marks are retained. Windows baked shim paths remain ASCII. Package-only evidence is a forced reinstall of the exact checked-out version; owned fixture hashes qualify bytes, not ACL/metadata.
+
+No user database, license text, package version/release, future Doctor repair, M0–M5/PyPI/BIL3 implementation or deployment changed. Full documentation/wiki, live website parity/access, historical/scientific claim dispositions, reliable GLM attribution and sequential owner licensing decisions remain open. Prior test/CI gates are not documentation completion evidence.
+---END-ENTRY-#663---
