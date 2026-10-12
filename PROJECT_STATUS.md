@@ -1,5 +1,12 @@
 # SEAM Project Status
 
+**2026-10-12 local gate repair:** HISTORY#668 records the optimized M1 control fix,
+the exact main parity-test reconciliation, and the completed local audit slice.
+The reports branch retains its original six TDD cycles plus the new witnessed
+M1 cycle. PR #264 remains draft and conflicts with main; final-commit
+qualification and branch/history reconciliation are separate from deployment.
+The licensing review binds unchanged main e4abc1d9 and remains inactive.
+
 This file routes current operating state. Detail lives in the status streams;
 chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
@@ -19,8 +26,8 @@ the [current handoff](docs/handoffs/INDEX.md).
 has authorized its use for the reports site. The planned hostname is
 `reports.canticle.cc`; `canticle.ai` was only an entered name. Existing site
 source is on draft PR #264, with successful PR build checks but no deployment.
-The diagnostic helper's missing test-first evidence still prevents full-PR
-qualification. The [domain/publication handoff](docs/handoffs/2026-09-13-reports-domain-publication-next.md)
+The diagnostic helper now has authentic test-first evidence for its optimized-Python
+control fix; fresh final-head qualification remains pending (HISTORY#665). The [domain/publication handoff](docs/handoffs/2026-09-13-reports-domain-publication-next.md)
 records the exact DNS observations and deployment order (HISTORY#653).
 No Pages/DNS settings changed in this handoff pass.
 
@@ -33,8 +40,10 @@ only from main after complete-artifact privacy checks and with a nonempty
 revision-pinned catalog. M1's catalog entry now pins source commit `e01284de`
 (HISTORY#651). The operator
 authorized the exact primary-log URL redaction and it is complete (HISTORY#650).
-Draft PR #264 is pushed. Independent qualification and the audit helper's
-recorded `TDD_UNPROVEN` condition remain open (HISTORY#652). Public Pages returned 404 on
+Draft PR #264 remains the reports branch. HISTORY#665 repairs the helper and
+preserves the six earlier cycles; its former `TDD_UNPROVEN` condition from
+HISTORY#652 is superseded by witnessed evidence. Fresh final-head qualification
+and branch/main reconciliation remain open. Public Pages returned 404 on
 September 13; the preview remains local.
 HISTORY#649 supersedes the publication hold in HISTORY#648. Memory formation
 remains the active priority; M1 review, B1 metadata and E1 design precede M2.

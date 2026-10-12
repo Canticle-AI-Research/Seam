@@ -21587,3 +21587,43 @@ Registered the chronological successor handoff, advanced the registry, marked th
 
 Next: resume latest PR264 head and release evidence; resolve helper TDD_UNPROVEN without fabrication, qualify a lineage-preserving merge, verify main Pages deployment and expected report/artifact hashes, then configure and verify the already-authorized reports.canticle.cc hostname with actual DNS account access. Preserve the full roadmap and M1/B1/E1 prerequisites in the predecessor and detailed roadmap.
 ---END-ENTRY-#653---
+
+---BEGIN-ENTRY-#665---
+id: 665
+date: 2026-10-12T20:13:58.055910+00:00
+agent: canticle
+status: done
+topics: bugfix, test, verify, continuity, history
+commits: pending
+refs: tools/memory_formation_m1.py, tests/audit/test_memory_formation_m1.py, PROJECT_STATUS.md
+supersedes: 652
+tokens: 476
+---
+The M1 observation probe used five Python assert statements for RAW/SPAN, stored-text, retrieval/generation, and distinct-source controls. Optimized Python removed those checks and completed invalid synthetic runs. The tool now uses explicit equivalent guards with fixed nonsensitive AssertionError messages; cleanup, JSON schema, offline settings, and publication boundaries remain unchanged.
+
+Verification: python3 -m pytest tests/audit/test_memory_formation_m1.py -q observed a test-only red checkpoint before repair (14 failures and 4 passes: seven optimized control bypasses and seven normal-mode diagnostic mismatches), then passed all 18 cases after the five guards. The same corrected red/green cycle was freshly witnessed with original committed tool bytes and the reviewed repair reapplied, with exact timestamps retained in ignored root-session state. The original six reports-branch cycles remain intact. The combined command python3 -m pytest tests/audit/test_memory_formation_m1.py tests/audit/test_report_site.py tests/audit/test_report_publication_safety.py tests/audit/test_report_deployment_boundary.py -q passed all 61 collected cases. All exercise synthetic substitutes; no paid provider, model, live database, deployment, or licensing activation was performed.
+
+This entry uses #665 because protected main already contains #654 through #664. The existing reports branch ends at #653; all earlier entry bytes remain unchanged, and strict increasing-ID parsing permits the reserved gap. This branch's original comparison base remains 614141c5aa96fd51d4dee2e09c186bb4035c0377. Fresh final-head qualification is required after this continuity record. Draft PR #264 remains separate from main and requires branch/main reconciliation before merge; previous CI results on 18abe442 are not evidence for this new head. No license terms or runtime implementation in seam_runtime were changed.
+---END-ENTRY-#665---
+
+---BEGIN-ENTRY-#668---
+id: 668
+date: 2026-10-12T20:37:02.058910+00:00
+agent: canticle
+status: done
+topics: bugfix, test, verify, continuity, correction, history, provenance
+commits: pending
+refs: tests/audit/test_history_closeout.py, tools/memory_formation_m1.py, tests/audit/test_memory_formation_m1.py, PROJECT_STATUS.md
+supersedes: 665
+tokens: 728
+---
+Correction to HISTORY#665: that entry reserved its ID after checking protected main through #664, but the existing qualified docs/integrate-oct3-audit-20261010 branch at 963b06cf already contains #665 through #667. Its description of #665 as globally unused was incorrect. All earlier bytes remain unchanged. This correction uses #668 after checking HISTORY_INDEX.md latest_id across every path from git worktree list --porcelain: the other branch tips reached #667. The reports branch's earlier #665 remains branch-local and requires explicit history reconciliation before PR #264 merges.
+
+The wider audit first failed collection under system python3 because FastAPI was absent there (15 collection errors, exit 2). Repeating tests/audit with the existing primary project virtualenv produced exactly one failure: the older test_history_closeout parity test recognized only run_gate lines and misread the already stricter bare verify_agent_config --staged scope guard. The reports test file is now byte-identical to protected main's test file (SHA256 b2bc92957b4eee7574f7b689986be5be4a4f0ce5b7d4ca7f8c4ad2625a61f1d6), which checks canonical gate presence, staged arguments, chain order, and mandatory aborts. The hook and closeout helper were not changed. Its focused command python3 -m pytest tests/audit/test_history_closeout.py -q passed all 10 collected cases.
+
+Final broader verification: /home/terrabyte/Documents/Projects/Seam/.venv/bin/python -m pytest tests/audit -m "not external" -q -o addopts= exited 0 with 3056 passed, 65 deselected, zero skipped, and two existing multiprocessing deprecation warnings. The scope is only tests/audit on this reports candidate; deselections are the separately serviced external-marked tests. This is not a full repository, production-service, paid-benchmark, or deployment claim. The 61 focused M1/report cases and the original six genuine reports cycles plus the new optimized-control cycle remain witnessed and intact.
+
+The licensing review separately binds unchanged main e4abc1d9 to 109 inventoried source paths and 108 exact local-preview-wheel source members. Administrative authority and functional routing are checked independently of inherited rights; new drafts remain inactive and all earlier Apache, BUSL/conversion, contribution-period and third-party permissions remain available. Main's six canonical gates passed after a fresh snapshot, and GitHub reports repo-hygiene, chroma-real-smoke, and locomo-quickstart-bil2 successful on exact e4abc1d9. No active license, package metadata, release, provider spending, or deployment changed.
+
+PR #264 remains draft and GitHub reports conflicts with main. This repair clears its local observation-control and stale-test failures; it does not reconcile those conflicts or claim current remote checks for the upcoming commit. Obtain a fresh final-commit receipt and keep the PR's source/head boundary explicit.
+---END-ENTRY-#668---

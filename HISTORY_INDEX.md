@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 653
-total_tokens: ~333678
-latest_id: 653
+total_entries: 655
+total_tokens: ~334882
+latest_id: 668
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 668 | 2026-10-12 | done | 881cccefe1afe24e | bugfix,test,verify,continuity,+ | 665 |
+| 665 | 2026-10-12 | done | 7969793e70b0acb5 | bugfix,test,verify,continuity,+ | 652 |
 | 653 | 2026-09-13 | in-progress | 64c22c20de98a38d | handoff,docs,webui,verify,+ | 652 |
 | 652 | 2026-09-13 | in-progress | 77f50f67f73ef0ef | docs,handoff,ci,verify,+ | 651 |
 | 651 | 2026-09-13 | in-progress | 4edb74fac7c353b1 | handoff,docs,provenance,ci,+ | 650 |
@@ -695,7 +697,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=85 latest=#629, #628, #624, #623, #622
+- bugfix: count=87 latest=#668, #665, #629, #628, #624
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -730,12 +732,12 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=92 latest=#653, #645, #644, #643, #642
+- continuity: count=94 latest=#668, #665, #653, #645, #644
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=25 latest=#639, #638, #632, #631, #630
+- correction: count=26 latest=#668, #639, #638, #632, #631
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -805,7 +807,7 @@ compact: true
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=327 latest=#632, #631, #630, #627, #625
+- history: count=329 latest=#668, #665, #632, #631, #630
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -904,7 +906,7 @@ compact: true
 - proposer: count=1 latest=#291
 - protocol: count=119 latest=#620, #619, #618, #617, #616
 - prov: count=1 latest=#316
-- provenance: count=40 latest=#652, #651, #650, #649, #648
+- provenance: count=41 latest=#668, #652, #651, #650, #649
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
@@ -981,7 +983,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=5 latest=#628, #627, #626, #441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=132 latest=#642, #638, #637, #632, #631
+- test: count=134 latest=#668, #665, #642, #638, #637
 - test-artifacts: count=1 latest=#506
 - tests: count=83 latest=#649, #648, #647, #644, #643
 - textual: count=19 latest=#554, #543, #108, #106, #063
@@ -999,7 +1001,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=452 latest=#653, #652, #644, #643, #642
+- verify: count=454 latest=#668, #665, #653, #652, #644
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=14 latest=#653, #571, #545, #544, #543
@@ -1017,6 +1019,6 @@ compact: true
 
 - roots: 86
 - changed: 68
-- done: 535
+- done: 537
 - in-progress: 28
 - planned: 22

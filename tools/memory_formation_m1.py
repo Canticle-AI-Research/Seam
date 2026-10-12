@@ -69,7 +69,8 @@ def run(root: Path) -> dict:
         batch = compile_nl(text, allow_env_extractor=False)
         observation = describe(batch)
         observation["raw_exact"] = batch.kind(RecordKind.RAW)[0].attrs["content"] == text
-        assert observation["raw_exact"] and observation["span_text_exact"]
+        if not (observation["raw_exact"] and observation["span_text_exact"]):
+            raise AssertionError("compiler RAW/SPAN control failed")
         compiled[name] = observation
     long_text = "word " * 2000
     long_batch = compile_nl(long_text, allow_env_extractor=False)
@@ -126,13 +127,16 @@ def run(root: Path) -> dict:
             observed["canonical_relation_rows"] = connection.execute(
                 "select count(*) from ir_records where ns=? and kind='REL'", (namespace,)
             ).fetchone()[0]
-        assert observed["text_column_checks"]["painting"] == 1
-        assert observed["text_column_checks"]["M1_UNSTATED_SENTINEL"] == 0
+        if observed["text_column_checks"]["painting"] != 1:
+            raise AssertionError("stored painting count control failed")
+        if observed["text_column_checks"]["M1_UNSTATED_SENTINEL"] != 0:
+            raise AssertionError("unstated sentinel absence control failed")
         answer = adapter.answer(scope, "What does Alice enjoy?")
         observed["retrieval"] = {"query": "What does Alice enjoy?",
                                  "context": answer.retrieved_context,
                                  "generated_answer": answer.generated_answer}
-        assert "painting" in answer.retrieved_context and answer.generated_answer is None
+        if not ("painting" in answer.retrieved_context and answer.generated_answer is None):
+            raise AssertionError("retrieval context/generation control failed")
         observed["graph_product_build"] = rt.store.rebuild_graph_products(
             namespace=namespace, scope="thread")
         observed["graph_products"] = rt.store.graph_products(namespace=namespace, scope="thread")
@@ -146,7 +150,8 @@ def run(root: Path) -> dict:
                                         ns="control", allow_env_extractor=False)
         direct = describe(rt.store.load_ir(ns="control"))
         direct["embedding_model"] = rt.embedding_model.name
-        assert len(direct["raw"]) == 2
+        if len(direct["raw"]) != 2:
+            raise AssertionError("distinct source reference control failed")
         unicode_outcome = rt.ingest_conversation_turn(SAMPLES["unicode"],
             source_ref="fixture:unicode", ns="unicode", allow_env_extractor=False)
         unicode = describe(rt.store.load_ir(ns="unicode"))
