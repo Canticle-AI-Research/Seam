@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 665
-total_tokens: ~340546
-latest_id: 665
+total_entries: 666
+total_tokens: ~340852
+latest_id: 666
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 666 | 2026-10-14 | changed | 2c6dbdce2c95074a | docs,pyproject,operator,audit,+ | 665 |
 | 665 | 2026-10-14 | changed | ae2c7f43dc6736f1 | docs,pyproject,operator,mirl,+ | 664 |
 | 664 | 2026-10-09 | in-progress | 9b1b0f0fe99a83c3 | ci,installer,verify,windows,+ | 663 |
 | 663 | 2026-10-09 | in-progress | e6bdad25b38359fa | ci,installer,operator,verify,+ | 662 |
@@ -696,7 +697,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=139 latest=#665, #664, #663, #662, #661
+- audit: count=140 latest=#666, #665, #664, #663, #662
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -742,7 +743,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=97 latest=#665, #652, #651, #650, #649
+- continuity: count=98 latest=#666, #665, #652, #651, #650
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -772,7 +773,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=112 latest=#665, #664, #663, #662, #661
+- docs: count=113 latest=#666, #665, #664, #663, #662
 - doctor: count=11 latest=#524, #324, #287, #170, #169
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -885,7 +886,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=14 latest=#665, #663, #662, #636, #635
+- operator: count=15 latest=#666, #665, #663, #662, #636
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -920,7 +921,7 @@ compact: true
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
-- pyproject: count=19 latest=#665, #642, #635, #633, #588
+- pyproject: count=20 latest=#666, #665, #642, #635, #633
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -1011,7 +1012,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=470 latest=#665, #664, #663, #662, #661
+- verify: count=471 latest=#666, #665, #664, #663, #662
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1028,7 +1029,7 @@ compact: true
 ## status rollup
 
 - roots: 87
-- changed: 71
+- changed: 72
 - done: 540
 - in-progress: 32
 - planned: 22

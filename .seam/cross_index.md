@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 731
+total_events: 732
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-27T17:21:39Z | history:471:d5f50357 | session-event | done | docker, mirl, security, bundle, agent, verify, handoff | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/Docker... |
 | 2026-07-27T20:02:02Z | history:472:94271e65 | session-event | done | ci, bugfix, test, verify, history | .github/workflows/ci.yml,tests/audit/test_github_pr_gates.py,PR#169 |
 | 2026-07-27T20:12:57Z | history:473:2366f295 | session-event | done | ci, bugfix, test, verify, history | tests/audit/test_selfhost_edition.py,PR#169,run#30300943888 |
 | 2026-07-28T04:15:42Z | history:474:82fb3cc3 | session-event | changed | licensing, busl, distribution, docs | LICENSE,LICENSES/BUSL-1.1.txt,NOTICE,COMMERCIAL_LICENSE.md,README.md,CONTRIBU... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-09T02:29:00Z | history:663:e6bdad25 | session-event | in-progress | ci, installer, operator, verify, windows, macos, linux, a... | .github/workflows/native-launchers.yml,tools/ci/native_launcher_smoke.py,test... |
 | 2026-10-09T02:57:34Z | history:664:9b1b0f0f | session-event | in-progress | ci, installer, verify, windows, macos, linux, audit, docs | .github/workflows/native-launchers.yml,tests/audit/test_native_launcher_harne... |
 | 2026-10-14T05:31:23Z | history:665:ae2c7f43 | session-event | changed | docs, pyproject, operator, mirl, audit, handoff, continui... | LICENSE,NOTICE,COMMERCIAL_LICENSE.md,LICENSES/SEAM-Suite-Personal.txt,LICENSE... |
+| 2026-10-14T05:40:35Z | history:666:2c6dbdce | session-event | changed | docs, pyproject, operator, audit, continuity, verify | docs/TESTPYPI.md,docs/reference/reference_state.json,docs/audits/2026-10-14-l... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0531.cross.md | 2026-04-15T00:00:00Z..2026-07-24T15:52:53Z | 531 | (multi) | (multi) |
+| 0001-0532.cross.md | 2026-04-15T00:00:00Z..2026-07-27T17:21:39Z | 532 | (multi) | (multi) |

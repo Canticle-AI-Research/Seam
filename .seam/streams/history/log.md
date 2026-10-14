@@ -21889,3 +21889,19 @@ The dated report and docs/audits/evidence/2026-10-14-licensing/artifacts.json re
 
 Documentation reference acknowledgement covers only the license-metadata source revision with identical command definitions plus reviewed authored deltas, not whole-page correctness or full product/release qualification. Main history is append-only; colliding branch-local HISTORY IDs from PR #266 are not imported. Its package/release/MCP work and prior cumulative NOT_QUALIFIED/TDD_UNPROVEN condition remain separate, as do website PR #29 conflicts and acceptance. No package upload, MCP registration, release, deployment or paid call occurred. Finish focused protected-PR exact-head checks and stored independent receipt; then integrate licensing and continue separate package/TestPyPI qualification. No dirty exclusions or stashes existed in this fresh workspace; predecessor's unrelated quarantines remain untouched.
 ---END-ENTRY-#665---
+
+---BEGIN-ENTRY-#666---
+id: 666
+date: 2026-10-14T05:40:35Z
+agent: codex
+status: changed
+topics: docs, pyproject, operator, audit, continuity, verify
+commits: pending
+refs: docs/TESTPYPI.md,docs/reference/reference_state.json,docs/audits/2026-10-14-licensing-reconciliation.md
+supersedes: 665
+tokens: 306
+---
+The parallel publisher-readiness review identified one stale current blocker sentence in docs/TESTPYPI.md: it still described Suite membership/notices as undecided despite the new first-launch license and exact manifest. Corrected that paragraph to cite the current licensing report and distinguish completed terms/membership from remaining publisher, product/package acceptance and exact public-upload approval. This is a documentation consistency follow-up to HISTORY#665, not a new licensing decision or a release-control change.
+
+No license, metadata, runtime, dependency, command, workflow or reviewed archive bytes changed. Independent scoped review and the documentation-reference acknowledgement cover only this authored paragraph. Run the unsuppressed continuity/reference/wiki gates and secret/diff checks, then require exact successor-head protected CI and receipt before integration. The earlier PR286 head passed its LoCoMo check while other required checks remained queued; those checks do not qualify the successor automatically. Website licensing/docs correction proceeds separately on current website main. No upload, merge, deployment, paid call or unrelated branch qualification is claimed by this entry.
+---END-ENTRY-#666---

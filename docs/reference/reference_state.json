@@ -90,7 +90,7 @@
     "docs/SOP_WEBUI_BATCH_HARDENING_DEEPSEEK.md": "d9bef7aa5be0d13e60bb31843453531b0f04bec66e666615c780e473ebbe52cd",
     "docs/SQLITE_MIGRATIONS.md": "cc01aaede580197b9fe0d24e09133ae3cf9b4711a52f830febdf461473c06cb7",
     "docs/SYMBOL_NURSERY.md": "e909fdda23f3953843660c7213fc4d73f7df1cfe141fc8c38d4e7f5180a59c01",
-    "docs/TESTPYPI.md": "9992ba5e1564024720d043f78a6f9c5e830d33fe4a22daa853e1dde3e84ba02f",
+    "docs/TESTPYPI.md": "03d87e226aea8de92b49e113f4ca1d754f8e4aa76a7d8dfd9d259f63f3ad56e1",
     "docs/adr/0001-canonical-store-lifetime-lease.md": "966618ae08229dbbd3c5d9722a1c7f3005c3ead9831b34bbb0d42c2e7e28915e",
     "docs/audits/INDEX.md": "def81cae3c3f4e76eb9270fee7e7212b70789cc4f299da559706b65422406530",
     "docs/engineering/01_ARCHITECTURE.md": "f215d14252000a81a6ad2815ef5a1b7892c41d48afb951952b4babf29cdb6b00",
@@ -750,7 +750,7 @@
     },
     "docs/TESTPYPI.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "9992ba5e1564024720d043f78a6f9c5e830d33fe4a22daa853e1dde3e84ba02f",
+      "document_sha256": "03d87e226aea8de92b49e113f4ca1d754f8e4aa76a7d8dfd9d259f63f3ad56e1",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

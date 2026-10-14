@@ -24,9 +24,12 @@ still needs `[server,dash]` for the complete server/TUI dependency set.
 ## Current blockers
 
 - Root metadata retains `Private :: Do Not Upload`. Do not remove it merely
-  to make an upload succeed: the L1 exact file/version membership and notices
-  review is still open. Existing archive scans do not establish publication
-  eligibility. The current wheel/sdist must remain local until that review.
+  to make an upload succeed. Current Suite membership and terms are reconciled
+  by [the licensing report](audits/2026-10-14-licensing-reconciliation.md) and
+  exact manifest. Publisher qualification, product/package acceptance and
+  approval of the exact public-upload files remain open; archive scans alone
+  do not establish publication eligibility. Keep candidate archives local
+  until those separate release gates are met.
 - No authenticated TestPyPI publisher was established in this preparation
   session. A GitHub repository connection is not TestPyPI project ownership.
 - The existing GitHub release workflow accepts its established SemVer input
