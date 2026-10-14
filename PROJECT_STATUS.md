@@ -5,6 +5,20 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — Suite release-candidate repair in verification.** Licensing
+PR #286 is merged at `607ac308`; the matching website terms and Docs are live
+through website PR #32. The current package candidate includes TUI/server
+dependencies by default, canonical Python prerelease validation, current MCP
+metadata, and a source/archive license-manifest drift guard. Isolated wheel
+and sdist installs passed supported CLI, TUI, HTTP and MCP checks. Independent
+review supports owner-authorized TestPyPI preparation; final rebuilt artifacts,
+protected checks and exact-state qualification still govern integration.
+TestPyPI publisher access and downloaded-install verification remain open;
+no production upload or full browser-product acceptance is claimed. Eleven
+verified obsolete remote branches were deleted without discarding unique work.
+See [release flow](docs/RELEASE_FLOW.md) and
+[packaging status](docs/status/packaging-licensing.md).
+
 **2026-10-14 — current Suite licensing reconciled for first launch.** The
 recorded owner decision from PR #266 is carried onto current main: proprietary
 Suite with free personal, noncommercial self-hosting; business and organizational
@@ -108,9 +122,9 @@ independently loadable graph/database/glassbox sections need acceptance evidence
 Use the [surface stream](docs/status/surfaces.md) for those boundaries.
 
 GitHub currently reports the canonical repository as public. Root package
-metadata now declares the `seam-suite` 2.4.1rc1 candidate with `Private :: Do Not Upload`;
+metadata declares the `seam-suite` 2.4.1rc1 early-access candidate;
 the current personal-use license is reconciled as described above, and the
-PyPI prohibition remains. The
+TestPyPI verification and production release boundary remain. The
 [packaging stream](docs/status/packaging-licensing.md) separates source visibility,
 existing releases, future artifact eligibility, and migration work. No naming
 change in these docs publishes a package or deploys a service.

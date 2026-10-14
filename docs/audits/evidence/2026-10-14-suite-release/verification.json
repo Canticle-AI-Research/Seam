@@ -1,0 +1,481 @@
+{
+  "schema": "seam-suite-release-verification/v1",
+  "source_base_commit": "607ac3089c58bfc033d9442762c40505f0ab8d2b",
+  "manifest_sha256": "8db7e1d3f3c26825d233669638ecf133efc08ed32e3cf4cc5d8cd55a646623ef",
+  "manifest_inventory_sha256": "8e898de77e108050492626c13e2d64162ab147ccbca1e716b37f1b2d19f3798a",
+  "implementation_source_delta": [
+    {
+      "path": "seam_runtime/dashboard.py",
+      "old_sha256": "ad2a1e5ff1eacd06be1b1827d2ac27b0feb5509d6b934d40dddb5ae46f52ce26",
+      "sha256": "dfa5955d5cc14443c76352edf8ed145906ee947ad4dec00f77424eee9881f728"
+    },
+    {
+      "path": "seam_runtime/doctor.py",
+      "old_sha256": "bad625fbb315a98412a4d7b8434fdd354552206001780812a4feb75cf9837175",
+      "sha256": "47e7ebc5fb3205877549b2557817acfecbc60ed02d383635f7a8bf63fce6fcae"
+    }
+  ],
+  "candidate": {
+    "manifest_inventory_sha256": "8e898de77e108050492626c13e2d64162ab147ccbca1e716b37f1b2d19f3798a",
+    "implementation_count": 109,
+    "license_document_count": 7,
+    "source": "/workspace/scratch/seam-release-20261014/packaging/source-qualified-public-v3",
+    "artifacts": [
+      {
+        "path": "/workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1-py3-none-any.whl",
+        "size": 1069655,
+        "sha256": "299a9190c9b874475dc09673e9d26c1d155c3ffaa2d183c31dd7fd704e2eb406"
+      },
+      {
+        "path": "/workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1.tar.gz",
+        "size": 1030895,
+        "sha256": "a34ae3bccc5acc1f7d3eb3c1f17efdbbf183322606a4bcbe2e2801cb468d0525"
+      }
+    ]
+  },
+  "qualified_candidate_checks": [
+    {
+      "label": "qualified-public-v3-snapshot",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python /workspace/scratch/seam-release-20261014/packaging/snapshot_source.py /workspace/scratch/seam-release-20261014/packaging/source-qualified-public-v3",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T07:18:43.846383+00:00",
+      "ended_at": "2026-10-14T07:18:43.915091+00:00",
+      "exit_code": 0,
+      "output_sha256": "ce083e34041e9197ee8d85948e86fd66a66a32c82209e8965c403588920a7415",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-snapshot.log"
+    },
+    {
+      "label": "qualified-public-v3-build",
+      "command": "uv build --out-dir /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3 /workspace/scratch/seam-release-20261014/packaging/source-qualified-public-v3",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:43.950476+00:00",
+      "ended_at": "2026-10-14T07:18:46.285746+00:00",
+      "exit_code": 0,
+      "output_sha256": "90a428e7d5cf6217042540aae8dd38f8c1d9d0742f4c1bfc7383e5f95dbde0a6",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-build.log"
+    },
+    {
+      "label": "qualified-public-v3-inspect",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python /workspace/scratch/seam-release-20261014/packaging/inspect_archives.py /workspace/scratch/seam-release-20261014/packaging/source-qualified-public-v3 /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:46.325682+00:00",
+      "ended_at": "2026-10-14T07:18:46.458248+00:00",
+      "exit_code": 0,
+      "output_sha256": "2d438467617356902ac73c8164e39e6d22225b412e619b14a504e9a8ef063f9a",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-inspect.log"
+    },
+    {
+      "label": "qualified-public-v3-twine",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m twine check --strict /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:46.495029+00:00",
+      "ended_at": "2026-10-14T07:18:46.895847+00:00",
+      "exit_code": 0,
+      "output_sha256": "3ab4503e81c3995658ffef4ae9b00280731bd393f6d676e4dab0a3df6d68b5ec",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-twine.log"
+    },
+    {
+      "label": "qualified-public-v3-scanner",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m tools.release.verify_private_artifacts --expected-name seam-suite --expected-version 2.4.1rc1 /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T07:18:46.939196+00:00",
+      "ended_at": "2026-10-14T07:18:49.063765+00:00",
+      "exit_code": 0,
+      "output_sha256": "0be8c8f3b450f057b0f6262bfd97f6fef5355a08d316e3df5af37b77389aebc0",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-scanner.log"
+    },
+    {
+      "label": "qualified-public-v3-wheel-venv",
+      "command": "uv venv /workspace/scratch/seam-release-20261014/packaging/wheel-qualified-public-v3-env",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:49.097607+00:00",
+      "ended_at": "2026-10-14T07:18:49.111634+00:00",
+      "exit_code": 0,
+      "output_sha256": "a516e34cdd7307967c4583f7c9d51f8b621886bdaac71097ec4818f6bc8f0595",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-wheel-venv.log"
+    },
+    {
+      "label": "qualified-public-v3-wheel-install",
+      "command": "uv pip install --python /workspace/scratch/seam-release-20261014/packaging/wheel-qualified-public-v3-env/bin/python /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1-py3-none-any.whl",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:49.143434+00:00",
+      "ended_at": "2026-10-14T07:18:49.718492+00:00",
+      "exit_code": 0,
+      "output_sha256": "ec51bfa670269a3845cc93bded406f0fe39ba09bf6862b4feb9854432004ae77",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-wheel-install.log"
+    },
+    {
+      "label": "qualified-public-v3-wheel-dependencies",
+      "command": "uv pip check --python /workspace/scratch/seam-release-20261014/packaging/wheel-qualified-public-v3-env/bin/python",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:49.756730+00:00",
+      "ended_at": "2026-10-14T07:18:49.768773+00:00",
+      "exit_code": 0,
+      "output_sha256": "73bbb5fb9a437243c4412b809b310035b170e65aa90e2017bba0de29193dc273",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-wheel-dependencies.log"
+    },
+    {
+      "label": "qualified-public-v3-wheel-smoke",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/wheel-qualified-public-v3-env/bin/python -I /workspace/scratch/seam-release-20261014/packaging/source-qualified-public-v3/tests/package/smoke_installed_suite.py -v",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:18:49.801394+00:00",
+      "ended_at": "2026-10-14T07:19:29.919053+00:00",
+      "exit_code": 0,
+      "output_sha256": "eb6ba405bfcf78c81e8e19daeb0832367a3df6ffda1436838b23bd744fddde4c",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-wheel-smoke.log"
+    },
+    {
+      "label": "qualified-public-v3-sdist-venv",
+      "command": "uv venv /workspace/scratch/seam-release-20261014/packaging/sdist-qualified-public-v3-env",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:19:29.953067+00:00",
+      "ended_at": "2026-10-14T07:19:29.969198+00:00",
+      "exit_code": 0,
+      "output_sha256": "78279c210cf763ac19c4595a070e74e2d42fbb7ddbae5e7bbaa2db27f8c67b55",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-sdist-venv.log"
+    },
+    {
+      "label": "qualified-public-v3-sdist-install",
+      "command": "uv pip install --python /workspace/scratch/seam-release-20261014/packaging/sdist-qualified-public-v3-env/bin/python /workspace/scratch/seam-release-20261014/packaging/dist-qualified-public-v3/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:19:29.999724+00:00",
+      "ended_at": "2026-10-14T07:19:30.837022+00:00",
+      "exit_code": 0,
+      "output_sha256": "910939b85f81919c69345c5cce189e8def21f18c9ae1c1073924bd83c32f28c8",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-sdist-install.log"
+    },
+    {
+      "label": "qualified-public-v3-sdist-dependencies",
+      "command": "uv pip check --python /workspace/scratch/seam-release-20261014/packaging/sdist-qualified-public-v3-env/bin/python",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:19:30.868679+00:00",
+      "ended_at": "2026-10-14T07:19:30.881923+00:00",
+      "exit_code": 0,
+      "output_sha256": "d062627c556588eae505d482f37098c5a4a5ae3f68c1e61bdc30d05a24b60bec",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-sdist-dependencies.log"
+    },
+    {
+      "label": "qualified-public-v3-sdist-smoke",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/sdist-qualified-public-v3-env/bin/python -I /workspace/scratch/seam-release-20261014/packaging/source-qualified-public-v3/tests/package/smoke_installed_suite.py -v",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T07:19:30.913994+00:00",
+      "ended_at": "2026-10-14T07:20:10.604586+00:00",
+      "exit_code": 0,
+      "output_sha256": "bdb0238130814e9f506dcb840ab5921ac87a3b3891dbf8ae3a56626cc27797d8",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/qualified-public-v3-sdist-smoke.log"
+    }
+  ],
+  "tdd_cycles": [
+    {
+      "behavior": "Branch cleanup report requires preservation review for unique closed or merged PR work.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_branch_cleanup_safety.py -q",
+        "exit_code": 0,
+        "fingerprint": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+        "observed_at": "2026-10-14T06:47:06.483844+00:00"
+      },
+      "implementation_refs": [
+        "tools/git/scan_stale_branches.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_branch_cleanup_safety.py -q",
+        "exit_code": 1,
+        "fingerprint": "11e1a01eb61c46b2a72aff1afe9e20ffdf2d5b39f89326e8b7124f06c0ae7a23",
+        "observed_at": "2026-10-14T06:46:41.431215+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_branch_cleanup_safety.py"
+      ]
+    },
+    {
+      "behavior": "Actual release workflows and archive/MCP boundaries accept exact canonical Python prereleases and reject aliases and mismatches.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_github_issue_release_config.py tests/audit/test_mcp_registry_release.py -q",
+        "exit_code": 0,
+        "fingerprint": "6f56d1941d6e6b217f191c1435e40069b1de98bcedb6de4d8fbdfa8e8f0263a2",
+        "observed_at": "2026-10-14T06:44:29.336369+00:00"
+      },
+      "implementation_refs": [
+        "tools/release/release_version.py",
+        "tools/release/verify_private_artifacts.py",
+        "tools/release/verify_mcp_registry.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_github_issue_release_config.py tests/audit/test_mcp_registry_release.py -q",
+        "exit_code": 1,
+        "fingerprint": "c6dc115c33a8f8ef2fe36780e0d495589a7c7937874923a4713c945af0369850",
+        "observed_at": "2026-10-14T06:40:55.057481+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_github_issue_release_config.py",
+        "tests/audit/test_mcp_registry_release.py"
+      ]
+    },
+    {
+      "behavior": "Plain Suite default install provides interface dependencies and doctor detects missing dependencies with correct repair guidance.",
+      "green": {
+        "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m pytest tests/audit/test_chroma_optional.py -q",
+        "exit_code": 0,
+        "fingerprint": "fe9dca0451129aaabdd76ea13e310b61a52091a146a1f9fe5b72b851eb33547f",
+        "observed_at": "2026-10-14T06:42:17.763223+00:00"
+      },
+      "implementation_refs": [
+        "seam_runtime/doctor.py",
+        "seam_runtime/dashboard.py"
+      ],
+      "red": {
+        "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m pytest tests/audit/test_chroma_optional.py -q",
+        "exit_code": 1,
+        "fingerprint": "1f71fd9d8c09c7492f2460565a81a5e36d3da9c84583c42f76608749a7915239",
+        "observed_at": "2026-10-14T06:41:26.517634+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_chroma_optional.py"
+      ]
+    },
+    {
+      "behavior": "Missing dashboard dependency guidance supports a reviewed source checkout before an index release exists.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_chroma_optional.py -k dashboard_missing_textual -q",
+        "exit_code": 0,
+        "fingerprint": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+        "observed_at": "2026-10-14T07:03:35.067802+00:00"
+      },
+      "implementation_refs": [
+        "seam_runtime/dashboard.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_chroma_optional.py -k dashboard_missing_textual -q",
+        "exit_code": 1,
+        "fingerprint": "f74c58a69e67f9e0fff042216bc76301939927bcb0f4237b2895dfd7502552be",
+        "observed_at": "2026-10-14T07:03:33.930953+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_chroma_optional.py"
+      ]
+    },
+    {
+      "behavior": "Source and archive licence manifest guard rejects stale, unsafe or private membership and is enforced by staged commit and matching local/CI gates.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_suite_manifest_drift.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q",
+        "exit_code": 0,
+        "fingerprint": "7aab9d03d5aad3ae7953c0ac55e01a47a25a852128e93ee579eb4dadf81d7df0",
+        "observed_at": "2026-10-14T07:01:37.472767+00:00"
+      },
+      "implementation_refs": [
+        "tools/release/verify_suite_manifest.py",
+        "tools/history/closeout.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_suite_manifest_drift.py -k even_declared -q",
+        "exit_code": 1,
+        "fingerprint": "14495fea4572a134e5d1ddf38abd072710e12940bc62ed482622fff9d89d1ada",
+        "observed_at": "2026-10-14T07:01:12.616245+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_suite_manifest_drift.py",
+        "tests/audit/test_local_gates_match_ci.py",
+        "tests/audit/test_history_closeout.py"
+      ]
+    },
+    {
+      "behavior": "Real SessionEnd hook classifies plain installer/runtime/tool documentation without runtime TDD while keeping actual scripts governed.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+        "exit_code": 0,
+        "fingerprint": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+        "observed_at": "2026-10-14T07:50:06.792230+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/session_end_closeout.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+        "exit_code": 1,
+        "fingerprint": "eff68ef031763b9eb7244f5749d4dfdf4d2026923a9758a1e939a2901ed0ab3e",
+        "observed_at": "2026-10-14T07:50:05.766698+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_session_end_agent_closeout.py"
+      ]
+    },
+    {
+      "behavior": "Manifest guard is present unconditionally in local shell gates and matches canonical closeout/CI ordering.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_suite_manifest_drift.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q",
+        "exit_code": 0,
+        "fingerprint": "7aab9d03d5aad3ae7953c0ac55e01a47a25a852128e93ee579eb4dadf81d7df0",
+        "observed_at": "2026-10-14T07:01:37.472767+00:00"
+      },
+      "implementation_refs": [
+        "tools/claude/preflight_protocol.sh",
+        "tools/git-hooks/pre-commit"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_suite_manifest_drift.py tests/audit/test_local_gates_match_ci.py -q",
+        "exit_code": 1,
+        "fingerprint": "0f0cff9972367ae3e806efeb5b4e6070f9bff281108801f2b130ece8e3a97587",
+        "observed_at": "2026-10-14T06:55:08.230645+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_suite_manifest_drift.py",
+        "tests/audit/test_local_gates_match_ci.py",
+        "tests/audit/test_history_closeout.py"
+      ]
+    },
+    {
+      "behavior": "Pending queue preserves stricter immutable historical documentation classification without upgrading verdicts or accepting omitted executable changes.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+        "exit_code": 0,
+        "fingerprint": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+        "observed_at": "2026-10-14T07:53:38.225370+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/closeout_queue.py",
+        "tools/agents/session_end_closeout.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+        "exit_code": 1,
+        "fingerprint": "2083e1f7a69d02d59d9cbabab50769de8a462620f4928b4c574b636c0dac4fea",
+        "observed_at": "2026-10-14T07:53:37.239339+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_closeout_queue.py"
+      ]
+    }
+  ],
+  "branch_deletions": {
+    "observed_at": "2026-10-14T06:44:51.636238+00:00",
+    "deletions": [
+      {
+        "repository": "Seam",
+        "branch": "codex/s8-r2-spec",
+        "deleted_sha": "f8c33491205da2c8916698086604ee9850ee5860",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Seam",
+        "branch": "hackerone",
+        "deleted_sha": "66fd3f93081712871ff827e756026c3e73c71790",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/canticle-mfa-rls",
+        "deleted_sha": "584be3a44f4fb1872f7376c136a32e8ea5bfb4dd",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/canticle-totp-mfa",
+        "deleted_sha": "bd077dfc9c895267306928ee9d80a57a666dcbe4",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/google-ai-pro-feed-ad",
+        "deleted_sha": "2990b6a3006a9743e488aa3a68aeaf9bc52b0050",
+        "preservation": "Single unique commit has stable patch ID identical to reachable main commit; no open PR."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/publish-free-broad-profile",
+        "deleted_sha": "4a53f6170dc210b4499ec1f489c4b133aed9a9c2",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/research-page-redesign",
+        "deleted_sha": "553ae5adb35aa3e452fe9deb069cb4a3e298b4ef",
+        "preservation": "Single unique commit has stable patch ID identical to reachable main commit; no open PR."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/work-about-profile-redesign",
+        "deleted_sha": "e3b55fe4fdc3b425f8618b2a7cd50cfc0eccc1b0",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "docs/documentation-expansion-20261002",
+        "deleted_sha": "a645dead7da75a2b85b7bc1ee7c5dbc5a3df8ad6",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "docs/seam-subscription-workspace",
+        "deleted_sha": "ab77be804f28fafd577bb86382272d9329391f5b",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "fix/suite-license-copy-20261014",
+        "deleted_sha": "6d5ee50bb92ec7717a5cd68ad70fe7cb1ded49e5",
+        "preservation": "Single unique commit has stable patch ID identical to reachable main commit; no open PR."
+      }
+    ]
+  },
+  "registry_readiness": [
+    {
+      "url": "https://pypi.org/pypi/seam-suite/json",
+      "status": 404
+    },
+    {
+      "url": "https://test.pypi.org/pypi/seam-suite/json",
+      "status": 404
+    },
+    {
+      "url": "https://pypi.org/pypi/seam-client/json",
+      "status": 200,
+      "name": "seam-client",
+      "version": "2.0.0"
+    },
+    {
+      "url": "https://registry.modelcontextprotocol.io/v0.1/servers/io.github.Canticle-AI-Research%2Fseam-suite/versions/latest",
+      "status": 404
+    }
+  ],
+  "limitations": [
+    "No TestPyPI publisher credentials are configured in this execution environment.",
+    "Production upload and MCP registration unperformed.",
+    "Full browser operator-product acceptance remains open."
+  ],
+  "superseded_candidate": "Earlier private-classifier archives are not eligible for upload.",
+  "runtime_regression": {
+    "command": "HF_HOME=/workspace/scratch/seam-release-20261014/huggingface HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 /workspace/Seam/.venv/bin/python -m pytest test_seam_all/ -m not-external -q",
+    "actual_marker_expression": "not external",
+    "exit_code": 0,
+    "output_sha256": "4b29cdb8715784f92fdcc2d066b2973d3382e80e33bb8796275c624cea7bdd0e"
+  },
+  "closeout_documentation_classification": {
+    "first_request_status": "NOT_QUALIFIED",
+    "request_id": "01a138d3-3664-70c0-ae7d-02dd20f2203d-cd9dd1781fa1d26f",
+    "repair": "Plain Markdown/reStructuredText under executable prefixes is non-runtime; historical stricter requests remain immutable and readable; real code omissions stay rejected.",
+    "red": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+      "exit_code": 1,
+      "fingerprint": "eff68ef031763b9eb7244f5749d4dfdf4d2026923a9758a1e939a2901ed0ab3e",
+      "observed_at": "2026-10-14T07:50:05.766698+00:00"
+    },
+    "green": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+      "exit_code": 0,
+      "fingerprint": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+      "observed_at": "2026-10-14T07:50:06.792230+00:00"
+    },
+    "legacy_red": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+      "exit_code": 1,
+      "fingerprint": "2083e1f7a69d02d59d9cbabab50769de8a462620f4928b4c574b636c0dac4fea",
+      "observed_at": "2026-10-14T07:53:37.239339+00:00"
+    },
+    "legacy_green": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+      "exit_code": 0,
+      "fingerprint": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "observed_at": "2026-10-14T07:53:38.225370+00:00"
+    }
+  }
+}

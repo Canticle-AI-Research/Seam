@@ -102,7 +102,7 @@ candidate and must be requalified before S6.
 | F17 | **CONFIRMED** | At activation there was no central schema/migration version governing all durable projections. S2 added the central registry, and HISTORY#526 adds the locally qualified forward transition path; protected-main publication remains pending. | S2 |
 | F18 | **CONFIRMED** | S1 rejects non-positive `rrf_k` at flag construction, coercion, and environment loading before fusion. | S1 |
 | F19 | **CONFIRMED** | S1 centralizes secret patterns and scans every new commit-range blob, including added-then-deleted content. | S1 |
-| F20 | **PARTLY STALE** | `server.json` retains its intentional legacy compatibility value; S1 makes the private MCP handshake report installed package metadata. | S1 |
+| F20 | **RECONCILED CANDIDATE** | The MCP handshake reports installed package metadata; HISTORY#667 prepares a matching current Suite manifest and guarded registry preflight. Actual package publication and registration remain separate. | S1 |
 | F21 | **CONFIRMED** | The reconstruction source branches carried 59 tracked `.ua` files. The clean replacement baseline intentionally omits them. | S0 |
 | F22 | **CONFIRMED** | S1 establishes and checks one dependency source/mirror/extra policy; S10 still owns frozen release-artifact and lock/hash evidence. | S1, S10 |
 

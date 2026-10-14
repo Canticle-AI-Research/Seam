@@ -119,6 +119,10 @@ not have to infer what works from directory names alone.
   of `LICENSE`. Change Date is four years per published version; Change License
   is MPL 2.0. Membership in the Distributed Runtime is decided by publication
   plus a conspicuous per-file notice, never by path.
+- `tools/release/verify_suite_manifest.py` - check-only source/archive membership
+  and legal-document parity against the exact personal-use manifest. Required
+  hygiene and local gates enforce it, including staged-byte verification at
+  commit; it never changes permission or adds authorized files.
 - `tools/release/` - release-boundary verification. `verify_public_safe.py`
   inspects every object newly reachable by a push and blocks secret-shaped
   content and private paths; `public_manifest.py` supplies the path
@@ -129,7 +133,9 @@ not have to infer what works from directory names alone.
   sdist, rejects unsafe/non-regular/credential-shaped members, and applies the
   canonical content-free secret scanner before GitHub Release upload.
 - CURRENT BUILD. Root `pyproject.toml` defines `seam-suite` 2.4.1rc1 (unpublished candidate), the full
-  runtime with readable MIRL and HS/1 source and `Private :: Do Not Upload`.
+  reviewed runtime with readable MIRL and HS/1 source and early-access metadata.
+  It is prepared for owner-authorized TestPyPI qualification; publisher access
+  and downloaded-install verification remain separate from source eligibility.
   Retired compiled self-host and API-only shim tooling must not be restored
   implicitly. The [product map](PRODUCTS.md) defines the Suite/API direction;
   [packaging status](status/packaging-licensing.md) owns artifact migration.

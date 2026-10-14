@@ -56,6 +56,10 @@ without promoting a weaker source into a stronger claim:
 
 ## Documentation collections
 
+- [Suite installation and release flow](RELEASE_FLOW.md) — default dependencies,
+  isolated archive verification, and release destinations.
+- [MCP installation and registration](MCP_REGISTRY.md) — local client setup and
+  guarded discovery metadata preparation.
 - [CLI definition reference][seam:cli-reference] — generated argument,
   alias, default and defining-scope metadata from the actual parser.
 - [Documentation safeguards][seam:documentation-safeguards] — local reference

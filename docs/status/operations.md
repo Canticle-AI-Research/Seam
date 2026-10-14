@@ -30,7 +30,7 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   private security advisory; issues coordinate work but do not supersede SEAM
   status, history, handoff, or evidence authorities.
 - The serialized manual package-release workflow accepts only a new exact
-  SemVer from the default branch. It scans the built private wheel/sdist,
+  canonical Python version from the default branch. It scans the built wheel/sdist,
   smoke-tests installed commands, emits and re-verifies `SHA256SUMS.txt`, and
   creates a GitHub Release draft with categorized generated notes. Workflow
   names do not establish private visibility; L1 must reconcile the actual
@@ -65,7 +65,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 - `pyproject.toml` owns the checked runtime dependency, installer mirror,
   convenience-extra, exclusion, and retired-extra contract. Frozen release
   lock/hash evidence remains S10 work.
-- `seam doctor` requires only the canonical core imports `rich` and `tiktoken`.
+- `seam doctor` requires the canonical default Suite imports: `rich`, `tiktoken`,
+  `textual`, `httpx`, `fastapi`, `uvicorn`, and a supported multipart namespace.
   Chroma, pgvector, and sentence-transformers remain informational optional
   availability checks; an absent Chroma installation cannot fail doctor.
 - S1's strict non-external suite and live pgvector external suite are locally

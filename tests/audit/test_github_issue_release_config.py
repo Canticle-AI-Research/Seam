@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import io
 import os
+import shutil
 import stat
 import subprocess
 import sys
@@ -88,7 +90,7 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert "id-token" not in raw
     assert "pypi" not in raw.casefold()
     assert "refs/heads/${DEFAULT_BRANCH}" in raw
-    assert "not exact SemVer" in raw
+    assert "tools.release.release_version" in raw
     assert "tools.release.verify_private_artifacts" in raw
     assert "SHA256SUMS.txt" in raw
     assert "sha256sum --check" in raw
@@ -160,6 +162,13 @@ def test_package_release_stays_private_and_verifiable() -> None:
     assert ".immutable" in follow_up_raw
     assert "include_binary=True" in follow_up_raw
     assert "gh release edit" in follow_up_raw
+    assert "tools.release.release_version" in follow_up_raw
+    assert "pypi" not in follow_up_raw.casefold()
+    assert "seam-tui --help" in raw
+    assert "seam-dash --help" in raw
+    assert 'python -I "$repo_root/tests/package/smoke_installed_suite.py"' in raw
+    assert '"${wheel}[server,pgvector]"' not in raw
+    assert '"seam-client==2.0.0"' not in raw
 
 
 def test_repository_tests_declare_yaml_directly() -> None:
@@ -170,20 +179,29 @@ def test_repository_tests_declare_yaml_directly() -> None:
     assert "PyYAML" in CI_WORKFLOW.read_text(encoding="utf-8")
 
 
-def _run_version_step(tmp_path: Path, *, project_version: str, requested: str) -> subprocess.CompletedProcess[str]:
-    document = yaml.safe_load(PACKAGE_RELEASE.read_text(encoding="utf-8"))
-    step = next(step for step in document["jobs"]["build"]["steps"] if step.get("id") == "version")
-    script = step["run"].removeprefix("python - <<'PY'\n").removesuffix("PY\n")
+def _release_environment(tmp_path: Path, *, project_version: str, requested: str) -> dict[str, str]:
     (tmp_path / "pyproject.toml").write_text(
-        f'[project]\nname = "seam-suite"\nversion = "{project_version}"\n',
+        f'[project]\nname = "seam-suite"\nversion = {project_version!r}\n',
         encoding="utf-8",
     )
     output = tmp_path / "github-output.txt"
     env = os.environ.copy()
-    env.update({"GITHUB_OUTPUT": str(output), "REQUESTED_VERSION": requested})
+    env.update({
+        "GITHUB_OUTPUT": str(output),
+        "REQUESTED_VERSION": requested,
+        "PYTHONPATH": str(REPO_ROOT),
+        "PATH": os.pathsep.join([str(Path(sys.executable).parent), env.get("PATH", "")]),
+    })
+    return env
+
+
+def _run_bash(script: str, *, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess[str]:
+    bash = shutil.which("bash")
+    if bash is None:
+        pytest.skip("bash is required for release workflow boundary tests")
     return subprocess.run(
-        [sys.executable, "-c", script],
-        cwd=tmp_path,
+        [bash, "-eu", "-o", "pipefail", "-c", script],
+        cwd=cwd,
         env=env,
         check=False,
         capture_output=True,
@@ -191,24 +209,128 @@ def _run_version_step(tmp_path: Path, *, project_version: str, requested: str) -
     )
 
 
-@pytest.mark.parametrize("requested", [" 2.4.0", "2.4.0 "])
-def test_package_release_rejects_semver_whitespace(tmp_path: Path, requested: str) -> None:
-    result = _run_version_step(tmp_path, project_version="2.4.0", requested=requested)
+def _run_version_step(tmp_path: Path, *, project_version: str, requested: str) -> subprocess.CompletedProcess[str]:
+    document = yaml.safe_load(PACKAGE_RELEASE.read_text(encoding="utf-8"))
+    step = next(step for step in document["jobs"]["build"]["steps"] if step.get("id") == "version")
+    env = _release_environment(tmp_path, project_version=project_version, requested=requested)
+    return _run_bash(step["run"], cwd=tmp_path, env=env)
+
+
+def _run_publish_validation(
+    tmp_path: Path, *, project_version: str, requested: str, draft_prerelease: bool = False
+) -> subprocess.CompletedProcess[str]:
+    document = yaml.safe_load(PUBLISH_RELEASE.read_text(encoding="utf-8"))
+    step = next(
+        step for step in document["jobs"]["publish-reviewed-draft"]["steps"]
+        if step["name"] == "Reverify reviewed draft and publish"
+    )
+    # Run the real version, provenance and draft-classification gates. Stop at
+    # artifact downloads: this harness never reaches a publication command.
+    script = step["run"].split("mkdir prepared-assets draft-assets", 1)[0]
+    stub = tmp_path / "gh-stub.py"
+    stub.write_text(
+        "import os, sys\n"
+        "args = sys.argv[1:]\n"
+        "query = args[-1]\n"
+        "if args[0] == 'api' and '/actions/runs/' in args[1]:\n"
+        "    print('\\t'.join(['.github/workflows/package-release.yml', 'workflow_dispatch', "
+        "'completed', 'success', 'main', os.environ['EXPECTED_SHA']]))\n"
+        "elif args[0] == 'api' and '/git/ref/' in args[1]:\n"
+        "    print(os.environ['EXPECTED_SHA'])\n"
+        "elif query == '.isDraft':\n"
+        "    print('true')\n"
+        "elif query == '.prerelease':\n"
+        "    print(os.environ['DRAFT_PRERELEASE'])\n"
+        "elif query == '.name':\n"
+        "    print('SEAM ' + os.environ['VERSION'])\n"
+        "elif args[0] == 'api' and '/releases/tags/' in args[1]:\n"
+        "    print('{}')\n"
+        "else:\n"
+        "    raise SystemExit('unexpected GitHub operation in validation test')\n",
+        encoding="utf-8",
+    )
+    script = 'gh() { python "$GH_STUB" "$@"; }\n' + script
+    env = _release_environment(tmp_path, project_version=project_version, requested=requested)
+    env.update({
+        "VERSION": requested,
+        "EXPECTED_SHA": "a" * 40,
+        "WORKFLOW_SHA": "a" * 40,
+        "EXPECTED_MANIFEST_SHA256": "b" * 64,
+        "EXPECTED_NOTES_SHA256": "c" * 64,
+        "EXPECTED_RUN_ID": "123",
+        "IMMUTABILITY_CONFIRMED": "true",
+        "DEFAULT_BRANCH": "main",
+        "GITHUB_REPOSITORY": "example/seam",
+        "DRAFT_PRERELEASE": str(draft_prerelease).lower(),
+        "GH_STUB": str(stub),
+    })
+    return _run_bash(script, cwd=tmp_path, env=env)
+
+
+@pytest.mark.parametrize("stage", ["preparation", "publication"])
+@pytest.mark.parametrize(
+    "requested",
+    [
+        " 2.4.0", "2.4.0 ", "v2.4.0", "2.4", "02.4.0", "2.4.0.0",
+        "2.4.0-rc.1", "2.4.0RC1", "2.4.0rc01", "2.4.0alpha1",
+        "1!2.4.0", "2.4.0+build.1", "not-a-version", "2.4.0post1",
+    ],
+)
+def test_release_rejects_noncanonical_python_versions(
+    tmp_path: Path, stage: str, requested: str
+) -> None:
+    runner = _run_version_step if stage == "preparation" else _run_publish_validation
+    result = runner(tmp_path, project_version=requested, requested=requested)
 
     assert result.returncode != 0
+    assert "canonical public PEP 440" in result.stderr
 
 
 @pytest.mark.parametrize(
     ("version", "expected"),
-    [("2.5.0", "prerelease=false"), ("2.5.0-rc.1", "prerelease=true")],
+    [
+        ("2.5.0", False), ("2.4.1rc1", True), ("2.5.0a1", True),
+        ("2.5.0b2", True), ("2.5.0.dev1", True), ("2.5.0.post1", False),
+        ("2.5.0rc1.dev2", True), ("2.5.0.post1.dev2", True),
+    ],
 )
-def test_package_release_classifies_semver_prereleases(
-    tmp_path: Path, version: str, expected: str
+@pytest.mark.parametrize("stage", ["preparation", "publication"])
+def test_release_classifies_canonical_python_versions(
+    tmp_path: Path, stage: str, version: str, expected: bool
 ) -> None:
-    result = _run_version_step(tmp_path, project_version=version, requested=version)
+    if stage == "preparation":
+        result = _run_version_step(tmp_path, project_version=version, requested=version)
+    else:
+        result = _run_publish_validation(
+            tmp_path, project_version=version, requested=version, draft_prerelease=expected
+        )
 
     assert result.returncode == 0, result.stderr
-    assert expected in (tmp_path / "github-output.txt").read_text(encoding="utf-8")
+    if stage == "preparation":
+        assert (tmp_path / "github-output.txt").read_text(encoding="utf-8").splitlines() == [
+            f"version={version}", f"prerelease={str(expected).lower()}",
+        ]
+
+
+@pytest.mark.parametrize("stage", ["preparation", "publication"])
+def test_release_requires_exact_project_version(tmp_path: Path, stage: str) -> None:
+    runner = _run_version_step if stage == "preparation" else _run_publish_validation
+    result = runner(tmp_path, project_version="2.4.1rc1", requested="2.4.1")
+
+    assert result.returncode != 0
+    assert "does not match" in result.stderr
+
+
+@pytest.mark.parametrize(("version", "draft_prerelease"), [("2.4.1", True), ("2.4.1rc1", False)])
+def test_publication_refuses_changed_prerelease_classification(
+    tmp_path: Path, version: str, draft_prerelease: bool
+) -> None:
+    result = _run_publish_validation(
+        tmp_path, project_version=version, requested=version, draft_prerelease=draft_prerelease
+    )
+
+    assert result.returncode != 0
+    assert "prerelease classification changed" in result.stderr
 
 
 def test_private_artifact_verifier_accepts_one_clean_wheel_and_sdist(tmp_path: Path) -> None:
@@ -219,32 +341,95 @@ def test_private_artifact_verifier_accepts_one_clean_wheel_and_sdist(tmp_path: P
     assert verify_artifacts([wheel, sdist]) == []
 
 
-def test_private_artifact_verifier_binds_distribution_identity(tmp_path: Path) -> None:
-    wheel = tmp_path / "seam_suite-2.5.0-py3-none-any.whl"
-    sdist = tmp_path / "seam_suite-2.5.0.tar.gz"
-    metadata = b"Metadata-Version: 2.4\nName: seam-suite\nVersion: 2.5.0\n\n"
+@pytest.mark.parametrize("version", ["2.5.0", "2.4.1rc1"])
+def test_private_artifact_verifier_binds_distribution_identity(tmp_path: Path, version: str) -> None:
+    wheel = tmp_path / f"seam_suite-{version}-py3-none-any.whl"
+    sdist = tmp_path / f"seam_suite-{version}.tar.gz"
+    metadata = f"Metadata-Version: 2.4\nName: seam-suite\nVersion: {version}\n\n".encode()
     _write_wheel(
         wheel,
         {
             "seam_runtime/__init__.py": b"",
-            "seam_suite-2.5.0.dist-info/METADATA": metadata,
+            f"seam_suite-{version}.dist-info/METADATA": metadata,
         },
     )
     _write_sdist(
         sdist,
         {
-            "seam_suite-2.5.0/PKG-INFO": metadata,
-            "seam_suite-2.5.0/README.md": b"private runtime\n",
+            f"seam_suite-{version}/PKG-INFO": metadata,
+            f"seam_suite-{version}/README.md": b"private runtime\n",
         },
     )
 
     assert verify_artifacts(
-        [wheel, sdist], expected_name="seam-suite", expected_version="2.5.0"
+        [wheel, sdist], expected_name="seam-suite", expected_version=version
     ) == []
     findings = verify_artifacts(
         [wheel, sdist], expected_name="seam-suite", expected_version="2.6.0"
     )
     assert sum("version_mismatch" in finding for finding in findings) == 4
+
+
+@pytest.mark.parametrize(("expected", "alias"), [("2.5.0", "2.5"), ("2.4.1rc1", "2.4.1RC01")])
+@pytest.mark.parametrize("alias_location", ["filename", "metadata"])
+def test_private_artifact_verifier_rejects_version_aliases(
+    tmp_path: Path, expected: str, alias: str, alias_location: str
+) -> None:
+    filename_version = alias if alias_location == "filename" else expected
+    metadata_version = alias if alias_location == "metadata" else expected
+    wheel = tmp_path / f"seam_suite-{filename_version}-py3-none-any.whl"
+    sdist = tmp_path / f"seam_suite-{filename_version}.tar.gz"
+    metadata = f"Metadata-Version: 2.4\nName: seam-suite\nVersion: {metadata_version}\n\n".encode()
+    _write_wheel(wheel, {f"seam_suite-{filename_version}.dist-info/METADATA": metadata})
+    _write_sdist(sdist, {f"seam_suite-{filename_version}/PKG-INFO": metadata})
+
+    findings = verify_artifacts([wheel, sdist], expected_name="seam-suite", expected_version=expected)
+
+    prefix = "artifact" if alias_location == "filename" else "metadata"
+    assert sum(f"{prefix}_version_mismatch" in finding for finding in findings) == 2
+
+
+@pytest.mark.parametrize(
+    ("expected", "artifact_version", "accepted"),
+    [
+        ("2.5.0", "2.5.0", True), ("2.4.1rc1", "2.4.1rc1", True),
+        ("2.5.0", "2.5", False), ("2.4.1rc1", "2.4.1RC01", False),
+    ],
+)
+def test_publication_binds_exact_artifact_version(
+    tmp_path: Path, expected: str, artifact_version: str, accepted: bool
+) -> None:
+    document = yaml.safe_load(PUBLISH_RELEASE.read_text(encoding="utf-8"))
+    step = next(
+        step for step in document["jobs"]["publish-reviewed-draft"]["steps"]
+        if step["name"] == "Reverify reviewed draft and publish"
+    )
+    scripts = [part.split("\nPY", 1)[0] for part in step["run"].split("python - <<'PY'\n")[1:]]
+    script = next(script for script in scripts if 'Path("prepared-assets")' in script)
+    for directory_name in ("prepared-assets", "draft-assets"):
+        directory = tmp_path / directory_name
+        directory.mkdir()
+        members = {
+            f"seam_suite-{artifact_version}-py3-none-any.whl": b"wheel fixture",
+            f"seam_suite-{artifact_version}.tar.gz": b"sdist fixture",
+        }
+        for name, content in members.items():
+            (directory / name).write_bytes(content)
+        (directory / "SHA256SUMS.txt").write_text(
+            "".join(f"{hashlib.sha256(content).hexdigest()}  {name}\n" for name, content in members.items()),
+            encoding="utf-8",
+        )
+    env = _release_environment(tmp_path, project_version=expected, requested=expected)
+    env["VERSION"] = expected
+    result = subprocess.run(
+        [sys.executable, "-c", script], cwd=tmp_path, env=env, capture_output=True, text=True, check=False,
+    )
+
+    if accepted:
+        assert result.returncode == 0, result.stderr
+    else:
+        assert result.returncode != 0
+        assert "Unexpected draft artifact identity" in result.stderr
 
 
 def test_private_artifact_verifier_binds_wheel_metadata_directory(tmp_path: Path) -> None:

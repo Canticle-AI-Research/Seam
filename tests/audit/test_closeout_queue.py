@@ -118,6 +118,47 @@ def test_pending_accepts_v1_request_from_pre_cycle_evidence_producer(
     ]
 
 
+def test_pending_preserves_immutable_legacy_documentation_classification(sample_repo, tmp_path):
+    page = sample_repo / "installers/README.md"
+    page.parent.mkdir()
+    page.write_text("# Installer docs\n", encoding="utf-8")
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    path = Path(str(queued["request_path"]))
+    request = json.loads(path.read_text())
+    # Original v1 producers treated every path under installers/ as runtime.
+    request["change_class"] = "runtime"
+    request["tdd_evidence"].update(
+        status="TDD_UNPROVEN", runtime_paths=["installers/README.md"],
+        covered_runtime_paths=[], missing_runtime_paths=["installers/README.md"], cycle_count=0,
+    )
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    original = json.dumps(request)
+    path.write_text(original)
+    pending = closeout_queue.pending(state_root)
+    assert pending["requests"][0]["tdd_evidence"]["status"] == "TDD_UNPROVEN"
+    assert path.read_text() == original
+
+
+def test_legacy_documentation_compatibility_cannot_hide_executable_changes(sample_repo, tmp_path):
+    installer = sample_repo / "installers"
+    installer.mkdir()
+    (installer / "README.md").write_text("# Installer docs\n", encoding="utf-8")
+    (installer / "install.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    state_root = tmp_path / "state"
+    queued = _queued_request(sample_repo, state_root)
+    path = Path(str(queued["request_path"]))
+    request = json.loads(path.read_text())
+    request["tdd_evidence"].update(
+        status="TDD_UNPROVEN", runtime_paths=["installers/README.md"],
+        covered_runtime_paths=[], missing_runtime_paths=["installers/README.md"], cycle_count=0,
+    )
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    path.write_text(json.dumps(request))
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="runtime paths"):
+        closeout_queue.pending(state_root)
+
+
 def test_store_rejects_new_qualified_receipt_for_legacy_runtime_request(
     sample_repo: Path, tmp_path: Path
 ) -> None:

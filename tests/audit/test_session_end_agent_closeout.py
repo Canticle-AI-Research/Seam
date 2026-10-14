@@ -6,6 +6,7 @@ import io
 import json
 import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -50,6 +51,41 @@ def _event(repo: Path, session_id: str = "session-123") -> dict[str, str]:
         "cwd": str(repo),
         "transcript_path": "/private/transcript/that-must-not-be-read.jsonl",
     }
+
+
+@pytest.mark.parametrize("path", [
+    "installers/README.md", "tools/claude/README.md", "seam_runtime/README.md",
+])
+def test_real_hook_documentation_changes_do_not_require_runtime_tdd(sample_repo, tmp_path, path):
+    page = sample_repo / path
+    page.parent.mkdir(parents=True, exist_ok=True)
+    page.write_text("# Supported installation\n", encoding="utf-8")
+    result = subprocess.run(
+        [sys.executable, str(REPO_ROOT / "tools/agents/session_end_closeout.py"),
+         "--repo-root", str(sample_repo), "--state-root", str(tmp_path / "state")],
+        input=json.dumps(_event(sample_repo)), capture_output=True, text=True,
+        cwd=REPO_ROOT, timeout=10,
+    )
+    assert result.returncode == 0, result.stderr
+    request_path = json.loads(result.stderr)["request_path"]
+    request = json.loads(Path(request_path).read_text())
+    assert path in request["repo"]["changed_paths"]
+    assert request["change_class"] == "non_runtime"
+    assert request["tdd_evidence"]["status"] == "TDD_NOT_REQUIRED"
+
+
+def test_documentation_exclusion_keeps_installer_scripts_runtime_governed(sample_repo, tmp_path):
+    installer = sample_repo / "installers"
+    installer.mkdir()
+    (installer / "README.md").write_text("# Reviewed commands\n", encoding="utf-8")
+    (installer / "install.sh").write_text("#!/bin/sh\nexit 0\n", encoding="utf-8")
+    result = session_end_closeout.handle_session_end(
+        _event(sample_repo), repo_root=sample_repo, state_root=tmp_path / "state", dispatch=False,
+    )
+    request = json.loads(Path(result["request_path"]).read_text())
+    assert request["change_class"] == "runtime"
+    assert request["tdd_evidence"]["status"] == "TDD_UNPROVEN"
+    assert request["tdd_evidence"]["runtime_paths"] == ["installers/install.sh"]
 
 
 def test_runtime_change_without_red_green_evidence_is_unproven(

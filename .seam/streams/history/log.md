@@ -21905,3 +21905,39 @@ The parallel publisher-readiness review identified one stale current blocker sen
 
 No license, metadata, runtime, dependency, command, workflow or reviewed archive bytes changed. Independent scoped review and the documentation-reference acknowledgement cover only this authored paragraph. Run the unsuppressed continuity/reference/wiki gates and secret/diff checks, then require exact successor-head protected CI and receipt before integration. The earlier PR286 head passed its LoCoMo check while other required checks remained queued; those checks do not qualify the successor automatically. Website licensing/docs correction proceeds separately on current website main. No upload, merge, deployment, paid call or unrelated branch qualification is claimed by this entry.
 ---END-ENTRY-#666---
+
+---BEGIN-ENTRY-#667---
+id: 667
+date: 2026-10-14T07:10:45Z
+agent: codex
+status: changed
+topics: pyproject, installer, mcp, registry, ci, doctor, docs, worktree, integrity, verify, handoff, continuity
+commits: none
+refs: pyproject.toml,requirements.txt,uv.lock,seam_runtime/doctor.py,seam_runtime/dashboard.py,tools/release/release_version.py,tools/release/verify_suite_manifest.py,tools/git/scan_stale_branches.py,docs/RELEASE_FLOW.md,docs/MCP_REGISTRY.md,docs/audits/2026-10-14-suite-release-readiness.md,docs/handoffs/2026-10-14-suite-release-readiness.md
+supersedes: 666
+tokens: 880
+---
+The owner requested completion of Suite installation/release-candidate functionality, current documentation, and deletion of branches no longer needed. Reconciled useful package/release/MCP work from conflicted PR266 onto protected-main607ac308 without importing older licensing texts or colliding branch-local history. Plain Suite now includes TUI/HTTP/server dependencies, retaining compatible extras and explicit opt-in Chroma. Doctor and dashboard repair guidance match this default contract; storage/retrieval behavior is unchanged. Canonical PEP440 release identity accepts2.4.1rc1 through actual workflow/archive boundaries while preserving operator/protected-head/digest controls. MCP candidate identity and ownership marker match current Suite; registration still requires a real qualified production package.
+
+Root witnessed and recorded meaningful red/green cycles for dependency/repair reporting, release/archive/MCP validation, source/archive manifest guards and branch cleanup safety. Current implementation membership is unchanged; only doctor/dashboard bytes change, with refreshed manifest hashes and accurate base+delta provenance. Source, staged and archive guards now fail on drift or stale legal documents through matching unsuppressed local/CI gates. Independent source and installed-package assurance supports the already-authorized TestPyPI-first candidate; its private-upload tripwire is then removed and actual files rebuilt and verified. Candidate source, exact archive hashes, scoped installed/Twine/scanner checks and TDD fingerprints are recorded in docs/audits/evidence/2026-10-14-suite-release/verification.json and the registered report. Both external wheel/sdist installs exercise CLI persistence/provenance, TUI mount, HTTP authentication/write/recall, MCP ingest/search/restart and dependency consistency. The broader first run exposed missing optional embedding setup and two old Doctor dependency assertions; the latter are repaired and the exact pinned model provisioned externally for the successful runtime rerun. No failed benchmark evidence is promoted.
+
+An independent branch audit found11 completed remote branches across Seam/Cantlicle, proven by ancestry or exact squash-patch preservation. Root rechecked live tips/openPR ownership, deleted with exact-SHA leases and verified absence. Unique/open/preservation work remains. The scanner now distinguishes closed unique PR work and requires review even for merged PR branches with unique commits. Source/code/docs current references are refreshed; automatic acknowledgements cover only reviewed source/metadata and authored changes, not an exhaustive prose audit. Website downloads correction is a separate reviewed candidate and must be deployed/verified after source links resolve on main. Old PR266 and websitePR29 remain until their successor/disposition is concretely integrated.
+
+Required pushed-head CI and validated exact-state release receipt still govern protected integration. TestPyPI credentials are unavailable here; repository secrets enumeration returns integration403 and registry lookups show no Suite release. Publisher setup and downloaded-install verification remain concrete next steps. Production upload, live MCP registration, paid provider calls, legacy-user migration, full browser-product acceptance and private SDK work are excluded. Historical licenses, user databases, unrelated branches and stashes remain untouched. Pinned assigned issue287 records the separate manual GitHub About setting.
+---END-ENTRY-#667---
+
+---BEGIN-ENTRY-#668---
+id: 668
+date: 2026-10-14T07:57:59Z
+agent: codex
+status: changed
+topics: agent, protocol, bugfix, gates, docs, continuity, verify
+commits: none
+refs: tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tests/audit/test_session_end_agent_closeout.py,tests/audit/test_closeout_queue.py,docs/audits/2026-10-14-suite-release-readiness.md
+supersedes: 667
+tokens: 561
+---
+Exact closeout of the Suite candidate f49906 received a stored immutable NOT_QUALIFIED verdict because the SessionEnd prefix classifier demanded runtime TDD for installers/README.md and queued implementation references omitted the two shell gates. The README change is documentation; actual shell gates remain executable and TDD-governed. Corrected classification for plain Markdown/reStructuredText under executable prefixes, with witnessed failures then success through the real SessionEnd CLI and a mixed documentation/script regression that still requires code evidence. Queue validation retains only exact current or exact original stricter classification sets, recomputes their corresponding summaries, preserves immutable historical verdicts and rejects executable omissions. A separate witnessed public queue red/green cycle validates that compatibility boundary. Recorded the original observed manifest-gate presence/parity cycle with both actual shell paths, without inventing new red evidence.
+
+Independent read-only review found no blocking repair issue and verified the original request remains byte-identical/TDD_UNPROVEN. Relevant session-end/queue/drift/parity regressions pass. This is a necessary correction to the cumulative closeout condition, not a license decision or permission expansion. No reviewed package metadata, source implementation manifest, licence text or public-v3 wheel/sdist bytes change. The report/evidence are updated; source-reference acknowledgements cover only the reviewed authored delta. The extended tests/ run completed with environment-dependent failures in unchanged Chromium branding exports and tokenizer-dependent cost reporting; it is not reported as a full-suite pass. The earlier complete provisioned test_seam_all non-external runtime run and isolated archive installs remain scoped passing evidence. Required CI on firsthead f49906 has LoCoMo and Chroma success while hygiene is still pending; that observation does not qualify a successor. Require final-head checks and a validated successor exact-state receipt superseding the original non-qualified request before protected merge. TestPyPI publisher access remains unavailable and website PR33 deployment follows source integration.
+---END-ENTRY-#668---

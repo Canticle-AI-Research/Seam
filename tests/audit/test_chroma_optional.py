@@ -19,11 +19,16 @@ import tomllib
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 from seam_runtime import doctor
 
 _REPO = Path(__file__).resolve().parents[2]
 _PYPROJECT = _REPO / "pyproject.toml"
 _REQUIREMENTS = _REPO / "requirements.txt"
+_SUITE_DEPENDENCIES = [
+    "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+]
 
 
 def _document() -> dict:
@@ -51,6 +56,77 @@ def _canonical_doctor_dependencies() -> list[str]:
     return [_dependency_name(str(requirement)) for requirement in value]
 
 
+def _report_with_dependency_probe(monkeypatch, probe):
+    class Runtime:
+        def __init__(self, _db_path):
+            pass
+
+        def compile_nl(self, _text):
+            return SimpleNamespace(records=[object()])
+
+    monkeypatch.setattr(doctor, "SeamRuntime", Runtime)
+    monkeypatch.setattr(doctor, "benchmark_text_lossless", lambda *_args, **_kwargs: SimpleNamespace(
+        roundtrip_match=True,
+        artifact=SimpleNamespace(token_estimator="test", token_savings_ratio=0.5),
+    ))
+    monkeypatch.setattr(doctor, "find_spec", probe)
+    monkeypatch.setattr(doctor, "check_pgvector", lambda _dsn: {"configured": False})
+    monkeypatch.setattr(doctor, "check_commit_gate", lambda: {"status": "PASS"})
+    monkeypatch.setattr(doctor, "check_streams", lambda: {"status": "PASS"})
+    monkeypatch.setattr(doctor, "check_stashes", lambda: {"status": "clean", "count": 0})
+    return doctor.build_doctor_report()
+
+
+def test_plain_suite_includes_terminal_and_browser_dependencies():
+    assert _canonical_doctor_dependencies() == _SUITE_DEPENDENCIES
+    mirror = [line for line in _REQUIREMENTS.read_text().splitlines() if line and not line.startswith("#")]
+    assert mirror == _project()["dependencies"]
+    extras = _project()["optional-dependencies"]
+    for alias in ("dash", "server"):
+        assert set(extras[alias]).issubset(set(_project()["dependencies"]))
+
+
+@pytest.mark.parametrize("missing", ["textual", "httpx", "fastapi", "uvicorn", "python_multipart"])
+def test_doctor_fails_when_a_default_suite_interface_dependency_is_missing(monkeypatch, missing):
+    missing_names = {missing, "multipart"} if missing == "python_multipart" else {missing}
+    report = _report_with_dependency_probe(
+        monkeypatch, lambda name: None if name in missing_names else object()
+    )
+    assert report["status"] == "FAIL"
+    assert report["missing_required_dependencies"] == [missing]
+    assert report["dependencies"][missing] is False
+
+
+@pytest.mark.parametrize("modern", [False, True])
+def test_doctor_accepts_supported_multipart_namespaces(monkeypatch, modern):
+    def probe(name):
+        if name == "python_multipart" and not modern:
+            raise ModuleNotFoundError(name)
+        if name == "multipart" and modern:
+            return None
+        return object()
+
+    report = _report_with_dependency_probe(monkeypatch, probe)
+    assert report["status"] == "PASS"
+    assert report["dependencies"]["python_multipart"] is True
+    assert report["missing_required_dependencies"] == []
+
+
+def test_dashboard_missing_textual_guidance_repairs_the_plain_suite(monkeypatch):
+    from seam_runtime import dashboard
+
+    monkeypatch.setattr(dashboard, "_TEXTUAL_IMPORT_ERROR", ModuleNotFoundError("textual"))
+    monkeypatch.setattr(dashboard.config, "apply_persisted_to_environ", lambda: None)
+    with pytest.raises(SystemExit) as failure:
+        dashboard.main(["--db", ":memory:"])
+    guidance = str(failure.value)
+    assert "python -m pip install --upgrade seam-suite" in guidance
+    assert "reviewed Suite checkout" in guidance
+    assert "python -m pip install ." in guidance
+    assert "seam-runtime" not in guidance
+    assert "optional dependencies" not in guidance
+
+
 def test_chromadb_not_in_core_dependencies():
     assert not any("chromadb" in dep for dep in _project()["dependencies"])
 
@@ -70,7 +146,7 @@ def test_chromadb_only_in_the_explicit_chroma_extra():
 
 def test_doctor_follows_core_dependency_contract_when_chromadb_is_absent(monkeypatch):
     canonical_required = _canonical_doctor_dependencies()
-    assert canonical_required == ["rich", "tiktoken"]
+    assert canonical_required == _SUITE_DEPENDENCIES
 
     class _Runtime:
         def __init__(self, _db_path: str):
@@ -118,7 +194,9 @@ from seam_runtime.doctor import build_doctor_report
 report = build_doctor_report()
 assert report["status"] == "PASS", report
 assert report["dependencies"]["chromadb"] is False, report
-assert report["required_dependencies"] == ["rich", "tiktoken"], report
+assert report["required_dependencies"] == [
+    "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+], report
 assert report["missing_required_dependencies"] == [], report
 '''
     env = os.environ.copy()

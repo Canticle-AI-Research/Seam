@@ -19,22 +19,24 @@ this preparation pass.
 The root candidate is `seam-suite` 2.4.1rc1. It keeps the existing `seam` and
 `seam_runtime` imports and console commands. Install it in a fresh environment;
 do not co-install older distributions that own those same paths. The candidate
-still needs `[server,dash]` for the complete server/TUI dependency set.
+includes the server/TUI dependency set by default. `[server,dash]` remains a
+compatible extra selection rather than a prerequisite for normal operation.
 
 ## Current blockers
 
-- Root metadata retains `Private :: Do Not Upload`. Do not remove it merely
-  to make an upload succeed. Current Suite membership and terms are reconciled
-  by [the licensing report](audits/2026-10-14-licensing-reconciliation.md) and
-  exact manifest. Publisher qualification, product/package acceptance and
-  approval of the exact public-upload files remain open; archive scans alone
-  do not establish publication eligibility. Keep candidate archives local
-  until those separate release gates are met.
+- The candidate's private-upload tripwire is removed after independent review
+  of the owner-authorized Suite membership and installed behavior. The
+  [manifest guard](../tools/release/verify_suite_manifest.py) checks exact source
+  and archive membership; the license terms remain unchanged. Rebuild and
+  verify the exact final files after a metadata change. Publisher access,
+  uploaded-file verification, and broader product acceptance remain separate;
+  archive scans alone do not establish them. Keep files local until the exact
+  candidate and TestPyPI publishing access qualify.
 - No authenticated TestPyPI publisher was established in this preparation
   session. A GitHub repository connection is not TestPyPI project ownership.
-- The existing GitHub release workflow accepts its established SemVer input
-  contract. This PEP 440 `2.4.1rc1` candidate does not qualify through it; do
-  not dispatch a production or GitHub-release workflow as a test upload.
+- The GitHub release workflows accept canonical Python versions, including
+  `2.4.1rc1`, while retaining their operator and exact-artifact controls. They
+  do not upload to TestPyPI; do not dispatch them as a test-registry upload.
 - TestPyPI project names and ownership are independent of production PyPI.
   A missing project page does not prove registration eligibility.
 
@@ -47,9 +49,10 @@ and [PyPI private-package guidance](https://pypi.org/help/#how-can-i-publish-my-
 
 The current Suite personal-use membership is identified by
 [the reviewed manifest](../LICENSES/SEAM-Suite-manifest.json) and
-[license](../LICENSES/SEAM-Suite-Personal.txt). These do not authorize an upload;
-publisher access, exact artifact qualification and public-upload approval remain
-separate gates. A changed implementation requires refreshed membership review.
+[license](../LICENSES/SEAM-Suite-Personal.txt). The owner has authorized completing
+this TestPyPI-first candidate. Publishing access and verification of the exact
+actual files remain prerequisites; production publication is separate. A
+changed implementation requires refreshed membership review.
 
 1. Build a wheel and sdist from the reviewed source in an isolated build
    directory. Record the source commit, package name/version, and both SHA-256
@@ -58,15 +61,16 @@ separate gates. A changed implementation requires refreshed membership review.
    seam-suite --expected-version 2.4.1rc1` with the exact wheel/sdist paths.
    Inspect the archive member inventory and license notices. Scanner success
    does not supersede the public membership decision above.
-3. Install the exact wheel with `[server,dash]` in a fresh environment outside
+3. Install the exact wheel with its default dependencies in a fresh environment outside
    the source tree. Check dependency consistency, command help, installed
    module origins, MCP version/discovery, and write-then-read persistence.
    Keep test data separate from operator databases. Preserve old environments
    and backups; this is not an arbitrary legacy-upgrade qualification.
-4. Bind public-upload approval to the reviewed member inventory and exact
-   hashes. Resolve artifact eligibility before changing the private-upload
-   classifier in a separately reviewed change; rebuilding creates new hashes
-   and requires renewed verification of those actual bytes.
+4. Bind qualification to the reviewed member inventory and exact hashes.
+   The current candidate's classifier change follows independent source and
+   installed-package review; verify the rebuilt files rather than uploading
+   the earlier private-classifier archives. A future eligibility change needs
+   its own review.
 5. Configure only TestPyPI-specific publishing access. Prefer a narrowly bound
    GitHub OIDC publisher; never reuse a production token. Store credentials in
    the approved secret store, never in chat, source, reports, or artifacts.

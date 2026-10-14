@@ -193,7 +193,9 @@ Inside the Textual dashboard, type `reload` to refresh panels without restarting
 
 ## Optional extras
 
-Base install pulls `requirements.txt` (`rich`, `tiktoken`; `chromadb` is optional via the `chroma` extra).
+Base install pulls `requirements.txt`, including `rich`, `tiktoken`, Textual,
+HTTP client, and server dependencies. `chromadb` remains optional via the
+explicit `chroma` extra; `dash` and `server` remain compatible aliases.
 
 | Extra | Installs | When you need it |
 |---|---|---|

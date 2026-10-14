@@ -4,7 +4,6 @@
   "version": "2.4.1rc1",
   "license": "LicenseRef-SEAM-Suite-Personal-1.0",
   "license_file": "SEAM-Suite-Personal.txt",
-  "implementation_source_commit": "e4abc1d9c9b1afb415ad67e06a3e7bb6907ecee1",
   "scope": "Only these exact implementation file versions; older and third-party rights are preserved. Accompanying metadata and instructions may be used as necessary to install and operate Suite under the personal license.",
   "files": [
     {
@@ -57,7 +56,7 @@
     },
     {
       "path": "seam_runtime/dashboard.py",
-      "sha256": "ad2a1e5ff1eacd06be1b1827d2ac27b0feb5509d6b934d40dddb5ae46f52ce26"
+      "sha256": "dfa5955d5cc14443c76352edf8ed145906ee947ad4dec00f77424eee9881f728"
     },
     {
       "path": "seam_runtime/derived_fact_context.py",
@@ -65,7 +64,7 @@
     },
     {
       "path": "seam_runtime/doctor.py",
-      "sha256": "bad625fbb315a98412a4d7b8434fdd354552206001780812a4feb75cf9837175"
+      "sha256": "47e7ebc5fb3205877549b2557817acfecbc60ed02d383635f7a8bf63fce6fcae"
     },
     {
       "path": "seam_runtime/dsl.py",
@@ -443,5 +442,19 @@
       "path": "seam_runtime/workspace.py",
       "sha256": "e64120971ad1d147ee3f3758b9d53d37eb7082443662e38a36d1263a89f710b1"
     }
-  ]
+  ],
+  "implementation_source_base_commit": "607ac3089c58bfc033d9442762c40505f0ab8d2b",
+  "implementation_source_delta": [
+    {
+      "path": "seam_runtime/dashboard.py",
+      "old_sha256": "ad2a1e5ff1eacd06be1b1827d2ac27b0feb5509d6b934d40dddb5ae46f52ce26",
+      "sha256": "dfa5955d5cc14443c76352edf8ed145906ee947ad4dec00f77424eee9881f728"
+    },
+    {
+      "path": "seam_runtime/doctor.py",
+      "old_sha256": "bad625fbb315a98412a4d7b8434fdd354552206001780812a4feb75cf9837175",
+      "sha256": "47e7ebc5fb3205877549b2557817acfecbc60ed02d383635f7a8bf63fce6fcae"
+    }
+  ],
+  "implementation_inventory_sha256": "8e898de77e108050492626c13e2d64162ab147ccbca1e716b37f1b2d19f3798a"
 }
