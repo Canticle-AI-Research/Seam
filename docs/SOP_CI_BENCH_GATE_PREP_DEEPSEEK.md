@@ -1,5 +1,12 @@
 # SOP — CI Bench-Gate Prep (sys_metrics flake, pgvector-in-CI, MCP tools/call round-trip), DeepSeek Execution Pass
 
+> **Historical task packet.** The proposed service-based CI example below is
+> dated design material. Current CI uses the guarded owned fixture in
+> `tools/ci/pgvector_fixture.py` with `pgvector/pgvector:0.8.7-pg18-trixie`,
+> PG18 parent tmpfs and loopback ephemeral ports. Follow the current workflow
+> and [operations stream](status/operations.md); this packet is not evidence
+> of a live CI run.
+
 Issued: 2026-05-19 (post HISTORY#210)
 Owner pattern: Claude authors and verifies; DeepSeek executes all items in
 sequence in a single session; Claude reviews the full diff at handback,
@@ -253,7 +260,7 @@ Background: closes audit finding H3 third leg. The existing
 `FakePgVectorAdapter` — it does not exercise the real psycopg connection,
 `vector` extension, or pgvector SQL operators. The real adapter lives in
 `seam_runtime/vector_adapters.py:PgVectorAdapter`. The repo has a
-`docker-compose.yaml` that runs `pgvector/pgvector:0.8.2-pg18-trixie`
+`docker-compose.yaml` that runs `pgvector/pgvector:0.8.6-pg18-trixie`
 locally on port 55432 — but CI never spins up a real postgres + pgvector.
 This means a regression in the real adapter (DDL drift, vector operator
 syntax change, schema migration bug) would only be caught on operator
@@ -266,7 +273,7 @@ machines via the optional local pgvector workflow.
 
 Skipped unless SEAM_PGVECTOR_DSN is set (locally without docker, this is
 a no-op). In CI, the pgvector-integration job sets the DSN to a service
-container running pgvector/pgvector:0.8.2-pg18-trixie.
+container running pgvector/pgvector:0.8.6-pg18-trixie.
 """
 
 import os
@@ -383,7 +390,7 @@ newline and existing indentation):
     runs-on: ubuntu-latest
     services:
       pgvector:
-        image: pgvector/pgvector:0.8.2-pg18-trixie
+        image: pgvector/pgvector:0.8.6-pg18-trixie
         env:
           POSTGRES_DB: seam_ci
           POSTGRES_USER: seam_ci

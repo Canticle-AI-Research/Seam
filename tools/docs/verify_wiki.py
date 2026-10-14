@@ -602,6 +602,21 @@ def _verify_audit_registry(root: Path) -> list[str]:
     return errors
 
 
+def _verify_terminology(root: Path) -> list[str]:
+    """Keep the terminology gate present in real and staged SEAM checkouts."""
+
+    checker = root / "tools/docs/verify_terminology.py"
+    if not checker.is_file() or checker.is_symlink():
+        if any((root / name).is_file() for name in ("SEAM_SPEC_V0.1.md", "REPO_LEDGER.md")):
+            return ["required terminology verifier is missing or unsafe: tools/docs/verify_terminology.py"]
+        # Minimal standalone wiki fixtures need not copy sibling verifiers.
+        return []
+
+    from tools.docs.verify_terminology import verify as verify_terminology
+
+    return verify_terminology(root)
+
+
 def verify(repo_root: Path) -> list[str]:
     """Return deterministic wiki errors for ``repo_root``."""
 
@@ -671,6 +686,7 @@ def verify(repo_root: Path) -> list[str]:
         for path in missing
     )
     errors.extend(_verify_audit_registry(root))
+    errors.extend(_verify_terminology(root))
     return sorted(set(errors))
 
 

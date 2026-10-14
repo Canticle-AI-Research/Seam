@@ -5,21 +5,41 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-10-14 — exhaustive branch recovery active.** All 30 captured source/site
-branches have individual exact-tip semantic audits, covering 84 distinct unique
-commit objects. Missing useful work, dependencies, rejected implementations and
-retirement conditions are mapped in the [branch recovery plan](docs/roadmap/BRANCH_RECOVERY.md)
-and [master issue #263](https://github.com/Canticle-AI-Research/Seam/issues/263),
-with 12 linked workstreams. The audit is complete; recovery and retirement are
-not. Initial cache, website safety and owned PostgreSQL fixture slices are being
-qualified against current main. Four authored research documents are restored
-verbatim as plans/historical research, not qualified runtime behavior. See
-HISTORY#670 and the [current handoff](docs/handoffs/INDEX.md).
+**2026-10-14 — factual recovery independently qualified; protected admission next.**
+Source PR277→278 useful facts/glossary/wiki work is recovered on the current
+follow-up, with 73 passing checker/wiki cases and independent successor PASS.
+The original blocked review stays preserved. Fresh public-v5 wheel/sdist each
+pass exact membership/legal checks and eight installed smokes; this supersedes
+v4 for updated README metadata. No upload occurred. The active-lock update is
+qualified separately; all30 branch dispositions remain mapped. Eleven original
+branches are retired and nineteen retained at preparation; master263 records
+final live retirement readbacks. Website PR14/31 recovery requires protected
+merge, production deployment and served-byte verification. See HISTORY#674,
+[recovery evidence](docs/audits/2026-10-14-factual-doc-recovery.md) and the
+[current handoff](docs/handoffs/INDEX.md). Older headlines below are historical.
 
-The owner-directed branch recovery is the current engineering priority.
-TestPyPI publisher access remains an external release dependency. Runtime
-recovery requires fresh artifact qualification; the earlier public-v3 candidate
-is historical evidence, not proof for newly changed runtime bytes.
+**2026-10-14 — initial branch recovery integrated; verified retirement underway.**
+[PR #303](https://github.com/Canticle-AI-Research/Seam/pull/303) merged at
+`efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd` with independent exact-state
+qualification, all three required checks and package CI passing. All 30 original
+source/site branches were audited; 11 are now retired with useful work admitted
+or explicitly superseded and exact historical tips preserved. Nineteen original
+branches remain (13 source/six site), mapped to the [recovery plan](docs/roadmap/BRANCH_RECOVERY.md)
+and [master #263](https://github.com/Canticle-AI-Research/Seam/issues/263).
+Source factual/glossary/wiki recovery and website operator-doc recovery are the
+next active delivery scopes. The narrow urllib3 active-lock refresh independently
+passes a fresh locked install/eight smokes; historical evidence is unchanged.
+See HISTORY#673, [retirement evidence](docs/audits/2026-10-14-branch-retirement-and-lock.md)
+and [the current handoff](docs/handoffs/INDEX.md).
+
+The cache no-op recovery and four verbatim research documents are on main;
+future batching/skills/formation/report work remains explicitly unintegrated.
+The owned PG fixture passes 47 managed-daemon real cases, but advisory shared-runner
+startup still fails before its actual tests (issue #293). Full suites are not
+claimed green. TestPyPI access remains external; no upload occurred. The exact
+public-v4 package evidence supersedes old v3 for current runtime bytes. Website
+safety PR #34 is live with four changed resources verified. Older dated headlines
+below preserve historical state; use this headline/current handoff for next action.
 
 **2026-10-14 — Suite release candidate integrated; website verified live.**
 [PR #288](https://github.com/Canticle-AI-Research/Seam/pull/288) merged at

@@ -14,7 +14,7 @@ The default Suite release candidate must be rebuilt after runtime recovery. Test
 
 Retire the legacy mirror/clobber/private-source publisher; correct Suite availability and naming; then qualify operator and client examples against current public interfaces. Preserve locked proposals verbatim.
 
-Acceptance and dependencies: None; current safety slice has 41 passing focused tests and awaits independent review.
+Acceptance and dependencies: Safety slice is merged/live via PR34. Operator/client-doc recovery requires independent successor review and production verification.
 
 Tracking: [R1 issue #291](https://github.com/Canticle-AI-Research/Seam/issues/291).
 
@@ -112,7 +112,13 @@ Before each deletion: verify exact remote tip, current main preservation evidenc
 
 ## Current delivery state
 
-- R1 safety slice: eight files, independent review and 41 focused checks pass; website PR #34 merged and four changed public resources verified live. Other operator/example recoveries remain open.
-- R2 P1: 12 new cases and 94 focused regressions pass; independent review PASS; manifest refreshed and fresh wheel/sdist default install qualification PASS. Source merge pending; batching remains missing.
-- R3: owned PostgreSQL fixture/image/lifecycle delivery passes 47 real tests without skips and 18 unit/gate cases; cleanup verified. Independent review PASS; source merge pending; safe Windows conveniences remain open.
-- R10 authored documents: four exact-byte research/planning recoveries prepared for admission; future research implementation remains planned. Other slices are audited, not yet integrated.
+- Audit and map: all 30 original exact tips inspected; 11 original branches retired with durable provenance after PR #303 main admission. Nineteen original tips remain (13 source/six site), plus explicitly owned temporary delivery branches.
+- R1 safety: website PR #34 is live; four changed resources match main. Operator/current-interface documentation recovery from PRs #14/#31 is active on `integrate/operator-doc-recovery-20261014`. PR #29 remains for its separately tracked locked proposals.
+- R2 P1: PR #303 merged the independently qualified no-op cache fix; PR #213 is closed/retired with its historical pull ref preserved. Batching in PR #230 remains missing and tracked.
+- R3 owned fixture/image: PR #303 merged; 47 actual managed-daemon tests and 19 fixture/gate cases pass. Image/volume branches are retired. Shared-runner fixture startup still fails before real tests (issue #293); safe Windows conveniences remain open.
+- R5 factual docs/glossary/wiki: recovered PRs #277→#278 into current follow-up; 73 checker/wiki cases and independent successor review pass. Root companion metadata/archive reconciled; original branches retire only after protected admission. Preserve all work in the signed primary commit before removing isolated worktree.
+- R10 authored plans: four exact-byte documents admitted in PR #303; three original research branches retired. Experimental implementation and measurement remain planned, not demonstrated.
+- Active lock follow-up: only urllib3 2.7.0→2.8.0 changes; fresh locked install/eight smoke cases and independent review pass. Historical evidence stays untouched; security-updater scope remains tracked in #290/#262.
+- Other slices remain audited, accounted for and unintegrated. Their branches are retained until the named acceptance conditions are met.
+
+See the [retirement report](../audits/2026-10-14-branch-retirement-and-lock.md) and [current handoff](../handoffs/INDEX.md) for exact delivery evidence and the next integration wave.

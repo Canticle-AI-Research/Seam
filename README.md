@@ -15,6 +15,8 @@ before they are treated as real progress.
 
 > **Documentation:** Start at the [SEAM Wiki][seam:wiki] for task-first
 > routes into operator guides, architecture, current state, evidence, and plans.
+> Use the [canonical terminology glossary](docs/TERMINOLOGY.md) for representation,
+> graph, product, package, and historical licensed-subset names.
 
 Command definitions are generated from the actual CLI in the
 [CLI definition reference][seam:cli-reference]. Maintainers can use the
@@ -43,6 +45,12 @@ See the [product map](docs/PRODUCTS.md), [launch plan](docs/roadmap/SEAM_LAUNCH.
 and [current packaging constraints](docs/status/packaging-licensing.md).
 
 ## Install
+
+Python 3.11+ is required. Git and GitHub CLI (`gh`) support the reviewed
+clone flows below; Docker is optional for the pgvector backend.
+
+The PyPI name `seam` is an unrelated SDK; use this repository's `seam-suite`
+package and keep the separate `seam-client` HTTP client distinct.
 
 The `seam-suite` rename is a **2.4.1rc1 candidate**. TestPyPI is the first
 registry target; production PyPI is unchanged. Public upload remains blocked
@@ -74,60 +82,6 @@ an index artifact. Public repository visibility does not change the
 [license terms](LICENSE) or qualify an artifact for PyPI. The clone-and-installer flows below remain the full
 operator setup path for repo-local development, persistent state setup, and
 platform shims.
-
-## Public agent SDK
-
-Custom agents should depend on the separate Apache-2.0 `seam-client` package,
-with a distinct contract from this full runtime package. The public SDK provides sync/async
-`remember`, `recall`, and context hooks over the stable `/v1` API without
-shipping MIRL, HS/1, storage, retrieval, graph, PACK, or benchmark internals.
-
-```bash
-python -m pip install seam-client
-```
-
-See [`docs/PUBLIC_SDK_API.md`](docs/PUBLIC_SDK_API.md). Hosted access and API
-credentials remain separately provisioned.
-
-## Local Python SDK
-
-Authorized runtime users can use the local `seam_runtime.SeamSDK` for
-canonical knowledge and non-canonical reasoning records. This in-process
-interface belongs to the runtime checkout; installing the separate `seam-client`
-HTTP package does not provide it. Its import path does not create an additional
-license grant. Reasoning records expose concise justifications, as described
-below:
-
-```python
-from seam_runtime import SeamSDK
-
-with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
-    run = seam.start_reasoning(
-        "Choose the safest implementation path.",
-        ns="my-project",
-        scope="thread",
-        agent_id="planner",
-    )
-    run.add_node("question", "Which option has verified rollback evidence?")
-    retrieval = run.retrieve(
-        "verified rollback evidence",
-        mode="mix",
-        budget=5,
-        graph_hops=2,
-    )
-    reasoning_graph = run.graph()
-```
-
-Reasoning nodes are concise, typed, append-only public justifications—not
-hidden chain-of-thought or canonical facts. Accepted conclusions require
-explicit support, and nothing is promoted into MIRL automatically. See
-[`docs/REASONING_GRAPH.md`](docs/REASONING_GRAPH.md).
-
-`run.retrieve(...)` returns live selected records while atomically recording a
-bounded decision and content-free candidate ledger: plan/policy/model identity,
-selected and rejected record IDs, evidence fingerprints, scores, controlled
-reason codes, and latency. It makes no provider call by default and does not
-copy record payloads into the reasoning graph.
 
 The installer flows below are for authorized source-development use under
 [LICENSE](LICENSE). They use the GitHub CLI with the canonical repository;
@@ -186,6 +140,60 @@ gh repo clone Canticle-AI-Research/Seam Seam &&
     cd Seam && sh ./installers/install_seam_linux.sh --dev
 ```
 
+## Public agent SDK
+
+Custom agents should depend on the separate Apache-2.0 `seam-client` package,
+with a distinct contract from this full runtime package. The public SDK provides sync/async
+`remember`, `recall`, and context hooks over the stable `/v1` API without
+shipping MIRL, HS/1, storage, retrieval, graph, PACK, or benchmark internals.
+
+```bash
+python -m pip install seam-client
+```
+
+See [`docs/PUBLIC_SDK_API.md`](docs/PUBLIC_SDK_API.md). Hosted access and API
+credentials remain separately provisioned.
+
+## Local Python SDK
+
+Authorized runtime users can use the local `seam_runtime.SeamSDK` for
+canonical knowledge and non-canonical reasoning records. This in-process
+interface belongs to the runtime checkout; installing the separate `seam-client`
+HTTP package does not provide it. Its import path does not create an additional
+license grant. Reasoning records expose concise justifications, as described
+below:
+
+```python
+from seam_runtime import SeamSDK
+
+with SeamSDK("seam.db", allow_pgvector_env=False) as seam:
+    run = seam.start_reasoning(
+        "Choose the safest implementation path.",
+        ns="my-project",
+        scope="thread",
+        agent_id="planner",
+    )
+    run.add_node("question", "Which option has verified rollback evidence?")
+    retrieval = run.retrieve(
+        "verified rollback evidence",
+        mode="mix",
+        budget=5,
+        graph_hops=2,
+    )
+    reasoning_graph = run.graph()
+```
+
+Reasoning nodes are concise, typed, append-only public justifications—not
+hidden chain-of-thought or canonical facts. Accepted conclusions require
+explicit support, and nothing is promoted into MIRL automatically. See
+[`docs/REASONING_GRAPH.md`](docs/REASONING_GRAPH.md).
+
+`run.retrieve(...)` returns live selected records while atomically recording a
+bounded decision and content-free candidate ledger: plan/policy/model identity,
+selected and rejected record IDs, evidence fingerprints, scores, controlled
+reason codes, and latency. It makes no provider call by default and does not
+copy record payloads into the reasoning graph.
+
 ## Agent Setup Prompt
 
 After cloning SEAM, paste this prompt into your coding agent to have it install
@@ -205,10 +213,9 @@ Rules:
 - Do not ingest secrets, `.env` files, credential files, private keys, provider
   session links, ignored local artifacts, or private chat/share links.
 - API keys and local environment files are operator-owned. Export server/WebUI
-  variables in their launch environment. The TUI can additionally read
-  `~/.config/seam/seam.env` (mode 0600); the server does not load that file
-  automatically. Do not enter credentials in the prototype WebUI; its browser
-  storage is not an approved secret store.
+  variables in their launch environment. Follow the
+  [local browser and credential guidance](#60-second-demo) for the TUI settings
+  file and server launch; do not enter secrets in the prototype WebUI.
 - Prefer project installers and documented commands over ad hoc setup.
 - Do not install `bench-judge`, `bench-mem0`, or `bench-zep` unless the operator
   explicitly approves provider/API-key benchmark dependencies.
@@ -228,11 +235,9 @@ Steps:
    `seam doctor`
 5. Ask the operator to set any needed provider keys and local config before
    enabling paid/provider-backed features. Export the variables in the current
-   shell. For the TUI, `~/.config/seam/seam.env` with mode 0600 is also
-   supported. The server and WebUI do not load it: if the operator chooses to
-   use that shell-safe file, source it explicitly with
-   `set -a; . ~/.config/seam/seam.env; set +a` before launch. Never commit or
-   ingest the file. Do not use the prototype WebUI Settings panel for secrets.
+   shell. The [local browser and credential guidance](#60-second-demo)
+   describes deliberate reuse of a shell-safe TUI settings file. Never commit
+   or ingest that file. Do not use the prototype WebUI Settings panel for secrets.
 6. Re-run:
    `seam doctor`
 7. Ingest safe repo context as persistent memory:
@@ -319,7 +324,7 @@ seam webui --host 127.0.0.1 --port 8765
 - Persistent local memory: SQLite is the canonical source of truth.
 - Efficient RAG: `vector`, `graph`, `hybrid`, and `mix` retrieval modes.
 - Progressive disclosure: `seam memory search` gives compact IDs first; `seam memory get <ids>` fetches full records only when needed.
-- Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Gemini's project config starts it with `--ensure-pgvector` so Docker Compose pgvector is ready before MCP tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
+- Agent bridge: `seam mcp stdio` / `seam-mcp` exposes a standard MCP server for Gemini, Claude, Cursor, and other agents. Pass `--ensure-pgvector` when you want the MCP server to start the Docker Compose pgvector service before tool discovery. `seam mcp serve` remains available for legacy JSON-lines wrappers.
 - Provenance: records keep refs, evidence, trace edges, and source document status.
 - Benchmark discipline: benchmark bundles are hash-verified, diffed, gated, and separated from holdout publication runs.
 - Operator surface: CLI, Textual dashboard, REST API, and installer shims use
@@ -486,15 +491,19 @@ Set `SEAM_API_TOKEN` to require `Authorization: Bearer <local-token>` for
 protected endpoints. This token-only mode is a trusted single-user gate, not a
 multi-tenant identity boundary.
 
-Protected `main@a177852` exposes the public SDK boundary at `/v1/health`,
-`/v1/memories`, `/v1/memories/recall`, and `/v1/context`. The unpublished Track
-S S6 candidate adds optional in-process principal resolution and
+### Public /v1 boundary and hosted SDK
+
+The public SDK boundary is `/v1/health`, `/v1/memories`,
+`/v1/memories/recall`, and `/v1/context`. Published Track S S6 adds optional
+in-process principal resolution and `POST /v1/memories/correct` plus
 `POST /v1/memories/delete`: principal mode derives internal tenancy from the
 resolved subject, disables legacy private data routes, applies a bounded
 process-local limiter by default, and resolves generation-bound indexed opaque
-handles only inside that boundary. Its local runtime lanes, review, and closeout
-gates are green, but signed publication, exact-head CI, and merge remain; do not
-treat the candidate as installed or hosted-deployment behavior yet.
+handles only inside that boundary. The opaque agent-turn lifecycle
+(`/v1/agent/turns/{begin,actions,complete,fail}`) and deliberate
+`admit`/`reject`/`review` memory governance are also published protected-main
+source (PRs #223, #231, #233). These are source-publication facts, not
+hosted-deployment claims; see the [surfaces stream](docs/status/surfaces.md).
 
 ## Benchmark Glassbox
 
@@ -547,7 +556,7 @@ benchmark bundle supports that exact claim.
 The product entrypoint is simple: install SEAM, persist memory, retrieve
 context. Under that surface, SEAM is still machine-first:
 
-- `MIRL`: canonical memory IR
+- `MIRL`: Machine Intermediate Representation Language, SEAM's canonical memory IR
 - `PACK`: prompt-time context view
 - `SEAM-LX/1`: exact machine-text envelope for lossless workflows
 - `SEAM-RC/1`: directly readable compressed machine language

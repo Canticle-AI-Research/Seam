@@ -1,0 +1,40 @@
+{
+  "result": "PASS",
+  "only_changed_package": "urllib3 2.7.0 -> 2.8.0",
+  "other_package_records_unchanged": 158,
+  "lock_sha256": "7eb3755424a7c85a10b4eaafce8366973b17cbffe8e1069c72006bf71c7893ad",
+  "checks": [
+    "uv targeted resolution",
+    "uv sync --locked --no-editable in isolated fresh source",
+    "eight supported installed Suite smoke cases"
+  ],
+  "resolve.log_sha256": "afae02f52e3ce118db5079b700b0e12b48c4d6c7bf7b84e96091547ac1ba39d0",
+  "locked-install.log_sha256": "c5aac754d93acbb63750f6323225e11192a2d070cb32b1de9da2ac41c7a7122a",
+  "locked-smoke.log_sha256": "1a93b4d829d6eb529a262219f5b0bb33fb1d93ddb842fc05625cdef2d27941eb",
+  "evidence_precision": "Root tool calls witnessed exit0 for these commands; exact per-command execution timestamps were not captured and are not reconstructed.",
+  "recorded_at": "2026-10-14T10:52:57.139964+00:00",
+  "commands": [
+    {
+      "command": "uv lock --project /workspace/scratch/seam-branch-audit-20261014/active-lock-recovery --upgrade-package urllib3",
+      "exit_code": 0
+    },
+    {
+      "command": "uv sync --project /workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source --locked --no-editable",
+      "exit_code": 0
+    },
+    {
+      "command": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/bin/python -I /workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/tests/package/smoke_installed_suite.py -v",
+      "exit_code": 0
+    },
+    {
+      "command": "uv lock --check --project /workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source",
+      "exit_code": 0
+    },
+    {
+      "command": "uv pip check --python /workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/bin/python",
+      "exit_code": 0
+    }
+  ],
+  "lock-check.log_sha256": "9f05e01f48f003860a4698a93485b9ced606b6e85e5f19cacd41717be25f073d",
+  "dependency-check.log_sha256": "c34fac75c9f4b5d2881e134386bea28faabba8f770d6cef614a7d283892d3c70"
+}

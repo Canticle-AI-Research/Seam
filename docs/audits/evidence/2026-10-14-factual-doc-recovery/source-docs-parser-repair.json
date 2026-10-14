@@ -1,0 +1,39 @@
+{
+  "finding": "Arbitrary prepended title names wrongly accepted by canonical-suffix matching",
+  "repair": "Only the exact canonical before-acronym name or an explicit ordinary The/A/An sentence article is accepted; appended-title and prepended-title competitors fail.",
+  "checks": [
+    {
+      "label": "source-docs-prefix-red",
+      "command": "/workspace/Seam/.venv/bin/python -m pytest -q tests/audit/test_terminology_contract.py -k 'competing or sentence_prefix'",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T11:19:01.403037+00:00",
+      "ended_at": "2026-10-14T11:19:02.266108+00:00",
+      "exit_code": 1,
+      "output_sha256": "e556ec52c9eef3522f1affc35dcee29547e18c6b6d0ec3ba4818b6bc8c9127e9",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-docs-prefix-red.log"
+    },
+    {
+      "label": "source-docs-prefix-green",
+      "command": "/workspace/Seam/.venv/bin/python -m pytest -q tests/audit/test_terminology_contract.py tests/audit/test_wiki_navigation.py",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T11:19:19.777741+00:00",
+      "ended_at": "2026-10-14T11:19:21.969692+00:00",
+      "exit_code": 0,
+      "output_sha256": "19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-docs-prefix-green.log"
+    }
+  ],
+  "final_files": [
+    {
+      "path": "tests/audit/test_terminology_contract.py",
+      "sha256": "206df2cffa6972bd80d98bb9393843ccb7bf71a111b58c3245771aefe386f4f9",
+      "bytes": 6058
+    },
+    {
+      "path": "tools/docs/verify_terminology.py",
+      "sha256": "9318f34f01f5dd24c33d3b63c3b17e3274070f61cd5894d0db4e8658f92a7756",
+      "bytes": 9672
+    }
+  ],
+  "initial_assurance_sha256": "f4f10501fb2450209554149fe3210f8fc70091f84b880c9f079ad93d6e5df76d"
+}

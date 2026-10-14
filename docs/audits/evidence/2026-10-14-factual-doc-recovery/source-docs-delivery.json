@@ -1,0 +1,906 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "deliver-source-factual-doc-recovery",
+  "verdict": "PASS_OWNED_SCOPE",
+  "created_at": "2026-10-14T11:09:57.246526+00:00",
+  "worktree": "/workspace/scratch/seam-branch-audit-20261014/source-docs-worktree",
+  "base_sha": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+  "branch": "integrate/docs-recovery-20261014",
+  "packet_sha256": "b91604910a03f4f750549ed683926fe851d32fc916e0707697f01d217095fadb",
+  "packet_schema_validated": true,
+  "primary_source_tree_edited_by_child": false,
+  "owned_files": [
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
+      "bytes": 2660,
+      "changed_from_base": true,
+      "disposition": "Recovered dated legacy-coordinate provenance; current contribution/licensing instructions retained."
+    },
+    {
+      "path": "README.md",
+      "sha256": "71fb0bd274560f6c9e5e5e5c0015fdb40c0090dd309d0a86f15d2719b315536e",
+      "bytes": 30915,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary, Python/package distinction, install-first organization, credential pointer consolidation, optional MCP pgvector statement, published S6/turn/governance facts and exact MIRL expansion. Pinned installer command block moved byte-exact; current License section byte-exact; current metadata/publication guards retained."
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
+      "bytes": 2104,
+      "changed_from_base": true,
+      "disposition": "Recovered canonical private-advisory route with private-contact fallback; no advisory submitted."
+    },
+    {
+      "path": "docs/BENCHMARK_SOP.md",
+      "sha256": "0c219eac21b189d2af694d67588c1875f69c950b230dc1b0acebe3595cffe901",
+      "bytes": 4609,
+      "changed_from_base": true,
+      "disposition": "Recovered actual eval success key/tracks/packs; removed nonexistent rejection fields and unsupported scored scope/notes claims. Routes Compose credentials through current no-clobber runbook. Clarifies stats in-memory fixture path versus live adapter proof and no assumed quality wins."
+    },
+    {
+      "path": "docs/CODE_LAYOUT.md",
+      "sha256": "fe95bf4e5cd8aea6734a8c7e95fcfe5885194f8a46d1799949e458e947790224",
+      "bytes": 15160,
+      "changed_from_base": true,
+      "disposition": "Recovered dated legacy HTTP-client coordinate; no new publication qualification claim."
+    },
+    {
+      "path": "docs/DOCUMENTATION_MAP.md",
+      "sha256": "c1ede398175660823def990a01c511d9e529fdd784cf176d8060f320157e8d89",
+      "bytes": 9893,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary contract route and all PR278 repository/root/benchmark/code-adjacent/branding/derived routing links; current targets passed full wiki validation."
+    },
+    {
+      "path": "docs/HOLOGRAPHIC_SURFACE.md",
+      "sha256": "632f1c2773d72b342c1d4e04e8117cb98663576d6d22dda6d95946f8738c9ddd",
+      "bytes": 6643,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary/spec/MIRL backlinks only; format/codec behavior untouched."
+    },
+    {
+      "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+      "sha256": "61342dc852f57d76af6f8526be27b3da3364804ff0e85e33019dad0b5d8119ba",
+      "bytes": 6963,
+      "changed_from_base": true,
+      "disposition": "Recovered core-storage/4 and exact /2\u2192/3 ledger then /3\u2192/4 public-memory-handle migration facts verified in migrations.py."
+    },
+    {
+      "path": "docs/MACOS.md",
+      "sha256": "57c156b099a739304d7f708c66e2ac7978b8dc2bf1538cd1b797bff7b559d260",
+      "bytes": 13242,
+      "changed_from_base": true,
+      "disposition": "Retained current Python3.11, pinned review flows, supported dependency/environment/console-script guidance. Recovered Vite removal and separate TUI seam.env versus Compose .env paths. Rejected always-overridden environment premise."
+    },
+    {
+      "path": "docs/MIRL_V1.md",
+      "sha256": "30ba6995428ed5a34d36f8aa453dd505155049bbae62a48f00301158cadbddea",
+      "bytes": 8685,
+      "changed_from_base": true,
+      "disposition": "Recovered exact expansion/glossary pointer while preserving newer governing contract/serializer clarification."
+    },
+    {
+      "path": "docs/PGVECTOR_LOCAL.md",
+      "sha256": "0fcb9dbdd693f95386354216e62a31e76cd1e42efdf2200d9e1ea87fe7220bbd",
+      "bytes": 8493,
+      "changed_from_base": true,
+      "disposition": "Current main already owns robust service/env/port instructions; adapted current image to qualified0.8.7."
+    },
+    {
+      "path": "docs/PRODUCTS.md",
+      "sha256": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d",
+      "bytes": 6753,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary link only; settled Suite and separate paid SDK roles/grants retained."
+    },
+    {
+      "path": "docs/PROTECTION_MODEL.md",
+      "sha256": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
+      "bytes": 8266,
+      "changed_from_base": true,
+      "disposition": "Retained historical/superseded/current-personal-license banners; recovered dated legacy provenance and removed-mirror-tool facts."
+    },
+    {
+      "path": "docs/RAG_ARCHITECTURE.md",
+      "sha256": "7eb17b8b4d3e89c6c6813317a11757a7f67c917d749dcabd24738c5cb55304f9",
+      "bytes": 7310,
+      "changed_from_base": true,
+      "disposition": "Recovered three existing knowledge-graph/node/identity-merge MCP exports. Source-backed retrieval versus PACK modes, selected-record versus token budgets clarified."
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "b9d9a724191ecb01d50a74f89d181164b233bbc9dd6f7c3cc42b9cbdd2178b76",
+      "bytes": 7631,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary navigation; current release/MCP/generated CLI/safeguards routes retained."
+    },
+    {
+      "path": "docs/SEAM_OPERATOR_GUIDE.md",
+      "sha256": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
+      "bytes": 18654,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary and TUI/Compose/server env separation; current correct inherited-db selection, MCP executable/absolute db guidance retained; current image0.8.7."
+    },
+    {
+      "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+      "sha256": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
+      "bytes": 25661,
+      "changed_from_base": true,
+      "disposition": "Recovered dated image correction0.8.2\u21920.8.6 within historical proposal. Explicit wrapper routes current0.8.7 guarded fixture lifecycle and rejects old pre-step-service proposal as current operational instructions."
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+      "sha256": "4fcbb1e1ed3bd1cd6c1b9cb1e4e9737465616573c25800b1d1a63cdb3b61c51d",
+      "bytes": 14868,
+      "changed_from_base": true,
+      "disposition": "Recovered repository-local install coordinates with quoted extras; historical paid-provider checklist remains a proposal, no provider execution."
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+      "sha256": "64aa66017ecb1bc80855b3f8225098d7520117ce2cb52caa7f175cee47ff4f60",
+      "bytes": 15290,
+      "changed_from_base": true,
+      "disposition": "Recovered quoted bench-mem0 repository install instructions; existing authored comparator plan retained."
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+      "sha256": "cc6f2d15004f5ce3dc4ad232a032a16eadccfe427bf5d41ed0a7bec742bfc855",
+      "bytes": 16214,
+      "changed_from_base": true,
+      "disposition": "Recovered quoted bench-zep/bench-mem0 repository install instructions; no comparator service invocation."
+    },
+    {
+      "path": "docs/SOP_INDEX.md",
+      "sha256": "9365416636450044f49c7b647a2a4391fc9ead40a420cf6d36b4fb54187aeb6b",
+      "bytes": 4092,
+      "changed_from_base": true,
+      "disposition": "Recovered historical era warning for removed experimental/webui paths and foreign package examples."
+    },
+    {
+      "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+      "sha256": "c00f053762e3a0081be8ce5cff17e7e58f872936419c2584e532a5b5b799be00",
+      "bytes": 22573,
+      "changed_from_base": true,
+      "disposition": "Recovered resolved promoted-orchestrator/removal state; hypothetical future deletion safeguards retained."
+    },
+    {
+      "path": "docs/TERMINOLOGY.md",
+      "sha256": "f88a8c1bfa8c777b1acee1860a06fa8b59a6394193a79298cf82df0b3eda1cce",
+      "bytes": 4652,
+      "changed_from_base": true,
+      "disposition": "Recovered authored glossary representation/graphs/product names, adapted current proprietary exact-manifest personal grant, separate paid SDK and historical BUSL subset; no automatic conversion or entitlement expansion."
+    },
+    {
+      "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+      "sha256": "e99c46e6970972984889ac882590d2a9f29db325e9c4462691324f35189a1880",
+      "bytes": 11104,
+      "changed_from_base": true,
+      "disposition": "Recovered landed PR273/274 handoff routing; original plan remains historical."
+    },
+    {
+      "path": "docs/errors.md",
+      "sha256": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
+      "bytes": 7903,
+      "changed_from_base": false,
+      "disposition": "UNCHANGED: current source already has service pgvector, loopback55432 default, preserved/no-clobber private env and dependency troubleshooting; old hunk would regress newer instructions."
+    },
+    {
+      "path": "docs/setup.md",
+      "sha256": "8afd89fd2699970255f791caf0ed9bff471adbc46a365414ea8e265c90ab6923",
+      "bytes": 7816,
+      "changed_from_base": true,
+      "disposition": "Recovered obsolete Vite removal. Canonical owner, portable Windows paths and stronger reviewed-SHA flows already current and retained."
+    },
+    {
+      "path": "docs/status/compression-visual.md",
+      "sha256": "332ad0cb3176c699e9f26027eb47175d3ef70a8ddee561373250516d82c3af7b",
+      "bytes": 1830,
+      "changed_from_base": true,
+      "disposition": "Recovered explicitly supported rgba64 codec alongside existing codec list."
+    },
+    {
+      "path": "docs/status/operations.md",
+      "sha256": "c30f30dcb3817b208e941a46c8c1806cf8b7e101c26eeea75baf2a78dfe2847b",
+      "bytes": 13268,
+      "changed_from_base": true,
+      "disposition": "Recovered seam-box/S8 freeze facts; adapted current guarded own-fixture image/tmpfs/ephemeral port and recorded47 local tests without claiming issue293 runner resolved. Earlier S1/S6 dated evidence retained as earlier evidence."
+    },
+    {
+      "path": "docs/status/surfaces.md",
+      "sha256": "d6e6167964794020635993f1289e6756bdcea4d555ba1e2da81abefaf06b1ae1",
+      "bytes": 11204,
+      "changed_from_base": true,
+      "disposition": "Recovered published S8 mechanism/R2 exact parity versus open S9/S10 distinction; no deployed UI/product-readiness inference."
+    },
+    {
+      "path": "installers/README.md",
+      "sha256": "e96624547523c0f579ac1e978be05da350bee922a9afbe1270f19431e7af95ff",
+      "bytes": 8589,
+      "changed_from_base": true,
+      "disposition": "Preserved reviewed source selection, environment-preserving shims, current default Suite deps and no-clobber guidance; recovered obsolete Vite removal and exact current optional dependency bounds."
+    },
+    {
+      "path": "tests/audit/test_terminology_contract.py",
+      "sha256": "6fc4faab4bffc327eeb3d1d5fe9e3b4fb2ee89b30f271b08bd4087e375819b43",
+      "bytes": 5392,
+      "changed_from_base": true,
+      "disposition": "Rebuilt public helper/wiki CLIs with correct trailing prose, actual competing names including longer names, product collisions, historical exclusions, missing real checker/glossary, staged index protection and no external authority-symlink reads. Obsolete always-overridden-shim test rejected because current source contract contradicts it."
+    },
+    {
+      "path": "tools/docs/verify_terminology.py",
+      "sha256": "ddc6972ea684b271a1129ed156c626849d0eb489a574c562e6a32a44a7d20e03",
+      "bytes": 9369,
+      "changed_from_base": true,
+      "disposition": "Recovered deterministic active authority/glossary/package collision contract; repaired greedy expansion handling, rejected extra title words and unsafe core symlinks; historical/audit/roadmap exclusions preserved. Check-only, no source writes."
+    },
+    {
+      "path": "tools/docs/verify_wiki.py",
+      "sha256": "53a7ecd54572ac4847873895c46150545fc8432964befaa179625a43c5a8ad28",
+      "bytes": 27487,
+      "changed_from_base": true,
+      "disposition": "Added terminology invocation to current verifier while retaining parser/link/audit/staged safeguards. Real checkouts require safe checker; minimal standalone wiki fixtures preserve prior behavior. Staged exports run staged checker, proved by public regression."
+    }
+  ],
+  "per_branch": [
+    {
+      "branch": "docs/doc-audit-20261002",
+      "tip": "8530717d800d397ba58283710b6e8f0a037aabf8",
+      "fork_base": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+      "pull_requests": [
+        277
+      ],
+      "commits": [
+        {
+          "sha": "44dce9d41bb3938f94b46cb793354a794a42738c",
+          "subject": "docs: documentation drift audit and correction (HISTORY#653)"
+        },
+        {
+          "sha": "664cc29921e60883e56d8a753bee528f1d8a3910",
+          "subject": "docs: consolidate README credential/webui pointer cards (HISTORY#654)"
+        },
+        {
+          "sha": "4397a6caf3064c9f6ed9c06088a66eada111939e",
+          "subject": "docs: restructure README install/package map and /v1 split (HISTORY#655)"
+        },
+        {
+          "sha": "2ca37340c8bad38ce9907870c63a1d9729ddfd29",
+          "subject": "docs: log site documentation expansion (HISTORY#656)"
+        },
+        {
+          "sha": "8ee8856d89dfb88a42e9dfef94262147096089de",
+          "subject": "docs: log public-surface cleanup pass (HISTORY#657)"
+        },
+        {
+          "sha": "665f8c8e578eb0ec2d76000599d563b0afade26f",
+          "subject": "docs: establish canonical terminology contract"
+        },
+        {
+          "sha": "8530717d800d397ba58283710b6e8f0a037aabf8",
+          "subject": "chore: satisfy terminology documentation gate"
+        }
+      ],
+      "owned_dispositions": [
+        {
+          "path": "CONTRIBUTING.md",
+          "disposition": "Recovered dated legacy-coordinate provenance; current contribution/licensing instructions retained."
+        },
+        {
+          "path": "README.md",
+          "disposition": "Recovered glossary, Python/package distinction, install-first organization, credential pointer consolidation, optional MCP pgvector statement, published S6/turn/governance facts and exact MIRL expansion. Pinned installer command block moved byte-exact; current License section byte-exact; current metadata/publication guards retained."
+        },
+        {
+          "path": "SECURITY.md",
+          "disposition": "Recovered canonical private-advisory route with private-contact fallback; no advisory submitted."
+        },
+        {
+          "path": "docs/BENCHMARK_SOP.md",
+          "disposition": "Recovered actual eval success key/tracks/packs; removed nonexistent rejection fields and unsupported scored scope/notes claims. Routes Compose credentials through current no-clobber runbook. Clarifies stats in-memory fixture path versus live adapter proof and no assumed quality wins."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "disposition": "Recovered dated legacy HTTP-client coordinate; no new publication qualification claim."
+        },
+        {
+          "path": "docs/DOCUMENTATION_MAP.md",
+          "disposition": "Recovered glossary contract route and all PR278 repository/root/benchmark/code-adjacent/branding/derived routing links; current targets passed full wiki validation."
+        },
+        {
+          "path": "docs/HOLOGRAPHIC_SURFACE.md",
+          "disposition": "Recovered glossary/spec/MIRL backlinks only; format/codec behavior untouched."
+        },
+        {
+          "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+          "disposition": "Recovered core-storage/4 and exact /2\u2192/3 ledger then /3\u2192/4 public-memory-handle migration facts verified in migrations.py."
+        },
+        {
+          "path": "docs/MACOS.md",
+          "disposition": "Retained current Python3.11, pinned review flows, supported dependency/environment/console-script guidance. Recovered Vite removal and separate TUI seam.env versus Compose .env paths. Rejected always-overridden environment premise."
+        },
+        {
+          "path": "docs/MIRL_V1.md",
+          "disposition": "Recovered exact expansion/glossary pointer while preserving newer governing contract/serializer clarification."
+        },
+        {
+          "path": "docs/PGVECTOR_LOCAL.md",
+          "disposition": "Current main already owns robust service/env/port instructions; adapted current image to qualified0.8.7."
+        },
+        {
+          "path": "docs/PRODUCTS.md",
+          "disposition": "Recovered glossary link only; settled Suite and separate paid SDK roles/grants retained."
+        },
+        {
+          "path": "docs/PROTECTION_MODEL.md",
+          "disposition": "Retained historical/superseded/current-personal-license banners; recovered dated legacy provenance and removed-mirror-tool facts."
+        },
+        {
+          "path": "docs/RAG_ARCHITECTURE.md",
+          "disposition": "Recovered three existing knowledge-graph/node/identity-merge MCP exports. Source-backed retrieval versus PACK modes, selected-record versus token budgets clarified."
+        },
+        {
+          "path": "docs/README.md",
+          "disposition": "Recovered glossary navigation; current release/MCP/generated CLI/safeguards routes retained."
+        },
+        {
+          "path": "docs/SEAM_OPERATOR_GUIDE.md",
+          "disposition": "Recovered glossary and TUI/Compose/server env separation; current correct inherited-db selection, MCP executable/absolute db guidance retained; current image0.8.7."
+        },
+        {
+          "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+          "disposition": "Recovered dated image correction0.8.2\u21920.8.6 within historical proposal. Explicit wrapper routes current0.8.7 guarded fixture lifecycle and rejects old pre-step-service proposal as current operational instructions."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+          "disposition": "Recovered repository-local install coordinates with quoted extras; historical paid-provider checklist remains a proposal, no provider execution."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+          "disposition": "Recovered quoted bench-mem0 repository install instructions; existing authored comparator plan retained."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+          "disposition": "Recovered quoted bench-zep/bench-mem0 repository install instructions; no comparator service invocation."
+        },
+        {
+          "path": "docs/SOP_INDEX.md",
+          "disposition": "Recovered historical era warning for removed experimental/webui paths and foreign package examples."
+        },
+        {
+          "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+          "disposition": "Recovered resolved promoted-orchestrator/removal state; hypothetical future deletion safeguards retained."
+        },
+        {
+          "path": "docs/TERMINOLOGY.md",
+          "disposition": "Recovered authored glossary representation/graphs/product names, adapted current proprietary exact-manifest personal grant, separate paid SDK and historical BUSL subset; no automatic conversion or entitlement expansion."
+        },
+        {
+          "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+          "disposition": "Recovered landed PR273/274 handoff routing; original plan remains historical."
+        },
+        {
+          "path": "docs/errors.md",
+          "disposition": "UNCHANGED: current source already has service pgvector, loopback55432 default, preserved/no-clobber private env and dependency troubleshooting; old hunk would regress newer instructions."
+        },
+        {
+          "path": "docs/setup.md",
+          "disposition": "Recovered obsolete Vite removal. Canonical owner, portable Windows paths and stronger reviewed-SHA flows already current and retained."
+        },
+        {
+          "path": "docs/status/compression-visual.md",
+          "disposition": "Recovered explicitly supported rgba64 codec alongside existing codec list."
+        },
+        {
+          "path": "docs/status/operations.md",
+          "disposition": "Recovered seam-box/S8 freeze facts; adapted current guarded own-fixture image/tmpfs/ephemeral port and recorded47 local tests without claiming issue293 runner resolved. Earlier S1/S6 dated evidence retained as earlier evidence."
+        },
+        {
+          "path": "docs/status/surfaces.md",
+          "disposition": "Recovered published S8 mechanism/R2 exact parity versus open S9/S10 distinction; no deployed UI/product-readiness inference."
+        },
+        {
+          "path": "installers/README.md",
+          "disposition": "Preserved reviewed source selection, environment-preserving shims, current default Suite deps and no-clobber guidance; recovered obsolete Vite removal and exact current optional dependency bounds."
+        },
+        {
+          "path": "tests/audit/test_terminology_contract.py",
+          "disposition": "Rebuilt public helper/wiki CLIs with correct trailing prose, actual competing names including longer names, product collisions, historical exclusions, missing real checker/glossary, staged index protection and no external authority-symlink reads. Obsolete always-overridden-shim test rejected because current source contract contradicts it."
+        },
+        {
+          "path": "tools/docs/verify_terminology.py",
+          "disposition": "Recovered deterministic active authority/glossary/package collision contract; repaired greedy expansion handling, rejected extra title words and unsafe core symlinks; historical/audit/roadmap exclusions preserved. Check-only, no source writes."
+        },
+        {
+          "path": "tools/docs/verify_wiki.py",
+          "disposition": "Added terminology invocation to current verifier while retaining parser/link/audit/staged safeguards. Real checkouts require safe checker; minimal standalone wiki fixtures preserve prior behavior. Staged exports run staged checker, proved by public regression."
+        }
+      ],
+      "root_owned_remaining": [
+        {
+          "path": ".seam/cross_index.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0518.cross.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0525.cross.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/snapshots/20261003-030955-612158-codex.json",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/snapshots/20261003-033422-697583-codex.json",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "HISTORY.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "audit_disposition": "REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "audit_disposition": "INTEGRATE_CORRECTED_FACTS",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "docs/audits/2026-10-02-documentation-drift-audit.md",
+          "audit_disposition": "ARCHIVE_DATED_REPORT",
+          "remaining_owner": "root",
+          "action": "Preserve exact dated report/state under inactive historical recovery routes; root maps provenance."
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "audit_disposition": "REBUILD_ROUTE",
+          "remaining_owner": "root",
+          "action": "Preserve exact dated report/state under inactive historical recovery routes; root maps provenance."
+        },
+        {
+          "path": "docs/status/workspace.md",
+          "audit_disposition": "ARCHIVE_DATED_STATE",
+          "remaining_owner": "root",
+          "action": "Preserve exact dated report/state under inactive historical recovery routes; root maps provenance."
+        }
+      ],
+      "completion": "All useful owned factual/glossary/checker/wiki work recovered or superseded by stronger current facts. Root must integrate metadata/reference and exact authored dated-report preservation before branch retirement. PR278 adds the repository-document map to recovered PR277; no extra runtime work."
+    },
+    {
+      "branch": "docs/wiki-baseline-20261003",
+      "tip": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+      "fork_base": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+      "pull_requests": [
+        278
+      ],
+      "commits": [
+        {
+          "sha": "44dce9d41bb3938f94b46cb793354a794a42738c",
+          "subject": "docs: documentation drift audit and correction (HISTORY#653)"
+        },
+        {
+          "sha": "664cc29921e60883e56d8a753bee528f1d8a3910",
+          "subject": "docs: consolidate README credential/webui pointer cards (HISTORY#654)"
+        },
+        {
+          "sha": "4397a6caf3064c9f6ed9c06088a66eada111939e",
+          "subject": "docs: restructure README install/package map and /v1 split (HISTORY#655)"
+        },
+        {
+          "sha": "2ca37340c8bad38ce9907870c63a1d9729ddfd29",
+          "subject": "docs: log site documentation expansion (HISTORY#656)"
+        },
+        {
+          "sha": "8ee8856d89dfb88a42e9dfef94262147096089de",
+          "subject": "docs: log public-surface cleanup pass (HISTORY#657)"
+        },
+        {
+          "sha": "665f8c8e578eb0ec2d76000599d563b0afade26f",
+          "subject": "docs: establish canonical terminology contract"
+        },
+        {
+          "sha": "8530717d800d397ba58283710b6e8f0a037aabf8",
+          "subject": "chore: satisfy terminology documentation gate"
+        },
+        {
+          "sha": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+          "subject": "docs: add repository-level wiki navigation and verified baseline"
+        }
+      ],
+      "owned_dispositions": [
+        {
+          "path": "CONTRIBUTING.md",
+          "disposition": "Recovered dated legacy-coordinate provenance; current contribution/licensing instructions retained."
+        },
+        {
+          "path": "README.md",
+          "disposition": "Recovered glossary, Python/package distinction, install-first organization, credential pointer consolidation, optional MCP pgvector statement, published S6/turn/governance facts and exact MIRL expansion. Pinned installer command block moved byte-exact; current License section byte-exact; current metadata/publication guards retained."
+        },
+        {
+          "path": "SECURITY.md",
+          "disposition": "Recovered canonical private-advisory route with private-contact fallback; no advisory submitted."
+        },
+        {
+          "path": "docs/BENCHMARK_SOP.md",
+          "disposition": "Recovered actual eval success key/tracks/packs; removed nonexistent rejection fields and unsupported scored scope/notes claims. Routes Compose credentials through current no-clobber runbook. Clarifies stats in-memory fixture path versus live adapter proof and no assumed quality wins."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "disposition": "Recovered dated legacy HTTP-client coordinate; no new publication qualification claim."
+        },
+        {
+          "path": "docs/DOCUMENTATION_MAP.md",
+          "disposition": "Recovered glossary contract route and all PR278 repository/root/benchmark/code-adjacent/branding/derived routing links; current targets passed full wiki validation."
+        },
+        {
+          "path": "docs/HOLOGRAPHIC_SURFACE.md",
+          "disposition": "Recovered glossary/spec/MIRL backlinks only; format/codec behavior untouched."
+        },
+        {
+          "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+          "disposition": "Recovered core-storage/4 and exact /2\u2192/3 ledger then /3\u2192/4 public-memory-handle migration facts verified in migrations.py."
+        },
+        {
+          "path": "docs/MACOS.md",
+          "disposition": "Retained current Python3.11, pinned review flows, supported dependency/environment/console-script guidance. Recovered Vite removal and separate TUI seam.env versus Compose .env paths. Rejected always-overridden environment premise."
+        },
+        {
+          "path": "docs/MIRL_V1.md",
+          "disposition": "Recovered exact expansion/glossary pointer while preserving newer governing contract/serializer clarification."
+        },
+        {
+          "path": "docs/PGVECTOR_LOCAL.md",
+          "disposition": "Current main already owns robust service/env/port instructions; adapted current image to qualified0.8.7."
+        },
+        {
+          "path": "docs/PRODUCTS.md",
+          "disposition": "Recovered glossary link only; settled Suite and separate paid SDK roles/grants retained."
+        },
+        {
+          "path": "docs/PROTECTION_MODEL.md",
+          "disposition": "Retained historical/superseded/current-personal-license banners; recovered dated legacy provenance and removed-mirror-tool facts."
+        },
+        {
+          "path": "docs/RAG_ARCHITECTURE.md",
+          "disposition": "Recovered three existing knowledge-graph/node/identity-merge MCP exports. Source-backed retrieval versus PACK modes, selected-record versus token budgets clarified."
+        },
+        {
+          "path": "docs/README.md",
+          "disposition": "Recovered glossary navigation; current release/MCP/generated CLI/safeguards routes retained."
+        },
+        {
+          "path": "docs/SEAM_OPERATOR_GUIDE.md",
+          "disposition": "Recovered glossary and TUI/Compose/server env separation; current correct inherited-db selection, MCP executable/absolute db guidance retained; current image0.8.7."
+        },
+        {
+          "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+          "disposition": "Recovered dated image correction0.8.2\u21920.8.6 within historical proposal. Explicit wrapper routes current0.8.7 guarded fixture lifecycle and rejects old pre-step-service proposal as current operational instructions."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+          "disposition": "Recovered repository-local install coordinates with quoted extras; historical paid-provider checklist remains a proposal, no provider execution."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+          "disposition": "Recovered quoted bench-mem0 repository install instructions; existing authored comparator plan retained."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+          "disposition": "Recovered quoted bench-zep/bench-mem0 repository install instructions; no comparator service invocation."
+        },
+        {
+          "path": "docs/SOP_INDEX.md",
+          "disposition": "Recovered historical era warning for removed experimental/webui paths and foreign package examples."
+        },
+        {
+          "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+          "disposition": "Recovered resolved promoted-orchestrator/removal state; hypothetical future deletion safeguards retained."
+        },
+        {
+          "path": "docs/TERMINOLOGY.md",
+          "disposition": "Recovered authored glossary representation/graphs/product names, adapted current proprietary exact-manifest personal grant, separate paid SDK and historical BUSL subset; no automatic conversion or entitlement expansion."
+        },
+        {
+          "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+          "disposition": "Recovered landed PR273/274 handoff routing; original plan remains historical."
+        },
+        {
+          "path": "docs/errors.md",
+          "disposition": "UNCHANGED: current source already has service pgvector, loopback55432 default, preserved/no-clobber private env and dependency troubleshooting; old hunk would regress newer instructions."
+        },
+        {
+          "path": "docs/setup.md",
+          "disposition": "Recovered obsolete Vite removal. Canonical owner, portable Windows paths and stronger reviewed-SHA flows already current and retained."
+        },
+        {
+          "path": "docs/status/compression-visual.md",
+          "disposition": "Recovered explicitly supported rgba64 codec alongside existing codec list."
+        },
+        {
+          "path": "docs/status/operations.md",
+          "disposition": "Recovered seam-box/S8 freeze facts; adapted current guarded own-fixture image/tmpfs/ephemeral port and recorded47 local tests without claiming issue293 runner resolved. Earlier S1/S6 dated evidence retained as earlier evidence."
+        },
+        {
+          "path": "docs/status/surfaces.md",
+          "disposition": "Recovered published S8 mechanism/R2 exact parity versus open S9/S10 distinction; no deployed UI/product-readiness inference."
+        },
+        {
+          "path": "installers/README.md",
+          "disposition": "Preserved reviewed source selection, environment-preserving shims, current default Suite deps and no-clobber guidance; recovered obsolete Vite removal and exact current optional dependency bounds."
+        },
+        {
+          "path": "tests/audit/test_terminology_contract.py",
+          "disposition": "Rebuilt public helper/wiki CLIs with correct trailing prose, actual competing names including longer names, product collisions, historical exclusions, missing real checker/glossary, staged index protection and no external authority-symlink reads. Obsolete always-overridden-shim test rejected because current source contract contradicts it."
+        },
+        {
+          "path": "tools/docs/verify_terminology.py",
+          "disposition": "Recovered deterministic active authority/glossary/package collision contract; repaired greedy expansion handling, rejected extra title words and unsafe core symlinks; historical/audit/roadmap exclusions preserved. Check-only, no source writes."
+        },
+        {
+          "path": "tools/docs/verify_wiki.py",
+          "disposition": "Added terminology invocation to current verifier while retaining parser/link/audit/staged safeguards. Real checkouts require safe checker; minimal standalone wiki fixtures preserve prior behavior. Staged exports run staged checker, proved by public regression."
+        }
+      ],
+      "root_owned_remaining": [
+        {
+          "path": ".seam/cross_index.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0518.cross.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0527.cross.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/snapshots/20261003-030955-612158-codex.json",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/snapshots/20261003-033422-697583-codex.json",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "HISTORY.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "audit_disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "audit_disposition": "REBUILD_CONTINUITY",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "audit_disposition": "INTEGRATE_CORRECTED_FACTS",
+          "remaining_owner": "root",
+          "action": "Fresh current metadata/ledger/handoff/index reconciliation; no old chronology imported."
+        },
+        {
+          "path": "docs/audits/2026-10-02-documentation-drift-audit.md",
+          "audit_disposition": "ARCHIVE_DATED_REPORT",
+          "remaining_owner": "root",
+          "action": "Preserve exact dated report/state under inactive historical recovery routes; root maps provenance."
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "audit_disposition": "REBUILD_ROUTE",
+          "remaining_owner": "root",
+          "action": "Preserve exact dated report/state under inactive historical recovery routes; root maps provenance."
+        },
+        {
+          "path": "docs/status/workspace.md",
+          "audit_disposition": "ARCHIVE_DATED_STATE",
+          "remaining_owner": "root",
+          "action": "Preserve exact dated report/state under inactive historical recovery routes; root maps provenance."
+        }
+      ],
+      "completion": "All useful owned factual/glossary/checker/wiki work recovered or superseded by stronger current facts. Root must integrate metadata/reference and exact authored dated-report preservation before branch retirement. PR278 adds the repository-document map to recovered PR277; no extra runtime work."
+    }
+  ],
+  "dependency_order": [
+    "PR277 factual source corrections",
+    "PR277 authored glossary/current-grant reconciliation",
+    "Repaired public terminology CLI and wiki/staged gate",
+    "PR278 root/code-adjacent/benchmark/branding/derived navigation",
+    "Root current ledger/reference regeneration/handoff/archive integration and exact-head qualification"
+  ],
+  "PR277_is_ancestor_of_PR278": true,
+  "witnessed_red": [
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:57:48.622946+00:00",
+      "ended_at": "2026-10-14T10:57:49.762937+00:00",
+      "exit_code": 1,
+      "output_sha256": "235e188e92d75a548b24eac1eb8af8ed40f8f35f43e83b735c0856ded0ca5c73",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/terminology-red.log"
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "-k",
+        "competing",
+        "-q"
+      ],
+      "started_at": "2026-10-14T11:06:12.360517+00:00",
+      "ended_at": "2026-10-14T11:06:12.963079+00:00",
+      "exit_code": 1,
+      "output_sha256": "b02d3d4a90364c43305cd511178654fb5a8187ddfb711bac83b712a53bd00b5c",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/longer-name-red.log"
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "-k",
+        "symlink",
+        "-q"
+      ],
+      "started_at": "2026-10-14T11:07:05.833365+00:00",
+      "ended_at": "2026-10-14T11:07:06.251345+00:00",
+      "exit_code": 1,
+      "output_sha256": "71a2c2738ab8b2c400b6f1c0d8a8e0d817cb395d9f12fad9571bbea2a098c01b",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/unsafe-authority-red.log"
+    }
+  ],
+  "green": [
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "tests/audit/test_wiki_navigation.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T11:07:20.389319+00:00",
+      "ended_at": "2026-10-14T11:07:22.035490+00:00",
+      "exit_code": 0,
+      "output_sha256": "07ef2673018afac0f550dc47983fd7c74e3e61ce80ed4a8d60881dc214204985",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/checkers-final.log",
+      "passed": 63,
+      "skipped": 0
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.docs.verify_wiki"
+      ],
+      "started_at": "2026-10-14T11:07:22.067248+00:00",
+      "ended_at": "2026-10-14T11:07:24.274647+00:00",
+      "exit_code": 0,
+      "output_sha256": "4142eac187dc717fa1b022dd732f1e2dd2dcf26d283ff3b861b57ce77e58ff80",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/wiki-final-state.log",
+      "reachable_active_docs": 296
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.docs.verify_terminology"
+      ],
+      "started_at": "2026-10-14T11:07:24.309837+00:00",
+      "ended_at": "2026-10-14T11:07:24.535256+00:00",
+      "exit_code": 0,
+      "output_sha256": "6b1a0e4db51d2690be495539ef7566547106a8fecbd47faef01cd9d15832e4d4",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/terminology-final-state.log",
+      "active_authority_pages": 114
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tools/docs/verify_terminology.py",
+        "tools/docs/verify_wiki.py",
+        "tests/audit/test_terminology_contract.py"
+      ],
+      "started_at": "2026-10-14T11:07:24.567050+00:00",
+      "ended_at": "2026-10-14T11:07:24.601462+00:00",
+      "exit_code": 0,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/lint-final-state.log"
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "/workspace/scratch/seam-branch-audit-20261014/source-docs/verify_owned.py"
+      ],
+      "started_at": "2026-10-14T11:08:46.404996+00:00",
+      "ended_at": "2026-10-14T11:08:46.492501+00:00",
+      "exit_code": 0,
+      "output_sha256": "ad26071ca953729ea043ff5a422055dda088f7414658a7d86688114f68b62cc8",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/owned-proof.log"
+    }
+  ],
+  "root_companion_change": "Root added exact MIRL expansion in isolated REPO_LEDGER.md, resolving initial only full wiki/terminology error. Child did not edit ledger. Root to add canonical glossary route on integration.",
+  "root_remaining": [
+    "Append fresh continuity, regenerate references/affected-prose review metadata and current handoff; do not transplant old branch HISTORY/index/snapshot bytes.",
+    "Preserve original dated documentation audit verbatim under inactive docs/archive/branch-recovery-20261014/pr277/ with historical wrapper and author/report routing; child did not import it or its old HISTORY IDs.",
+    "Reconcile ledger old S8-next, dated legacy coordinate and terminology routes. Independently validate any old matched four-arm measurement correction before recording numbers.",
+    "No publication/deployment/runtime/provider claims inferred from docs or this check-only tool work. GHA runner startup issue293 remains separate."
+  ],
+  "artifacts_root": "/workspace/scratch/seam-branch-audit-20261014/source-docs",
+  "git_mutations": "None by child. Existing/new regression tests initialize/add only their disposable temporary Git fixture indexes; no source index/commits/branches/worktrees mutated."
+}

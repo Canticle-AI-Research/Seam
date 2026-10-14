@@ -15,7 +15,7 @@ values, then edit locally. The examples use `~/.config/seam/.env` on POSIX and
 the Documents/SEAM/local/.env path on Windows. Never commit or ingest that file.
 
 The tracked `docker-compose.yaml` defines service `pgvector`, container
-`seam-pgvector`, image `pgvector/pgvector:0.8.6-pg18-trixie`, and the mapping
+`seam-pgvector`, image `pgvector/pgvector:0.8.7-pg18-trixie`, and the mapping
 `127.0.0.1:${SEAM_PGVECTOR_PORT:-55432}:5432`. The host port defaults to `55432`;
 database and user default to `seam`; password is required. Keep custom settings.
 Changing these variables does not migrate an existing Postgres data volume or

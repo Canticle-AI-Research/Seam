@@ -1,0 +1,239 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "run_id": "branch-recovery-20261014",
+  "task_id": "assure-active-lock-recovery",
+  "role": "seam_assurance_orchestrator",
+  "status": "PASS",
+  "review_finished_utc": "2026-10-14T10:54:28.643019+00:00",
+  "review_timestamp_is_not_execution_timestamp": true,
+  "base_sha": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+  "packet_schema_validation": {
+    "result": "PASS",
+    "validator": "system Python jsonschema.Draft202012Validator",
+    "schema_path": "/workspace/Seam/tools/agents/schemas/context-packet.schema.json",
+    "packet_sha256": "9028f2258cb5aa9df419c3d18883354deec1a42a4beba4444ee8d6de6574fd64"
+  },
+  "changed_path_for_followup": "uv.lock",
+  "candidate_path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/uv.lock",
+  "candidate_sha256": "7eb3755424a7c85a10b4eaafce8366973b17cbffe8e1069c72006bf71c7893ad",
+  "fixed_base_lock_sha256": "2abfeb50c271f1d594d90610320b0adf13dd3dfcb85fb5c38583e4db881b6677",
+  "pyproject_sha256": "217d6bb93c8b1cad2a2582ab0f4ba72a9dbbefd0806900460cbbabbfdc9e93b5",
+  "pyproject_identical_to_fixed_base_and_working": true,
+  "working_copy_observation": "Working uv.lock initially matched fixed base2abfeb50; root copied candidate during review. Final working lock now equals candidate7eb37554. Before-state recomputed from fixed base Git blob, no source mutation by assurance.",
+  "working_lock_sha256_at_finish": "7eb3755424a7c85a10b4eaafce8366973b17cbffe8e1069c72006bf71c7893ad",
+  "lock_semantic_proof": {
+    "package_count_before": 159,
+    "package_count_after": 159,
+    "only_changed_package": "urllib3",
+    "old_version": "2.7.0",
+    "new_version": "2.8.0",
+    "other_158_records_identical": true,
+    "outside_urllib3_record_text_byte_identical": true,
+    "nonpackage_toml_metadata_unchanged": true,
+    "old_record": {
+      "name": "urllib3",
+      "version": "2.7.0",
+      "source": {
+        "registry": "https://pypi.org/simple"
+      },
+      "sdist": {
+        "url": "https://files.pythonhosted.org/packages/53/0c/06f8b233b8fd13b9e5ee11424ef85419ba0d8ba0b3138bf360be2ff56953/urllib3-2.7.0.tar.gz",
+        "hash": "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c",
+        "size": 433602,
+        "upload-time": "2026-05-07T16:13:18.596Z"
+      },
+      "wheels": [
+        {
+          "url": "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl",
+          "hash": "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897",
+          "size": 131087,
+          "upload-time": "2026-05-07T16:13:17.151Z"
+        }
+      ]
+    },
+    "new_record": {
+      "name": "urllib3",
+      "version": "2.8.0",
+      "source": {
+        "registry": "https://pypi.org/simple"
+      },
+      "sdist": {
+        "url": "https://files.pythonhosted.org/packages/e3/05/b17359e1cefb4f909b5e40b1b90a496d987258916dbbf88e842c729f510e/urllib3-2.8.0.tar.gz",
+        "hash": "sha256:63bf2ead4c879426ebf22ef2a781eeb4aa3b4ae798a0435506f8687fd5bb9b63",
+        "size": 458972,
+        "upload-time": "2026-09-15T19:29:36.253Z"
+      },
+      "wheels": [
+        {
+          "url": "https://files.pythonhosted.org/packages/92/9d/c4e665119135114480843e7ab388fa94d8480650450e6f8e26b70d323a4c/urllib3-2.8.0-py3-none-any.whl",
+          "hash": "sha256:0cf3cae568d36aa9576b28dfb35f11328f1cb974ca7647d9475ebb86c75ac6e3",
+          "size": 135717,
+          "upload-time": "2026-09-15T19:29:34.577Z"
+        }
+      ]
+    }
+  },
+  "installed_metadata_independently_verified": [
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/lib/python3.12/site-packages/urllib3-2.8.0.dist-info/METADATA",
+      "name": "urllib3",
+      "version": "2.8.0",
+      "requires_python": ">=3.10",
+      "sha256": "10898c620e8007c030e07fa5622b68358a43010025dfbd78a1cb797699de2bb4"
+    },
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/lib/python3.12/site-packages/seam_suite-2.4.1rc1.dist-info/METADATA",
+      "name": "seam-suite",
+      "version": "2.4.1rc1",
+      "requires_python": ">=3.11",
+      "sha256": "d9413cdbcd6a4b9e9ac8b1b76b7802bb06d8a773fb0bfd5d2cf2c843da32b41f"
+    }
+  ],
+  "installed_suite_origin": {
+    "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/lib/python3.12/site-packages/seam_suite-2.4.1rc1.dist-info/direct_url.json",
+    "sha256": "f3e1516ea4ce6ae93649d2a2d9c2c2252b18aaad0508e97df73195628cea90d3",
+    "metadata": {
+      "url": "file:///workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source",
+      "dir_info": {
+        "editable": false
+      }
+    },
+    "editable": false
+  },
+  "checks": [
+    {
+      "command": [
+        "uv",
+        "lock",
+        "--project",
+        "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery",
+        "--upgrade-package",
+        "urllib3"
+      ],
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/resolve.log",
+      "execution_start_utc": null,
+      "execution_end_utc": null,
+      "execution_provenance": "Root supplied exact argv/exit0 (install+smoke combined set-e successful exec0). Named output log independently read and hashed; not rerun by assurance."
+    },
+    {
+      "command": [
+        "uv",
+        "sync",
+        "--project",
+        "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source",
+        "--locked",
+        "--no-editable"
+      ],
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/locked-install.log",
+      "execution_start_utc": null,
+      "execution_end_utc": null,
+      "execution_provenance": "Root supplied exact argv/exit0 (install+smoke combined set-e successful exec0). Named output log independently read and hashed; not rerun by assurance."
+    },
+    {
+      "command": [
+        "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/bin/python",
+        "-I",
+        "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/tests/package/smoke_installed_suite.py",
+        "-v"
+      ],
+      "exit": 0,
+      "passed": 8,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/locked-smoke.log",
+      "execution_start_utc": null,
+      "execution_end_utc": null,
+      "execution_provenance": "Root supplied exact argv/exit0 (install+smoke combined set-e successful exec0). Named output log independently read and hashed; not rerun by assurance."
+    },
+    {
+      "command": [
+        "uv",
+        "lock",
+        "--check",
+        "--project",
+        "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source"
+      ],
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/lock-check.log",
+      "execution_start_utc": null,
+      "execution_end_utc": null,
+      "execution_provenance": "Root supplied exact argv/exit0 (install+smoke combined set-e successful exec0). Named output log independently read and hashed; not rerun by assurance."
+    },
+    {
+      "command": [
+        "uv",
+        "pip",
+        "check",
+        "--python",
+        "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/qualified-source/.venv/bin/python"
+      ],
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/dependency-check.log",
+      "execution_start_utc": null,
+      "execution_end_utc": null,
+      "execution_provenance": "Root supplied exact argv/exit0 (install+smoke combined set-e successful exec0). Named output log independently read and hashed; not rerun by assurance."
+    }
+  ],
+  "log_fingerprints": [
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/resolve.log",
+      "sha256": "afae02f52e3ce118db5079b700b0e12b48c4d6c7bf7b84e96091547ac1ba39d0",
+      "matches_qualification_fingerprint": true
+    },
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/locked-install.log",
+      "sha256": "c5aac754d93acbb63750f6323225e11192a2d070cb32b1de9da2ac41c7a7122a",
+      "matches_qualification_fingerprint": true
+    },
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/locked-smoke.log",
+      "sha256": "1a93b4d829d6eb529a262219f5b0bb33fb1d93ddb842fc05625cdef2d27941eb",
+      "matches_qualification_fingerprint": true
+    },
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/lock-check.log",
+      "sha256": "9f05e01f48f003860a4698a93485b9ced606b6e85e5f19cacd41717be25f073d",
+      "matches_qualification_fingerprint": true
+    },
+    {
+      "path": "/workspace/scratch/seam-branch-audit-20261014/active-lock-recovery/dependency-check.log",
+      "sha256": "c34fac75c9f4b5d2881e134386bea28faabba8f770d6cef614a7d283892d3c70",
+      "matches_qualification_fingerprint": true
+    }
+  ],
+  "public_behavior_exercised": {
+    "supported_installed_smokes": 8,
+    "cases": [
+      "CLI ingest/retrieve/restart evidence",
+      "Console entrypoints",
+      "Default dependencies/package origin",
+      "HTTP write/recall/token denial",
+      "Doctor default dependency completeness",
+      "MCP initialize/ingest/search/restart",
+      "Packaged dashboard/public health",
+      "Installed-assets TUI mount"
+    ],
+    "result": "All8cases ok; Ran8tests40.122s, OK. Auth failed log entries are expected token-denial exercise.",
+    "runtime_version": "CPython3.12.14 fresh isolated .venv; metadata confirms urllib3 installed2.8.0 and Suite2.4.1rc1. urllib3 Python>=3.10 compatible with unchanged project>=3.11.",
+    "default_dependency_relationship": "urllib3 remains transitive, no new declared Suite requirement; default dependency list and conflicting-extras uv configuration unchanged."
+  },
+  "tdd_classification": {
+    "status": "TDD_NOT_REQUIRED",
+    "rationale": "Targeted dependency lock recovery/qualification, not authored runtime or public API behavior change. No RED/GREEN cycle invented; baseline/candidate versions are lock/metadata observations."
+  },
+  "regression_observations": {
+    "blocking_findings": [],
+    "installed_dependency_compatibility": "uv pip check37packages compatible; uv lock --check159 resolved.",
+    "warning": "Existing FastAPI/Starlette TestClient httpx deprecation, no failure. No unrelated dependency changes proposed.",
+    "missing_optional_document": "docs/DEPENDENCIES.md absent; unchanged pyproject/exact locks provide sufficient direct dependency authority."
+  },
+  "blocking_findings": [],
+  "precision_limits": [
+    "Exact execution timestamps were not captured; start/end fields null. Do not infer from mtime or rerun solely to manufacture timestamps.",
+    "Exact commands/exits supplied by root and corroborated by hashed logs; assurance did not repeat install/network resolution/smokes.",
+    "Installed version metadata/direct_url independently inspected; no broad isolated source-tree audit, provider/service calls, operator DBs or credentials.",
+    "Qualification is fresh Linux/CPython3.12.14 default install, not every optional extra/platform or production publication/deployment.",
+    "Root owns source followup and exact-head protected checks."
+  ],
+  "mutation_scope": "External lock-assurance.json only; read-only fixed-base Git show permitted by packet. No source/Git/PR/deployment changes or delegation."
+}

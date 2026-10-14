@@ -22009,3 +22009,35 @@ All30 captured branches at source07b20a424ace842b9d3c88f836efff88906b6451/sitea7
 
 Website PR34 merged1514b89be0265517306fdd4e6cdea5ffa07f61f6, legacy publisher retired, four public resources verified after only Cloudflare email-obfuscation normalization; production Pages and email-worker pass. Own fully merged recovery branch removed. Source PR303 head4566d3c77c145b0197a54ba94600e8c7808dd515 passed all three required GitHub checks and independent exact-state review (78 affected cases); qualification receipt2e5d22f40a89db73 explicitly supersedes immutable first NOT_QUALIFIED f4b967c9c4ea6362 after correcting two test refs. Initial CI rejection fixed by allowed job contexts; runtime/package bytes unchanged. Advisory remote PG job passed regression tests then failed fixture startup before real tests, unlike local47 pass; tracked in issue293, not reported green. Final GitHub checks and exact-state review must be repeated on this routing-only successor before merge. No licence decision reopened, package upload, paid provider calls or operator-resource mutation.
 ---END-ENTRY-#672---
+
+---BEGIN-ENTRY-#673---
+id: 673
+date: 2026-10-14T11:05:02Z
+agent: codex
+status: in-progress
+topics: audit, ci, continuity, docs, docker, extras, handoff, history, pgvector, plan, provenance, pyproject, reconcile, registry, salvage, verify
+commits: pending
+refs: docs/audits/2026-10-14-branch-retirement-and-lock.md,docs/roadmap/BRANCH_RECOVERY.md,docs/status/workspace.md,docs/status/packaging-licensing.md,docs/handoffs/2026-10-14-branch-recovery-integrated.md
+supersedes: none
+tokens: 711
+---
+Verified first branch-recovery admission: PR303 merged efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd, exact qualified18acce tree, three required checks and final packageCI pass. All30 original source/site branches audited, eleven now absent after individual semantic preservation and exact-tip ownership checks: ten exact-lease deletions plus image branch automatically removed after main admission. Old tips retained by matching pull refs or three signed archive/20261014 tags. Closed superseded PR213/267/268/280 appropriately; PR282 auto closed. Source/site merged delivery aliases also cleaned. Re-read all live heads: nineteen unchanged original tips remain,13 source/six site, no unreviewed new original branch or tip drift observed. No unresolved useful work deleted. Current plan/workspace/handoff now record actual admission/retirement and active root-owned temporary delivery scopes rather than obsolete worktree state.
+
+Narrow active uv.lock refresh changes only urllib3 from2.7.0 to2.8.0;158 other package records, lock root metadata and pyproject bytes unchanged. Fresh noneditable locked installation, all8 supported installed Suite smokes, lock consistency/dependency compatibility checks and independent fixed-base review pass. Exact command vectors/exits and log hashes retained; original execution timestamps not captured or reconstructed. Historical installed-requirements evidence unchanged. Dependabot version config covers compose only; old dated-evidence update came from separate security-updater scope, still tracked by290/262 rather than hidden with broad ignore rules. Packaged runtime/legal/readme inputs unchanged, so fresh public-v4 package evidence remains applicable. No upload/paid provider call/operator-resource mutation or licence decision change.
+
+Next active parallel scopes: isolated integrate/docs-recovery-20261014 worktree recovers source factual/glossary/wiki PR277 then278; website integrate/operator-doc-recovery-20261014 recovers current operator/interface facts fromPR14/31. Root owns integration/current state/reference regeneration/independent review/qualified merges and removal of those real dirty worktrees/branches. MIRL full authored name added to ledger identity as root-owned companion; glossary route waits until glossary exists on main. All other missing batching/skills/formation/report/workspace/Windows code stays tracked, not claimed complete. Public website safetyPR34 live1514b89, productionPages/worker pass, four changed resources match reviewed source. Managed-daemon47PG tests pass with cleanup but advisory shared-runner fixture startup fails before actual tests;293 remains open. TestPyPI access, broad-suite environment/baseline failures and pinnedAbout287 remain explicit external/acceptance conditions. Protected final checks and exact-state review still govern this followup.
+---END-ENTRY-#673---
+
+---BEGIN-ENTRY-#674---
+id: 674
+date: 2026-10-14T11:27:09Z
+agent: codex
+status: in-progress
+topics: audit, docs, wiki, verify, worktree
+commits: pending
+refs: docs/audits/2026-10-14-factual-doc-recovery.md,docs/handoffs/2026-10-14-factual-doc-recovery.md,docs/roadmap/BRANCH_RECOVERY.md
+supersedes: 673
+tokens: 332
+---
+Recover PR277→278 factual docs/glossary/wiki on current main without importing stale root chronology. Preserve the exact old PR277 draft inactive; reconcile ledger S8 completion and multi-factor historical benchmark scope. Three author RED cycles and independent prefix-counterexample RED(2failures) lead to73 passing checker/wiki cases. Initial BLOCKED assurance is immutable; independent successor PASS verifies all33 owned hashes, canonical/trailing/article expansion and fail-closed authority behavior. README License and pinned installer blocks stay exact. Fresh public-v5 qualification records13 successful commands; wheel/sdist each match109 implementation hashes/seven legal documents and pass eight installed smokes. Narrow urllib3 lock qualification remains from673. Source worktree can be removed only after all owned bytes are proved in the signed primary commit (ledger companion already in d70280a); protected push/merge and exact-state receipt still required. Original30 audited:11retired/19retained at preparation;277/278 retirement follows main admission. Website14/31 remains separate production verification. No uploads/provider calls. TestPyPI, runnerPG293, security scope290/262 and About287 remain open; broad baseline failures not claimed green. Supersedes current delivery673, not immutable evidence.
+---END-ENTRY-#674---

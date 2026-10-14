@@ -10,7 +10,10 @@ The `main` branch is the active development line. Security fixes target `main` f
 
 Please do not open a public issue for security-sensitive reports.
 
-Use GitHub private vulnerability reporting if it is enabled for this repository. If private reporting is not available, contact the project owner privately through the contact channel listed in the repository profile or release notes.
+Open a private security advisory at
+<https://github.com/Canticle-AI-Research/Seam/security/advisories/new>. If
+private vulnerability reporting is disabled for this repository, contact the
+project owner privately through a channel listed on the repository profile.
 
 ## What to include
 

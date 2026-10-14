@@ -140,8 +140,8 @@ Linux `--dev` mode:
 - installs `requirements.txt`, `.[all-extras]`, and `pytest`
 - runs `seam.py doctor`, history integrity, routing, snapshot, continuity, and
   stream verification checks
-- does not install Node dependencies or build the `webui/` dev project (the
-  runtime serves the dashboard directly; no build step is required)
+- does not install Node dependencies (the runtime serves the dashboard
+  directly; no build step is required)
 
 Default persistent database paths:
 
@@ -179,11 +179,11 @@ checked by `python -m tools.ci.verify_dependency_contract`.
 |---|---|---|
 | `dash` | `textual>=8.0,<9.0`, `httpx>=0.24,<1.0` | Compatibility alias; included by default |
 | `server` | `fastapi`, `uvicorn`, `python-multipart` | Compatibility alias; included by default |
-| `pgvector` | `psycopg[binary]>=3.0` | PostgreSQL PgVector backend |
-| `sbert` | `sentence-transformers>=2.0` | Local neural embeddings |
+| `pgvector` | `psycopg[binary]>=3.0,<4.0` | PostgreSQL PgVector backend |
+| `sbert` | `sentence-transformers>=2.0,<3.0` | Local neural embeddings |
 | `chroma` | `chromadb>=1.0,<2.0` | Explicit opt-in embedded Chroma only; excluded from `all-extras` |
 | `agent` | none yet | Reserved MCP-style agent bridge wrapper extra |
-| `rerank` | `sentence-transformers>=2.0` | Optional reranker experiments |
+| `rerank` | `sentence-transformers>=2.0,<3.0` | Optional reranker experiments |
 | `bench-judge` | `anthropic`, `openai` | Explicit external judge integrations; running paid validation still requires confirmation |
 | `bench-mem0` | `mem0ai`, pre-1.0 `chromadb` | Matched Mem0 benchmark lane |
 | `bench-zep` | `zep-cloud` | Matched Zep benchmark lane |

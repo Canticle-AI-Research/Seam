@@ -1,0 +1,95 @@
+{
+  "observed_at": "2026-10-14T10:52:20.823987+00:00",
+  "repositories": [
+    {
+      "repository": "Seam",
+      "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+      "remaining": [
+        {
+          "branch": "backup/local-pgvector-bootstrap",
+          "tip": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea"
+        },
+        {
+          "branch": "claude/ci-gate-parity-and-timeouts",
+          "tip": "044c8b3d048829156dcc2d8af4f4d2448329c086"
+        },
+        {
+          "branch": "claude/roadmap-implementation-4cn2al",
+          "tip": "406f9c43479cac02716c9912569f9ec0f9ac2c32"
+        },
+        {
+          "branch": "dependabot/uv/uv-35b9e54a79",
+          "tip": "8d77775fe6e029717115758b917c94c757ed0d4a"
+        },
+        {
+          "branch": "docs/doc-audit-20261002",
+          "tip": "8530717d800d397ba58283710b6e8f0a037aabf8"
+        },
+        {
+          "branch": "docs/seam-native-model-roadmap",
+          "tip": "4a4f8d86552ab41e289231e5f6293014800e0330"
+        },
+        {
+          "branch": "docs/wiki-baseline-20261003",
+          "tip": "7b76849ad55b35ae2288d65925c6150deaf5a1d4"
+        },
+        {
+          "branch": "feat/codex-skilldb-adapter",
+          "tip": "ab27b54d08a022259e0e052cee06ef48917c027d"
+        },
+        {
+          "branch": "feat/seam-reports-pages-20260912",
+          "tip": "a5a19d4189b27157fffd677270ba87de0a19b78e"
+        },
+        {
+          "branch": "feat/skill-knowledge-runtime",
+          "tip": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f"
+        },
+        {
+          "branch": "perf/batched-embedding",
+          "tip": "6313f851c2cf68ef06350c910f6c9bbf3be13762"
+        },
+        {
+          "branch": "preserve/rejected-terminal-graph-tui-20260829",
+          "tip": "859863c42277470520d0014f24f3b38932b779d9"
+        },
+        {
+          "branch": "preserve/superseded-private-license-draft-20260829",
+          "tip": "03c5878d6c3d36c14d160d7444bf4af59623929d"
+        }
+      ],
+      "unexpected": []
+    },
+    {
+      "repository": "Cantlicle",
+      "main": "1514b89be0265517306fdd4e6cdea5ffa07f61f6",
+      "remaining": [
+        {
+          "branch": "codex/current-interface-docs",
+          "tip": "9e31aa9051a3f612f6e59578d547235d8a0a49ad"
+        },
+        {
+          "branch": "codex/operator-doc-corrections-20261008",
+          "tip": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807"
+        },
+        {
+          "branch": "docs/site-overhaul-brief-2026-09-12",
+          "tip": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b"
+        },
+        {
+          "branch": "feature/rename-hire-me-to-consulting",
+          "tip": "971cd8d3884061d41a258db8aa7ee978d3512f69"
+        },
+        {
+          "branch": "fix-feed-channels-and-banners",
+          "tip": "aa754ba7d63e9af26de0fa6f09c650b591585077"
+        },
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "tip": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9"
+        }
+      ],
+      "unexpected": []
+    }
+  ]
+}

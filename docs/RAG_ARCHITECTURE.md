@@ -46,6 +46,13 @@ seam retrieve "persistent memory" --mode mix --budget 5 --trace
 seam context "persistent memory" --retrieval-mode mix --view prompt
 ```
 
+`retrieve --mode` chooses the retrieval engine (`vector`, `graph`, `hybrid`,
+`mix`), and its `--budget` limits selected records. For `context`,
+`--retrieval-mode` selects that engine, `--budget` limits retrieved records,
+`--pack-budget` sets the PACK token budget, and `--mode` selects the PACK
+form (`exact`, `context`, `narrative`). `pack --budget` also means tokens.
+See the [generated CLI reference](reference/CLI_REFERENCE.md).
+
 ## Progressive Disclosure
 
 Use compact search before fetching full detail:
@@ -81,6 +88,9 @@ these SEAM tools:
 - `seam_index_status`
 - `seam_retrieve`
 - `seam_benchmark_latest`
+- `seam_knowledge_graph`
+- `seam_knowledge_node`
+- `seam_identity_merges`
 
 The MCP server is intentionally thin: it adapts MCP `initialize`, `tools/list`,
 and `tools/call` to the existing SEAM runtime dispatcher. The older

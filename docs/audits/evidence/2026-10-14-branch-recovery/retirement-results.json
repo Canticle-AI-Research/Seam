@@ -1,0 +1,122 @@
+[
+  {
+    "repository": "Seam",
+    "branch": "blackhatshiftey-performance-improvements",
+    "tip": "4d2609e59ffca85eb2c4c6c4e995e62f545744ec",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/213/head",
+    "reason": "Only missing useful slice was no-op invalidation, now rebuilt/qualified in PR303. Actual-vector fingerprints retained; weaker branch fingerprint rejected.",
+    "verified_at": "2026-10-14T10:49:28.737665+00:00",
+    "remote_absent": true
+  },
+  {
+    "repository": "Seam",
+    "branch": "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+    "tip": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/282/head",
+    "reason": "Exact image bump admitted by PR303 with local47-case real qualification; remote runner startup remains explicitly tracked in293.",
+    "verified_at": "2026-10-14T10:50:58.916782+00:00",
+    "remote_absent": true,
+    "deletion_action": "observed already absent after main admission"
+  },
+  {
+    "repository": "Seam",
+    "branch": "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+    "tip": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/280/head",
+    "reason": "Only retired Vite lock input changes; current frontend is standalone and active Dependabot excludes npm. Superseded historical update archived through pull280; dependency triage remains262.",
+    "verified_at": "2026-10-14T10:51:05.749205+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "docs/seam-product-license-boundary-20260829",
+    "tip": "0c0b77446f17e832961375d466ead2b9add9d4de",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/236/head",
+    "reason": "Obsolete Shield/frontend licensing proposal explicitly superseded by settled first-launch Suite terms; current PRODUCTS preserves useful boundaries. Original closed PR236 retained.",
+    "verified_at": "2026-10-14T10:51:09.851360+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "feat/latent-cachebridge-roadmap-20260917",
+    "tip": "24e1725134d476798992cc7ecaef7de299d27cc6",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/267/head",
+    "reason": "Authored plan restored byte-for-byte in PR303 with planned-status routing; root stale chronology not imported. No implementation/performance qualification claimed.",
+    "verified_at": "2026-10-14T10:51:16.592258+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "fix/pgvector-ci-volume-leak",
+    "tip": "23c999e6041917e54040a79dd55ab0c6270214a8",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/tags/archive/20261014/fix-pgvector-ci-volume-leak",
+    "reason": "PG18 parent tmpfs and owned lifecycle admitted/verified in PR303; original seven-path history preserved by signed archive tag.",
+    "verified_at": "2026-10-14T10:51:19.069289+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "handoff/archive",
+    "tip": "6469d717c2a33c3976b67ccfedefa6b930a73e81",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/tags/archive/20261014/handoff-archive",
+    "reason": "Branding bytes and retrieval tests already preserved in main; no missing active implementation. Historical handoff/provenance retained by signed tag.",
+    "verified_at": "2026-10-14T10:51:21.339301+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "refactor/unify-retrieval-paths",
+    "tip": "d769f2ce8e9e95a97e9073c0e4bad6e9bca6dc5b",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/tags/archive/20261014/refactor-unify-retrieval-paths",
+    "reason": "Exhaustive semantic audit found current equivalents/improvements for useful retrieval/provenance/fusion/trace work. Rejected stale behavior and incidental artifacts retained by signed tag.",
+    "verified_at": "2026-10-14T10:51:24.062315+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "research/advanced-persistence-landscape",
+    "tip": "d69994491fef91abd4220016d64e322b0d106c11",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/221/head",
+    "reason": "Both authored historical reports restored byte-for-byte in PR303; comparisons/experimental claims remain dated and unqualified.",
+    "verified_at": "2026-10-14T10:51:27.239028+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "research/pcs-c2c-dlcm-roadmap",
+    "tip": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+    "main": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+    "preservation_ref": "refs/pull/268/head",
+    "reason": "Authored plan restored byte-for-byte in PR303 with current-contract routing; future experiments remain planned.",
+    "verified_at": "2026-10-14T10:51:33.386104+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Cantlicle",
+    "branch": "fix/notify-bell-mobile-host",
+    "tip": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+    "main": "1514b89be0265517306fdd4e6cdea5ffa07f61f6",
+    "preservation_ref": "refs/pull/17/head",
+    "reason": "Mobile notification helper fix already preserved by current main per full website semantic audit; original closed pull17 retains history.",
+    "verified_at": "2026-10-14T10:51:36.889869+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  }
+]

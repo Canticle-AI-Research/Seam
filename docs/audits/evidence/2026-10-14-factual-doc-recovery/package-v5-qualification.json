@@ -1,0 +1,153 @@
+{
+  "manifest_inventory_sha256": "414e8c59df83fda9cb457556fdd54685858d3e08636decdb3ae37681dafae1e5",
+  "implementation_count": 109,
+  "license_document_count": 7,
+  "source": "/workspace/scratch/seam-release-20261014/packaging/source-source-factual-docs-public-v5",
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1-py3-none-any.whl",
+      "size": 1069903,
+      "sha256": "fcbcbed8d57edbd17658e060fe27487c464bafc3c4f6823eed38329271250beb"
+    },
+    {
+      "path": "/workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1.tar.gz",
+      "size": 1041614,
+      "sha256": "6e060c1512ebe298f96d8fd5d52defdcaf288c59e7e99ea1ec94614dad83186c"
+    }
+  ],
+  "schema": "seam-branch-recovery-package-qualification/v1",
+  "label": "source-factual-docs-public-v5",
+  "result": "PASS; no upload occurred",
+  "checks": [
+    {
+      "label": "source-factual-docs-public-v5-snapshot",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python /workspace/scratch/seam-release-20261014/packaging/snapshot_source.py /workspace/scratch/seam-release-20261014/packaging/source-source-factual-docs-public-v5",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T11:15:37.837175+00:00",
+      "ended_at": "2026-10-14T11:15:37.917884+00:00",
+      "exit_code": 0,
+      "output_sha256": "24473106f8b33ff8ff7256ff56f55e3ce49b4e8918c7ba0610f491c5129889fa",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-snapshot.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-build",
+      "command": "uv build --out-dir /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5 /workspace/scratch/seam-release-20261014/packaging/source-source-factual-docs-public-v5",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:37.961514+00:00",
+      "ended_at": "2026-10-14T11:15:40.045182+00:00",
+      "exit_code": 0,
+      "output_sha256": "b2175e6f7f86284c4924cca09c8564654b0364e9495f6bb003ac6a724d42cf94",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-build.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-inspect",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python /workspace/scratch/seam-release-20261014/packaging/inspect_archives.py /workspace/scratch/seam-release-20261014/packaging/source-source-factual-docs-public-v5 /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:40.082428+00:00",
+      "ended_at": "2026-10-14T11:15:40.191869+00:00",
+      "exit_code": 0,
+      "output_sha256": "d726167b2c054f7c4a3cf0156fbb2e10ba06c157032c875e023d3391e18b1b9a",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-inspect.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-twine",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m twine check --strict /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:40.225248+00:00",
+      "ended_at": "2026-10-14T11:15:40.468485+00:00",
+      "exit_code": 0,
+      "output_sha256": "6479564dc0108b6ba2145ed2357e92a16e0d994cd0288cbff4a791cc82ad9175",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-twine.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-scanner",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m tools.release.verify_private_artifacts --expected-name seam-suite --expected-version 2.4.1rc1 /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T11:15:40.498467+00:00",
+      "ended_at": "2026-10-14T11:15:42.331945+00:00",
+      "exit_code": 0,
+      "output_sha256": "0be8c8f3b450f057b0f6262bfd97f6fef5355a08d316e3df5af37b77389aebc0",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-scanner.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-wheel-venv",
+      "command": "uv venv /workspace/scratch/seam-release-20261014/packaging/wheel-source-factual-docs-public-v5-env",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:42.369941+00:00",
+      "ended_at": "2026-10-14T11:15:42.386919+00:00",
+      "exit_code": 0,
+      "output_sha256": "7a9ac99764c2f324609c21177a1eb7f19a850a2ba5ab6a5e75a17afc254e01ec",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-wheel-venv.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-wheel-install",
+      "command": "uv pip install --python /workspace/scratch/seam-release-20261014/packaging/wheel-source-factual-docs-public-v5-env/bin/python /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1-py3-none-any.whl",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:42.417479+00:00",
+      "ended_at": "2026-10-14T11:15:42.926397+00:00",
+      "exit_code": 0,
+      "output_sha256": "c510218cb10be679d9de822072923cb98a51ef3086060e2e5717f26ceb922b0b",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-wheel-install.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-wheel-dependencies",
+      "command": "uv pip check --python /workspace/scratch/seam-release-20261014/packaging/wheel-source-factual-docs-public-v5-env/bin/python",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:42.959548+00:00",
+      "ended_at": "2026-10-14T11:15:42.972790+00:00",
+      "exit_code": 0,
+      "output_sha256": "f9a252c36a6f7d0b3d006b0f21c2d318370410b50ea8ae435cd2973ec0b0fcbc",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-wheel-dependencies.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-wheel-smoke",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/wheel-source-factual-docs-public-v5-env/bin/python -I /workspace/scratch/seam-release-20261014/packaging/source-source-factual-docs-public-v5/tests/package/smoke_installed_suite.py -v",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:15:43.002850+00:00",
+      "ended_at": "2026-10-14T11:16:22.625964+00:00",
+      "exit_code": 0,
+      "output_sha256": "c70149ab92f7c00960ff25a9541b0255ffeb01507ad36c05a9ed4b72665ee968",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-wheel-smoke.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-sdist-venv",
+      "command": "uv venv /workspace/scratch/seam-release-20261014/packaging/sdist-source-factual-docs-public-v5-env",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:16:22.658833+00:00",
+      "ended_at": "2026-10-14T11:16:22.672018+00:00",
+      "exit_code": 0,
+      "output_sha256": "df950a228b5eaaa5e479c8f4d3712b53081f0849dd7d87358b9141e4f50b4c1d",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-sdist-venv.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-sdist-install",
+      "command": "uv pip install --python /workspace/scratch/seam-release-20261014/packaging/sdist-source-factual-docs-public-v5-env/bin/python /workspace/scratch/seam-release-20261014/packaging/dist-source-factual-docs-public-v5/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:16:22.701986+00:00",
+      "ended_at": "2026-10-14T11:16:23.530046+00:00",
+      "exit_code": 0,
+      "output_sha256": "3edb68ddc06ef08e07d0b0de434560b9b8801bef055a51c43184b447a1deb954",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-sdist-install.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-sdist-dependencies",
+      "command": "uv pip check --python /workspace/scratch/seam-release-20261014/packaging/sdist-source-factual-docs-public-v5-env/bin/python",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:16:23.563600+00:00",
+      "ended_at": "2026-10-14T11:16:23.576537+00:00",
+      "exit_code": 0,
+      "output_sha256": "bf7262095f2ee8667d0a47c939de813fd65c37e6a2df3f2f8f11277e8cc68d69",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-sdist-dependencies.log"
+    },
+    {
+      "label": "source-factual-docs-public-v5-sdist-smoke",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/sdist-source-factual-docs-public-v5-env/bin/python -I /workspace/scratch/seam-release-20261014/packaging/source-source-factual-docs-public-v5/tests/package/smoke_installed_suite.py -v",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T11:16:23.608223+00:00",
+      "ended_at": "2026-10-14T11:17:03.134395+00:00",
+      "exit_code": 0,
+      "output_sha256": "953e94a5b2bec347d1935db4ed2029d8a124f0d19d430046eba7d6aab4efbc64",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/source-factual-docs-public-v5-sdist-smoke.log"
+    }
+  ]
+}
