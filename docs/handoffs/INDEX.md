@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-10-14-factual-doc-recovery
+latest: 2026-10-14-branch-recovery-closeout
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-10-14-factual-doc-recovery` | [2026-10-14-factual-doc-recovery.md](2026-10-14-factual-doc-recovery.md) | `2026-10-14-branch-recovery-integrated` | `HISTORY#674` | `current` |
+| `2026-10-14-branch-recovery-closeout` | [2026-10-14-branch-recovery-closeout.md](2026-10-14-branch-recovery-closeout.md) | `2026-10-14-factual-doc-recovery` | `HISTORY#675` | `current` |
+| `2026-10-14-factual-doc-recovery` | [2026-10-14-factual-doc-recovery.md](2026-10-14-factual-doc-recovery.md) | `2026-10-14-branch-recovery-integrated` | `HISTORY#674` | `superseded` |
 | `2026-10-14-branch-recovery-integrated` | [2026-10-14-branch-recovery-integrated.md](2026-10-14-branch-recovery-integrated.md) | `2026-10-14-branch-recovery` | `HISTORY#673` | `superseded` |
 | `2026-10-14-branch-recovery` | [2026-10-14-branch-recovery.md](2026-10-14-branch-recovery.md) | `2026-10-14-suite-integrated-testpypi-next` | `HISTORY#672` | `superseded` |
 | `2026-10-14-suite-integrated-testpypi-next` | [2026-10-14-suite-integrated-testpypi-next.md](2026-10-14-suite-integrated-testpypi-next.md) | `2026-10-14-suite-release-readiness` | `HISTORY#669` | `superseded` |

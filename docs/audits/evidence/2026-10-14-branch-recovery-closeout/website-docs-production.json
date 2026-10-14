@@ -1,0 +1,55 @@
+{
+  "observed_at": "2026-10-14T11:32:07.094061+00:00",
+  "main": "6b6ef1d88bd6789adee3afbe50742c2d1c52a8da",
+  "normalization": "decode Cloudflare email obfuscation and remove its injected decoding script only",
+  "pages": [
+    {
+      "path": "documentation.html",
+      "served_sha256": "dd144eef05ef41195451c54a0516760e8507edf15a5f66e27224a7baa932f371",
+      "source_sha256": "30c6ed218b885eb5a030c0a5ad70775d86cdf8e9a60e2c734c0b18fad9a82000",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "downloads.html",
+      "served_sha256": "f77a0c07101d16ca044e938939712073463ffb56b490c0853c08864974230dc3",
+      "source_sha256": "a488e0dc66f3ae29a439b6fc78135066fa77cc23e0195e2d4d7cbb1decb55720",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "index.html",
+      "served_sha256": "7a69f654217a47ccdf873e41001f14eae5c933bdacee271081b38b9ba0202c25",
+      "source_sha256": "82dd3586f27c99e566f6af96708e9e0401bce7b0f72fcc763c6457d6a9da38ff",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "projects.html",
+      "served_sha256": "41530d598fb3cb684be5061d55696b2af52016823a7c2c16471556ddef36be33",
+      "source_sha256": "41530d598fb3cb684be5061d55696b2af52016823a7c2c16471556ddef36be33",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "resolution.html",
+      "served_sha256": "962ffa28bbbb4b6ddf8d1eff7c561457039bfbf4e7ae03af1fe2d38e6dfcf047",
+      "source_sha256": "962ffa28bbbb4b6ddf8d1eff7c561457039bfbf4e7ae03af1fe2d38e6dfcf047",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "Documentation Page/SEAM Documentation.dc.html",
+      "served_sha256": "4c96878408fdd0832ac3d10081f26f711d60bbd2d18b90a8cd750c9e7f2a697c",
+      "source_sha256": "28e80a0306aaeefe4783e5ed3f1c17a5cfd2cec20370747550aed2fff749b41f",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "Interactive block design/System Context.dc.html",
+      "served_sha256": "ab9895cb1e13e7a3997109f8c6f2ff02c0156d2721a88a3c404ca7c355b0e060",
+      "source_sha256": "ab9895cb1e13e7a3997109f8c6f2ff02c0156d2721a88a3c404ca7c355b0e060",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "Interactive block design/System Context Square.dc.html",
+      "served_sha256": "f6f33073a56fd0a999d39fe98b3305619342f1606559948680923b84d363a364",
+      "source_sha256": "f6f33073a56fd0a999d39fe98b3305619342f1606559948680923b84d363a364",
+      "matches_main_after_only_email_obfuscation": true
+    }
+  ]
+}

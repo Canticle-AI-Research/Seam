@@ -22041,3 +22041,17 @@ tokens: 332
 ---
 Recover PR277→278 factual docs/glossary/wiki on current main without importing stale root chronology. Preserve the exact old PR277 draft inactive; reconcile ledger S8 completion and multi-factor historical benchmark scope. Three author RED cycles and independent prefix-counterexample RED(2failures) lead to73 passing checker/wiki cases. Initial BLOCKED assurance is immutable; independent successor PASS verifies all33 owned hashes, canonical/trailing/article expansion and fail-closed authority behavior. README License and pinned installer blocks stay exact. Fresh public-v5 qualification records13 successful commands; wheel/sdist each match109 implementation hashes/seven legal documents and pass eight installed smokes. Narrow urllib3 lock qualification remains from673. Source worktree can be removed only after all owned bytes are proved in the signed primary commit (ledger companion already in d70280a); protected push/merge and exact-state receipt still required. Original30 audited:11retired/19retained at preparation;277/278 retirement follows main admission. Website14/31 remains separate production verification. No uploads/provider calls. TestPyPI, runnerPG293, security scope290/262 and About287 remain open; broad baseline failures not claimed green. Supersedes current delivery673, not immutable evidence.
 ---END-ENTRY-#674---
+
+---BEGIN-ENTRY-#675---
+id: 675
+date: 2026-10-14T11:38:18Z
+agent: codex
+status: changed
+topics: audit, docs, handoff, status, worktree
+commits: pending
+refs: docs/audits/2026-10-14-branch-recovery-closeout.md,docs/handoffs/2026-10-14-branch-recovery-closeout.md,docs/roadmap/BRANCH_RECOVERY.md
+supersedes: 674
+tokens: 292
+---
+Record admitted recovery and exact final audit state without changing runtime/package bytes. Source304 mergedffd4e98, exact independent-qualified b5110c8 tree; all3required checks/package smoke pass. Website35 merged6b6ef1d, all8served resources match after only Cloudflare email normalization; production Pages/worker pass. Original277/278 and website14/31 retired after main/live admission. Closed14predates final acronym correction, so exact tip preserved by signed archive tag; other3pullrefs exact. All30original branches accounted for:15retired/15retained (11source/fourwebsite) at unchanged audited tips. Every remaining useful slice mapped to12recovery lanes; next bounded runtime work isR2batching292. Worktree byte-proof, signature/receipt, final source checks/site evidence committed durably; source worktree/delivery aliases/previewserver finished, no stashes consumed. Fresh v5qualification remains current, no uploads/provider calls. Keep TestPyPI, PG293, security290/262, About287 and website baseline36/intermittent37 explicit; no full-suite or email delivery claim. Supersedes674current operating state; earlier snapshots/evidence remain immutable.
+---END-ENTRY-#675---

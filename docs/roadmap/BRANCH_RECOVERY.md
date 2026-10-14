@@ -112,13 +112,13 @@ Before each deletion: verify exact remote tip, current main preservation evidenc
 
 ## Current delivery state
 
-- Audit and map: all 30 original exact tips inspected; 11 original branches retired with durable provenance after PR #303 main admission. Nineteen original tips remain (13 source/six site), plus explicitly owned temporary delivery branches.
-- R1 safety: website PR #34 is live; four changed resources match main. Operator/current-interface documentation recovery from PRs #14/#31 is active on `integrate/operator-doc-recovery-20261014`. PR #29 remains for its separately tracked locked proposals.
-- R2 P1: PR #303 merged the independently qualified no-op cache fix; PR #213 is closed/retired with its historical pull ref preserved. Batching in PR #230 remains missing and tracked.
-- R3 owned fixture/image: PR #303 merged; 47 actual managed-daemon tests and 19 fixture/gate cases pass. Image/volume branches are retired. Shared-runner fixture startup still fails before real tests (issue #293); safe Windows conveniences remain open.
-- R5 factual docs/glossary/wiki: recovered PRs #277→#278 into current follow-up; 73 checker/wiki cases and independent successor review pass. Root companion metadata/archive reconciled; original branches retire only after protected admission. Preserve all work in the signed primary commit before removing isolated worktree.
-- R10 authored plans: four exact-byte documents admitted in PR #303; three original research branches retired. Experimental implementation and measurement remain planned, not demonstrated.
-- Active lock follow-up: only urllib3 2.7.0→2.8.0 changes; fresh locked install/eight smoke cases and independent review pass. Historical evidence stays untouched; security-updater scope remains tracked in #290/#262.
-- Other slices remain audited, accounted for and unintegrated. Their branches are retained until the named acceptance conditions are met.
+- Audit complete:30original tips/84distinct unique commit objects inspected. Fifteen original branches retired;15remain (11source/fourwebsite), exact unchanged audited tips. No unresolved useful work discarded. Final inventory is in [closeout evidence](../audits/2026-10-14-branch-recovery-closeout.md).
+- R1 safety/operator facts: website PR34/35 live; latest8changed resources match main and production Pages/worker builds pass. Original14/31 branches retired with exact pull/tag preservation. Locked proposals in PR29 remain to preserve verbatim. Site baseline six homepage tests tracked website36; intermittent preview worker build37 has successful production successor.
+- R2 P1cache: source PR303 merged no-op invalidation fix, independently qualified. Original213 retired; optional bounded batching in230 remains next runtime recovery, with transaction/order/replay/failure parity required.
+- R3 owned fixture/image: merged303;47managed real tests/19fixture cases pass. Original image/volume branches retired. Shared-runner startup still fails before real tests (293); safe Windows conveniences remain open.
+- R5 facts/glossary/wiki: complete in PR304, mergedffd4e98;73targeted cases, independent successor and stored exact-state review pass, all3required checks/package smoke pass. Original277/278 retired only after main admission. Old draft preserved inactive exact-byte; source worktree finished safely.
+- R10 preservation: four exact-byte authored plans/reports admitted303; originating branches retired. Future LC0/PCS0 measurement/implementation remains planned, not demonstrated.
+- Active lock: urllib3-only2.7→2.8 admitted304, fresh locked installation/eight smokes and independent review pass. Historical evidence unchanged; security-updater scope remains290/262.
+- Other useful slices remain unintegrated and branches intentionally retained until their named acceptance conditions hold. Public-v5 qualification passes; TestPyPI access remains external. Broad suites are not wholly green.
 
-See the [retirement report](../audits/2026-10-14-branch-retirement-and-lock.md) and [current handoff](../handoffs/INDEX.md) for exact delivery evidence and the next integration wave.
+The current handoff is [indexed here](../handoffs/INDEX.md); live issue updates under [master263](https://github.com/Canticle-AI-Research/Seam/issues/263) supplement the durable exact-tip reports.

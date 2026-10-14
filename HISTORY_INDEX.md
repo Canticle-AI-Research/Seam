@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 674
-total_tokens: ~345404
-latest_id: 674
+total_entries: 675
+total_tokens: ~345696
+latest_id: 675
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 675 | 2026-10-14 | changed | 920bf5a3ffaa02a0 | audit,docs,handoff,status,+ | 674 |
 | 674 | 2026-10-14 | in-progress | 3464c8ff3bfe6b83 | audit,docs,wiki,verify,+ | 673 |
 | 673 | 2026-10-14 | in-progress | 55de4dc260e9d2db | audit,ci,continuity,docs,+ | none |
 | 672 | 2026-10-14 | changed | 51daf87bf25c810a | audit,ci,continuity,correction,+ | 670 |
@@ -705,7 +706,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=143 latest=#674, #673, #672, #666, #665
+- audit: count=144 latest=#675, #674, #673, #672, #666
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -781,7 +782,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=12 latest=#673, #672, #621, #620, #483
-- docs: count=120 latest=#674, #673, #672, #670, #669
+- docs: count=121 latest=#675, #674, #673, #672, #670
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -822,7 +823,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=132 latest=#673, #672, #669, #667, #665
+- handoff: count=133 latest=#675, #673, #672, #669, #667
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -994,7 +995,7 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=203 latest=#669, #652, #651, #641, #636
+- status: count=204 latest=#675, #669, #652, #651, #641
 - storage: count=38 latest=#638, #637, #626, #624, #623
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -1034,7 +1035,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=14 latest=#674, #669, #667, #652, #604
+- worktree: count=15 latest=#675, #674, #669, #667, #652
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -1042,7 +1043,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 76
+- changed: 77
 - done: 541
 - in-progress: 35
 - planned: 22

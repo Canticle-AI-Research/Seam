@@ -1,0 +1,594 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "assure-website-docs-repair",
+  "result": "PASS_WITH_EXISTING_BASELINE_LIMITS",
+  "recorded_at": "2026-10-14T11:26:49.050226+00:00",
+  "packet_schema_valid": true,
+  "repair_delivery_sha256": "60d8929d5ca9506e42adef04cfe11ad09990d972548be45ec84f5a8f6ec25247",
+  "original_blocked_report_preserved": true,
+  "exact11_inventory": [
+    {
+      "path": "Documentation Page/SEAM Documentation.dc.html",
+      "bytes": 65621,
+      "sha256": "28e80a0306aaeefe4783e5ed3f1c17a5cfd2cec20370747550aed2fff749b41f"
+    },
+    {
+      "path": "Interactive block design/System Context Square.dc.html",
+      "bytes": 12051,
+      "sha256": "f6f33073a56fd0a999d39fe98b3305619342f1606559948680923b84d363a364"
+    },
+    {
+      "path": "Interactive block design/System Context.dc.html",
+      "bytes": 14577,
+      "sha256": "ab9895cb1e13e7a3997109f8c6f2ff02c0156d2721a88a3c404ca7c355b0e060"
+    },
+    {
+      "path": "documentation.html",
+      "bytes": 89457,
+      "sha256": "30c6ed218b885eb5a030c0a5ad70775d86cdf8e9a60e2c734c0b18fad9a82000"
+    },
+    {
+      "path": "downloads.html",
+      "bytes": 44452,
+      "sha256": "a488e0dc66f3ae29a439b6fc78135066fa77cc23e0195e2d4d7cbb1decb55720"
+    },
+    {
+      "path": "index.html",
+      "bytes": 24988,
+      "sha256": "82dd3586f27c99e566f6af96708e9e0401bce7b0f72fcc763c6457d6a9da38ff"
+    },
+    {
+      "path": "projects.html",
+      "bytes": 11317,
+      "sha256": "41530d598fb3cb684be5061d55696b2af52016823a7c2c16471556ddef36be33"
+    },
+    {
+      "path": "resolution.html",
+      "bytes": 84831,
+      "sha256": "962ffa28bbbb4b6ddf8d1eff7c561457039bfbf4e7ae03af1fe2d38e6dfcf047"
+    },
+    {
+      "path": "tests/test_seam_documentation.py",
+      "bytes": 5174,
+      "sha256": "48afb3fcd2534fd71c7325e909294107880e03c2bc12d3ee9bc39cc9ff27da1e"
+    },
+    {
+      "path": "tests/test_seam_homepage.py",
+      "bytes": 4757,
+      "sha256": "a8c616aa923d6e39db2dfeb81e369933e8b52e2ffb2dcdc8aea0af7c205f4c8f"
+    },
+    {
+      "path": "tests/test_seam_interface_docs.py",
+      "bytes": 3742,
+      "sha256": "1e54a7bcab96c5409d365788a70f9cdb3f3ffa243346a83aaf39d3453ccbfff2"
+    }
+  ],
+  "all11_current_hashes_match": true,
+  "repair_only_four_paths": [
+    "Documentation Page/SEAM Documentation.dc.html",
+    "documentation.html",
+    "tests/test_seam_documentation.py",
+    "tests/test_seam_interface_docs.py"
+  ],
+  "finding_disposition": [
+    {
+      "original": "P1 recalled context elevated through turn.messages",
+      "status": "RESOLVED",
+      "evidence": "Both executable examples build model_messages from original trusted caller messages, add JSON-encoded labeled recall as user-role reference and never consume turn.messages. Explicitly disclose released2.0 behavior and limited protection. Four actual-package hostile/benign cases pass with recalled directive absent from trusted roles and caller order/content preserved."
+    },
+    {
+      "original": "P2 contradictory template six-modes/mix recommendation",
+      "status": "RESOLVED",
+      "evidence": "Stale paragraph removed; retrieval test now runs live/template subtests and guards selectors/defaults/separate budgets."
+    },
+    {
+      "original": "P2 all-extras troubleshooting advice",
+      "status": "RESOLVED",
+      "evidence": "Missing Textual row uses reviewed default Suite owning-interpreter repair; existing test now rejects all-extras in troubleshooting too."
+    }
+  ],
+  "findings": [],
+  "witnessed_red_green": [
+    {
+      "label": "operator-repair-red",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_documentation.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:20:36.530187+00:00",
+      "end_utc": "2026-10-14T11:20:36.608038+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/operator-repair-red.log",
+      "output_sha256": "bffd76d3e871f2eeef8458913a7ee0618ccbf5b0535233e41dd44904fe1c43a9",
+      "output_hash_verified": true
+    },
+    {
+      "label": "interface-repair-red",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_interface_docs.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:20:36.639736+00:00",
+      "end_utc": "2026-10-14T11:20:36.710409+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/interface-repair-red.log",
+      "output_sha256": "032897299cabd7f86dfea7ee5fb8c0b347ed82df0e14db995d252423ebccb9a3",
+      "output_hash_verified": true
+    },
+    {
+      "label": "sdk-malicious-red",
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/qualify_memory_boundary.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:20:36.742699+00:00",
+      "end_utc": "2026-10-14T11:20:36.907771+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/sdk-malicious-red.log",
+      "output_sha256": "4b73260cdf76f27ed4b75d3b2ec88b4c3ce52f27a16283c2ae554cd22b32ffbf",
+      "output_hash_verified": true
+    },
+    {
+      "label": "operator-repair-green",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_documentation.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:21:51.808936+00:00",
+      "end_utc": "2026-10-14T11:21:51.904609+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/operator-repair-green.log",
+      "output_sha256": "9ec9e3c52e7908b746c625587944c7e1eb71f90fc834fbb4527d510523684dd2",
+      "output_hash_verified": true
+    },
+    {
+      "label": "interface-repair-green",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_interface_docs.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:21:51.790911+00:00",
+      "end_utc": "2026-10-14T11:21:51.863211+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/interface-repair-green.log",
+      "output_sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca",
+      "output_hash_verified": true
+    },
+    {
+      "label": "sdk-malicious-green",
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/qualify_memory_boundary.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:21:51.801463+00:00",
+      "end_utc": "2026-10-14T11:21:51.989524+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/sdk-malicious-green.log",
+      "output_sha256": "417a80b33e8b1553944fd76c6bfa65b90e2056663515e3745a2464c6c525e792",
+      "output_hash_verified": true
+    },
+    {
+      "label": "homepage-facts-green",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_homepage.py",
+        "-k",
+        "CurrentHomepageFactsTests"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.120839+00:00",
+      "end_utc": "2026-10-14T11:22:32.340904+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/homepage-facts-green.log",
+      "output_sha256": "fe008aab760eb03ccac7578e2b84665b1b50b0d7f855b17a0c7a8d039435b658",
+      "output_hash_verified": true
+    },
+    {
+      "label": "homepage-full-after-repair",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_homepage.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.125926+00:00",
+      "end_utc": "2026-10-14T11:22:32.403793+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/homepage-full-after-repair.log",
+      "output_sha256": "a608c517ff5453948ac69ccff51dd3c61cfddfa73cf7f33dcfac41655020b4dc",
+      "output_hash_verified": true
+    },
+    {
+      "label": "test_suite_license_copy",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_license_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.107768+00:00",
+      "end_utc": "2026-10-14T11:22:32.587553+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/test_suite_license_copy.log",
+      "output_sha256": "10d44c2e32d05bdd33c194458deeb57624637dc889393baaea8646644710d211",
+      "output_hash_verified": true
+    },
+    {
+      "label": "test_package_downloads",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_package_downloads.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.219476+00:00",
+      "end_utc": "2026-10-14T11:22:32.423288+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/test_package_downloads.log",
+      "output_sha256": "7f651a454b7b284efe70fac28605ab5d9c389d39a8b6c9aae1f2193f021e78e2",
+      "output_hash_verified": true
+    },
+    {
+      "label": "test_subscription_economics",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_subscription_economics.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.186042+00:00",
+      "end_utc": "2026-10-14T11:22:32.331200+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/test_subscription_economics.log",
+      "output_sha256": "b95b5805bef96b568b1b2424b637003cd6f306e6312d682e4f2e4e23f635b26a",
+      "output_hash_verified": true
+    },
+    {
+      "label": "selector-green",
+      "command": [
+        "node",
+        "--test",
+        "tests/downloads-release.test.js"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.144795+00:00",
+      "end_utc": "2026-10-14T11:22:32.501926+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/selector-green.log",
+      "output_sha256": "02b476d06a718a7281d008ee27d5cd3046019fa99fa38e9dd755237a44c5e287",
+      "output_hash_verified": true
+    },
+    {
+      "label": "facts-final",
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/verify_facts_and_invariants.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:50.182242+00:00",
+      "end_utc": "2026-10-14T11:22:50.365419+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/facts-final.log",
+      "output_sha256": "47840997dff6ce03663f06918353859962e5686438c8f3628fbc82c2b4b22d8f",
+      "output_hash_verified": true
+    },
+    {
+      "label": "check_inline_syntax",
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/check_inline_syntax.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.296221+00:00",
+      "end_utc": "2026-10-14T11:22:32.837206+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/check_inline_syntax.log",
+      "output_sha256": "06d787b160e8c3b9bd0b4fa6090594b1d078e0523cf33443b77f91b4efd3fcae",
+      "output_hash_verified": true
+    },
+    {
+      "label": "scan_candidate",
+      "command": [
+        "python3",
+        "-B",
+        "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/scan_candidate.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.304803+00:00",
+      "end_utc": "2026-10-14T11:22:32.454900+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/scan_candidate.log",
+      "output_sha256": "fd27c2a30069c827b44902653967885febd4be7a0f9698e6a5b3a9ca621fce89",
+      "output_hash_verified": true
+    },
+    {
+      "label": "diff-check",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:32.283418+00:00",
+      "end_utc": "2026-10-14T11:22:32.323857+00:00",
+      "exit": 2,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/diff-check.log",
+      "output_sha256": "5ea9a98b9f0ab5fbf55ac18be2ef2c6fb932da1cd6edad0bed8ca86bb5f7474d",
+      "output_hash_verified": true
+    },
+    {
+      "label": "diff-final",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T11:22:50.142491+00:00",
+      "end_utc": "2026-10-14T11:22:50.150940+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/diff-final.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "output_hash_verified": true
+    }
+  ],
+  "independent_scoped_test_checks": [
+    {
+      "label": "operator-repair-green",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_documentation.py"
+      ],
+      "start_utc": "2026-10-14T11:26:21.782734+00:00",
+      "end_utc": "2026-10-14T11:26:21.864523+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-operator-repair-green.log",
+      "output_sha256": "9ec9e3c52e7908b746c625587944c7e1eb71f90fc834fbb4527d510523684dd2"
+    },
+    {
+      "label": "interface-repair-green",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_interface_docs.py"
+      ],
+      "start_utc": "2026-10-14T11:26:21.864698+00:00",
+      "end_utc": "2026-10-14T11:26:21.943831+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-interface-repair-green.log",
+      "output_sha256": "d094b1bd2c8318c96097f80c50da282add5b2972970a77046de8db6c8935f6ca"
+    },
+    {
+      "label": "homepage-facts-green",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_seam_homepage.py",
+        "-k",
+        "CurrentHomepageFactsTests"
+      ],
+      "start_utc": "2026-10-14T11:26:21.943967+00:00",
+      "end_utc": "2026-10-14T11:26:22.012690+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-homepage-facts-green.log",
+      "output_sha256": "a6707d4eff38012da33ddc34bc6dc076a3b17151cfc9aef223c8790cbe64c3da"
+    },
+    {
+      "label": "test_suite_license_copy",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_license_copy.py"
+      ],
+      "start_utc": "2026-10-14T11:26:22.012814+00:00",
+      "end_utc": "2026-10-14T11:26:22.221632+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-test_suite_license_copy.log",
+      "output_sha256": "8d452b2e6538d0dd9e5f4e8626eaaca34a2755c5cb9c34b352e1586b70aa69cc"
+    },
+    {
+      "label": "test_package_downloads",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_package_downloads.py"
+      ],
+      "start_utc": "2026-10-14T11:26:22.221861+00:00",
+      "end_utc": "2026-10-14T11:26:22.302706+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-test_package_downloads.log",
+      "output_sha256": "372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424"
+    },
+    {
+      "label": "test_subscription_economics",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_subscription_economics.py"
+      ],
+      "start_utc": "2026-10-14T11:26:22.302877+00:00",
+      "end_utc": "2026-10-14T11:26:22.369389+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-test_subscription_economics.log",
+      "output_sha256": "dcd2147edfda2291b456dfb6d9f3021f0fed07760d5a1c8869fc5446f30e28fe"
+    },
+    {
+      "label": "selector-green",
+      "command": [
+        "node",
+        "--test",
+        "tests/downloads-release.test.js"
+      ],
+      "start_utc": "2026-10-14T11:26:22.369504+00:00",
+      "end_utc": "2026-10-14T11:26:22.494957+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-selector-green.log",
+      "output_sha256": "5cca288f4bb1cb10499ae507cfa9246f3890ea278dfd79d762ad11be71085ba0"
+    }
+  ],
+  "independent_scoped_pass_count": 44,
+  "independent_hostile_sdk": {
+    "command": [
+      "python3",
+      "-B",
+      "/workspace/scratch/seam-branch-audit-20261014/website-docs-repair/qualify_memory_boundary.py"
+    ],
+    "cwd": "/workspace/Cantlicle",
+    "start_utc": "2026-10-14T11:26:48.887970+00:00",
+    "end_utc": "2026-10-14T11:26:49.048652+00:00",
+    "exit": 0,
+    "output_sha256": "417a80b33e8b1553944fd76c6bfa65b90e2056663515e3745a2464c6c525e792",
+    "log": "/workspace/scratch/seam-branch-audit-20261014/website-assurance-successor-hostile-sdk.log",
+    "cases": 4,
+    "mock_requests": 8,
+    "typed_denial": "401 AuthenticationError",
+    "actual_package": "seam-client2.0.0 exact public-wheel extraction",
+    "network": "socket blocked; MockTransport only",
+    "provider_calls": 0
+  },
+  "wheel_sha256": "03585afd5e6e42168cf24e47c703b8bf8a77a72b92e56b4efdb9421811cc372f",
+  "baseline": {
+    "same_six_failure_methods": true,
+    "new_unresolved_failures": 0,
+    "existing_homepage_layout_failures": 6,
+    "original_assertions_preserved": true
+  },
+  "invariants": {
+    "current_shared_asset_hash_verification": {
+      "docs-mvp-gate.js": true,
+      "auth.js": true,
+      "tiers.js": true,
+      "tiers.html": true,
+      "console.html": true,
+      "terms.html": true,
+      "seam-release.js": true,
+      "styles.css": true,
+      "script.js": true,
+      "_headers": true
+    },
+    "policy_sections": [
+      "license",
+      "product-model",
+      "accounts"
+    ],
+    "review": "Final tracked diff and facts-invariants report confirm policy sections/account/gate/Vault/price/cohort/download selector and shared assets unchanged; seven other owned files remain identical to original reviewed delivery. No runtime/SDK implementation changes."
+  },
+  "preview": {
+    "routes_checked": 8,
+    "all_status200_and_current_hashes_match": true,
+    "headless_or_visual_browser": false
+  },
+  "limits": [
+    "44 scoped tests plus4 mocked SDK cases establish this factual-doc repair, not full suite green or live hosted/provider/model behavior.",
+    "Six original homepage/layout failures remain unchanged and require separately owned disposition.",
+    "Role handling prevents recalled text from becoming system/developer input in shown host example; labels/JSON do not guarantee complete prompt-injection prevention.",
+    "Native PowerShell,real installer/network/provider paths and visual browser were not exercised. Original fail-stop installer mock evidence and unchanged snippets preserved.",
+    "No source edits,Git writes,publication,deployment,data-policy changes,credential reads,operator DB or paid calls. Root owns integration and production served verification."
+  ]
+}
