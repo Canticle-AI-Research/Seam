@@ -1,0 +1,19 @@
+{
+  "files": [
+    {
+      "name": "seam_suite-2.4.1rc1-py3-none-any.whl",
+      "sha256": "da03f1ab9c7b7728a75e21ff40efadff635bac9dc1dd6fde5c2219b482a7aa04",
+      "size": 1069903
+    },
+    {
+      "name": "seam_suite-2.4.1rc1.tar.gz",
+      "sha256": "4b5e484bd1dee6c8440b6f344f098a989cedae2bf3bddb814db0b267d4919b22",
+      "size": 1041191
+    }
+  ],
+  "manifest_sha256": "39b78248f63119062a3e4642b1c371174586f9d0869a82288c61bdc81f0496ba",
+  "package": "seam-suite",
+  "schema": "seam-testpypi-preparation/v1",
+  "source_sha": "7b96a012784296989958e1774dbb8a0f52c3bfed",
+  "version": "2.4.1rc1"
+}

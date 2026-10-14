@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-testpypi-snapshot-repair
 supersedes: 2026-10-14-testpypi-publisher-ready
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#679
 ---
 

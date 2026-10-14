@@ -7,6 +7,18 @@ distribution on TestPyPI before any production PyPI publication. Production
 uploads, legacy-release deletion, and private SDK uploads are excluded from
 this preparation pass.
 
+## Verified test publication
+
+[seam-suite 2.4.1rc1](https://test.pypi.org/project/seam-suite/2.4.1rc1/) was
+published from protected main `7b96a012784296989958e1774dbb8a0f52c3bfed` in
+[run38562182535](https://github.com/Canticle-AI-Research/Seam/actions/runs/38562182535).
+Exact wheel/sdist public hashes match the preparation receipt. Both downloaded
+formats passed eight installed smoke cases and dependency checks; independent
+root downloads matched too. Licensing is finished and TestPyPI publisher access
+is resolved. See HISTORY#680 and [release evidence](audits/evidence/2026-10-14-testpypi-release/live-readback.json).
+The instructions below remain the qualification contract for future candidates.
+Existing published files must not be replaced or retried as a different build.
+
 ## Package boundaries
 
 | Name | What it identifies | Test destination |
