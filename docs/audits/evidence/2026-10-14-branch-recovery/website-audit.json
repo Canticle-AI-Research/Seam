@@ -1,0 +1,1877 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "audit-website",
+  "run_id": "branch-recovery-20261014",
+  "generated_at": "2026-10-14T09:41:39.631424+00:00",
+  "status": "READ_ONLY_AUDIT_COMPLETE",
+  "implementation_source_base_sha": "07b20a424ace842b9d3c88f836efff88906b6451",
+  "website_main_sha": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+  "branch_count": 7,
+  "unique_commits_reviewed": 15,
+  "scope": "Seven exact inventory branches; no source/PR/Git/deployment mutations, no production publisher, credentials, DB, provider or automatic browser execution. External snapshots/logs only.",
+  "priority_order": [
+    {
+      "slice": 0,
+      "work": "Durable verbatim planning/design/prototype capture and ownership, before branch deletion",
+      "owners": "Root plus planning/design owners",
+      "state": "External exact capture complete; repo-owned preservation decision pending"
+    },
+    {
+      "slice": 1,
+      "work": "Fail-closed legacy release helper retirement",
+      "owner": "Root-authorized narrow website delivery",
+      "depends_on": []
+    },
+    {
+      "slice": 2,
+      "work": "Factual Suite readiness/name/personal display correction",
+      "owner": "Root-authorized narrow website delivery",
+      "depends_on": [
+        1
+      ]
+    },
+    {
+      "slice": 3,
+      "work": "Current operator facts/install/prototype/demo disclosure",
+      "owner": "Website docs delivery with current SEAM docs/source assurance",
+      "depends_on": [
+        "exact current runtime authority"
+      ]
+    },
+    {
+      "slice": 4,
+      "work": "Public seam-client turn example/surface map",
+      "owner": "Website docs plus public-client API owner",
+      "depends_on": [
+        "current API signatures",
+        3
+      ]
+    },
+    {
+      "slice": 5,
+      "work": "Truthful benchmark Table/Trends renderer",
+      "owner": "Benchmark/data/UI owner",
+      "depends_on": [
+        "mock/evidence data contract",
+        "per-unit scaling",
+        "manual visual acceptance"
+      ]
+    },
+    {
+      "slice": 6,
+      "work": "Banner migration verification and optional feed channel expansion",
+      "owner": "Authoritative Supabase migration/product owner",
+      "depends_on": [
+        "read-only schema/migration verification",
+        "channel decision",
+        "RLS/grants isolation tests"
+      ]
+    }
+  ],
+  "branches": [
+    {
+      "disposition": "Rebuild selected public HTTP-client documentation on current main; archive incorrect naming and unavailable-runtime claims.",
+      "useful_missing_work": [
+        "documentation.html public seam-client AgentMemory/SeamClient prepare_turn/complete_turn example and explicit no-model/no-hosted-entitlement distinction are absent from current main. Preserve example intent; validate signatures before integration.",
+        "Selected public TUI/WebUI/MCP/HTTP-client surface diagrams can improve navigation after aligning names and readiness to current product/surface contracts."
+      ],
+      "already_preserved": [
+        "Current main documents stable CLI/REST and settled proprietary Suite licensing more accurately. MCP guide and tool chips already exist; old hardcoded count is not a new feature."
+      ],
+      "conflicts": [
+        "Branch treats current CLI/REST as unavailable by conflating planned agent surfaces with shipped runtime. AGENTS.md repeats this error.",
+        "Tip corrects Surface Encoded Agent Memory only in documentation.html; index/template and test retain Semantic Encoding for Agent Memory. Exact-tip contract test fails.",
+        "Ancient marketing/layout/cache values would roll back newer current site."
+      ],
+      "path_dispositions": {
+        "AGENTS.md": "Reject unavailable CLI/REST instructions; retain current governing instructions.",
+        "Documentation Page/SEAM Documentation.dc.html": "Template surface descriptions may be selectively rebuilt; wrong SEAM expansion must not return.",
+        "Interactive block design/System Context Square.dc.html": "Preserve diagram concept as historical design input; rebuild against current runtime/hosted boundaries.",
+        "Interactive block design/System Context.dc.html": "Same diagram preservation; no unverified surface availability claims.",
+        "documentation.html": "Recover public AgentMemory turn example after package-contract proof; keep current Suite/MCP/license sections.",
+        "downloads.html": "Superseded current validated stable selector; no wholesale merge.",
+        "index.html": "Reject incorrect Semantic expansion and unavailable CLI/REST claims; current product copy controls.",
+        "projects.html": "Only selected surface copy useful; old marketing/availability superseded.",
+        "resolution.html": "Same selected surface-copy review, avoid restoring historical layout.",
+        "tests/test_seam_homepage.py": "Rebuild meaningful current surface assertions rather than asserting absent CLI.",
+        "tests/test_seam_interface_docs.py": "Wrong canonical-name assertion fails tip; rewrite around current name and validated SDK example."
+      },
+      "integration_slices": [
+        "Validate public seam-client API signatures and package boundary at exact current source.",
+        "Add public turn example and aligned surface descriptions to current documentation/template, with a focused red/green contract and executable provider-free example if authorized.",
+        "Archive incorrect historical claims/tests after useful examples/design provenance are preserved."
+      ],
+      "acceptance_blockers": [
+        "PUBLIC_CLIENT_SIGNATURE_PROOF: API example is not executable qualification.",
+        "INTERFACE_CANONICAL_NAME_TEST: tip test deliberately asserts obsolete name."
+      ],
+      "deletion_condition": "Resolve PR14 provenance and preserve example/diagram inputs; integrate qualified replacement or explicitly assign owned follow-up before root deletes branch.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/codex/current-interface-docs",
+      "branch": "codex/current-interface-docs",
+      "tip": "9e31aa9051a3f612f6e59578d547235d8a0a49ad",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "b492659e3ab5751bdaa576529b5a1cbf7a382635",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "9e31aa9051a3f612f6e59578d547235d8a0a49ad",
+          "date": "2026-10-02T08:26:43-05:00",
+          "subject": "fix: correct SEAM name expansion to Surface Encoded Agent Memory"
+        },
+        {
+          "sha": "7be1dfa5cbc2170784815b00c724363ca18c8b02",
+          "date": "2026-08-14T02:04:34-05:00",
+          "subject": "Align public SEAM interface documentation"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "AGENTS.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "Documentation Page/SEAM Documentation.dc.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "Interactive block design/System Context Square.dc.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "Interactive block design/System Context.dc.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "documentation.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "downloads.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "index.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "projects.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "resolution.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tests/test_seam_homepage.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/test_seam_interface_docs.py"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "codex/current-interface-docs",
+          "headRefOid": "7be1dfa5cbc2170784815b00c724363ca18c8b02",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 14,
+          "state": "CLOSED",
+          "title": "Align public SEAM interface documentation",
+          "updatedAt": "2026-09-14T12:29:25Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/14"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 11,
+      "unique_commit_review": [
+        {
+          "branch": "codex/current-interface-docs",
+          "commit": "7be1dfa5cbc2170784815b00c724363ca18c8b02",
+          "subject": "Align public SEAM interface documentation",
+          "changed_path_headers": [
+            "diff --git a/AGENTS.md b/AGENTS.md",
+            "diff --git a/Documentation Page/SEAM Documentation.dc.html b/Documentation Page/SEAM Documentation.dc.html",
+            "diff --git a/Interactive block design/System Context Square.dc.html b/Interactive block design/System Context Square.dc.html",
+            "diff --git a/Interactive block design/System Context.dc.html b/Interactive block design/System Context.dc.html",
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/index.html b/index.html",
+            "diff --git a/projects.html b/projects.html",
+            "diff --git a/resolution.html b/resolution.html",
+            "diff --git a/tests/test_seam_homepage.py b/tests/test_seam_homepage.py",
+            "diff --git a/tests/test_seam_interface_docs.py b/tests/test_seam_interface_docs.py"
+          ],
+          "diff_sha256": "352321a091c06178a937558f570a21c3dce19735ad1c1bac0687370e205bb350"
+        },
+        {
+          "branch": "codex/current-interface-docs",
+          "commit": "9e31aa9051a3f612f6e59578d547235d8a0a49ad",
+          "subject": "fix: correct SEAM name expansion to Surface Encoded Agent Memory",
+          "changed_path_headers": [
+            "diff --git a/documentation.html b/documentation.html"
+          ],
+          "diff_sha256": "7ea5b4db38ee045147262c83e0c555829915d8f0cd0b421fb4557f36a1ad0d8c"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [
+        {
+          "label": "interface-tip",
+          "command": [
+            "python3",
+            "check.py"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review/interface-tip",
+          "start": "2026-10-14T09:30:48.881329+00:00",
+          "end": "2026-10-14T09:30:48.953465+00:00",
+          "exit": 1,
+          "sha256": "513f38eb23212d3f09482f1661b027c2d1aec59fed01e43a915dd2aba979635f"
+        }
+      ],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/1-codex_current-interface-docs/authored.diff",
+          "sha256": "d8151c3e286a771c5edb8f67bef92dfe19f5155e873919b6a1dfba15c7ee4d96"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/1-codex_current-interface-docs/vs-current.diff",
+          "sha256": "29cdf1bc1c50e767ebade10f518ba24276e3c4d9e1b331f8b91e7b152fc19710"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-14.json"
+    },
+    {
+      "disposition": "Rebuild factual operator documentation on current main; reject old licensing, names, invented eligibility and billing-policy text.",
+      "useful_missing_work": [
+        "Plain ingest compiles/prints without persisting compiled input unless --persist; current table says store raw text/compile MIRL. Initializing runtime can replay derived-index intents, so avoid mutation-free wording.",
+        "Explain vector/graph/hybrid/mix selectors separately from lexical/temporal signals: retrieve/plan/context default hybrid, shell default mix. Separate record-selection context --budget (default5) from PACK --pack-budget (default512).",
+        "Reindex rebuilds/migrates current vector text; boundary-only repairs namespace/scope without re-embedding or migrating text. Doctor is bounded local diagnosis, not provider credentials/quota/hosted verifier.",
+        "Current historical homepage raw install wrappers miss sibling install_seam.py; qualify checkout instructions using reviewed source rather than importing mutable historical-tag installation as current Suite readiness.",
+        "Link missing #surface-compile to existing standalone seam-decode/index.html; label this browser demonstration accurately. Browser WebUI is shipped prototype with local simulations/mock fallbacks, not proof of full product acceptance.",
+        "State browser-only docs presentation gate limitations without changing entitlement query or inventing Vault/private-SDK policy.",
+        "Private env-file init and explicit optional pgvector loopback/start/stop guidance are useful after current compose/source verification."
+      ],
+      "already_preserved": [
+        "Current main settled license and Suite/SEAM Client naming; current package has seven default dependencies, so branch two-dependency repair text is superseded.",
+        "Current account/prices/cohort/waitlist status and vault separation must remain unchanged."
+      ],
+      "conflicts": [
+        "Branch still permits free business/BUSL legacy licensing and calls planned hosted product SEAM API.",
+        "Branch proposes active MVP plus explicit Vault eligibility for SDK/guides and 30-day billing notice; these are unapproved policy promises. Preserve as dated authored proposals only.",
+        "Exact PACK mode budget semantics require implementation proof; broad token-bounded promises are not supported merely by a flag.",
+        "Source-only correction is not full installation/Docker/provider/browser qualification."
+      ],
+      "path_dispositions": {
+        "docs-mvp-gate.js": "Recover honest presentation-only disclosure; preserve current auth/query/MVP/Vault behavior and reject proposed combined eligibility.",
+        "documentation.html": "Recover ingest/selectors/PACK/reindex/doctor/optional backend/prototype/demo facts using exact current source; reject license/entitlement/billing drift.",
+        "downloads.html": "Current selector and license supersede branch; any command guidance must use exact current package/source facts.",
+        "index.html": "Repair incomplete historical wrapper demonstration without claiming current artifact availability; keep current names/licensing/prices.",
+        "tests/test_seam_documentation.py": "Observed focused ingest assertion red on main/green on tip; rebuild current factual contract assertions, do not import obsolete policy tests."
+      },
+      "integration_slices": [
+        "Obtain current docs/runtime authority for exact defaults, PACK semantics, doctor/dependency contract and pgvector compose.",
+        "Add focused factual copy contracts on main (ingest assertion already witnessed red), implement narrow documentation corrections and standalone demo link.",
+        "Reconcile historical install samples and prototype/presentation-gate disclosure; no auth/pricing/entitlement behavior change."
+      ],
+      "acceptance_blockers": [
+        "OPERATOR_CURRENT_SOURCE_PROOF: semantic PACK mode/doctor/default dependencies/compose must use current source authority.",
+        "POLICY_DRIFT: do not promote Vault eligibility/30-day promise or BUSL wording."
+      ],
+      "deletion_condition": "Resolve PR31 with qualified factual replacement and preserve original policy proposals verbatim with dated non-authoritative status.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/codex/operator-doc-corrections-20261008",
+      "branch": "codex/operator-doc-corrections-20261008",
+      "tip": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "a645dead7da75a2b85b7bc1ee7c5dbc5a3df8ad6",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+          "date": "2026-10-08T12:35:32-05:00",
+          "subject": "docs: scope plain ingest persistence claim"
+        },
+        {
+          "sha": "141258a0dc9a4a6be2590b8758ebbeeb9f7c957b",
+          "date": "2026-10-08T12:25:13-05:00",
+          "subject": "docs: correct current SEAM operator surface"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "docs-mvp-gate.js"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "documentation.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "downloads.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "index.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/test_seam_documentation.py"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "codex/operator-doc-corrections-20261008",
+          "headRefOid": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 31,
+          "state": "OPEN",
+          "title": "docs: correct current SEAM operator surface",
+          "updatedAt": "2026-10-09T00:10:10Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/31"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 5,
+      "unique_commit_review": [
+        {
+          "branch": "codex/operator-doc-corrections-20261008",
+          "commit": "141258a0dc9a4a6be2590b8758ebbeeb9f7c957b",
+          "subject": "docs: correct current SEAM operator surface",
+          "changed_path_headers": [
+            "diff --git a/docs-mvp-gate.js b/docs-mvp-gate.js",
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/index.html b/index.html"
+          ],
+          "diff_sha256": "0661f80fb42c101e8a32b1fc27c39cd2243cc8fbdc8f77d7aadb8609d1ffd9d1"
+        },
+        {
+          "branch": "codex/operator-doc-corrections-20261008",
+          "commit": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+          "subject": "docs: scope plain ingest persistence claim",
+          "changed_path_headers": [
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/tests/test_seam_documentation.py b/tests/test_seam_documentation.py"
+          ],
+          "diff_sha256": "a85ebf805b6ddc30134ea51e12b145c93a2ae587fd0b1afdc4ccbfcf233facc7"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [
+        {
+          "label": "operator-on-main",
+          "command": [
+            "python3",
+            "check.py"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review/operator-on-main",
+          "start": "2026-10-14T09:30:48.960298+00:00",
+          "end": "2026-10-14T09:30:49.023413+00:00",
+          "exit": 1,
+          "sha256": "7510ca55393f1e40d7167f480978e0e133985cfca23de6fb050e02245813632b"
+        },
+        {
+          "label": "operator-tip",
+          "command": [
+            "python3",
+            "check.py"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review/operator-tip",
+          "start": "2026-10-14T09:30:49.028608+00:00",
+          "end": "2026-10-14T09:30:49.102663+00:00",
+          "exit": 0,
+          "sha256": "808f0bd411bd109ab91cc0bd27221204aa4fc544cb97c22bbeabdbd8f596f09a"
+        }
+      ],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/2-codex_operator-doc-corrections-20261008/authored.diff",
+          "sha256": "9bb0b786489e1fe8a54e276200755d279a61e20723ef03e757cdd5c78aebe771"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/2-codex_operator-doc-corrections-20261008/vs-current.diff",
+          "sha256": "93bbabcb852ca2c65276a16725f43d2470cc428b34c2d42efca0c2e1969c8bd8"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-31.json"
+    },
+    {
+      "disposition": "Preserve unique planning/style prose verbatim as dated material; keep newer palette/ship-state and settled terms authoritative.",
+      "useful_missing_work": [
+        "CANTICLE-STYLE.md detailed Ghost/anime placement/provenance table, non-interactive ambient blocks, reduced-motion rules, no literal boba/manga chrome, sparse professional accents are not all present current main.",
+        "Original brief open questions (exact hero copy; architecture on home versus docs), original MVP SDK/TBD idea capture and six-item capture checklist need verbatim historical preservation.",
+        "Retain authored intent to reshape Downloads/Beta and rehome enterprise beta as planning; much account/billing/host-gate roadmap is already captured/shipped."
+      ],
+      "already_preserved": [
+        "Current brief preserves most overhaul ideas and adds a later ship-state map.",
+        "Current 09-13 harder Charm palette lock takes precedence over branch soft-pastel palette; current terms control historical open-source wording."
+      ],
+      "conflicts": [
+        "Whole branch style merge removes newer palette table.",
+        "Ledger concept-not-implemented item is stale; reopening completed auth/billing/planning work would be misleading.",
+        "Original MVP SDK suggestion is a historical proposal, not a present free SDK entitlement."
+      ],
+      "path_dispositions": {
+        "CANTICLE-STYLE.md": "Integrate missing authored ideas verbatim in dated provenance/addendum; retain newer palette precedence; no whole-file rollback.",
+        "docs/SITE-OVERHAUL-BRIEF-2026-09-12.md": "Preserve original and expanded captured prose verbatim alongside current ship-state; mark old licensing/eligibility proposals historical.",
+        "ledger/open.md": "Archive obsolete open-task wording as evidence; map only genuinely outstanding ideas to owned tasks, not blanket reopen."
+      },
+      "integration_slices": [
+        "Preserve exact original c3ef4c2 brief and expanded tip style/brief/ledger externally (done in dossier).",
+        "Owner integrates dated verbatim capture/addendum and source pointers without reinterpreting original ideas.",
+        "Map exact remaining design questions to current ship-state and later palette; future UI changes require owner real-browser review."
+      ],
+      "acceptance_blockers": [
+        "LOCKED_PROSE_PRESERVATION: source/addendum bytes and provenance must remain verbatim.",
+        "PALETTE_PRECEDENCE: no soft-pastel rollback."
+      ],
+      "deletion_condition": "Root verifies durable verbatim capture and explicit ownership for unresolved questions before resolving PR16/branch.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/docs/site-overhaul-brief-2026-09-12",
+      "branch": "docs/site-overhaul-brief-2026-09-12",
+      "tip": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "7ab5d3d1001816e3b0b984159977eca35f49ebda",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+          "date": "2026-09-12T08:16:06Z",
+          "subject": "docs: expand Canticle style — anime/Ghost + RGB blocks; bubble-tea mood only"
+        },
+        {
+          "sha": "c3ef4c2155bacbd8934eca087664532e7f5a3039",
+          "date": "2026-09-12T07:51:10Z",
+          "subject": "docs: capture Canticle site overhaul brief (2026-09-12)"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "CANTICLE-STYLE.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/SITE-OVERHAUL-BRIEF-2026-09-12.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "ledger/open.md"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "docs/site-overhaul-brief-2026-09-12",
+          "headRefOid": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 16,
+          "state": "CLOSED",
+          "title": "docs: Canticle site overhaul concept brief (2026-09-12)",
+          "updatedAt": "2026-09-14T12:33:19Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/16"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 3,
+      "unique_commit_review": [
+        {
+          "branch": "docs/site-overhaul-brief-2026-09-12",
+          "commit": "c3ef4c2155bacbd8934eca087664532e7f5a3039",
+          "subject": "docs: capture Canticle site overhaul brief (2026-09-12)",
+          "changed_path_headers": [
+            "diff --git a/docs/SITE-OVERHAUL-BRIEF-2026-09-12.md b/docs/SITE-OVERHAUL-BRIEF-2026-09-12.md",
+            "diff --git a/ledger/open.md b/ledger/open.md"
+          ],
+          "diff_sha256": "9f589efbe3b9976f13e7ddd5b9a2a226cd22d2b49ee18458097f195f23a68710"
+        },
+        {
+          "branch": "docs/site-overhaul-brief-2026-09-12",
+          "commit": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+          "subject": "docs: expand Canticle style — anime/Ghost + RGB blocks; bubble-tea mood only",
+          "changed_path_headers": [
+            "diff --git a/CANTICLE-STYLE.md b/CANTICLE-STYLE.md",
+            "diff --git a/docs/SITE-OVERHAUL-BRIEF-2026-09-12.md b/docs/SITE-OVERHAUL-BRIEF-2026-09-12.md"
+          ],
+          "diff_sha256": "af04d684b87f21f8e061e16829836deee7b4a2d8461b9d4ab7f1fac2db1e10a0"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/3-docs_site-overhaul-brief-2026-09-12/authored.diff",
+          "sha256": "d26f89c182c55478ebc147c7802e17be0543cbf22d9e841c814ad3535a785eed"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/3-docs_site-overhaul-brief-2026-09-12/vs-current.diff",
+          "sha256": "3b09d95ec2d324f755d7e75a819d4a6af7ec0ca47f99ae157919f9286d3fba93"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-16.json"
+    },
+    {
+      "disposition": "Archive superseded nav/local editor settings; rebuild useful benchmark Table/Trends ideas on truthful data contracts.",
+      "useful_missing_work": [
+        "Unexpected benchmarks-viz.html implements Bars/Trends/Compare/Table, category filtering, KPI/sparkline renderers. Current benchmarks has Charts/Compare but lacks separate Trends/Table views.",
+        "Contact social-link placement near CTA is an authored discoverability idea; current page redesign has no old socials-grid, so do not restore obsolete DOM."
+      ],
+      "already_preserved": [
+        "Current active nav is Services; historical Hire Me -> Consulting rename is superseded.",
+        "Current split_pages.py is byte-identical to branch tip for this change. Existing benchmark data are correctly labeled illustrative on main."
+      ],
+      "conflicts": [
+        "Prototype advertises every value hash-verified/every run reproducible while using hardcoded mock metrics, synthetic dates, short tokens and pass badges.",
+        "renderBars compares mixed units against one maximum, misleading ratios/ms/records-per-second/x/% scales.",
+        "Standalone visualizer styling bypasses current stylesheet/tokens; accessibility/reduced-motion/current layout unqualified.",
+        "Local Claude setting/workspace path is unrelated product work."
+      ],
+      "path_dispositions": {
+        ".claude/settings.json": "Archive local plugin configuration, not website feature.",
+        "Documentation Page/SEAM Documentation.dc.html": "Nav rename superseded by Services; preserve current template.",
+        "benchmarks-viz.html": "Recover renderTable/renderTrends/renderKPIs/sparkSVG/filter ideas after truthful mock/evidence adapter and per-unit scaling.",
+        "benchmarks.html": "Old nav/visualizer link cannot be promoted before new renderer qualification.",
+        "blockinteractive.code-workspace": "Archive local editor workspace, no source integration.",
+        "contact.html": "Record social-links-near-CTA idea for owner layout review; do not import old DOM.",
+        "documentation.html": "Nav rename superseded.",
+        "downloads.html": "Nav rename superseded.",
+        "index.html": "Nav rename superseded.",
+        "privacy.html": "Nav rename superseded.",
+        "profile.html": "Nav rename superseded.",
+        "research.html": "Nav rename superseded.",
+        "split_pages.py": "Exact existing tip bytes already in main; no recovery.",
+        "terms.html": "Nav rename superseded; preserve current legal text."
+      },
+      "integration_slices": [
+        "Preserve exact prototype and contact diff intent as historical input.",
+        "Define truthful illustrative-vs-evidenced result contract, per-metric units and stable table/trend adapters.",
+        "Implement only missing Table/Trends using current shared styles; meaningful renderer tests and owner visual/accessibility acceptance before deployment."
+      ],
+      "acceptance_blockers": [
+        "BENCHMARK_EVIDENCE: no verified-performance claim without dated reproducible result/hash bundle.",
+        "BENCHMARK_UNITS: mixed-unit bar scaling must be corrected.",
+        "VISUAL_ACCEPTANCE: no automated screenshot qualification was requested or performed."
+      ],
+      "deletion_condition": "Preserve renderer/contact ideas and assign explicit follow-up; archive old rename/editor state after root decision.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/feature/rename-hire-me-to-consulting",
+      "branch": "feature/rename-hire-me-to-consulting",
+      "tip": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "2374fdc45a034a37dff8693fbaca5a5053a1d671",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+          "date": "2026-07-06T22:49:29-05:00",
+          "subject": "refactor: rename Hire Me to Consulting and move social links in contact.html"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "A",
+          "paths": [
+            ".claude/settings.json"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "Documentation Page/SEAM Documentation.dc.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "benchmarks-viz.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "benchmarks.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "blockinteractive.code-workspace"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "contact.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "documentation.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "downloads.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "index.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "privacy.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "profile.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "research.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "split_pages.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "terms.html"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "feature/rename-hire-me-to-consulting",
+          "headRefOid": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 6,
+          "state": "CLOSED",
+          "title": "refactor: rename Hire Me to Consulting and move social links",
+          "updatedAt": "2026-09-14T12:29:27Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/6"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 14,
+      "unique_commit_review": [
+        {
+          "branch": "feature/rename-hire-me-to-consulting",
+          "commit": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+          "subject": "refactor: rename Hire Me to Consulting and move social links in contact.html",
+          "changed_path_headers": [
+            "diff --git a/.claude/settings.json b/.claude/settings.json",
+            "diff --git a/Documentation Page/SEAM Documentation.dc.html b/Documentation Page/SEAM Documentation.dc.html",
+            "diff --git a/benchmarks-viz.html b/benchmarks-viz.html",
+            "diff --git a/benchmarks.html b/benchmarks.html",
+            "diff --git a/blockinteractive.code-workspace b/blockinteractive.code-workspace",
+            "diff --git a/contact.html b/contact.html",
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/index.html b/index.html",
+            "diff --git a/privacy.html b/privacy.html",
+            "diff --git a/profile.html b/profile.html",
+            "diff --git a/research.html b/research.html",
+            "diff --git a/split_pages.py b/split_pages.py",
+            "diff --git a/terms.html b/terms.html"
+          ],
+          "diff_sha256": "fde593dce324217e45000949422c478098d9fbcaf15814c2fa27570790a0441b"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [
+        {
+          "label": "benchmark-viz-syntax",
+          "command": [
+            "node",
+            "--check",
+            "/workspace/scratch/seam-branch-audit-20261014/website-review/benchmark-viz-script.js"
+          ],
+          "start": "2026-10-14T09:33:23.643033+00:00",
+          "end": "2026-10-14T09:33:23.708973+00:00",
+          "exit": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/4-feature_rename-hire-me-to-consulting/authored.diff",
+          "sha256": "fde593dce324217e45000949422c478098d9fbcaf15814c2fa27570790a0441b"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/4-feature_rename-hire-me-to-consulting/vs-current.diff",
+          "sha256": "63012a012bdc80e8f4c7544ea142c4df11f872022d2c6768a9980e61d5949ea9"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-6.json"
+    },
+    {
+      "disposition": "Block channel expansion on named product/schema decision; check minimal banner migration through authoritative migration owner, never restore old feed wholesale.",
+      "useful_missing_work": [
+        "Authored CHANNELS includes agents/showcase/research in addition to home/announcements/general/help; current main has only four channels and general/help forum rooms. Preserve exact channel intent as an optional product proposal.",
+        "Branch adds profiles.banner_url column; current profile paints/edits banners and explicitly reports missing column. This is a migration candidate, not evidence live schema lacks it."
+      ],
+      "already_preserved": [
+        "Current social-feed.js implements/evolves reactions, mentions, following, notifications, media, profile/forum/thread rendering beyond old561-line module.",
+        "Current tests point to sibling supabase-migrations/social_feed.sql, so absence of a served SQL file does not imply missing migration."
+      ],
+      "conflicts": [
+        "Branch schema CREATE TABLE IF NOT EXISTS does not migrate existing channel constraint; older skills/projects rows may need explicit transition.",
+        "Old notification insert permits arbitrary recipients without visible-post/reaction binding; reaction insert likewise lacks proper visibility check. Do not reinstate these RLS policies.",
+        "API role grants are separate from RLS for new tables under current Supabase policy; branch migration lacks explicit exposure/grants review.",
+        "Locked site brief explicitly avoids Feed redesign; channel expansion requires owner decision, not silent activation.",
+        "Do not reintroduce SQL into publicly served site tree; live DB not inspected or changed."
+      ],
+      "path_dispositions": {
+        "social-feed.js": "Retain evolved current module; preserve exact extra channel names as proposal, integrate only after policy and schema decision.",
+        "supabase/social_feed.sql": "Extract banner-column candidate for authoritative migration review; reject unsafe old RLS and incomplete existing-table transition.",
+        "tests/test_social_feed.py": "Rebuild authorization/schema contract tests in migration owner scope; current sibling migration path must be checked before claiming missing column."
+      },
+      "integration_slices": [
+        "Owner checks authoritative migration inventory/current schema read-only; identify whether banner column already deployed.",
+        "Owner decides agents/showcase/research scope and existing-channel transition with locked Feed constraint.",
+        "If approved, prepare minimal additive private migration with explicit grants/RLS and isolated user/non-user/visibility tests; update only selected channel UI."
+      ],
+      "acceptance_blockers": [
+        "FEED_PRODUCT_DECISION: approve channel expansion or archive intent.",
+        "MIGRATION_AUTHORITY: sibling migration/current schema status unknown.",
+        "RLS_AND_GRANTS: visibility-bound actions and explicit API exposure must pass isolated tests."
+      ],
+      "deletion_condition": "Durably preserve authored intent; root routes banner/schema question to migration owner and explicitly approves/rejects channel proposal before deletion.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/fix-feed-channels-and-banners",
+      "branch": "fix-feed-channels-and-banners",
+      "tip": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "2374fdc45a034a37dff8693fbaca5a5053a1d671",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+          "date": "2026-07-06T22:43:21-05:00",
+          "subject": "feat: update feed channels and fix profiles banner_url"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "A",
+          "paths": [
+            "social-feed.js"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "supabase/social_feed.sql"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/test_social_feed.py"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "fix-feed-channels-and-banners",
+          "headRefOid": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 5,
+          "state": "CLOSED",
+          "title": "feat: update feed channels and add banner_url",
+          "updatedAt": "2026-09-14T12:29:29Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/5"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 3,
+      "unique_commit_review": [
+        {
+          "branch": "fix-feed-channels-and-banners",
+          "commit": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+          "subject": "feat: update feed channels and fix profiles banner_url",
+          "changed_path_headers": [
+            "diff --git a/social-feed.js b/social-feed.js",
+            "diff --git a/supabase/social_feed.sql b/supabase/social_feed.sql",
+            "diff --git a/tests/test_social_feed.py b/tests/test_social_feed.py"
+          ],
+          "diff_sha256": "b5d7a04ebd2cfea45e2c3665160569e29611c6dee674c50f8b10d88622fe3a67"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/5-fix-feed-channels-and-banners/authored.diff",
+          "sha256": "b5d7a04ebd2cfea45e2c3665160569e29611c6dee674c50f8b10d88622fe3a67"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/5-fix-feed-channels-and-banners/vs-current.diff",
+          "sha256": "58398282934dca01ec015fbd68186410c6487da2f0a797b68d5a138bc7ad4b84"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-5.json"
+    },
+    {
+      "disposition": "No missing mobile-host patch; archive after recording semantic preservation and intentional notification-baseline question.",
+      "useful_missing_work": [],
+      "already_preserved": [
+        "auth.js exports ensureNotifyBell and parks mobile bell in mq-notify-slot, desktop before account. social-feed.js fallback does the same.",
+        "Current classList.add preserves is-open instead of branch className overwrite; current cache versions supersede old bumps."
+      ],
+      "conflicts": [
+        "Whole-file merge would roll back evolved auth/feed/account changes.",
+        "Branch and main share early-visible-return behavior, so branch is not proof of fixing speculative rehost race.",
+        "Current notifications baseline test expects max catalog=baseline but current intentional baseline12 and entry13 diverge; do not move alert baseline merely to satisfy stale assertion."
+      ],
+      "path_dispositions": {
+        "auth.js": "ensureNotifyBell/placeNotifyHost changes semantically preserved main; no patch required.",
+        "social-feed.js": "placeNotifyHostLocal/reuse/fallback preserved and class handling improved main.",
+        "console.html": "Old cache bump superseded.",
+        "documentation.html": "Old cache bump superseded.",
+        "downloads.html": "Old cache bump superseded.",
+        "feed.html": "Old cache bump superseded.",
+        "index.html": "Old cache bump superseded.",
+        "profile.html": "Old cache bump superseded."
+      },
+      "integration_slices": [
+        "Record main symbol/line equivalence and improved class handling.",
+        "Owner confirms notification launch baseline intent; repair stale test only in separately owned maintenance slice if warranted.",
+        "Root can resolve branch without importing source; optional manual mobile/desktop interaction check should use current module."
+      ],
+      "acceptance_blockers": [
+        "NOTIFICATION_BASELINE_INTENT: existing one-failure test is not proof bell regression and not a reason to change alerts."
+      ],
+      "deletion_condition": "Semantic equivalence recorded; root decides baseline maintenance owner and resolves PR17/branch. No unqualified code recovery needed.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/fix/notify-bell-mobile-host",
+      "branch": "fix/notify-bell-mobile-host",
+      "tip": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "7ab5d3d1001816e3b0b984159977eca35f49ebda",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+          "date": "2026-09-12T08:16:43Z",
+          "subject": "fix: park notification bell on mobile host"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "auth.js"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "console.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "documentation.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "downloads.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "feed.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "index.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "profile.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "social-feed.js"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "fix/notify-bell-mobile-host",
+          "headRefOid": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 17,
+          "state": "CLOSED",
+          "title": "fix: notification bell host on mobile",
+          "updatedAt": "2026-09-14T12:29:23Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/17"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 8,
+      "unique_commit_review": [
+        {
+          "branch": "fix/notify-bell-mobile-host",
+          "commit": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+          "subject": "fix: park notification bell on mobile host",
+          "changed_path_headers": [
+            "diff --git a/auth.js b/auth.js",
+            "diff --git a/console.html b/console.html",
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/feed.html b/feed.html",
+            "diff --git a/index.html b/index.html",
+            "diff --git a/profile.html b/profile.html",
+            "diff --git a/social-feed.js b/social-feed.js"
+          ],
+          "diff_sha256": "9becc78b7652bf99b8f696d2ca35cd17c99e0083c698aa64a7f94497376d4fc5"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [
+        {
+          "label": "current-test_canticle_updates_notifications",
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_canticle_updates_notifications.py"
+          ],
+          "cwd": "/workspace/Cantlicle",
+          "start": "2026-10-14T09:30:48.784868+00:00",
+          "end": "2026-10-14T09:30:48.866607+00:00",
+          "exit": 1,
+          "sha256": "50c2ac15ca4995fcb3d23656118a9cd2d2eb26ce04b367607c184ec8770eecf2"
+        }
+      ],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/6-fix_notify-bell-mobile-host/authored.diff",
+          "sha256": "9becc78b7652bf99b8f696d2ca35cd17c99e0083c698aa64a7f94497376d4fc5"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/6-fix_notify-bell-mobile-host/vs-current.diff",
+          "sha256": "0ae58f086bcac17a0f6fddad77b26b2a9e81305049d6d45830994ab92348abe2"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-17.json"
+    },
+    {
+      "disposition": "Recover fail-closed publisher retirement first, then factual Suite readiness/name copy; preserve six locked subscription proposals verbatim and archive superseded selector/legal deltas.",
+      "useful_missing_work": [
+        "Current release/package_release.py still mirrors public repo by default, permits --allow-private-source bypass, builds from old assumptions and can gh release upload --clobber. Tip replaces it with pure retirement notice: help exits0, all build/publish/private/dirty attempts exit2. This safety fix remains absent current main.",
+        "Current console/tiers/contributions still call self-host Suite SEAM client/live/available now/Stable public downloads/unqualified free binary. Recover correct Suite name, conditional reviewed-release readiness, and personal/noncommercial qualifier without changing price, account, MODEL contract or backend.",
+        "release/README.md distinguishes metadata hash integrity from signatures, registry publication from surface completeness, fresh-environment qualification and preview from production. Rebuild against current source/SEAM Client name/selector rather than copying obsolete details.",
+        "Six subscription-plan paths retain authored licensing-context proposals not present byte-for-byte in main; preserve exact ideas as dated planning, never overwrite locked historical originals or promote obsolete wording to terms."
+      ],
+      "already_preserved": [
+        "PR33 current seam-release.js is stronger signed-in/MFA/validated stable wheel/hash/version/url/Python binding with async/clipboard guards; current download tests pass.",
+        "Current active license from reviewed licensing change is stronger proprietary personal/noncommercial with business/unpaid evaluation written agreement, embedded-use limits, paid SDK separate and no automatic conversion.",
+        "Current Suite/MCP operator install guidance points to reviewed source release guides. Historical release URLs remain historical."
+      ],
+      "conflicts": [
+        "Old downloads-release.js would duplicate/replace stronger current module; old product SEAM API must remain SEAM Client.",
+        "tiers.js branch changes MODEL.selfHost free string to prose and adds fields; preserve existing data shape and gating contract, use display text only.",
+        "Old legal/planning whole-file changes may delete protected original ideas or import stale license text; settled active terms control.",
+        "No current production artifact availability proven by branch/static data; no publishing path executed."
+      ],
+      "path_dispositions": {
+        "SEAM Landing.dc.html": "Current Suite/license template supersedes old patch; any remaining name drift only narrow copy.",
+        "_headers": "Current selector/network security must remain; no need to import old PyPI/CSP delta wholesale.",
+        "console.html": "High-priority recover Suite name/readiness/personal qualifier at current118,194,228,253,275,412,417; no account/auth/price implementation changes.",
+        "contributions.html": "High-priority current462 unqualified free-client binary copy; qualify Suite/personal grant and conditional artifact availability.",
+        "documentation.html": "Current license/MCP/install guide stronger; only selected truthfulness improvements with current sources.",
+        "downloads-release.js": "Superseded by current seam-release.js; archive historical implementation.",
+        "downloads.html": "Keep current signed-in stable/hash selector and conditional404 wording; no old selector/layout merge.",
+        "index.html": "Current launch license/early-access copy supersedes branch; preserve historical downloads separation.",
+        "release/README.md": "Recover current contract guide: retired helper, current source release flow, hash-vs-signature, preview-vs-production; remove obsolete names/status claims.",
+        "release/package_release.py": "Integrate fail-closed retirement rebuilt on main with side-effect trap/subprocess proof; never execute old publisher.",
+        "terms.html": "Settled current terms retained; no branch-wide legal overwrite.",
+        "tests/downloads-release.test.js": "Current18 tests stronger; preserve and add retirement-specific behavior tests separately.",
+        "tests/test_package_downloads.py": "Current3 tests pass; adapt retirement absence/side-effect assertions rather than importing old script naming assumptions.",
+        "tiers.html": "Recover Suite name/conditional readiness/personal grant only; no price/tier/cohort/auth policy changes.",
+        "tiers.js": "Correct display availabilityLabel/features/CTA names; preserve MODEL.selfHost value and all gating/economics shape.",
+        "docs/subscriptions/01-product-and-service-model.md": "Preserve exact branch proposal verbatim as dated planning with original main text untouched; current settled proprietary/personal/business/paid-SDK terms control.",
+        "docs/subscriptions/02-plans-metering-and-storage.md": "Preserve exact branch proposal verbatim as dated planning with original main text untouched; current settled proprietary/personal/business/paid-SDK terms control.",
+        "docs/subscriptions/04-competition-and-migration.md": "Preserve exact branch proposal verbatim as dated planning with original main text untouched; current settled proprietary/personal/business/paid-SDK terms control.",
+        "docs/subscriptions/05-subscription-terms-draft.md": "Preserve exact branch proposal verbatim as dated planning with original main text untouched; current settled proprietary/personal/business/paid-SDK terms control.",
+        "docs/subscriptions/06-launch-and-growth-plan.md": "Preserve exact branch proposal verbatim as dated planning with original main text untouched; current settled proprietary/personal/business/paid-SDK terms control.",
+        "docs/subscriptions/README.md": "Preserve exact branch proposal verbatim as dated planning with original main text untouched; current settled proprietary/personal/business/paid-SDK terms control."
+      },
+      "integration_slices": [
+        "Retire helper fail-closed with help-only exit0, all operational attempts exit2, no imports/calls that mirror/build/upload; rebuild focused test safely using side-effect traps.",
+        "Correct only factual Suite display names/readiness/personal license qualifiers in console/tiers/contributions; preserve current pricing/account/Vault/terms/data contract.",
+        "Rebuild release/README using current exact source release guide and preview/deployment distinction; qualify no production availability from404.",
+        "Preserve six locked subscription proposals verbatim as dated provenance/addendum, retain originals and current controlling policy pointer; owner reviews before any source-doc integration."
+      ],
+      "acceptance_blockers": [
+        "RETIREMENT_SIDE_EFFECT_PROOF: candidate exact help/invalid exits witnessed but main no-side-effect red/green test still required before integration.",
+        "FACTUAL_READINESS: current verified metadata404 means pending validated stable release, not available now.",
+        "LOCKED_SUBSCRIPTION_PRESERVATION: do not replace original planning with summary or automatic entitlement."
+      ],
+      "deletion_condition": "Root integrates qualified retirement/readiness slice and durably preserves/owns six exact planning proposals, then resolves PR29/branch; selector/MCP already superseded.",
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "ref": "refs/remotes/origin/fix/seam-product-downloads-20260917",
+      "branch": "fix/seam-product-downloads-20260917",
+      "tip": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "merge_base": "075b0f12d93538bb1c73d6dfa3eb1e001c735117",
+      "unique_commit_count": 6,
+      "unique_commits": [
+        {
+          "sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+          "date": "2026-09-19T16:12:17-05:00",
+          "subject": "Limit free Suite self-hosting to personal noncommercial use"
+        },
+        {
+          "sha": "90021a6aa1992bc8b80f97dfc24843f9a16b69e1",
+          "date": "2026-09-19T15:41:30-05:00",
+          "subject": "Scope website software licensing claims to exact releases"
+        },
+        {
+          "sha": "0f278b2cd83cc820ccb4ce11b2059527dacea1fd",
+          "date": "2026-09-17T11:59:16-05:00",
+          "subject": "Clarify Suite MCP installation and pending registry migration"
+        },
+        {
+          "sha": "08b63f378027a5278a31487dc3162cbd6d9df99e",
+          "date": "2026-09-17T11:24:42-05:00",
+          "subject": "docs: show Suite and API readiness separately from downloads"
+        },
+        {
+          "sha": "090be67008ab8031dc435a1a68f3317fd38d3f85",
+          "date": "2026-09-17T10:44:02-05:00",
+          "subject": "docs: distinguish branch previews from production deployment"
+        },
+        {
+          "sha": "33d9c2d62c4da59f4a4e3a71843c26a12cb6aac0",
+          "date": "2026-09-17T10:36:45-05:00",
+          "subject": "fix: align SEAM products and verify PyPI downloads"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "SEAM Landing.dc.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "_headers"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "console.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "contributions.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/subscriptions/01-product-and-service-model.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/subscriptions/02-plans-metering-and-storage.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/subscriptions/04-competition-and-migration.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/subscriptions/05-subscription-terms-draft.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/subscriptions/06-launch-and-growth-plan.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/subscriptions/README.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "documentation.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "downloads-release.js"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "downloads.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "index.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "release/README.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "release/package_release.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "terms.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/downloads-release.test.js"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/test_package_downloads.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tiers.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tiers.js"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "fix/seam-product-downloads-20260917",
+          "headRefOid": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 29,
+          "state": "OPEN",
+          "title": "Align Suite downloads, API readiness and MCP installation docs",
+          "updatedAt": "2026-10-14T08:23:30Z",
+          "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/29"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "paths_reviewed_count": 21,
+      "unique_commit_review": [
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "commit": "33d9c2d62c4da59f4a4e3a71843c26a12cb6aac0",
+          "subject": "fix: align SEAM products and verify PyPI downloads",
+          "changed_path_headers": [
+            "diff --git a/_headers b/_headers",
+            "diff --git a/console.html b/console.html",
+            "diff --git a/contributions.html b/contributions.html",
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads-release.js b/downloads-release.js",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/release/README.md b/release/README.md",
+            "diff --git a/release/package_release.py b/release/package_release.py",
+            "diff --git a/tests/downloads-release.test.js b/tests/downloads-release.test.js",
+            "diff --git a/tests/test_package_downloads.py b/tests/test_package_downloads.py",
+            "diff --git a/tiers.html b/tiers.html"
+          ],
+          "diff_sha256": "62dbb7df7c1b845bdbc6b9c09f0cf2769c19c93c5d3db77235d911f828b5b3b6"
+        },
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "commit": "090be67008ab8031dc435a1a68f3317fd38d3f85",
+          "subject": "docs: distinguish branch previews from production deployment",
+          "changed_path_headers": [
+            "diff --git a/release/README.md b/release/README.md"
+          ],
+          "diff_sha256": "cae823477b13e277506441c1fb00e16ad4914ce96adc498e68cb705272c344b2"
+        },
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "commit": "08b63f378027a5278a31487dc3162cbd6d9df99e",
+          "subject": "docs: show Suite and API readiness separately from downloads",
+          "changed_path_headers": [
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/release/README.md b/release/README.md"
+          ],
+          "diff_sha256": "2c99c7b6d7755d4e1a045077f328672c532d6db85d0b38223cd118e1dec2a372"
+        },
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "commit": "0f278b2cd83cc820ccb4ce11b2059527dacea1fd",
+          "subject": "Clarify Suite MCP installation and pending registry migration",
+          "changed_path_headers": [
+            "diff --git a/documentation.html b/documentation.html"
+          ],
+          "diff_sha256": "9825ec8df762726028f56f0ca7805b8422a46180038b9b6c7b19152c21e818f6"
+        },
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "commit": "90021a6aa1992bc8b80f97dfc24843f9a16b69e1",
+          "subject": "Scope website software licensing claims to exact releases",
+          "changed_path_headers": [
+            "diff --git a/SEAM Landing.dc.html b/SEAM Landing.dc.html",
+            "diff --git a/docs/subscriptions/01-product-and-service-model.md b/docs/subscriptions/01-product-and-service-model.md",
+            "diff --git a/docs/subscriptions/05-subscription-terms-draft.md b/docs/subscriptions/05-subscription-terms-draft.md",
+            "diff --git a/docs/subscriptions/README.md b/docs/subscriptions/README.md",
+            "diff --git a/index.html b/index.html"
+          ],
+          "diff_sha256": "3c182bc06608d157866c210d18ea6407fd76bf99ffeeceb87fe821ecb9a5c2bc"
+        },
+        {
+          "branch": "fix/seam-product-downloads-20260917",
+          "commit": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+          "subject": "Limit free Suite self-hosting to personal noncommercial use",
+          "changed_path_headers": [
+            "diff --git a/SEAM Landing.dc.html b/SEAM Landing.dc.html",
+            "diff --git a/console.html b/console.html",
+            "diff --git a/contributions.html b/contributions.html",
+            "diff --git a/docs/subscriptions/01-product-and-service-model.md b/docs/subscriptions/01-product-and-service-model.md",
+            "diff --git a/docs/subscriptions/02-plans-metering-and-storage.md b/docs/subscriptions/02-plans-metering-and-storage.md",
+            "diff --git a/docs/subscriptions/04-competition-and-migration.md b/docs/subscriptions/04-competition-and-migration.md",
+            "diff --git a/docs/subscriptions/05-subscription-terms-draft.md b/docs/subscriptions/05-subscription-terms-draft.md",
+            "diff --git a/docs/subscriptions/06-launch-and-growth-plan.md b/docs/subscriptions/06-launch-and-growth-plan.md",
+            "diff --git a/docs/subscriptions/README.md b/docs/subscriptions/README.md",
+            "diff --git a/documentation.html b/documentation.html",
+            "diff --git a/downloads.html b/downloads.html",
+            "diff --git a/index.html b/index.html",
+            "diff --git a/terms.html b/terms.html",
+            "diff --git a/tiers.html b/tiers.html",
+            "diff --git a/tiers.js b/tiers.js"
+          ],
+          "diff_sha256": "9f63d11970921d0e5e8c1db373ea2ce1812927862654f78a07deaa7eafcf2b5b"
+        }
+      ],
+      "intermediate_commit_tip_reversion": {
+        "found": false,
+        "note": "Reviewed every listed unique commit; no useful intermediate feature hidden by a tip reversion. Interface final name fix only partially covers files; this inconsistency is explicitly reported."
+      },
+      "observed_checks": [
+        {
+          "label": "retired-helper-help",
+          "command": [
+            "python3",
+            "/workspace/scratch/seam-branch-audit-20261014/website-review/retired-helper.py",
+            "--help"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review",
+          "start": "2026-10-14T09:30:49.105103+00:00",
+          "end": "2026-10-14T09:30:49.117025+00:00",
+          "exit": 0,
+          "sha256": "25a82b44c37d8eab285e5d3e90246c961c908660e3c61001ba0d8b2503ed9a7c"
+        },
+        {
+          "label": "retired-helper-noargs",
+          "command": [
+            "python3",
+            "/workspace/scratch/seam-branch-audit-20261014/website-review/retired-helper.py"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review",
+          "start": "2026-10-14T09:30:49.117121+00:00",
+          "end": "2026-10-14T09:30:49.128957+00:00",
+          "exit": 2,
+          "sha256": "25a82b44c37d8eab285e5d3e90246c961c908660e3c61001ba0d8b2503ed9a7c"
+        },
+        {
+          "label": "retired-helper-private-publish",
+          "command": [
+            "python3",
+            "/workspace/scratch/seam-branch-audit-20261014/website-review/retired-helper.py",
+            "--allow-private-source",
+            "--publish"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review",
+          "start": "2026-10-14T09:30:49.129048+00:00",
+          "end": "2026-10-14T09:30:49.141272+00:00",
+          "exit": 2,
+          "sha256": "25a82b44c37d8eab285e5d3e90246c961c908660e3c61001ba0d8b2503ed9a7c"
+        },
+        {
+          "label": "retired-helper-dirty",
+          "command": [
+            "python3",
+            "/workspace/scratch/seam-branch-audit-20261014/website-review/retired-helper.py",
+            "--allow-dirty",
+            "--no-push-repo"
+          ],
+          "cwd": "/workspace/scratch/seam-branch-audit-20261014/website-review",
+          "start": "2026-10-14T09:30:49.141392+00:00",
+          "end": "2026-10-14T09:30:49.154070+00:00",
+          "exit": 2,
+          "sha256": "25a82b44c37d8eab285e5d3e90246c961c908660e3c61001ba0d8b2503ed9a7c"
+        },
+        {
+          "label": "current-download-node",
+          "command": [
+            "node",
+            "--test",
+            "tests/downloads-release.test.js"
+          ],
+          "cwd": "/workspace/Cantlicle",
+          "start": "2026-10-14T09:30:48.311714+00:00",
+          "end": "2026-10-14T09:30:48.434434+00:00",
+          "exit": 0,
+          "sha256": "b3662af5f6f7fe83647b3f115d01ee065abcee5f14a7882f3ae9653c4bbe925a"
+        },
+        {
+          "label": "current-test_package_downloads",
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_package_downloads.py"
+          ],
+          "cwd": "/workspace/Cantlicle",
+          "start": "2026-10-14T09:30:48.434736+00:00",
+          "end": "2026-10-14T09:30:48.512555+00:00",
+          "exit": 0,
+          "sha256": "372ee57a30b8a8b17bb056a0814266786a922da7dcf4139f4f9a2457745d6424"
+        },
+        {
+          "label": "current-test_suite_license_copy",
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_suite_license_copy.py"
+          ],
+          "cwd": "/workspace/Cantlicle",
+          "start": "2026-10-14T09:30:48.512720+00:00",
+          "end": "2026-10-14T09:30:48.709377+00:00",
+          "exit": 0,
+          "sha256": "8d379d39725f95239b0a97dc648a411bfb0be3005348ec44b86d6f415248bf14"
+        },
+        {
+          "label": "current-test_subscription_economics",
+          "command": [
+            "python3",
+            "-m",
+            "unittest",
+            "discover",
+            "-s",
+            "tests",
+            "-p",
+            "test_subscription_economics.py"
+          ],
+          "cwd": "/workspace/Cantlicle",
+          "start": "2026-10-14T09:30:48.709582+00:00",
+          "end": "2026-10-14T09:30:48.784740+00:00",
+          "exit": 0,
+          "sha256": "c6b9b1f09add0403cc07e90bfdf272129b1ddfa2f8f7675ea8218862f2516371"
+        }
+      ],
+      "unproven_claims": "Historical PR CI/body evidence and source readability do not qualify functionality, production artifact publication, browser behavior or live DB schema.",
+      "complete_reviewed_diff_evidence": [
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/7-fix_seam-product-downloads-20260917/authored.diff",
+          "sha256": "984d17c7884c8c314dff5b640773debbe7ea4d4e99fb6766f155ff6f8b587117"
+        },
+        {
+          "path": "/workspace/scratch/seam-branch-audit-20261014/website-review/7-fix_seam-product-downloads-20260917/vs-current.diff",
+          "sha256": "5dd0df877368f6707dc1ff8227107c5cfdf9d1086a0ea2ee3f2da00cca69fcf6"
+        }
+      ],
+      "pr_provenance_path": "/workspace/scratch/seam-branch-audit-20261014/website-review/pr-29.json"
+    }
+  ],
+  "critical_current_source_evidence": [
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 6,
+      "excerpt": "never packaged unless --allow-private-source is passed explicitly."
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 79,
+      "excerpt": "def push_repo_mirror(seam_root: Path) -> None:"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 110,
+      "excerpt": "def ensure_public_source(seam_root: Path, ref: str, allow_private: bool) -> None:"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 117,
+      "excerpt": "\"Seam repo. Rerun with --allow-private-source only if you truly intend \""
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 260,
+      "excerpt": "def publish_release(seam_root: Path, out_dir: Path, ref: str, version: str) -> None:"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 276,
+      "excerpt": "[\"gh\", \"release\", \"upload\", version, \"--repo\", PUBLIC_REPO, \"--clobber\", *assets],"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 312,
+      "excerpt": "parser.add_argument(\"--allow-private-source\", action=\"store_true\", help=\"Permit packaging a ref that is not from the public seam-runtime remote. Off by default so downloads can never ship the private Seam repo by accident.\")"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 316,
+      "excerpt": "def main() -> int:"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "release/package_release.py",
+      "line": 326,
+      "excerpt": "push_repo_mirror(seam_root)"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "console.html",
+      "line": 118,
+      "excerpt": "SEAM client · live"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "console.html",
+      "line": 194,
+      "excerpt": "SEAM client · self-host · available now."
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "console.html",
+      "line": 228,
+      "excerpt": "SEAM client  Self-host · available now · unmetered"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "console.html",
+      "line": 253,
+      "excerpt": "SEAM client · self-host. Full local runtime on your machine."
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "console.html",
+      "line": 412,
+      "excerpt": "Hosted write/storage meters stay empty until a hosted plan is activated. SEAM client is never metered here."
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "console.html",
+      "line": 417,
+      "excerpt": "No hosted workspace is active — nothing to report. SEAM client (self-host) remains unmetered."
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "contributions.html",
+      "line": 462,
+      "excerpt": "Downloads  — SEAM client binary (local, free)"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.js",
+      "line": 26,
+      "excerpt": "availabilityLabel: 'available now',"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.js",
+      "line": 33,
+      "excerpt": "{ text: 'Stable public downloads', included: true },"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.js",
+      "line": 51,
+      "excerpt": "cta: { label: 'Download SEAM client', kind: 'download' },"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.js",
+      "line": 206,
+      "excerpt": "selfHost: 'free',"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.html",
+      "line": 129,
+      "excerpt": "SEAM client · local den"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.html",
+      "line": 130,
+      "excerpt": "01 · SEAM client"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.html",
+      "line": 133,
+      "excerpt": "❯ Download SEAM client"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.html",
+      "line": 153,
+      "excerpt": "SEAM client · Hosted when ready."
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.html",
+      "line": 162,
+      "excerpt": "❯ SEAM client · Download"
+    },
+    {
+      "ref": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "path": "tiers.html",
+      "line": 172,
+      "excerpt": "❯  SEAM client  $0 forever"
+    }
+  ],
+  "source_authority_additions": [
+    {
+      "path": "/workspace/Seam/seam_runtime/cli.py",
+      "lines": "355-377,544-563,625-640,1772-1795,2436-2458",
+      "finding": "Common retrieve/plan mode hybrid; context retrieval-mode hybrid; context selection budget5 separate PACK512; reindex flags/handler explicit."
+    },
+    {
+      "path": "/workspace/Seam/seam_runtime/runtime.py",
+      "lines": "1518-1555,1680-1775",
+      "finding": "pack_ir entry observed, exact internal semantic mode budget not inferred; full reindex indexes current text, boundary-only calls sync_boundaries."
+    },
+    {
+      "path": "/workspace/Seam/docs/SEAM_OPERATOR_GUIDE.md",
+      "finding": "Targeted retrieve/context/reindex/PACK guidance only; no wholesale history."
+    },
+    {
+      "path": "/workspace/Seam/docs/reference/CLI_REFERENCE.md",
+      "finding": "Targeted retrieve/context/reindex/PACK guidance only."
+    }
+  ],
+  "verbatim_preservation": [
+    {
+      "branch": "docs/site-overhaul-brief-2026-09-12",
+      "ref": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+      "source_path": "CANTICLE-STYLE.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/3/CANTICLE-STYLE.md",
+      "sha256": "cacd65272693a9c6a5d98f34cd373db8a564af361467da7326c289af988c3d63",
+      "bytes": 6686,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "docs/site-overhaul-brief-2026-09-12",
+      "ref": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+      "source_path": "docs/SITE-OVERHAUL-BRIEF-2026-09-12.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/3/docs/SITE-OVERHAUL-BRIEF-2026-09-12.md",
+      "sha256": "f08db6c647648a7be36f80d5d4b9daff9c0c3118f0bc7568725ab102bab69913",
+      "bytes": 9425,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "docs/site-overhaul-brief-2026-09-12",
+      "ref": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+      "source_path": "ledger/open.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/3/ledger/open.md",
+      "sha256": "ba300a8e0602a3d13e931e84211fcbd4aa003a93ba1a219191929a9f2e129d2d",
+      "bytes": 1401,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "docs/subscriptions/01-product-and-service-model.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/docs/subscriptions/01-product-and-service-model.md",
+      "sha256": "8f39b19c1e535e1f015cc7eb80f18be708a28a08f6957e20adf73f7e2919737d",
+      "bytes": 3727,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "docs/subscriptions/02-plans-metering-and-storage.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/docs/subscriptions/02-plans-metering-and-storage.md",
+      "sha256": "c1c93c93b5f03e9d88f964c6d3bb4ff28d5c9dfefe6361df5a28b010735c43ac",
+      "bytes": 5168,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "docs/subscriptions/04-competition-and-migration.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/docs/subscriptions/04-competition-and-migration.md",
+      "sha256": "5edae46982a06ca8a221ddccba8fc6e95b1c389abdf9ec2c7e7fdb2fb447e46f",
+      "bytes": 4535,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "docs/subscriptions/05-subscription-terms-draft.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/docs/subscriptions/05-subscription-terms-draft.md",
+      "sha256": "3426e8ec16a3c89b19c2c39b5a4ce4559c5efcd4470891c8bce4e65ee3612841",
+      "bytes": 12481,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "docs/subscriptions/06-launch-and-growth-plan.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/docs/subscriptions/06-launch-and-growth-plan.md",
+      "sha256": "c4b849350e630b1b856ad273e1edba4e4a2f17c683a69e4a3f168e86df0a2134",
+      "bytes": 4486,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "docs/subscriptions/README.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/docs/subscriptions/README.md",
+      "sha256": "8304916813fb754f4382b4f6a51c9a3368e78c510aaf13c08d5a6c7c7c14e548",
+      "bytes": 5019,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "fix/seam-product-downloads-20260917",
+      "ref": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "source_path": "release/README.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/7/release/README.md",
+      "sha256": "82f5c06a99c71b89817cb86a38a84ab3062e3084b8b5374360e2cd0331966458",
+      "bytes": 6384,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "feature/rename-hire-me-to-consulting",
+      "ref": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+      "source_path": "benchmarks-viz.html",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/4/benchmarks-viz.html",
+      "sha256": "0a7634ea65918d4ad52d4bebddb8f6e210954a27cf0b4d95e142291b968dffdd",
+      "bytes": 46993,
+      "authority": "Historical authored input only; current terms/palette/ship-state prevail."
+    },
+    {
+      "branch": "docs/site-overhaul-brief-2026-09-12",
+      "ref": "c3ef4c2155bacbd8934eca087664532e7f5a3039",
+      "source_path": "docs/SITE-OVERHAUL-BRIEF-2026-09-12.md",
+      "exact_external_copy": "/workspace/scratch/seam-branch-audit-20261014/website-review/verbatim/3-original/docs/SITE-OVERHAUL-BRIEF-2026-09-12.md",
+      "sha256": "2b2c6276aa50d9bcddd690caa1d819a463c59e35c68a6adf9f26c14e839ef822",
+      "bytes": 8806
+    }
+  ],
+  "observed_check_totals": {
+    "current_download_node": {
+      "tests": 18,
+      "pass": 18
+    },
+    "current_package": {
+      "tests": 3,
+      "pass": 3
+    },
+    "current_license": {
+      "tests": 4,
+      "pass": 4
+    },
+    "current_economics": {
+      "tests": 6,
+      "pass": 6
+    },
+    "current_notifications": {
+      "tests": 6,
+      "pass": 5,
+      "fail": 1,
+      "failure": "max catalog13 differs intentional alert baseline12; not a recovered bell defect"
+    },
+    "interface_tip": {
+      "tests": 5,
+      "pass": 4,
+      "fail": 1,
+      "failure": "obsolete canonical expansion assertion"
+    },
+    "operator_ingest": {
+      "current_main": "one focused text assertion fails",
+      "branch_tip": "same assertion passes",
+      "qualification": "source copy contract only; not runtime mutation test"
+    },
+    "retired_candidate": "help0; noargs/private-publish/dirty2, external inspected pure candidate only",
+    "benchmark_viz": "inline JavaScript parses; no functional/visual qualification"
+  },
+  "test_evidence_manifest": "/workspace/scratch/seam-branch-audit-20261014/website-review/checks.json",
+  "unexecuted_acceptance": [
+    "Main fail-closed retirement side-effect-trap red/green",
+    "Actual current public-client example execution",
+    "New benchmark renderer behavior/units and owner browser acceptance",
+    "Authoritative migration/schema and isolated cross-user visibility/grants tests",
+    "Full browser prototype product acceptance (explicitly remains outstanding)"
+  ],
+  "pr_ci_interpretation": "Exact assigned PR metadata retained, including CLOSED without MERGED and branch-head differences. External historical Cloudflare/email-worker statuses are provenance only, not acceptance.",
+  "policy_preserved": "Current proprietary personal/noncommercial self-host; business including unpaid business evaluation by written agreement; private paid SDK separate; embedded MIRL/HS1 runtime use only; no automatic open-source conversion. First1000 account status only, Vault separate. No new pricing/auth/Vault/terms decisions.",
+  "repository_status_at_finish": "clean"
+}

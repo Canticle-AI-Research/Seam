@@ -1,0 +1,440 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "audit-skills",
+  "status": "COMPLETE_STATIC_AUDIT",
+  "branches": [
+    {
+      "branch": "feat/codex-skilldb-adapter",
+      "tip": "ab27b54d08a022259e0e052cee06ef48917c027d",
+      "base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "commits_reviewed": [
+        {
+          "sha": "ab27b54d08a022259e0e052cee06ef48917c027d",
+          "date": "2026-09-26T03:34:11-05:00",
+          "subject": "feat(skills): add Codex skilldb adapter"
+        },
+        {
+          "sha": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+          "date": "2026-09-26T02:30:30-05:00",
+          "subject": "feat(skills): add portable knowledge runtime"
+        }
+      ],
+      "paths": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0512.cross.md",
+          "status": "R099",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0514.cross.md",
+          "status": "R099",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "docs/README.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "docs/roadmap/SKILLS_COMPILER.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "docs/skills/CODEX_ADAPTER.md",
+          "status": "A",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "requirements.txt",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "seam_runtime/__init__.py",
+          "status": "M",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/cli.py",
+          "status": "M",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/doctor.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "seam_runtime/skills/__init__.py",
+          "status": "M",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/adapters/__init__.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/adapters/codex.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/cli.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/__init__.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/graph.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/host.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/models.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/planner.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/registry.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "test_seam_all/test_seam.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "test_seam_all/test_skill_factory.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "tests/audit/test_chroma_optional.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "tests/audit/test_github_issue_release_config.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "tests/skills/test_codex_adapter.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "tests/skills/test_skill_knowledge_runtime.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "uv.lock",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        }
+      ],
+      "recommendation": "rebuild_on_main_with_TDD",
+      "dependency": [
+        "feat/skill-knowledge-runtime"
+      ],
+      "tip_reversions": "None: single core commit plus additive adapter child; no hidden reverted intermediate useful commit observed.",
+      "main_equivalent": "seam_runtime/skills/factory.py identify_agent/propose_skill_from_observation and skill_ir.py SkillIR preserve compiler/factory primitives only; kb, CLI, adapters and dedicated tests absent."
+    },
+    {
+      "branch": "feat/skill-knowledge-runtime",
+      "tip": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+      "base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "commits_reviewed": [
+        {
+          "sha": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+          "date": "2026-09-26T02:30:30-05:00",
+          "subject": "feat(skills): add portable knowledge runtime"
+        }
+      ],
+      "paths": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0512.cross.md",
+          "status": "R099",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0513.cross.md",
+          "status": "R099",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "disposition": "Archive historical continuity metadata; root appends reconciled chronology. Do not merge stale indexes."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "docs/roadmap/SKILLS_COMPILER.md",
+          "status": "M",
+          "disposition": "Preserve useful boundary/usage planning with current candidate/shipped status; do not transplant whole stale files."
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "requirements.txt",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "seam_runtime/__init__.py",
+          "status": "M",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/cli.py",
+          "status": "M",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/doctor.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "seam_runtime/skills/__init__.py",
+          "status": "M",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/cli.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/__init__.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/graph.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/host.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/models.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/planner.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "seam_runtime/skills/kb/registry.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "test_seam_all/test_seam.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "test_seam_all/test_skill_factory.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "tests/audit/test_chroma_optional.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "tests/audit/test_github_issue_release_config.py",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        },
+        {
+          "path": "tests/skills/test_skill_knowledge_runtime.py",
+          "status": "A",
+          "disposition": "Rebuild useful portable runtime/adapter behavior on current main with witnessed public-seam TDD; do not blind cherry-pick."
+        },
+        {
+          "path": "uv.lock",
+          "status": "M",
+          "disposition": "Reconcile targeted PyYAML/script/import probes on current dependency contract; historical hardcoded core dependency assertions are obsolete."
+        }
+      ],
+      "recommendation": "rebuild_on_main_with_TDD",
+      "dependency": [],
+      "tip_reversions": "None: single core commit plus additive adapter child; no hidden reverted intermediate useful commit observed.",
+      "main_equivalent": "seam_runtime/skills/factory.py identify_agent/propose_skill_from_observation and skill_ir.py SkillIR preserve compiler/factory primitives only; kb, CLI, adapters and dedicated tests absent."
+    }
+  ],
+  "findings": [
+    {
+      "priority": "P1",
+      "file": "seam_runtime/skills/kb/host.py",
+      "symbol": "ActiveSkillWindow.replace",
+      "evidence": "Lines 88-99 trust frame.token_count/max_skills/token_budget; SkillFrame/SkillFrameEntry have no post-init digest/count validation. Direct public caller can supply arbitrary instruction text/count and bypass exact-budget/provenance claims.",
+      "proof_needed": "Public host replacement rejects forged low token counts, changed instruction with old revision, invalid budgets and stale plan/snapshot before durable write."
+    },
+    {
+      "priority": "P1",
+      "file": "seam_runtime/skills/kb/registry.py",
+      "symbol": "RegistrySnapshot.from_dict / SkillSearchProjection.read",
+      "evidence": "Snapshot deserializes declared/derived policy independently of instructions; SkillPackage validates only instruction hash. Search index checks only IDs/revisions, projection checks snapshot hash but not index equivalence. Removing permissions/requires or forging rankings remains accepted by structural checks.",
+      "proof_needed": "Tamper declared permissions/requires/parser policy and index scores while keeping raw instructions unchanged; either reject or explicitly model untrusted projection authority. Rebuild metadata from preserved RAW under pinned parser, with explicit adapter relation transform provenance."
+    },
+    {
+      "priority": "P2",
+      "file": "seam_runtime/skills/adapters/codex.py",
+      "symbol": "_ingest_exact_skill",
+      "evidence": "Lines 490-499 copy to random TemporaryDirectory/SKILL.md. registry._markdown_metadata derives missing name from parent basename; supported name-less or fallback markdown gets random name, identity and fingerprint across refreshes. Existing stability test uses explicit frontmatter name exclusively.",
+      "proof_needed": "Repeated refresh of name-less/malformed frontmatter inventory entry has stable source-derived identity or deterministic fail-closed rejection."
+    },
+    {
+      "priority": "P2",
+      "file": "seam_runtime/skills/adapters/codex.py",
+      "symbol": "AppServerInventoryClient._read_stdout / _require_owned_directory / refresh_catalog",
+      "evidence": "JSONL line/queue and inventory size unbounded; _require_owned_directory checks type only, despite name, not uid/mode; state_dir.resolve silently follows caller symlink. These are robustness/security qualification gaps, not demonstrated exploits.",
+      "proof_needed": "Bound JSONL bytes/queue/catalog count; exercise state ancestor symlink, wrong ownership/modes and concurrent publish. State exact trust policy must be explicit."
+    },
+    {
+      "priority": "P2",
+      "file": "seam_runtime/skills/kb/registry.py",
+      "symbol": "RegistrySnapshot.write / _load_source",
+      "evidence": "Generic snapshot/projection writes are non-atomic default-permission writes containing complete source text; source path size/symlink checks precede path-based read rather than fd nofollow (adapter improves source read).",
+      "proof_needed": "Synthetic private outputs, partial-publish failure and nofollow source race qualification; preserve deterministic directly readable RAW bytes."
+    },
+    {
+      "priority": "P2",
+      "file": "seam_runtime/skills/adapters/codex.py",
+      "symbol": "inspect_window",
+      "evidence": "Recomputes graph/frame/budget and live source hashes, but does not replay requires/conflicts/host checks from a recorded capability payload (only fingerprints persisted). Artifact consistency is not authorization proof.",
+      "proof_needed": "Store sufficient nonsecret host policy inputs and replay planner checks if inspect promises semantic activation validity; otherwise narrow claim to integrity."
+    }
+  ],
+  "ordered_slices": [
+    "Models/registry metadata-only lexical search plus provenance/policy and projection validation tests",
+    "Planner complete exact-token frames, closure/order/conflicts/host policy fail-closed tests",
+    "Validated private atomic window host plus concurrent revision tests",
+    "Graph JSON/HTML projection with escaped source and provenance tests",
+    "Dedicated seam-skills CLI, lazy exports retaining current-main public API, additive packaging/doctor changes; refresh Suite exact membership hashes",
+    "Codex inventory transport + exact listed-file ingestion and identity normalization using synthetic client",
+    "Codex discovery/private immutable artifacts/inspection/bootstrap; qualify actual protocol/config version with provider-free local disposable pilot before shipping"
+  ],
+  "tests": {
+    "executed": [],
+    "observed_static": {
+      "core_test_functions": 26,
+      "adapter_test_functions": 14,
+      "core_evidence": [
+        "test_snapshot_deserialization_rejects_instruction_and_revision_digest_drift tests instructions/revision only, not derived metadata tamper",
+        "test_file_window_host_serializes_competing_replacements_and_uses_private_mode",
+        "test_planner_fails_closed_on_constraints_cycles_conflicts_and_budgets",
+        "test_cli_find_reads_compact_projection_without_loading_skilldb_packages"
+      ],
+      "adapter_evidence": [
+        "test_refresh_uses_stable_source_ids_and_resolves_relations_fail_closed uses named frontmatter only",
+        "test_inspect_recomputes_exact_frame_tokens_and_rejects_coordinated_budget_tamper",
+        "test_app_server_client_stages_initialize_then_skills_list uses scripted process"
+      ]
+    },
+    "qualification": "No branch runtime/tests executed; static source and test inspection does not establish green tests or historical witnessed RED/GREEN. User DB/provider calls forbidden."
+  },
+  "contract": "Useful local instruction RAW/provenance/search/planning layer, not MIRL memory truth or privileged injection. Preserve current proprietary license and append-only continuity. No product decision needed for bounded rebuild; root owns integration and eventual deletion."
+}

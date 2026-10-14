@@ -75,11 +75,16 @@ def test_ci_enforces_no_silent_skips() -> None:
     pgvector_commands = " ".join(step.get("run", "") for step in pgvector_steps)
     chroma_commands = " ".join(step.get("run", "") for step in chroma_steps)
     commands = pgvector_commands + " " + chroma_commands
-    env_blocks = " ".join(
-        " ".join(f"{k}={v}" for k, v in (step.get("env") or {}).items())
-        for step in pgvector_steps
-    )
-    assert "PGVECTOR_TEST_DSN" in env_blocks  # pgvector job sets the gate's DSN
+    # The fixture injects credentials only into its owned test child. Automatic
+    # services allocate before a guarded daemon probe and cannot be used here.
+    assert "services" not in workflow["jobs"]["pgvector-integration"]
+    assert "tools.ci.pgvector_fixture start" in pgvector_commands
+    assert "tools.ci.pgvector_fixture run" in pgvector_commands
+    assert "tools.ci.pgvector_fixture stop" in pgvector_commands
+    fixture = (CI_WORKFLOW.parents[2] / "tools/ci/pgvector_fixture.py").read_text()
+    assert "PGVECTOR_TEST_DSN" in fixture
+    assert "SEAM_PGVECTOR_DSN" in fixture
+    assert 'env["SEAM_STRICT_NO_SKIP"] = "1"' in fixture
     assert "tests/audit/test_s8_r2_pgvector_parity.py" in pgvector_commands
     assert "tests/audit/test_s8_r2_chroma_exact.py" in chroma_commands
     assert "tests/audit/test_s8_r2_semantic_admission.py" in chroma_commands
@@ -158,3 +163,14 @@ def test_pull_request_template_keeps_repo_management_checklist_visible() -> None
     assert "BIL-2 quickstart" in template
     assert "history/stream" in template.lower()
     assert "secrets" in template.lower()
+
+
+def test_pgvector_job_env_uses_contexts_available_before_runner_steps() -> None:
+    workflow = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    state = workflow["jobs"]["pgvector-integration"]["env"]["SEAM_PGVECTOR_FIXTURE_STATE"]
+    # GitHub rejects runner.* in jobs.<job>.env before any job can start.
+    # A workspace-relative ignored test path needs only the available GitHub IDs.
+    assert "${{ runner." not in state
+    assert state.startswith("test_seam/pgvector/ci-")
+    assert "${{ github.run_id }}" in state
+    assert "${{ github.run_attempt }}" in state

@@ -178,6 +178,7 @@ class SQLiteVectorIndex:
 
     def index_records(self, records: Iterable[MIRLRecord]) -> None:
         self.ensure_schema()
+        wrote_index = False
         with closing(self._connect()) as connection:
             for record in records:
                 if record.kind not in INDEXABLE_KINDS:
@@ -213,6 +214,7 @@ class SQLiteVectorIndex:
                                 self.model.name,
                             ),
                         )
+                        wrote_index = True
                     continue
                 vector = self.model.embed(source_text)
                 connection.execute(
@@ -235,11 +237,13 @@ class SQLiteVectorIndex:
                         record.updated_at,
                     ),
                 )
+                wrote_index = True
             connection.commit()
-        # A local write may invalidate any cached matrix; the per-search
-        # fingerprint check would catch it anyway, but clearing here avoids one
-        # stale-detection round-trip.
-        self._cache.clear()
+        if wrote_index:
+            # Clear only after a committed mutation. No-op replays keep the
+            # warmed matrix; the actual-vector-byte fingerprint still detects
+            # external replacements and old/new bound snapshots on search.
+            self._cache.clear()
 
     def delete_records(self, record_ids: Iterable[str]) -> None:
         """Delete rebuildable vector rows and invalidate all cached slices."""

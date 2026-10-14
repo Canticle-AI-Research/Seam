@@ -1,0 +1,218 @@
+{
+  "branch_count": 30,
+  "commit_references": 96,
+  "distinct_unique_commit_objects": 84,
+  "covered": [
+    {
+      "repository": "Seam",
+      "branch": "backup/local-pgvector-bootstrap",
+      "group": "infra",
+      "recommendation": "REBUILD_SAFE_MISSING_CONVENIENCES_AND_ARCHIVE_HISTORICAL_DOCUMENTS; REJECT_DESTRUCTIVE_STARTUP",
+      "report": "infra-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "claude/ci-gate-parity-and-timeouts",
+      "group": "infra",
+      "recommendation": "PARTIAL_ALREADY_PRESERVED; REBUILD_CHECK_ONLY_WORKSPACE_GATE_ON_MAIN_WITH_TDD",
+      "report": "infra-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+      "group": "infra",
+      "recommendation": "INTEGRATE_TARGETED_ACTIVE_IMAGE_BUMP_WITH_COORDINATED_CI_QUALIFICATION",
+      "report": "infra-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+      "group": "infra",
+      "recommendation": "ARCHIVE_RETIRED_LOCK_UPDATE_AND_CLOSE_OBSOLETE_PR280",
+      "report": "infra-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "dependabot/uv/uv-35b9e54a79",
+      "group": "infra",
+      "recommendation": "REBUILD_COMPARATOR_COMPATIBILITY_SLICE_AFTER_FROZEN_PROTOCOL_DECISION",
+      "report": "infra-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "fix/pgvector-ci-volume-leak",
+      "group": "infra",
+      "recommendation": "INTEGRATE_MINIMAL_CURRENT_CI_TMPFS_REPAIR_WITH_DISPOSABLE_LIFECYCLE_PROOF",
+      "report": "infra-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "docs/doc-audit-20261002",
+      "group": "docs",
+      "recommendation": "REBUILD_DOCS_AND_TERMINOLOGY_GATE",
+      "report": "docs-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "docs/seam-native-model-roadmap",
+      "group": "docs",
+      "recommendation": "INTEGRATE_VERBATIM_PLANNING_AND_REBUILD_TOOLS",
+      "report": "docs-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "docs/seam-product-license-boundary-20260829",
+      "group": "docs",
+      "recommendation": "ARCHIVE_SUPERSEDED_DESIGN",
+      "report": "docs-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "docs/wiki-baseline-20261003",
+      "group": "docs",
+      "recommendation": "RECOVER_INCREMENT_AFTER_DOC_AUDIT",
+      "report": "docs-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "handoff/archive",
+      "group": "docs",
+      "recommendation": "RESOLVED_AFTER_DURABLE_PROVENANCE",
+      "report": "docs-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "preserve/superseded-private-license-draft-20260829",
+      "group": "docs",
+      "recommendation": "RECOVER_CHECKLIST_MAP_PERF_ARCHIVE_DRAFT",
+      "report": "docs-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "blackhatshiftey-performance-improvements",
+      "group": "performance",
+      "recommendation": "rebuild_on_main_with_TDD",
+      "report": "performance-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "perf/batched-embedding",
+      "group": "performance",
+      "recommendation": "rebuild_on_main_with_TDD",
+      "report": "performance-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "refactor/unify-retrieval-paths",
+      "group": "performance",
+      "recommendation": "archive_rejected_superseded_history_then_root_delete_after_verified_preservation",
+      "report": "performance-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "claude/roadmap-implementation-4cn2al",
+      "group": "research",
+      "recommendation": "rebuild on main with public-seam TDD; integrate bounded planning",
+      "report": "research-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "feat/latent-cachebridge-roadmap-20260917",
+      "group": "research",
+      "recommendation": "integrate verbatim planning document with current pointers; no runtime qualification",
+      "report": "research-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "feat/seam-reports-pages-20260912",
+      "group": "research",
+      "recommendation": "rebuild report tooling with TDD; retain public editions/pinned provenance; separate deployment activation",
+      "report": "research-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "preserve/rejected-terminal-graph-tui-20260829",
+      "group": "research",
+      "recommendation": "archive rejected UI verbatim; rebuild useful independent history tooling if desired; preserve incident protocol without stale authority import",
+      "report": "research-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "research/advanced-persistence-landscape",
+      "group": "research",
+      "recommendation": "preserve dated research verbatim as historical planning; integrate selective evidence-index pointers, not asserted product authority",
+      "report": "research-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "research/pcs-c2c-dlcm-roadmap",
+      "group": "research",
+      "recommendation": "integrate verbatim experimental planning, correct pointer context on main",
+      "report": "research-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "feat/codex-skilldb-adapter",
+      "group": "skills",
+      "recommendation": "rebuild_on_main_with_TDD",
+      "report": "skills-audit.json"
+    },
+    {
+      "repository": "Seam",
+      "branch": "feat/skill-knowledge-runtime",
+      "group": "skills",
+      "recommendation": "rebuild_on_main_with_TDD",
+      "report": "skills-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "codex/current-interface-docs",
+      "group": "website",
+      "recommendation": "Rebuild selected public HTTP-client documentation on current main; archive incorrect naming and unavailable-runtime claims.",
+      "report": "website-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "codex/operator-doc-corrections-20261008",
+      "group": "website",
+      "recommendation": "Rebuild factual operator documentation on current main; reject old licensing, names, invented eligibility and billing-policy text.",
+      "report": "website-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "docs/site-overhaul-brief-2026-09-12",
+      "group": "website",
+      "recommendation": "Preserve unique planning/style prose verbatim as dated material; keep newer palette/ship-state and settled terms authoritative.",
+      "report": "website-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "feature/rename-hire-me-to-consulting",
+      "group": "website",
+      "recommendation": "Archive superseded nav/local editor settings; rebuild useful benchmark Table/Trends ideas on truthful data contracts.",
+      "report": "website-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "fix-feed-channels-and-banners",
+      "group": "website",
+      "recommendation": "Block channel expansion on named product/schema decision; check minimal banner migration through authoritative migration owner, never restore old feed wholesale.",
+      "report": "website-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "fix/notify-bell-mobile-host",
+      "group": "website",
+      "recommendation": "No missing mobile-host patch; archive after recording semantic preservation and intentional notification-baseline question.",
+      "report": "website-audit.json"
+    },
+    {
+      "repository": "Cantlicle",
+      "branch": "fix/seam-product-downloads-20260917",
+      "group": "website",
+      "recommendation": "Recover fail-closed publisher retirement first, then factual Suite readiness/name copy; preserve six locked subscription proposals verbatim and archive superseded selector/legal deltas.",
+      "report": "website-audit.json"
+    }
+  ],
+  "scanner_findings": []
+}

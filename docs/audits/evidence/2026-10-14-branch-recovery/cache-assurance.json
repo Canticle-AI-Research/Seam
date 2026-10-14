@@ -1,0 +1,115 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "assure-cache-recovery",
+  "result": "PASS_WITH_CLOSEOUT_LIMIT",
+  "review_recorded_at": "2026-10-14T10:11:40.735553+00:00",
+  "packet_schema_validation": "PASS system Python jsonschema Draft202012Validator; .venv lacked jsonschema, no packages installed",
+  "changed_paths": [
+    {
+      "path": "seam_runtime/vector.py",
+      "sha256": "f865b5f6761810fa9a2e1bc7aefa4bc1a351a12ee9424f87536cd4c4c697f008"
+    },
+    {
+      "path": "tests/audit/test_vector_noop_recovery.py",
+      "sha256": "3f55ab0770c8de4e2f66f437077f0ef9259f8497c1764fa022fe8b596289ff85"
+    }
+  ],
+  "changed_SQLiteVectorIndex_methods": [
+    "index_records"
+  ],
+  "delivery_hashes_match_current": true,
+  "witnessed_delivery_evidence": [
+    {
+      "phase": "RED",
+      "command": "env -u SEAM_NL_EXTRACTOR SEAM_EMBEDDING_PROVIDER=hash SEAM_PGVECTOR_DSN= PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/audit/test_vector_noop_recovery.py",
+      "cwd": "/workspace/Seam",
+      "start": "2026-10-14T09:42:11.666822+00:00",
+      "end": "2026-10-14T09:42:12.333675+00:00",
+      "exit": 1,
+      "output_sha256": "bf5b3e416bffd283b8238c61e995da36adf84846e2b11c75d58cfee4b73cfa7f",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/cache-delivery-red.log",
+      "source_sha256": "03fa04ee156993e3ae244408a2a3bfe5027390ff74cd86e2b00833bc98f140bc",
+      "test_sha256": "3f55ab0770c8de4e2f66f437077f0ef9259f8497c1764fa022fe8b596289ff85",
+      "output_hash_verified": true
+    },
+    {
+      "phase": "GREEN",
+      "command": "env -u SEAM_NL_EXTRACTOR SEAM_EMBEDDING_PROVIDER=hash SEAM_PGVECTOR_DSN= PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/audit/test_vector_noop_recovery.py",
+      "cwd": "/workspace/Seam",
+      "start": "2026-10-14T09:42:56.100956+00:00",
+      "end": "2026-10-14T09:42:56.755218+00:00",
+      "exit": 0,
+      "output_sha256": "eb27a136c18598aedc0e4f11e6893b614a04335a9faf3ec03433325d777e2663",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/cache-delivery-green.log",
+      "source_sha256": "f865b5f6761810fa9a2e1bc7aefa4bc1a351a12ee9424f87536cd4c4c697f008",
+      "test_sha256": "3f55ab0770c8de4e2f66f437077f0ef9259f8497c1764fa022fe8b596289ff85",
+      "output_hash_verified": true
+    },
+    {
+      "phase": "regressions",
+      "command": "env -u SEAM_NL_EXTRACTOR SEAM_EMBEDDING_PROVIDER=hash SEAM_PGVECTOR_DSN= PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider -m \"not external\" tests/audit/test_vector_cache_parity.py tests/audit/test_read_snapshot_consistency.py tests/audit/test_vector_outbox_durability.py tests/audit/test_s8_r2_sqlite_vector_parity.py tests/audit/test_runtime_persist_atomic_restore.py tests/audit/test_retrieval_consolidation.py",
+      "cwd": "/workspace/Seam",
+      "start": "2026-10-14T09:43:36.295424+00:00",
+      "end": "2026-10-14T09:43:43.317650+00:00",
+      "exit": 0,
+      "output_sha256": "1482c412af7ca7ec55670b6807842ce239a7580855527c91d32357b21d8fae19",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/cache-delivery-regressions.log",
+      "output_hash_verified": true
+    },
+    {
+      "phase": "ruff",
+      "command": ".venv/bin/ruff check seam_runtime/vector.py tests/audit/test_vector_noop_recovery.py",
+      "cwd": "/workspace/Seam",
+      "start": "2026-10-14T09:43:43.317696+00:00",
+      "end": "2026-10-14T09:43:43.329078+00:00",
+      "exit": 0,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/cache-delivery-ruff.log",
+      "output_hash_verified": true
+    },
+    {
+      "phase": "diff",
+      "command": "git diff --check",
+      "cwd": "/workspace/Seam",
+      "start": "2026-10-14T09:43:43.329101+00:00",
+      "end": "2026-10-14T09:43:43.334913+00:00",
+      "exit": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/cache-delivery-diff.log",
+      "output_hash_verified": true
+    },
+    {
+      "phase": "syntax",
+      "command": "PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -c 'import ast; from pathlib import Path; [ast.parse(Path(p).read_text()) for p in [\"seam_runtime/vector.py\", \"tests/audit/test_vector_noop_recovery.py\"]]; print(\"syntax valid\")'",
+      "cwd": "/workspace/Seam",
+      "start": "2026-10-14T09:43:43.334934+00:00",
+      "end": "2026-10-14T09:43:43.368038+00:00",
+      "exit": 0,
+      "output_sha256": "31da27118e45b1664d375413c0951dc59a491d7124c2797438e3aec768caf711",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/cache-delivery-syntax.log",
+      "output_hash_verified": true
+    }
+  ],
+  "independent_test": {
+    "command": "env -u SEAM_NL_EXTRACTOR SEAM_EMBEDDING_PROVIDER=hash SEAM_PGVECTOR_DSN= PYTHONDONTWRITEBYTECODE=1 .venv/bin/python -m pytest -q -p no:cacheprovider tests/audit/test_vector_noop_recovery.py",
+    "cwd": "/workspace/Seam",
+    "exit": 0,
+    "passed_cases": 12,
+    "skips": 0,
+    "output_sha256": "eb27a136c18598aedc0e4f11e6893b614a04335a9faf3ec03433325d777e2663",
+    "observation": "Independent targeted rerun completed; output identical to recorded GREEN."
+  },
+  "findings": [],
+  "reasoning": [
+    "Only index_records AST differs from base. wrote_index becomes true on namespace/scope update and vector insert/replace; cache clears after successful commit only. Errors unwind closing connection, rollback pending writes and preserve warmed committed data.",
+    "Actual-vector-byte fingerprint and atomic read transaction remain unchanged. Cache retention therefore still detects cross-instance changes and old/new bound snapshots. Membership changes clear all cached slices.",
+    "RED failures specifically target numeric vector reload after four no-op forms and duplicate outbox replay. GREEN exercises same public seams and matches exact source/test hashes; regression output hash independently verified.",
+    "Timestamp-only replay already skipped vector writes on base; this change preserves behavior while retaining cached matrix.",
+    "Tests use isolated synthetic SQLite files and hash/local deterministic models. New outbox test intentionally uses private pool only to synthesize a crash intent; actual recovery uses public replay method."
+  ],
+  "limits": [
+    "Performance assurance establishes avoidance of numeric JSON vector reload, not constant-time search: fingerprint remains O(selected vector bytes).",
+    "No broad suite or external provider tests executed by assurance; delivery records 94 regression cases, and all referenced output hashes verified.",
+    "Root must refresh reviewed Suite membership manifest hash for vector.py before integration. No source/Git/PR/CI edits performed."
+  ]
+}

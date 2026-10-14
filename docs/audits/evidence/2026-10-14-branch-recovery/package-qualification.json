@@ -1,0 +1,228 @@
+{
+  "manifest_inventory_sha256": "414e8c59df83fda9cb457556fdd54685858d3e08636decdb3ae37681dafae1e5",
+  "implementation_count": 109,
+  "license_document_count": 7,
+  "source": "/workspace/scratch/seam-release-20261014/packaging/source-branch-recovery-public-v4",
+  "artifacts": [
+    {
+      "path": "/workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1-py3-none-any.whl",
+      "size": 1069712,
+      "sha256": "2d9472cbcec40a5d91641ee00d948988a783843322edd32ac1d7f253fb21687e"
+    },
+    {
+      "path": "/workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1.tar.gz",
+      "size": 1030939,
+      "sha256": "717abffbf43cb0b63cee67965642132e049206e4ebff76ace2262cdd81b81715"
+    }
+  ],
+  "schema": "seam-branch-recovery-package-qualification/v1",
+  "label": "branch-recovery-public-v4",
+  "observed_checks": [
+    "build",
+    "109 implementation hashes and seven legal documents",
+    "Twine strict",
+    "private-artifact scanner",
+    "fresh default wheel and sdist installs/dependency checks",
+    "eight public installed smoke cases per format"
+  ],
+  "result": "PASS; not publication authorization",
+  "logs": [
+    {
+      "label": "branch-recovery-public-v4-build",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-build.log",
+      "output_sha256": "e140dafd576b1c40de17f8250b1ca066fff35d75418d5fa37a7e4f9d5dabd1d0"
+    },
+    {
+      "label": "branch-recovery-public-v4-inspect",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-inspect.log",
+      "output_sha256": "10daca9b4ab8cbdf2d66c5939255627c32dfa91c9ce5f341c2626e5e54275b25"
+    },
+    {
+      "label": "branch-recovery-public-v4-scanner",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-scanner.log",
+      "output_sha256": "0be8c8f3b450f057b0f6262bfd97f6fef5355a08d316e3df5af37b77389aebc0"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-dependencies",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-dependencies.log",
+      "output_sha256": "cb097f6029256c5ca7f4347a7423538b2c7ebfb0eb446bcc262ea78f7a79fa82"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-install",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-install.log",
+      "output_sha256": "ebcd0b1881909ac3618e5bcbd5895bcbc97722dce6d5eb463bd0879fdb74ae33"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-smoke",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-smoke.log",
+      "output_sha256": "971d64900b76641beb9dcbdaba0cb9e7aa94a741b99d9b0aae939c192ef87369"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-venv",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-venv.log",
+      "output_sha256": "3e1652bdb00d118a245e5766f8cf8a24918335c2f040e0cd7b042948fa17f579"
+    },
+    {
+      "label": "branch-recovery-public-v4-snapshot",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-snapshot.log",
+      "output_sha256": "e59672b1f98c4fb52293f291585db094623c1dcef9ffc44cf4821729f4c879a9"
+    },
+    {
+      "label": "branch-recovery-public-v4-twine",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-twine.log",
+      "output_sha256": "466f6d008df5fa3df292a153cc1809a4455670354acf570391f68b9f6931e065"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-dependencies",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-dependencies.log",
+      "output_sha256": "3b7f5562618527534e572f8a3b961b45a87b46b9a0ac389450638ffa436953e9"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-install",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-install.log",
+      "output_sha256": "bb63db4b37ff6d17f73ba971f299a17c0a0f0fe00964a60747598080ae94d691"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-smoke",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-smoke.log",
+      "output_sha256": "dc0012e1bb57bb49e829d2c41e74fa7401e3304d702e49df6fdd654a4538ca16"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-venv",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-venv.log",
+      "output_sha256": "bcd55ad67575718cd2ed9e7bae43adb069f8c62c2bbcb864b05bc3808d06582f"
+    }
+  ],
+  "checks": [
+    {
+      "label": "branch-recovery-public-v4-snapshot",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python /workspace/scratch/seam-release-20261014/packaging/snapshot_source.py /workspace/scratch/seam-release-20261014/packaging/source-branch-recovery-public-v4",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T10:16:06.836281+00:00",
+      "ended_at": "2026-10-14T10:16:06.888843+00:00",
+      "exit_code": 0,
+      "output_sha256": "e59672b1f98c4fb52293f291585db094623c1dcef9ffc44cf4821729f4c879a9",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-snapshot.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-build",
+      "command": "uv build --out-dir /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4 /workspace/scratch/seam-release-20261014/packaging/source-branch-recovery-public-v4",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:06.918618+00:00",
+      "ended_at": "2026-10-14T10:16:08.984280+00:00",
+      "exit_code": 0,
+      "output_sha256": "e140dafd576b1c40de17f8250b1ca066fff35d75418d5fa37a7e4f9d5dabd1d0",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-build.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-inspect",
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python /workspace/scratch/seam-release-20261014/packaging/inspect_archives.py /workspace/scratch/seam-release-20261014/packaging/source-branch-recovery-public-v4 /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:09.018066+00:00",
+      "ended_at": "2026-10-14T10:16:09.111213+00:00",
+      "exit_code": 0,
+      "output_sha256": "10daca9b4ab8cbdf2d66c5939255627c32dfa91c9ce5f341c2626e5e54275b25",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-inspect.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-twine",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m twine check --strict /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:09.141375+00:00",
+      "ended_at": "2026-10-14T10:16:09.380907+00:00",
+      "exit_code": 0,
+      "output_sha256": "466f6d008df5fa3df292a153cc1809a4455670354acf570391f68b9f6931e065",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-twine.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-scanner",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/audit-env/bin/python -m tools.release.verify_private_artifacts --expected-name seam-suite --expected-version 2.4.1rc1 /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1-py3-none-any.whl /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T10:16:09.412878+00:00",
+      "ended_at": "2026-10-14T10:16:11.024460+00:00",
+      "exit_code": 0,
+      "output_sha256": "0be8c8f3b450f057b0f6262bfd97f6fef5355a08d316e3df5af37b77389aebc0",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-scanner.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-venv",
+      "command": "uv venv /workspace/scratch/seam-release-20261014/packaging/wheel-branch-recovery-public-v4-env",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:11.058195+00:00",
+      "ended_at": "2026-10-14T10:16:11.071306+00:00",
+      "exit_code": 0,
+      "output_sha256": "bcd55ad67575718cd2ed9e7bae43adb069f8c62c2bbcb864b05bc3808d06582f",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-venv.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-install",
+      "command": "uv pip install --python /workspace/scratch/seam-release-20261014/packaging/wheel-branch-recovery-public-v4-env/bin/python /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1-py3-none-any.whl",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:11.102820+00:00",
+      "ended_at": "2026-10-14T10:16:11.628867+00:00",
+      "exit_code": 0,
+      "output_sha256": "bb63db4b37ff6d17f73ba971f299a17c0a0f0fe00964a60747598080ae94d691",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-install.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-dependencies",
+      "command": "uv pip check --python /workspace/scratch/seam-release-20261014/packaging/wheel-branch-recovery-public-v4-env/bin/python",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:11.664279+00:00",
+      "ended_at": "2026-10-14T10:16:11.676464+00:00",
+      "exit_code": 0,
+      "output_sha256": "3b7f5562618527534e572f8a3b961b45a87b46b9a0ac389450638ffa436953e9",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-dependencies.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-wheel-smoke",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/wheel-branch-recovery-public-v4-env/bin/python -I /workspace/scratch/seam-release-20261014/packaging/source-branch-recovery-public-v4/tests/package/smoke_installed_suite.py -v",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:11.707662+00:00",
+      "ended_at": "2026-10-14T10:16:50.935610+00:00",
+      "exit_code": 0,
+      "output_sha256": "dc0012e1bb57bb49e829d2c41e74fa7401e3304d702e49df6fdd654a4538ca16",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-wheel-smoke.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-venv",
+      "command": "uv venv /workspace/scratch/seam-release-20261014/packaging/sdist-branch-recovery-public-v4-env",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:50.969473+00:00",
+      "ended_at": "2026-10-14T10:16:50.982058+00:00",
+      "exit_code": 0,
+      "output_sha256": "3e1652bdb00d118a245e5766f8cf8a24918335c2f040e0cd7b042948fa17f579",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-venv.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-install",
+      "command": "uv pip install --python /workspace/scratch/seam-release-20261014/packaging/sdist-branch-recovery-public-v4-env/bin/python /workspace/scratch/seam-release-20261014/packaging/dist-branch-recovery-public-v4/seam_suite-2.4.1rc1.tar.gz",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:51.012992+00:00",
+      "ended_at": "2026-10-14T10:16:51.814715+00:00",
+      "exit_code": 0,
+      "output_sha256": "ebcd0b1881909ac3618e5bcbd5895bcbc97722dce6d5eb463bd0879fdb74ae33",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-install.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-dependencies",
+      "command": "uv pip check --python /workspace/scratch/seam-release-20261014/packaging/sdist-branch-recovery-public-v4-env/bin/python",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:51.847557+00:00",
+      "ended_at": "2026-10-14T10:16:51.859969+00:00",
+      "exit_code": 0,
+      "output_sha256": "cb097f6029256c5ca7f4347a7423538b2c7ebfb0eb446bcc262ea78f7a79fa82",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-dependencies.log"
+    },
+    {
+      "label": "branch-recovery-public-v4-sdist-smoke",
+      "command": "/workspace/scratch/seam-release-20261014/packaging/sdist-branch-recovery-public-v4-env/bin/python -I /workspace/scratch/seam-release-20261014/packaging/source-branch-recovery-public-v4/tests/package/smoke_installed_suite.py -v",
+      "cwd": "/workspace/scratch/seam-release-20261014/packaging",
+      "started_at": "2026-10-14T10:16:51.891163+00:00",
+      "ended_at": "2026-10-14T10:17:31.849355+00:00",
+      "exit_code": 0,
+      "output_sha256": "971d64900b76641beb9dcbdaba0cb9e7aa94a741b99d9b0aae939c192ef87369",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-public-v4-sdist-smoke.log"
+    }
+  ]
+}

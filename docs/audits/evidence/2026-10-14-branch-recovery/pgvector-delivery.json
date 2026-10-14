@@ -1,0 +1,376 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "deliver-owned-pgvector-ci-recovery",
+  "verdict": "PASS",
+  "created_at": "2026-10-14T10:23:11.398196+00:00",
+  "base_sha": "07b20a424ace842b9d3c88f836efff88906b6451",
+  "branch": "integrate/branch-recovery-20261014",
+  "startup_authority": "Root validated context packet and startup attestation; no child Git operations.",
+  "owned_files": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "sha256": "6bb8b6349ababa9fb1586f987a30742177d744506c188d9773c6c8e4d1f1a64f"
+    },
+    {
+      "path": "docker-compose.yaml",
+      "sha256": "90c590074f42387ef90f399db9165f712033b9f4074956700fe03849af08e6cf"
+    },
+    {
+      "path": "tools/ci/pgvector_fixture.py",
+      "sha256": "8b45d364e495422a38fc6341ef60c42c8fe6aa1db7d0baa8e73b8d6713458726"
+    },
+    {
+      "path": "tests/audit/test_pgvector_ci_fixture.py",
+      "sha256": "7b50c5e4d341c6e264d424b450bd86f67aa7c1152810214d5086bc335d24238f"
+    }
+  ],
+  "changes": [
+    "Removed pgvector automatic services; regression step and guarded start precede all six explicit real test paths; always cleanup after test step. Existing other jobs retained.",
+    "Compose canonical image and fixture both pgvector/pgvector:0.8.7-pg18-trixie. Compose persistent storage policy unchanged; CI fixture mounts PG18 parent tmpfs 512MiB.",
+    "Fixture start/run/stop force approved Unix daemon and clear only five endpoint/TLS selector variables per Docker subprocess; preserve DOCKER_CONFIG, proxy, CA and registry settings.",
+    "Unique name/ownership labels, exact inspected image ID, loopback ephemeral database port, bounded health/extension readiness and content-free failure diagnostics.",
+    "Owned private state directory0700, atomic state0600, exclusive lock, schema/identity checks, state16384byte and Docker response65536character caps. Credential never in argv or GITHUB_ENV; only test child receives owned DSNs; captured output password scrubbed before emission.",
+    "Run performs daemon/identity/health/mount/port checks and never creates/restarts/removes a service; forces child SEAM_STRICT_NO_SKIP=1 even with inherited0.",
+    "Stop verifies labels/name/image/ID before exact rm --force --volumes; verifies removal and empty ownership filter before deleting private state; missing never-started state requires no daemon. Mismatched ownership fails without deletion."
+  ],
+  "witnessed_red": [
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_pgvector_ci_fixture.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:08:54.197216+00:00",
+      "ended_at": "2026-10-14T10:08:54.787534+00:00",
+      "exit_code": 1,
+      "output_sha256": "c47328455aa847db624cdd0c6aec11dd7284fd4a70478808d3b02e6474bdf8c2",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/red.log",
+      "reason": "Before helper/workflow implementation: public lifecycle unavailable and actual workflow still pre-step services. Seven failing tests; negative readiness tests subsequently strengthened to require diagnostic and verified cleanup."
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_pgvector_ci_fixture.py::test_failed_readiness_or_wrong_mount_cleans_own_partial_start[late_healthy]",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:19:33.510568+00:00",
+      "ended_at": "2026-10-14T10:19:34.153744+00:00",
+      "exit_code": 1,
+      "output_sha256": "ceeaefc329385b8c4d3b9cc96d472b4ddd6d0f48a82c90a94b65a94c8e82bd88",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/late-ready-red.log",
+      "reason": "Existing helper wrongly accepted healthy response arriving after deadline; regression failed before bounded inspect/extension deadline fix."
+    }
+  ],
+  "strict_env_regression": {
+    "test": "test_child_gets_only_owned_database_and_secret_output_is_redacted",
+    "parent_env": "SEAM_STRICT_NO_SKIP=0",
+    "child_assertion": "SEAM_STRICT_NO_SKIP == 1",
+    "initial_red": "Witnessed exit1 in tool output before forced assignment; separate log not captured. Exact persisted RED above covers public lifecycle/CI ordering and delayed readiness.",
+    "green_record": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_pgvector_ci_fixture.py",
+        "tests/audit/test_github_pr_gates.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:20:12.958233+00:00",
+      "ended_at": "2026-10-14T10:20:16.134921+00:00",
+      "exit_code": 0,
+      "output_sha256": "341d5dca33250b815baddbafb6001e174c20bf1716bb74f3d612e77777db8938",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/green-final.log"
+    }
+  },
+  "checks": [
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_pgvector_ci_fixture.py",
+        "tests/audit/test_github_pr_gates.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:20:12.958233+00:00",
+      "ended_at": "2026-10-14T10:20:16.134921+00:00",
+      "exit_code": 0,
+      "output_sha256": "341d5dca33250b815baddbafb6001e174c20bf1716bb74f3d612e77777db8938",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/green-final.log",
+      "tests_passed": 18,
+      "fixture_tests": 10,
+      "root_owned_gate_tests": 8
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tools/ci/pgvector_fixture.py",
+        "tests/audit/test_pgvector_ci_fixture.py"
+      ],
+      "started_at": "2026-10-14T10:20:16.165578+00:00",
+      "ended_at": "2026-10-14T10:20:16.196377+00:00",
+      "exit_code": 0,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/lint-final.log"
+    },
+    {
+      "command": [
+        "python",
+        "-m",
+        "pip",
+        "--python",
+        "/workspace/Seam/.venv/bin/python",
+        "install",
+        "--quiet",
+        "psycopg[binary]"
+      ],
+      "started_at": "2026-10-14T10:16:55.060585+00:00",
+      "ended_at": "2026-10-14T10:16:57.086463+00:00",
+      "exit_code": 0,
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/dependencies.log"
+    }
+  ],
+  "real_service_final": {
+    "start": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.ci.pgvector_fixture",
+        "start",
+        "--state",
+        "/workspace/scratch/seam-branch-audit-20261014/pgvector/private-final/state.json"
+      ],
+      "started_at": "2026-10-14T10:20:27.784749+00:00",
+      "ended_at": "2026-10-14T10:20:37.773011+00:00",
+      "exit_code": 0,
+      "output_sha256": "9716aab77189755746fcb28ba040dddb3e9dfa6be4b20ded7c47986c1871d749",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/start-final.log"
+    },
+    "public_metadata": {
+      "container_id": "de899c8cb272f65c3adc8e631770e6394131a03138666c201b668164d5119ea5",
+      "container_name": "seam-ci-pgvector-effd447b6d4646f4",
+      "extension_version": "0.8.7",
+      "image": "pgvector/pgvector:0.8.7-pg18-trixie",
+      "image_digest": "pgvector/pgvector@sha256:9d9c930220cb9bf2f956d10a8f909cf9973d9672ca0278aef2c1e6facccad2e0",
+      "image_id": "sha256:6056e3cfeacc60b20613aeee65585f56c0816c2b040982880b1f8053773c3062",
+      "mounts": [
+        {
+          "destination": "/var/lib/postgresql",
+          "type": "tmpfs"
+        }
+      ],
+      "port": 32769,
+      "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+      "server_api": "1.51"
+    },
+    "tests": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.ci.pgvector_fixture",
+        "run",
+        "--state",
+        "/workspace/scratch/seam-branch-audit-20261014/pgvector/private-final/state.json",
+        "--",
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_pgvector_real_adapter.py",
+        "tests/audit/test_pgvector_pk_composite.py",
+        "tests/audit/test_substream_isolation.py",
+        "tests/audit/test_pgvector_render_contract.py",
+        "tests/audit/test_pgvector_boundary_resync.py",
+        "tests/audit/test_s8_r2_pgvector_parity.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:21:02.630461+00:00",
+      "ended_at": "2026-10-14T10:21:52.701076+00:00",
+      "exit_code": 0,
+      "output_sha256": "325b7cf7b0d6ead544ebb7e833a08009fa10cf90ce29b8f9021e2ede461488f5",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/real-tests-final.log",
+      "passed": 47,
+      "skipped": 0
+    },
+    "stop": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.ci.pgvector_fixture",
+        "stop",
+        "--state",
+        "/workspace/scratch/seam-branch-audit-20261014/pgvector/private-final/state.json"
+      ],
+      "started_at": "2026-10-14T10:22:28.146406+00:00",
+      "ended_at": "2026-10-14T10:22:28.629072+00:00",
+      "exit_code": 0,
+      "output_sha256": "b18a77ceee4a5246dd75196d3f352dd3bf10c682504ecd73e24b7f76aeee939a",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/stop-final.log"
+    },
+    "cleanup_proof": {
+      "owned_resources": [
+        {
+          "command": [
+            "docker",
+            "--host=unix:///var/run/docker.sock",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "de899c8cb272f65c3adc8e631770e6394131a03138666c201b668164d5119ea5"
+          ],
+          "started_at": "2026-10-14T10:22:28.661390+00:00",
+          "ended_at": "2026-10-14T10:22:28.681630+00:00",
+          "exit_code": 1,
+          "stdout_empty": true,
+          "output_sha256": "8723c704a0ecc5baa0edf8f07deca471405799164e54d017d6200c81f1c69530",
+          "expected_absence": true
+        },
+        {
+          "command": [
+            "docker",
+            "--host=unix:///var/run/docker.sock",
+            "ps",
+            "--all",
+            "--quiet",
+            "--filter",
+            "label=io.canticle.seam.pgvector-fixture=true",
+            "--filter",
+            "name=^/seam-ci-pgvector-effd447b6d4646f4$"
+          ],
+          "started_at": "2026-10-14T10:22:28.681679+00:00",
+          "ended_at": "2026-10-14T10:22:28.696215+00:00",
+          "exit_code": 0,
+          "stdout_empty": true,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "expected_absence": true
+        }
+      ],
+      "private_state_absent": true,
+      "private_lock_absent": true,
+      "private_directory_absent": true
+    },
+    "controlled_parent_environment": {
+      "DOCKER_HOST": "unix:///missing-desktop.sock",
+      "DOCKER_CONTEXT": "stale-desktop",
+      "DOCKER_TLS": "1",
+      "DOCKER_TLS_VERIFY": "1",
+      "DOCKER_CERT_PATH": "unused-selector",
+      "SEAM_STRICT_NO_SKIP": "0"
+    },
+    "before_proof": "Fresh random unique name and exclusive private-state reservation; Docker create refuses collisions. No operator container reused. Actual mount list contains only tmpfs and no named/anonymous volume."
+  },
+  "earlier_actual_service_cycle": {
+    "start": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.ci.pgvector_fixture",
+        "start",
+        "--state",
+        "/workspace/scratch/seam-branch-audit-20261014/pgvector/private/state.json"
+      ],
+      "started_at": "2026-10-14T10:16:17.441478+00:00",
+      "ended_at": "2026-10-14T10:16:38.197365+00:00",
+      "exit_code": 0,
+      "output_sha256": "2d6f73578784ff228bea2c546d154dfa1525b077381b1a0de7704ee7ae5d016e",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/start.log"
+    },
+    "tests": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.ci.pgvector_fixture",
+        "run",
+        "--state",
+        "/workspace/scratch/seam-branch-audit-20261014/pgvector/private/state.json",
+        "--",
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_pgvector_real_adapter.py",
+        "tests/audit/test_pgvector_pk_composite.py",
+        "tests/audit/test_substream_isolation.py",
+        "tests/audit/test_pgvector_render_contract.py",
+        "tests/audit/test_pgvector_boundary_resync.py",
+        "tests/audit/test_s8_r2_pgvector_parity.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:17:21.347953+00:00",
+      "ended_at": "2026-10-14T10:18:12.382297+00:00",
+      "exit_code": 0,
+      "output_sha256": "325b7cf7b0d6ead544ebb7e833a08009fa10cf90ce29b8f9021e2ede461488f5",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/real-tests.log",
+      "passed": 47,
+      "skipped": 0
+    },
+    "stop": {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.ci.pgvector_fixture",
+        "stop",
+        "--state",
+        "/workspace/scratch/seam-branch-audit-20261014/pgvector/private/state.json"
+      ],
+      "started_at": "2026-10-14T10:18:16.340246+00:00",
+      "ended_at": "2026-10-14T10:18:16.812323+00:00",
+      "exit_code": 0,
+      "output_sha256": "b18a77ceee4a5246dd75196d3f352dd3bf10c682504ecd73e24b7f76aeee939a",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/stop.log"
+    },
+    "cleanup_proof": {
+      "owned_resources": [
+        {
+          "command": [
+            "docker",
+            "--host=unix:///var/run/docker.sock",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "5a94be71db7fe593268e05e09442159ba411370feceacae1429fdb9fb38a76db"
+          ],
+          "started_at": "2026-10-14T10:18:58.135889+00:00",
+          "ended_at": "2026-10-14T10:18:58.158578+00:00",
+          "exit_code": 1,
+          "stdout_empty": true,
+          "output_sha256": "54a6600d6d71f17666defb0623f6dfe329b2d122bbc68c4bf5563a3dc3d9d8db",
+          "expected_absence": true
+        },
+        {
+          "command": [
+            "docker",
+            "--host=unix:///var/run/docker.sock",
+            "ps",
+            "--all",
+            "--quiet",
+            "--filter",
+            "label=io.canticle.seam.pgvector-fixture=true",
+            "--filter",
+            "name=^/seam-ci-pgvector-e6924ccd432c44f0$"
+          ],
+          "started_at": "2026-10-14T10:18:58.158609+00:00",
+          "ended_at": "2026-10-14T10:18:58.170323+00:00",
+          "exit_code": 0,
+          "stdout_empty": true,
+          "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "expected_absence": true
+        }
+      ],
+      "private_state_absent": true,
+      "private_lock_absent": true,
+      "private_directory_absent": true
+    }
+  },
+  "residual_limits": [
+    "Qualification is actual managed local daemon, not a newly dispatched GHA job. Self-hosted runner must expose an authorized working /var/run/docker.sock; helper fails closed when unavailable. No daemon/context repair attempted.",
+    "No staging, commits, PR changes, CI dispatch/cancellation, deployments or operator resource changes. Root owns shared gate-test amendment and final continuity/commit."
+  ],
+  "logs_root": "/workspace/scratch/seam-branch-audit-20261014/pgvector"
+}

@@ -1,0 +1,5497 @@
+{
+  "observed_at": "2026-10-14T09:13:42.027404+00:00",
+  "repositories": [
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "branches": [
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/backup/local-pgvector-bootstrap",
+          "branch": "backup/local-pgvector-bootstrap",
+          "tip": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "75bc2d6a5c6a04173c722ec17a02e75947bee720",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea",
+              "date": "2026-04-28T09:46:04-05:00",
+              "subject": "Update pgvector backup branch from main"
+            },
+            {
+              "sha": "7be4416fa87e39ddf89d810e57675a78229e78d8",
+              "date": "2026-04-17T08:48:04-05:00",
+              "subject": "Add local pgvector bootstrap and restore repo wiring"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "_imports/awesome-design-md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "compose.yaml"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docker/initdb/01-vector.sql"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/COMMANDS.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/CONVENTIONS.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/PROJECT_MAP.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/SEAM_NotebookLM_Brief_2026-04-17.pdf"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/SOP_VIDEO_COMMANDS_AND_STRUCTURE.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "scripts/pgvector-up.ps1"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "scripts/setup-seam.ps1"
+              ]
+            }
+          ],
+          "pull_requests": [],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/blackhatshiftey-performance-improvements",
+          "branch": "blackhatshiftey-performance-improvements",
+          "tip": "4d2609e59ffca85eb2c4c6c4e995e62f545744ec",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "f0bc4b0b00b22dbf5b68800aabb89b8e0ddb1c07",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "4d2609e59ffca85eb2c4c6c4e995e62f545744ec",
+              "date": "2026-08-12T18:10:06-05:00",
+              "subject": "test(vector): align streaming fake with source-hash fingerprint"
+            },
+            {
+              "sha": "445cf18f92794e2f459a0864746b4493b9111abc",
+              "date": "2026-08-12T00:03:45-05:00",
+              "subject": "perf(vector): preserve cache across no-op replays"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0416.cross.md",
+                ".seam/cross_index_archive/0001-0418.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector_adapters.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "test_seam_all/test_seam.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_runtime_persist_atomic_restore.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_vector_cache_parity.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_vector_index_idempotency.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "blackhatshiftey-performance-improvements",
+              "headRefOid": "4d2609e59ffca85eb2c4c6c4e995e62f545744ec",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 213,
+              "state": "OPEN",
+              "title": "perf(vector): preserve cache across no-op replays",
+              "updatedAt": "2026-09-12T18:09:03Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/213"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/claude/ci-gate-parity-and-timeouts",
+          "branch": "claude/ci-gate-parity-and-timeouts",
+          "tip": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+              "date": "2026-09-24T08:51:41Z",
+              "subject": "Gate workspace hygiene instead of documenting it"
+            },
+            {
+              "sha": "a511a9fbd12aa6000378473c957f3a608e502566",
+              "date": "2026-09-24T08:31:09Z",
+              "subject": "Assert gate parity as an invariant, not a syntactic shape"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0512.cross.md",
+                ".seam/cross_index_archive/0001-0514.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "AGENTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "pyproject.toml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_history_closeout.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_workspace_hygiene.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/git-hooks/pre-commit"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/git/verify_workspace.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/history/closeout.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "claude/ci-gate-parity-and-timeouts",
+              "headRefOid": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 270,
+              "state": "OPEN",
+              "title": "Make the hygiene gates actually gate",
+              "updatedAt": "2026-09-28T21:25:04Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/270"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/claude/roadmap-implementation-4cn2al",
+          "branch": "claude/roadmap-implementation-4cn2al",
+          "tip": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 9,
+          "unique_commits": [
+            {
+              "sha": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+              "date": "2026-09-19T20:13:11-05:00",
+              "subject": "Add opt-in context-preserving memory formation"
+            },
+            {
+              "sha": "93eafed269f2f49252ad382a92c7b5bfbf3cbc00",
+              "date": "2026-09-19T18:57:15-05:00",
+              "subject": "Verify M1 formation evidence and repair checkpoint expectations"
+            },
+            {
+              "sha": "2133d60a4ff8fb1057f3a69ade648989744a9262",
+              "date": "2026-09-19T20:24:30Z",
+              "subject": "Register handoff head for E1/B1/M1 and the seam-box CI blocker"
+            },
+            {
+              "sha": "782820f3ecc608af501875f18d8d32e239257380",
+              "date": "2026-09-19T05:44:34Z",
+              "subject": "Split M1 out of #264 and give its probe a test suite"
+            },
+            {
+              "sha": "24049e0850c2d0b60c0cc22ff0894fb4c94118e2",
+              "date": "2026-09-19T05:29:12Z",
+              "subject": "Give LoCoMo checkpoints a resumable identity"
+            },
+            {
+              "sha": "619a996f0b2c37ac19c8ee2366c0dd0cb4bccefc",
+              "date": "2026-09-19T05:07:13Z",
+              "subject": "Correct the E1 contract's batch-judging row and version the contract"
+            },
+            {
+              "sha": "fad0f890325b214155f752c005df570d418d7260",
+              "date": "2026-09-19T01:16:44Z",
+              "subject": "Specify BIL-3 Signed Reproducibility Bundle (B1)"
+            },
+            {
+              "sha": "12a4c9f1dde7266d7ef5ebda163a170c5d929ef5",
+              "date": "2026-09-19T01:04:38Z",
+              "subject": "Freeze E1 evaluation contract and pin LoCoMo holdout split"
+            },
+            {
+              "sha": "0a23f2a51e21b137c136f9f59d2ab02b5a583821",
+              "date": "2026-09-18T19:58:19Z",
+              "subject": "Reconcile roadmap fork and register live PR state"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R098",
+              "paths": [
+                ".seam/cross_index_archive/0001-0512.cross.md",
+                ".seam/cross_index_archive/0001-0521.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/locomo/holdout_assignment.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/locomo/run.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/BIL_3_SPEC.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/E1_EVALUATION_CONTRACT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-09-13-memory-formation-m1.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-09-18-roadmap-fork-reconciliation.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/audits/INDEX.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/handoffs/2026-09-14-claude-code-benchmark-next.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-09-19-m1-evidence-repair-next.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-09-20-formation-m3-next.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/handoffs/INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/roadmap/MEMORY_FORMATION.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/formation.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/nl.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_locomo_adapter_real_embedding.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_locomo_resume.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_memory_formation_m1_probe.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_memory_formation_m3.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/memory_formation_m1.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "claude/roadmap-implementation-4cn2al",
+              "headRefOid": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 269,
+              "state": "OPEN",
+              "title": "Add opt-in context-preserving formation and resolve M1/M2 design",
+              "updatedAt": "2026-09-20T01:24:46Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/269"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+          "branch": "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+          "tip": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "582bf0ca04be5eb44879a06c5589167d3ccf4bf3",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+              "date": "2026-10-08T07:23:30Z",
+              "subject": "chore(deps): bump pgvector/pgvector"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "docker-compose.yaml"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+              "headRefOid": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 282,
+              "state": "OPEN",
+              "title": "chore(deps): bump pgvector/pgvector from 0.8.6-pg18-trixie to 0.8.7-pg18-trixie",
+              "updatedAt": "2026-10-08T07:23:32Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/282"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+          "branch": "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+          "tip": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "582bf0ca04be5eb44879a06c5589167d3ccf4bf3",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+              "date": "2026-10-06T03:44:51Z",
+              "subject": "chore(deps): bump source-map-js"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "archive/webui-vite-source/package-lock.json"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+              "headRefOid": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 280,
+              "state": "OPEN",
+              "title": "chore(deps): bump source-map-js from 1.2.1 to 1.2.2 in /archive/webui-vite-source in the npm_and_yarn group across 1 directory",
+              "updatedAt": "2026-10-06T03:44:56Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/280"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/dependabot/uv/uv-35b9e54a79",
+          "branch": "dependabot/uv/uv-35b9e54a79",
+          "tip": "8d77775fe6e029717115758b917c94c757ed0d4a",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "7bd47d203bc8094020e7c9537d6a9ea0b7ab50d0",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "8d77775fe6e029717115758b917c94c757ed0d4a",
+              "date": "2026-09-11T04:03:18Z",
+              "subject": "chore(deps): bump mem0ai in the uv group across 1 directory"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "pyproject.toml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "uv.lock"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "dependabot/uv/uv-35b9e54a79",
+              "headRefOid": "8d77775fe6e029717115758b917c94c757ed0d4a",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 249,
+              "state": "OPEN",
+              "title": "chore(deps): bump mem0ai from 0.1.118 to 2.0.0b2 in the uv group across 1 directory",
+              "updatedAt": "2026-10-14T06:01:32Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/249"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/docs/doc-audit-20261002",
+          "branch": "docs/doc-audit-20261002",
+          "tip": "8530717d800d397ba58283710b6e8f0a037aabf8",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+          "unique_commit_count": 7,
+          "unique_commits": [
+            {
+              "sha": "8530717d800d397ba58283710b6e8f0a037aabf8",
+              "date": "2026-10-02T22:35:53-05:00",
+              "subject": "chore: satisfy terminology documentation gate"
+            },
+            {
+              "sha": "665f8c8e578eb0ec2d76000599d563b0afade26f",
+              "date": "2026-10-02T22:22:58-05:00",
+              "subject": "docs: establish canonical terminology contract"
+            },
+            {
+              "sha": "8ee8856d89dfb88a42e9dfef94262147096089de",
+              "date": "2026-10-02T08:29:57-05:00",
+              "subject": "docs: log public-surface cleanup pass (HISTORY#657)"
+            },
+            {
+              "sha": "2ca37340c8bad38ce9907870c63a1d9729ddfd29",
+              "date": "2026-10-02T07:55:54-05:00",
+              "subject": "docs: log site documentation expansion (HISTORY#656)"
+            },
+            {
+              "sha": "4397a6caf3064c9f6ed9c06088a66eada111939e",
+              "date": "2026-10-02T07:41:58-05:00",
+              "subject": "docs: restructure README install/package map and /v1 split (HISTORY#655)"
+            },
+            {
+              "sha": "664cc29921e60883e56d8a753bee528f1d8a3910",
+              "date": "2026-10-02T07:32:29-05:00",
+              "subject": "docs: consolidate README credential/webui pointer cards (HISTORY#654)"
+            },
+            {
+              "sha": "44dce9d41bb3938f94b46cb793354a794a42738c",
+              "date": "2026-10-02T07:28:17-05:00",
+              "subject": "docs: documentation drift audit and correction (HISTORY#653)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R098",
+              "paths": [
+                ".seam/cross_index_archive/0001-0518.cross.md",
+                ".seam/cross_index_archive/0001-0525.cross.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/snapshots/20261003-030955-612158-codex.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/snapshots/20261003-033422-697583-codex.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "CONTRIBUTING.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "SECURITY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/BENCHMARK_SOP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/DOCUMENTATION_MAP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/HOLOGRAPHIC_SURFACE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/IMPROVEMENT_EXPERIMENTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/MACOS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/MIRL_V1.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PGVECTOR_LOCAL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PRODUCTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PROTECTION_MODEL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/RAG_ARCHITECTURE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SEAM_OPERATOR_GUIDE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/TERMINOLOGY.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-10-02-documentation-drift-audit.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/audits/INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/errors.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/setup.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/compression-visual.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/operations.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/surfaces.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/workspace.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "installers/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_terminology_contract.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/docs/verify_terminology.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/docs/verify_wiki.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "docs/doc-audit-20261002",
+              "headRefOid": "8530717d800d397ba58283710b6e8f0a037aabf8",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 277,
+              "state": "OPEN",
+              "title": "docs: documentation drift audit and correction",
+              "updatedAt": "2026-10-03T03:53:56Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/277"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/docs/seam-native-model-roadmap",
+          "branch": "docs/seam-native-model-roadmap",
+          "tip": "4a4f8d86552ab41e289231e5f6293014800e0330",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "f5d304c606312a0df3eeee7f360e10eab5626f82",
+          "unique_commit_count": 3,
+          "unique_commits": [
+            {
+              "sha": "4a4f8d86552ab41e289231e5f6293014800e0330",
+              "date": "2026-08-12T18:56:16-05:00",
+              "subject": "fix(ci): mark canonical pre-commit hook executable"
+            },
+            {
+              "sha": "1772f2d867772082c493e54a73cc5562016d96b0",
+              "date": "2026-08-12T18:55:51-05:00",
+              "subject": "fix(ci): restore executable pre-commit enforcement (HISTORY#561)"
+            },
+            {
+              "sha": "ea739d4740dfe1b8874344556e0d58c6d8ce062b",
+              "date": "2026-08-12T18:54:21-05:00",
+              "subject": "docs: reconcile native model and embodied agent roadmap (HISTORY#560)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".gitignore"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R089",
+              "paths": [
+                ".seam/cross_index_archive/0001-0422.cross.md",
+                ".seam/cross_index_archive/0001-0469.cross.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/executed/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/executed/index.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/executed/log.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/future-ideas/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/future-ideas/index.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/future-ideas/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/plans/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/plans/index.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/plans/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/roadmap/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/roadmap/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/roadmap/state.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/streams/roadmap_workflow_state.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "ROADMAP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/common/run_record.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/BENCHMARK_RUN_RECORDS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/DATA_ROUTING.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/roadmap/APPEND_ONLY_ROADMAP.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/roadmap/SEAM_NATIVE_MODEL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_local_gates_match_ci.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_run_record.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/git-hooks/pre-commit"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/h2/paid_validation.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/streams/roadmap_lifecycle.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/streams/test_streams.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/streams/verify_streams.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "docs/seam-native-model-roadmap",
+              "headRefOid": "4a4f8d86552ab41e289231e5f6293014800e0330",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 207,
+              "state": "CLOSED",
+              "title": "docs: define SEAM-native model end-state roadmap",
+              "updatedAt": "2026-09-03T06:54:20Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/207"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/docs/seam-product-license-boundary-20260829",
+          "branch": "docs/seam-product-license-boundary-20260829",
+          "tip": "0c0b77446f17e832961375d466ead2b9add9d4de",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "780b3772c76281597ee3c6f6d07caa5adf284df2",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "0c0b77446f17e832961375d466ead2b9add9d4de",
+              "date": "2026-08-29T20:02:20-05:00",
+              "subject": "docs: record approved SEAM boundary policy"
+            },
+            {
+              "sha": "f7bad6d1c385d53e59f5a02aead10a08b6b27454",
+              "date": "2026-08-29T19:59:01-05:00",
+              "subject": "docs: define SEAM product and licensing boundary"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/cross_index_archive/0001-0477.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "CONTEXT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/DOCUMENTATION_MAP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/packaging-licensing.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "docs/seam-product-license-boundary-20260829",
+              "headRefOid": "0c0b77446f17e832961375d466ead2b9add9d4de",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 236,
+              "state": "CLOSED",
+              "title": "docs: define SEAM product and licensing boundary",
+              "updatedAt": "2026-09-03T06:55:23Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/236"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/docs/wiki-baseline-20261003",
+          "branch": "docs/wiki-baseline-20261003",
+          "tip": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+          "unique_commit_count": 8,
+          "unique_commits": [
+            {
+              "sha": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+              "date": "2026-10-03T17:04:25-05:00",
+              "subject": "docs: add repository-level wiki navigation and verified baseline"
+            },
+            {
+              "sha": "8530717d800d397ba58283710b6e8f0a037aabf8",
+              "date": "2026-10-02T22:35:53-05:00",
+              "subject": "chore: satisfy terminology documentation gate"
+            },
+            {
+              "sha": "665f8c8e578eb0ec2d76000599d563b0afade26f",
+              "date": "2026-10-02T22:22:58-05:00",
+              "subject": "docs: establish canonical terminology contract"
+            },
+            {
+              "sha": "8ee8856d89dfb88a42e9dfef94262147096089de",
+              "date": "2026-10-02T08:29:57-05:00",
+              "subject": "docs: log public-surface cleanup pass (HISTORY#657)"
+            },
+            {
+              "sha": "2ca37340c8bad38ce9907870c63a1d9729ddfd29",
+              "date": "2026-10-02T07:55:54-05:00",
+              "subject": "docs: log site documentation expansion (HISTORY#656)"
+            },
+            {
+              "sha": "4397a6caf3064c9f6ed9c06088a66eada111939e",
+              "date": "2026-10-02T07:41:58-05:00",
+              "subject": "docs: restructure README install/package map and /v1 split (HISTORY#655)"
+            },
+            {
+              "sha": "664cc29921e60883e56d8a753bee528f1d8a3910",
+              "date": "2026-10-02T07:32:29-05:00",
+              "subject": "docs: consolidate README credential/webui pointer cards (HISTORY#654)"
+            },
+            {
+              "sha": "44dce9d41bb3938f94b46cb793354a794a42738c",
+              "date": "2026-10-02T07:28:17-05:00",
+              "subject": "docs: documentation drift audit and correction (HISTORY#653)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R098",
+              "paths": [
+                ".seam/cross_index_archive/0001-0518.cross.md",
+                ".seam/cross_index_archive/0001-0527.cross.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/snapshots/20261003-030955-612158-codex.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/snapshots/20261003-033422-697583-codex.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "CONTRIBUTING.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "SECURITY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/BENCHMARK_SOP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/DOCUMENTATION_MAP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/HOLOGRAPHIC_SURFACE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/IMPROVEMENT_EXPERIMENTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/MACOS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/MIRL_V1.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PGVECTOR_LOCAL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PRODUCTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PROTECTION_MODEL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/RAG_ARCHITECTURE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SEAM_OPERATOR_GUIDE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/TERMINOLOGY.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-10-02-documentation-drift-audit.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/audits/INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/errors.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/setup.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/compression-visual.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/operations.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/surfaces.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/workspace.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "installers/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_terminology_contract.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/docs/verify_terminology.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/docs/verify_wiki.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "docs/wiki-baseline-20261003",
+              "headRefOid": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 278,
+              "state": "OPEN",
+              "title": "docs: complete repository-level wiki navigation",
+              "updatedAt": "2026-10-03T22:09:09Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/278"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/feat/codex-skilldb-adapter",
+          "branch": "feat/codex-skilldb-adapter",
+          "tip": "ab27b54d08a022259e0e052cee06ef48917c027d",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "ab27b54d08a022259e0e052cee06ef48917c027d",
+              "date": "2026-09-26T03:34:11-05:00",
+              "subject": "feat(skills): add Codex skilldb adapter"
+            },
+            {
+              "sha": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+              "date": "2026-09-26T02:30:30-05:00",
+              "subject": "feat(skills): add portable knowledge runtime"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0512.cross.md",
+                ".seam/cross_index_archive/0001-0514.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/roadmap/SKILLS_COMPILER.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/skills/CODEX_ADAPTER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "pyproject.toml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "requirements.txt"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/__init__.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/cli.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/doctor.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/skills/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/adapters/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/adapters/codex.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/cli.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/graph.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/host.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/models.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/planner.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/registry.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "test_seam_all/test_seam.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "test_seam_all/test_skill_factory.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_chroma_optional.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_github_issue_release_config.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/skills/test_codex_adapter.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/skills/test_skill_knowledge_runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "uv.lock"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "feat/codex-skilldb-adapter",
+              "headRefOid": "ab27b54d08a022259e0e052cee06ef48917c027d",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 272,
+              "state": "OPEN",
+              "title": "feat(skills): add Codex SkillDB adapter",
+              "updatedAt": "2026-09-26T08:35:27Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/272"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/feat/latent-cachebridge-roadmap-20260917",
+          "branch": "feat/latent-cachebridge-roadmap-20260917",
+          "tip": "24e1725134d476798992cc7ecaef7de299d27cc6",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 5,
+          "unique_commits": [
+            {
+              "sha": "24e1725134d476798992cc7ecaef7de299d27cc6",
+              "date": "2026-09-17T19:52:29-07:00",
+              "subject": "Record baseline-first CacheBridge roadmap invariant"
+            },
+            {
+              "sha": "5bb85ffd66413ed84e3c24336e573705e9754039",
+              "date": "2026-09-17T19:52:19-07:00",
+              "subject": "Define baseline-first discipline for CacheBridge research"
+            },
+            {
+              "sha": "4afdecc340f73d779e3e343c7e4940fa2a268937",
+              "date": "2026-09-17T17:06:22-07:00",
+              "subject": "Index Latent CacheBridge research lane"
+            },
+            {
+              "sha": "7dfd9cdbd00de80a01c871b5350bcb7f00f5b614",
+              "date": "2026-09-17T17:06:20-07:00",
+              "subject": "Register Latent CacheBridge roadmap lane"
+            },
+            {
+              "sha": "b10c3c74ea6060a666d2f06cd51b1a0fdaf74adf",
+              "date": "2026-09-17T17:06:17-07:00",
+              "subject": "Add Latent CacheBridge research roadmap"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "ROADMAP.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/roadmap/LATENT_CACHEBRIDGE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/roadmap/README.md"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "feat/latent-cachebridge-roadmap-20260917",
+              "headRefOid": "24e1725134d476798992cc7ecaef7de299d27cc6",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 267,
+              "state": "OPEN",
+              "title": "roadmap: open Latent CacheBridge research lane",
+              "updatedAt": "2026-09-18T02:52:30Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/267"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/feat/seam-reports-pages-20260912",
+          "branch": "feat/seam-reports-pages-20260912",
+          "tip": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "614141c5aa96fd51d4dee2e09c186bb4035c0377",
+          "unique_commit_count": 5,
+          "unique_commits": [
+            {
+              "sha": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+              "date": "2026-10-12T15:37:47-05:00",
+              "subject": "Enforce M1 probe controls under optimized Python"
+            },
+            {
+              "sha": "18abe44236021ba0bfddb78f55d067754c0d42ef",
+              "date": "2026-09-13T03:24:07-05:00",
+              "subject": "Checkpoint reports deployment and owned-domain authorization"
+            },
+            {
+              "sha": "99d0ffa0e12982b14eaee33241151bfc052bf8e9",
+              "date": "2026-09-13T02:54:04-05:00",
+              "subject": "Record PR 264 and the outstanding M1 probe qualification gap"
+            },
+            {
+              "sha": "0ebdde80595497a43b61754f216b919e6ee6bcc9",
+              "date": "2026-09-13T02:46:29-05:00",
+              "subject": "Admit the M1 public report and record benchmark-preparation handoff"
+            },
+            {
+              "sha": "e01284de37140b2d56a2c53e68d45f309f7e89e5",
+              "date": "2026-09-13T02:33:14-05:00",
+              "subject": "Prepare private-data-safe report publisher and M1 audit source"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "A",
+              "paths": [
+                ".github/workflows/reports-pages.yml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R097",
+              "paths": [
+                ".seam/cross_index_archive/0001-0511.cross.md",
+                ".seam/cross_index_archive/0001-0521.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/REPORTS_AND_EVIDENCE.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/REPORT_SITE.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-09-13-memory-formation-m1.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/audits/INDEX.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/handoffs/2026-09-12-memory-formation-roadmap.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-09-13-reports-domain-publication-next.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/handoffs/INDEX.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/404.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/_config.yml"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/_layouts/default.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/_layouts/report.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/about.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/assets/library.js"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/assets/reports.css"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/catalog.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/editions/2026-09-13-memory-formation-m1.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/feed.xml"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "report-site/index.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_history_closeout.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_memory_formation_m1.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_report_deployment_boundary.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_report_publication_safety.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_report_site.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/memory_formation_m1.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/reports/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/reports/prepare_site.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/reports/publication_safety.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "feat/seam-reports-pages-20260912",
+              "headRefOid": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 264,
+              "state": "OPEN",
+              "title": "Publish the first M1 report with a curated GitHub Pages library",
+              "updatedAt": "2026-10-13T01:03:43Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/264"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/feat/skill-knowledge-runtime",
+          "branch": "feat/skill-knowledge-runtime",
+          "tip": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+              "date": "2026-09-26T02:30:30-05:00",
+              "subject": "feat(skills): add portable knowledge runtime"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0512.cross.md",
+                ".seam/cross_index_archive/0001-0513.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/roadmap/SKILLS_COMPILER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "pyproject.toml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "requirements.txt"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/__init__.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/cli.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/doctor.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/skills/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/cli.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/graph.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/host.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/models.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/planner.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/skills/kb/registry.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "test_seam_all/test_seam.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "test_seam_all/test_skill_factory.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_chroma_optional.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_github_issue_release_config.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/skills/test_skill_knowledge_runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "uv.lock"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "feat/skill-knowledge-runtime",
+              "headRefOid": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 271,
+              "state": "OPEN",
+              "title": "feat: add portable skill knowledge runtime",
+              "updatedAt": "2026-09-26T07:32:03Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/271"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/fix/pgvector-ci-volume-leak",
+          "branch": "fix/pgvector-ci-volume-leak",
+          "tip": "23c999e6041917e54040a79dd55ab0c6270214a8",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "23c999e6041917e54040a79dd55ab0c6270214a8",
+              "date": "2026-09-23T15:31:34-05:00",
+              "subject": "fix(ci): stop pgvector-integration volume leaks"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".github/workflows/ci.yml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0512.cross.md",
+                ".seam/cross_index_archive/0001-0513.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            }
+          ],
+          "pull_requests": [],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/handoff/archive",
+          "branch": "handoff/archive",
+          "tip": "6469d717c2a33c3976b67ccfedefa6b930a73e81",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "e30573727e8ebdd51463b60ca4c23642007b2cd1",
+          "unique_commit_count": 3,
+          "unique_commits": [
+            {
+              "sha": "6469d717c2a33c3976b67ccfedefa6b930a73e81",
+              "date": "2026-04-16T01:47:50-05:00",
+              "subject": "Merge main into handoff/archive and resolve conflicts"
+            },
+            {
+              "sha": "664ae814c8a33e87f3fb1d0bde3df553ac3fc7ef",
+              "date": "2026-04-15T09:05:59-05:00",
+              "subject": "add runnable seam branding previews"
+            },
+            {
+              "sha": "0b0c6d96a5551bdcacd73ebda7c88c1d889779a9",
+              "date": "2026-04-15T04:05:07-05:00",
+              "subject": "add retrieval pipeline and simplify cli terminology"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".gitignore"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "HANDOFF_BRANDING.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "HANDOFF_DONE.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "HANDOFF_NEXT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/assets/seam-dashboard-reference.png"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/references/cli-aesthetic-design-principles.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/retro-direction.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/screenshots/retro-preview-v7.png"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/seam-mark-join.svg"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/seam-mark-retro.svg"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/seam-mark-stack.svg"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/seam-mark-terminal.svg"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/seam-retro-preview.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "branding/seam_terminal_preview.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/__init__.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "experimental/hybrid_orchestrator/README.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/hybrid_orchestrator/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/hybrid_orchestrator/adapters.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/hybrid_orchestrator/merger.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/hybrid_orchestrator/orchestrator.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/hybrid_orchestrator/planner.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "experimental/hybrid_orchestrator/types.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "requirements.txt"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/cli.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/storage.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector.py"
+              ]
+            }
+          ],
+          "pull_requests": [],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/perf/batched-embedding",
+          "branch": "perf/batched-embedding",
+          "tip": "6313f851c2cf68ef06350c910f6c9bbf3be13762",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "bc6b927e6fbc3cbef7db505e1af0929a6cf839f2",
+          "unique_commit_count": 6,
+          "unique_commits": [
+            {
+              "sha": "6313f851c2cf68ef06350c910f6c9bbf3be13762",
+              "date": "2026-08-25T16:10:15-05:00",
+              "subject": "fix: stream node vectors, add ranking-parity probe (HISTORY#613)"
+            },
+            {
+              "sha": "022e058e4aca1eafe6253ab5226d2440f6e9c0c1",
+              "date": "2026-08-25T15:45:05-05:00",
+              "subject": "fix: close fourth review round, measure ranking parity (HISTORY#612)"
+            },
+            {
+              "sha": "a4fe6188acbd16b3be59a594cba9f05ca924d39c",
+              "date": "2026-08-25T15:08:49-05:00",
+              "subject": "fix: close third review round and correct the extrapolation (HISTORY#611)"
+            },
+            {
+              "sha": "e482d3c9cab6f0c18298e394d958aeb3d0d287f3",
+              "date": "2026-08-25T14:36:08-05:00",
+              "subject": "fix: close second review round and correct the parity claim (HISTORY#610)"
+            },
+            {
+              "sha": "d975f201e85a6e53e2cd98c76af38331d13bd83e",
+              "date": "2026-08-25T14:01:12-05:00",
+              "subject": "fix: close PR #230 review findings (HISTORY#609)"
+            },
+            {
+              "sha": "4c222e031c6a21ca75d87aad4b0429685bcf27ea",
+              "date": "2026-08-25T13:32:28-05:00",
+              "subject": "perf: batch embedding for bulk ingest (HISTORY#608)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R098",
+              "paths": [
+                ".seam/cross_index_archive/0001-0470.cross.md",
+                ".seam/cross_index_archive/0001-0476.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/models.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector_adapters.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_batched_embedding.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/ingest_throughput_probe.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/ranking_parity_probe.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "perf/batched-embedding",
+              "headRefOid": "6313f851c2cf68ef06350c910f6c9bbf3be13762",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 230,
+              "state": "OPEN",
+              "title": "perf: batch embedding for bulk ingest (HISTORY#608)",
+              "updatedAt": "2026-09-12T18:09:01Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/230"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/preserve/rejected-terminal-graph-tui-20260829",
+          "branch": "preserve/rejected-terminal-graph-tui-20260829",
+          "tip": "859863c42277470520d0014f24f3b38932b779d9",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "440a014313870067d4c2f04a528aec9e235ba01f",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "859863c42277470520d0014f24f3b38932b779d9",
+              "date": "2026-08-29T20:14:33-05:00",
+              "subject": "wip: preserve rejected terminal graph TUI"
+            },
+            {
+              "sha": "ad302ecebe9b8a4340099e90882db31600893112",
+              "date": "2026-08-26T04:08:50-05:00",
+              "subject": "Renumber the Cline entries and land the deletion-incident protocol (HISTORY#612, #613)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "A",
+              "paths": [
+                ".disposable/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".gitignore"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R098",
+              "paths": [
+                ".seam/cross_index_archive/0001-0467.cross.md",
+                ".seam/cross_index_archive/0001-0476.cross.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/cross_index_archive/0001-0479.cross.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/cross_index_archive/0001-0480.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "AGENTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/tui/app.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/tui/graph_canvas.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/tui/memory_page.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/tui/nav.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/tui/overlays.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/tui/panels.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/tui/retrieval_page.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/tui/settings_screen.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/tui/split_pane.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/tui/theme.tcss"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_command_palette_task_menu.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_deletion_guard.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_tui_input_modes.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_tui_supersedes_dashboard.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/claude/deletion_guard.sh"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/history/audit_latest.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tools/history/test_history_tools.py"
+              ]
+            }
+          ],
+          "pull_requests": [],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/preserve/superseded-private-license-draft-20260829",
+          "branch": "preserve/superseded-private-license-draft-20260829",
+          "tip": "03c5878d6c3d36c14d160d7444bf4af59623929d",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "bc6b927e6fbc3cbef7db505e1af0929a6cf839f2",
+          "unique_commit_count": 5,
+          "unique_commits": [
+            {
+              "sha": "03c5878d6c3d36c14d160d7444bf4af59623929d",
+              "date": "2026-08-29T20:08:46-05:00",
+              "subject": "wip: preserve superseded private licensing draft"
+            },
+            {
+              "sha": "a4fe6188acbd16b3be59a594cba9f05ca924d39c",
+              "date": "2026-08-25T15:08:49-05:00",
+              "subject": "fix: close third review round and correct the extrapolation (HISTORY#611)"
+            },
+            {
+              "sha": "e482d3c9cab6f0c18298e394d958aeb3d0d287f3",
+              "date": "2026-08-25T14:36:08-05:00",
+              "subject": "fix: close second review round and correct the parity claim (HISTORY#610)"
+            },
+            {
+              "sha": "d975f201e85a6e53e2cd98c76af38331d13bd83e",
+              "date": "2026-08-25T14:01:12-05:00",
+              "subject": "fix: close PR #230 review findings (HISTORY#609)"
+            },
+            {
+              "sha": "4c222e031c6a21ca75d87aad4b0429685bcf27ea",
+              "date": "2026-08-25T13:32:28-05:00",
+              "subject": "perf: batch embedding for bulk ingest (HISTORY#608)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0470.cross.md",
+                ".seam/cross_index_archive/0001-0474.cross.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                ".seam/cross_index_archive/0001-0475.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "COMMERCIAL_LICENSE.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "CONTRIBUTING.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "LICENSE"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "LICENSES/HISTORICAL/BUSL-1.1.txt"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "LICENSES/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "NOTICE"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "SECURITY.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "TRADEMARKS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PROTECTION_MODEL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SELF_HOST_SECURITY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_SEAM_SELF_HOST_WHEEL.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-08-25-seam-company-licensing-boundary.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/audits/INDEX.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/legal/COMPANY_IP_READINESS.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/legal/LICENSING_ARCHITECTURE.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/legal/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/pricing-terms.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/pricing-tiers.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/roadmap/COMPETITIVE_ROADMAP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/status/packaging-licensing.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "pyproject.toml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/models.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector_adapters.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_batched_embedding.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_licensing_boundary.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/ingest_throughput_probe.py"
+              ]
+            }
+          ],
+          "pull_requests": [],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/refactor/unify-retrieval-paths",
+          "branch": "refactor/unify-retrieval-paths",
+          "tip": "d769f2ce8e9e95a97e9073c0e4bad6e9bca6dc5b",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66efbda47ef4ae6fd686017e25fe926b9592d1bc",
+          "unique_commit_count": 10,
+          "unique_commits": [
+            {
+              "sha": "d769f2ce8e9e95a97e9073c0e4bad6e9bca6dc5b",
+              "date": "2026-07-31T20:49:40-05:00",
+              "subject": "HISTORY#510: chain, and lift the #503 hold from the status surface"
+            },
+            {
+              "sha": "04ba6592000ebd0b190351ddc817f3c6336f105e",
+              "date": "2026-07-31T20:48:32-05:00",
+              "subject": "Return the verified provenance chain from graph retrieval"
+            },
+            {
+              "sha": "b8475a1fdc19261a5bdf159ea854bb0d8b21734a",
+              "date": "2026-07-31T18:29:57-05:00",
+              "subject": "HISTORY#509: matched ablation falsifies the #503 regression premise"
+            },
+            {
+              "sha": "0e9d0408b555e788e175b0d686982f9d10b47e7e",
+              "date": "2026-07-31T17:48:40-05:00",
+              "subject": "HISTORY#508: attribute the retrieval regression to the graph leg"
+            },
+            {
+              "sha": "12137bfc49a212e021312bcc4b79ecc66b3154f5",
+              "date": "2026-07-31T17:28:58-05:00",
+              "subject": "HISTORY#507: chain for the infrastructure fail-fast and dead-path removal"
+            },
+            {
+              "sha": "7bc64a05b04d6268d9e7088e640003e906ee487f",
+              "date": "2026-07-31T17:28:31-05:00",
+              "subject": "Fail loudly on infrastructure failure; drop dead T7 paths from live docs"
+            },
+            {
+              "sha": "d9ca70e5273027b0d6817976deaafc2a3357dd5a",
+              "date": "2026-07-31T14:33:02-05:00",
+              "subject": "HISTORY#506: chain for the test-artifact leak fix"
+            },
+            {
+              "sha": "753672c4ffc20eae06b7fb09f987a4b9d46be9f7",
+              "date": "2026-07-31T14:31:51-05:00",
+              "subject": "Fix two SQLite test-artifact leaks and guard against recurrence"
+            },
+            {
+              "sha": "13d168428db43251958df0eb6640fb6579cf39c2",
+              "date": "2026-07-30T16:10:00-05:00",
+              "subject": "Add retrieval trace attribution, WANDR replay lane, and status streams"
+            },
+            {
+              "sha": "7380b7c43dbde20631e3580a8870468f9f51d33d",
+              "date": "2026-07-30T08:21:52-05:00",
+              "subject": "Consolidate SEAM back to a single full package"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".github/workflows/package-release.yml"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                ".github/workflows/selfhost-release.yml"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R096",
+              "paths": [
+                ".seam/cross_index_archive/0001-0362.cross.md",
+                ".seam/cross_index_archive/0001-0372.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/roadmap/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/roadmap/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "ROADMAP.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/common/runner.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/common/types.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/locomo/adapters/seam.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/locomo/ingest_only.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/locomo/run.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/mem0_harness/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks/external/mem0_harness/preflight_derived_facts.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/wandr/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/wandr/adapters/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/wandr/adapters/seam.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/wandr/corpus.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/wandr/run.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/external/wandr/types.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks/fixtures/wandr/MANIFEST.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/CODE_LAYOUT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/PROTECTION_MODEL.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SELF_HOST_SECURITY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/SOP_DEEPSEEK_PARALLEL_AUDIT_EXECUTION.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/handoffs/2026-07-29-semantic-retrieval-and-promotion-gate.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-07-30-full-retrieval-ab-negative.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-07-30-retrieval-baseline-ablation-in-progress.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-07-30-single-retrieval-engine.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/handoffs/2026-07-30-wandr-zero-network-replay-lane.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/handoffs/INDEX.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/kb/eval-methodology/locomo-mem0-harness.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_ADVISED_EXECUTOR_PROMPT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_CI_HARDENING_PROMPT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_DEEP_AUDIT_EXECUTION_PROMPT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_TRACK_M_BATCH_JUDGE_ADVISED_PROMPT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_TRACK_M_P0_PROMPT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_TRACK_M_P1_REAL_BENCHMARK_RUNS_PROMPT.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/prompts/DEEPSEEK_WEBUI_BATCH_PROMPT.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/benchmarks.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/compression-visual.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/deferred.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/index.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/operations.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/packaging-licensing.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/protocol-continuity.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/retrieval.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status/surfaces.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/status_archive/2026-07-30-project-status-full.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "public_pkg/README.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "public_pkg/pyproject.toml"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "public_pkg/seam.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "public_pkg/seam_runtime/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/architecture-input.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/assemble-review.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/assembled-graph.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-1.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-2.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-3.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-4.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-5.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-6.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-7.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-8.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batch-9.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/batches.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/fingerprint-input.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/layers.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/review.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/assemble_final_graph.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/dry_run.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/dump_subagent_steps.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/extract_all_subagents.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/extract_and_write_batches.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/find_valid_json.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/group1_msg.txt"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/line152.txt"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/patch_graph.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/prepare_architecture_data.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/prepare_tour_data.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/run_all_extractions.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-0.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-1.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-2.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-3.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-4.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-5.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-6.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-7.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-8.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-analyzer-input-9.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-0.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-1.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-2.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-3.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-4.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-5.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-6.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-7.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-8.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-file-extract-results-9.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-inline-validate.cjs"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-tour-analyze.js"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tmp/ua-tour-results.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tour-input.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.trash-1784728707/tour.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/.understandignore"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/config.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/fingerprints.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/intermediate/scan-result.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/knowledge-graph.json"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/.ua/meta.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/holographic.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/mirl.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "seam_runtime/provenance.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_orchestrator/__init__.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_orchestrator/adapters.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_orchestrator/merger.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_orchestrator/orchestrator.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_orchestrator/planner.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_orchestrator/types.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/retrieval_policy.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/runtime.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/self_improve.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "seam_runtime/selfhost.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "seam_runtime/selfhost_entitlement.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "seam_runtime/selfhost_mcp.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "seam_runtime/vector_adapters.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "selfhost/Dockerfile"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "selfhost/compose.yaml"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "selfhost/entrypoint.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "selfhost/operator.env.example"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "selfhost_pkg/README.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "selfhost_pkg/pyproject.toml"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "test_seam_all/test_artifact_hygiene.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "test_seam_all/test_seam.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_distribution_boundary.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_github_package_metadata.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_hosted_api_stability.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_knowledge_graph.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_locomo_adapter_evidence_text.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/audit/test_locomo_adapter_retrieval_event_writer.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_provenance_chain.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_public_manifest.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_public_runtime_shim.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_public_sdk_api_boundary.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_retrieval_consolidation.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_retrieval_trace_plumbing.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_selfhost_edition.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_selfhost_stability.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_selfhost_wheel.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tests/audit/test_sync_public_mirror.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/audit/test_wandr_replay_adapter.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/build_public.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/build_selfhost.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/build_selfhost_wheel.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/issue_selfhost_entitlement.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/prove_hosted_api.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/.seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/.seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/.seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/HISTORY.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/PROJECT_STATUS.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/public_seed/REPO_LEDGER.md"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/sync_public_mirror.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/verify_distribution_boundary.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/verify_selfhost_artifact.py"
+              ]
+            },
+            {
+              "status": "D",
+              "paths": [
+                "tools/release/verify_selfhost_wheel.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/status/__init__.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tools/status/verify_streams.py"
+              ]
+            }
+          ],
+          "pull_requests": [],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/research/advanced-persistence-landscape",
+          "branch": "research/advanced-persistence-landscape",
+          "tip": "d69994491fef91abd4220016d64e322b0d106c11",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "48c5448157711f6db74f4c24be06b9c563aef5c6",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "d69994491fef91abd4220016d64e322b0d106c11",
+              "date": "2026-08-18T03:07:31-05:00",
+              "subject": "docs: define benchmark-proven second-brain persistence thesis"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                ".seam/cross_index.md"
+              ]
+            },
+            {
+              "status": "R099",
+              "paths": [
+                ".seam/cross_index_archive/0001-0433.cross.md",
+                ".seam/cross_index_archive/0001-0434.cross.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/index.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                ".seam/streams/history/log.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "HISTORY_INDEX.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-08-18-advanced-agent-persistence-layers.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/audits/2026-08-18-seam-second-brain-persistence-dissertation.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/audits/INDEX.md"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "research/advanced-persistence-landscape",
+              "headRefOid": "d69994491fef91abd4220016d64e322b0d106c11",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 221,
+              "state": "CLOSED",
+              "title": "docs: define benchmark-proven second-brain persistence thesis",
+              "updatedAt": "2026-09-03T06:54:25Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/221"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Seam",
+          "slug": "Canticle-AI-Research/Seam",
+          "cwd": "/workspace/Seam",
+          "ref": "refs/remotes/origin/research/pcs-c2c-dlcm-roadmap",
+          "branch": "research/pcs-c2c-dlcm-roadmap",
+          "tip": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+          "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+          "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+              "date": "2026-09-18T07:53:16-07:00",
+              "subject": "docs: register PCS CacheBridge research track"
+            },
+            {
+              "sha": "5bcd3247127cf3f339b4c9bde63df5abf6318eae",
+              "date": "2026-09-18T07:52:55-07:00",
+              "subject": "docs: add persistent concept state research roadmap"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "ROADMAP.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/roadmap/PERSISTENT_CONCEPT_STATE.md"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "research/pcs-c2c-dlcm-roadmap",
+              "headRefOid": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 268,
+              "state": "OPEN",
+              "title": "docs: add Persistent Concept State / CacheBridge research track",
+              "updatedAt": "2026-09-18T14:53:42Z",
+              "url": "https://github.com/Canticle-AI-Research/Seam/pull/268"
+            }
+          ],
+          "is_ancestor_of_main": false
+        }
+      ]
+    },
+    {
+      "repository": "Cantlicle",
+      "slug": "BlackhatShiftey/Cantlicle",
+      "cwd": "/workspace/Cantlicle",
+      "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+      "branches": [
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/codex/current-interface-docs",
+          "branch": "codex/current-interface-docs",
+          "tip": "9e31aa9051a3f612f6e59578d547235d8a0a49ad",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "b492659e3ab5751bdaa576529b5a1cbf7a382635",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "9e31aa9051a3f612f6e59578d547235d8a0a49ad",
+              "date": "2026-10-02T08:26:43-05:00",
+              "subject": "fix: correct SEAM name expansion to Surface Encoded Agent Memory"
+            },
+            {
+              "sha": "7be1dfa5cbc2170784815b00c724363ca18c8b02",
+              "date": "2026-08-14T02:04:34-05:00",
+              "subject": "Align public SEAM interface documentation"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "AGENTS.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "Documentation Page/SEAM Documentation.dc.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "Interactive block design/System Context Square.dc.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "Interactive block design/System Context.dc.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "documentation.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "downloads.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "index.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "projects.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "resolution.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tests/test_seam_homepage.py"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/test_seam_interface_docs.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "codex/current-interface-docs",
+              "headRefOid": "7be1dfa5cbc2170784815b00c724363ca18c8b02",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 14,
+              "state": "CLOSED",
+              "title": "Align public SEAM interface documentation",
+              "updatedAt": "2026-09-14T12:29:25Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/14"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/codex/operator-doc-corrections-20261008",
+          "branch": "codex/operator-doc-corrections-20261008",
+          "tip": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "a645dead7da75a2b85b7bc1ee7c5dbc5a3df8ad6",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+              "date": "2026-10-08T12:35:32-05:00",
+              "subject": "docs: scope plain ingest persistence claim"
+            },
+            {
+              "sha": "141258a0dc9a4a6be2590b8758ebbeeb9f7c957b",
+              "date": "2026-10-08T12:25:13-05:00",
+              "subject": "docs: correct current SEAM operator surface"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "docs-mvp-gate.js"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "documentation.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "downloads.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "index.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/test_seam_documentation.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "codex/operator-doc-corrections-20261008",
+              "headRefOid": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 31,
+              "state": "OPEN",
+              "title": "docs: correct current SEAM operator surface",
+              "updatedAt": "2026-10-09T00:10:10Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/31"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/docs/site-overhaul-brief-2026-09-12",
+          "branch": "docs/site-overhaul-brief-2026-09-12",
+          "tip": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "7ab5d3d1001816e3b0b984159977eca35f49ebda",
+          "unique_commit_count": 2,
+          "unique_commits": [
+            {
+              "sha": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+              "date": "2026-09-12T08:16:06Z",
+              "subject": "docs: expand Canticle style \u2014 anime/Ghost + RGB blocks; bubble-tea mood only"
+            },
+            {
+              "sha": "c3ef4c2155bacbd8934eca087664532e7f5a3039",
+              "date": "2026-09-12T07:51:10Z",
+              "subject": "docs: capture Canticle site overhaul brief (2026-09-12)"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "CANTICLE-STYLE.md"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "docs/SITE-OVERHAUL-BRIEF-2026-09-12.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "ledger/open.md"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "docs/site-overhaul-brief-2026-09-12",
+              "headRefOid": "607e6acb56f12ee6bed93617e44e2ae5d6d1db3b",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 16,
+              "state": "CLOSED",
+              "title": "docs: Canticle site overhaul concept brief (2026-09-12)",
+              "updatedAt": "2026-09-14T12:33:19Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/16"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/feature/rename-hire-me-to-consulting",
+          "branch": "feature/rename-hire-me-to-consulting",
+          "tip": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "2374fdc45a034a37dff8693fbaca5a5053a1d671",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+              "date": "2026-07-06T22:49:29-05:00",
+              "subject": "refactor: rename Hire Me to Consulting and move social links in contact.html"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "A",
+              "paths": [
+                ".claude/settings.json"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "Documentation Page/SEAM Documentation.dc.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "benchmarks-viz.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "benchmarks.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "blockinteractive.code-workspace"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "contact.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "documentation.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "downloads.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "index.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "privacy.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "profile.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "research.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "split_pages.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "terms.html"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "feature/rename-hire-me-to-consulting",
+              "headRefOid": "971cd8d3884061d41a258db8aa7ee978d3512f69",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 6,
+              "state": "CLOSED",
+              "title": "refactor: rename Hire Me to Consulting and move social links",
+              "updatedAt": "2026-09-14T12:29:27Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/6"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/fix-feed-channels-and-banners",
+          "branch": "fix-feed-channels-and-banners",
+          "tip": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "2374fdc45a034a37dff8693fbaca5a5053a1d671",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+              "date": "2026-07-06T22:43:21-05:00",
+              "subject": "feat: update feed channels and fix profiles banner_url"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "A",
+              "paths": [
+                "social-feed.js"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "supabase/social_feed.sql"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/test_social_feed.py"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "fix-feed-channels-and-banners",
+              "headRefOid": "aa754ba7d63e9af26de0fa6f09c650b591585077",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 5,
+              "state": "CLOSED",
+              "title": "feat: update feed channels and add banner_url",
+              "updatedAt": "2026-09-14T12:29:29Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/5"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/fix/notify-bell-mobile-host",
+          "branch": "fix/notify-bell-mobile-host",
+          "tip": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "7ab5d3d1001816e3b0b984159977eca35f49ebda",
+          "unique_commit_count": 1,
+          "unique_commits": [
+            {
+              "sha": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+              "date": "2026-09-12T08:16:43Z",
+              "subject": "fix: park notification bell on mobile host"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "auth.js"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "console.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "documentation.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "downloads.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "feed.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "index.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "profile.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "social-feed.js"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "fix/notify-bell-mobile-host",
+              "headRefOid": "d74e03f219b36a9bbca739c18dc75e69e8d127f9",
+              "isDraft": false,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 17,
+              "state": "CLOSED",
+              "title": "fix: notification bell host on mobile",
+              "updatedAt": "2026-09-14T12:29:23Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/17"
+            }
+          ],
+          "is_ancestor_of_main": false
+        },
+        {
+          "repository": "Cantlicle",
+          "slug": "BlackhatShiftey/Cantlicle",
+          "cwd": "/workspace/Cantlicle",
+          "ref": "refs/remotes/origin/fix/seam-product-downloads-20260917",
+          "branch": "fix/seam-product-downloads-20260917",
+          "tip": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+          "main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+          "merge_base": "075b0f12d93538bb1c73d6dfa3eb1e001c735117",
+          "unique_commit_count": 6,
+          "unique_commits": [
+            {
+              "sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+              "date": "2026-09-19T16:12:17-05:00",
+              "subject": "Limit free Suite self-hosting to personal noncommercial use"
+            },
+            {
+              "sha": "90021a6aa1992bc8b80f97dfc24843f9a16b69e1",
+              "date": "2026-09-19T15:41:30-05:00",
+              "subject": "Scope website software licensing claims to exact releases"
+            },
+            {
+              "sha": "0f278b2cd83cc820ccb4ce11b2059527dacea1fd",
+              "date": "2026-09-17T11:59:16-05:00",
+              "subject": "Clarify Suite MCP installation and pending registry migration"
+            },
+            {
+              "sha": "08b63f378027a5278a31487dc3162cbd6d9df99e",
+              "date": "2026-09-17T11:24:42-05:00",
+              "subject": "docs: show Suite and API readiness separately from downloads"
+            },
+            {
+              "sha": "090be67008ab8031dc435a1a68f3317fd38d3f85",
+              "date": "2026-09-17T10:44:02-05:00",
+              "subject": "docs: distinguish branch previews from production deployment"
+            },
+            {
+              "sha": "33d9c2d62c4da59f4a4e3a71843c26a12cb6aac0",
+              "date": "2026-09-17T10:36:45-05:00",
+              "subject": "fix: align SEAM products and verify PyPI downloads"
+            }
+          ],
+          "changed_paths": [
+            {
+              "status": "M",
+              "paths": [
+                "SEAM Landing.dc.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "_headers"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "console.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "contributions.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/subscriptions/01-product-and-service-model.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/subscriptions/02-plans-metering-and-storage.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/subscriptions/04-competition-and-migration.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/subscriptions/05-subscription-terms-draft.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/subscriptions/06-launch-and-growth-plan.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "docs/subscriptions/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "documentation.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "downloads-release.js"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "downloads.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "index.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "release/README.md"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "release/package_release.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "terms.html"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/downloads-release.test.js"
+              ]
+            },
+            {
+              "status": "A",
+              "paths": [
+                "tests/test_package_downloads.py"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tiers.html"
+              ]
+            },
+            {
+              "status": "M",
+              "paths": [
+                "tiers.js"
+              ]
+            }
+          ],
+          "pull_requests": [
+            {
+              "headRefName": "fix/seam-product-downloads-20260917",
+              "headRefOid": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+              "isDraft": true,
+              "mergeCommit": null,
+              "mergedAt": null,
+              "number": 29,
+              "state": "OPEN",
+              "title": "Align Suite downloads, API readiness and MCP installation docs",
+              "updatedAt": "2026-10-14T08:23:30Z",
+              "url": "https://github.com/BlackhatShiftey/Cantlicle/pull/29"
+            }
+          ],
+          "is_ancestor_of_main": false
+        }
+      ]
+    }
+  ],
+  "acceptance": "Every remaining branch gets individual semantic preservation/integration disposition; age, closure or protected naming alone is not enough."
+}

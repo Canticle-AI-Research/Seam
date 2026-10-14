@@ -1,0 +1,31 @@
+{
+  "observed_at": "2026-10-14T10:21:27.068823+00:00",
+  "main": "1514b89be0265517306fdd4e6cdea5ffa07f61f6",
+  "normalization": "decode Cloudflare email obfuscation and remove its injected decoding script only",
+  "pages": [
+    {
+      "path": "console.html",
+      "served_sha256": "1771f670b78e99601d55dfbc65e0795d102425d8b4180f2773f2e02b634cbf57",
+      "source_sha256": "c33bf261eb419180632bac65d4510f483d1be59b4d611b1c84f5ffc4ea54f47a",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "contributions.html",
+      "served_sha256": "b2be2e6054f3f1915319d0faa05810c1aa0fb1372b1e3e1879525ad88eb8368d",
+      "source_sha256": "971d72d79f6928d7d84d025c331625eab33325b4ed5e8e36169c297bff7a106b",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "tiers.html",
+      "served_sha256": "0455f619a92136afebf90cc69ca35963b67af91ff2171520346566e5aa67671b",
+      "source_sha256": "cd58291d313476d05f027cb1266bfad85903e2d0d0eac55b20d660ba0124dc96",
+      "matches_main_after_only_email_obfuscation": true
+    },
+    {
+      "path": "tiers.js",
+      "served_sha256": "45a5e99b94e496399e354b3fea3dd338680a725b0b4c76bef47aac60b1eb1437",
+      "source_sha256": "45a5e99b94e496399e354b3fea3dd338680a725b0b4c76bef47aac60b1eb1437",
+      "matches_main_after_only_email_obfuscation": true
+    }
+  ]
+}

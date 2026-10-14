@@ -1,0 +1,32 @@
+{
+  "checks": [
+    {
+      "label": "branch-recovery-workflow-red",
+      "command": "/workspace/Seam/.venv/bin/python -m pytest -q tests/audit/test_github_pr_gates.py::test_pgvector_job_env_uses_contexts_available_before_runner_steps",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T10:32:57.745031+00:00",
+      "ended_at": "2026-10-14T10:32:58.114743+00:00",
+      "exit_code": 1,
+      "output_sha256": "7bc37f74f5983fef04c1d04c8347aeead4d2ee21f78abbcb4a47d9db7c95c6b6",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-workflow-red.log"
+    },
+    {
+      "label": "branch-recovery-workflow-green",
+      "command": "/workspace/Seam/.venv/bin/python -m pytest -q tests/audit/test_github_pr_gates.py tests/audit/test_pgvector_ci_fixture.py",
+      "cwd": "/workspace/Seam",
+      "started_at": "2026-10-14T10:33:09.811280+00:00",
+      "ended_at": "2026-10-14T10:33:13.001825+00:00",
+      "exit_code": 0,
+      "output_sha256": "0caf379acbcb845c31b98bf4efeffb865a66d527d27d5bb4f34018bea0099078",
+      "log": "/workspace/scratch/seam-release-20261014/packaging/branch-recovery-workflow-green.log"
+    }
+  ],
+  "source_parent": "c2260acc163e6300ae68c3a9aeddd6c88a884d81",
+  "rejected_run": 38549851109,
+  "changed_contract": "Job-level env uses workspace-relative ignored fixture state path and only GitHub run contexts; no runner context before steps. Runtime and package inputs unchanged.",
+  "previous_receipt": "01a138d3-3664-70c0-ae7d-02dd20f2203d-f4b967c9c4ea6362",
+  "affected_test_ref_correction": [
+    "test_read_snapshot_consistency.py",
+    "test_vector_outbox_durability.py"
+  ]
+}
