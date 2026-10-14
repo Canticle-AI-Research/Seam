@@ -96,9 +96,8 @@ Install useful operator extras into the dev venv:
 ./.venv/bin/python -m pip install -e ".[server,dash,pgvector,sbert,rerank]"
 ```
 
-The dev bootstrap does **not** install Node or build the `webui/` Vite project.
-The shipped browser dashboard is served directly by `seam serve` / `seam webui` with
-no build step.
+The dev bootstrap does **not** install Node. The shipped browser dashboard is
+served directly by `seam serve` / `seam webui` with no build step.
 
 ## What the installer does
 
@@ -129,7 +128,8 @@ no build step.
 | `~/.local/bin/seam-benchmark` | Benchmark shim |
 | `~/.local/bin/seam-dash` | Textual dashboard shim |
 | `repo/.venv/` | Repo-local dev venv (`--dev` mode only) |
-| `~/.config/seam/.env` | Recommended location for local credentials (never commit) |
+| `~/.config/seam/seam.env` | TUI runtime settings/credentials (mode 0600; never commit) |
+| `~/.config/seam/.env` | Optional Docker Compose environment (never commit) |
 
 The installer-managed `seam`, `seam-benchmark`, and `seam-dash` shims preserve
 a nonempty `SEAM_DB_PATH`. Unset or empty values use the managed state path above:

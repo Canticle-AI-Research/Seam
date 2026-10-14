@@ -1,0 +1,175 @@
+{
+  "base_sha": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+  "initial_delivery_sha256": "c17785b58c85c728844c4defefccafa8bb79334c17faa1e616cd1b219f654474",
+  "review_repair_paths": [
+    "tools/docs/verify_terminology.py",
+    "tests/audit/test_terminology_contract.py"
+  ],
+  "files": [
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
+      "bytes": 2660
+    },
+    {
+      "path": "README.md",
+      "sha256": "71fb0bd274560f6c9e5e5e5c0015fdb40c0090dd309d0a86f15d2719b315536e",
+      "bytes": 30915
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
+      "bytes": 2104
+    },
+    {
+      "path": "docs/BENCHMARK_SOP.md",
+      "sha256": "0c219eac21b189d2af694d67588c1875f69c950b230dc1b0acebe3595cffe901",
+      "bytes": 4609
+    },
+    {
+      "path": "docs/CODE_LAYOUT.md",
+      "sha256": "fe95bf4e5cd8aea6734a8c7e95fcfe5885194f8a46d1799949e458e947790224",
+      "bytes": 15160
+    },
+    {
+      "path": "docs/DOCUMENTATION_MAP.md",
+      "sha256": "c1ede398175660823def990a01c511d9e529fdd784cf176d8060f320157e8d89",
+      "bytes": 9893
+    },
+    {
+      "path": "docs/HOLOGRAPHIC_SURFACE.md",
+      "sha256": "632f1c2773d72b342c1d4e04e8117cb98663576d6d22dda6d95946f8738c9ddd",
+      "bytes": 6643
+    },
+    {
+      "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+      "sha256": "61342dc852f57d76af6f8526be27b3da3364804ff0e85e33019dad0b5d8119ba",
+      "bytes": 6963
+    },
+    {
+      "path": "docs/MACOS.md",
+      "sha256": "57c156b099a739304d7f708c66e2ac7978b8dc2bf1538cd1b797bff7b559d260",
+      "bytes": 13242
+    },
+    {
+      "path": "docs/MIRL_V1.md",
+      "sha256": "30ba6995428ed5a34d36f8aa453dd505155049bbae62a48f00301158cadbddea",
+      "bytes": 8685
+    },
+    {
+      "path": "docs/PGVECTOR_LOCAL.md",
+      "sha256": "0fcb9dbdd693f95386354216e62a31e76cd1e42efdf2200d9e1ea87fe7220bbd",
+      "bytes": 8493
+    },
+    {
+      "path": "docs/PRODUCTS.md",
+      "sha256": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d",
+      "bytes": 6753
+    },
+    {
+      "path": "docs/PROTECTION_MODEL.md",
+      "sha256": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
+      "bytes": 8266
+    },
+    {
+      "path": "docs/RAG_ARCHITECTURE.md",
+      "sha256": "7eb17b8b4d3e89c6c6813317a11757a7f67c917d749dcabd24738c5cb55304f9",
+      "bytes": 7310
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "b9d9a724191ecb01d50a74f89d181164b233bbc9dd6f7c3cc42b9cbdd2178b76",
+      "bytes": 7631
+    },
+    {
+      "path": "docs/SEAM_OPERATOR_GUIDE.md",
+      "sha256": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
+      "bytes": 18654
+    },
+    {
+      "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+      "sha256": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
+      "bytes": 25661
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+      "sha256": "4fcbb1e1ed3bd1cd6c1b9cb1e4e9737465616573c25800b1d1a63cdb3b61c51d",
+      "bytes": 14868
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+      "sha256": "64aa66017ecb1bc80855b3f8225098d7520117ce2cb52caa7f175cee47ff4f60",
+      "bytes": 15290
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+      "sha256": "cc6f2d15004f5ce3dc4ad232a032a16eadccfe427bf5d41ed0a7bec742bfc855",
+      "bytes": 16214
+    },
+    {
+      "path": "docs/SOP_INDEX.md",
+      "sha256": "9365416636450044f49c7b647a2a4391fc9ead40a420cf6d36b4fb54187aeb6b",
+      "bytes": 4092
+    },
+    {
+      "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+      "sha256": "c00f053762e3a0081be8ce5cff17e7e58f872936419c2584e532a5b5b799be00",
+      "bytes": 22573
+    },
+    {
+      "path": "docs/TERMINOLOGY.md",
+      "sha256": "f88a8c1bfa8c777b1acee1860a06fa8b59a6394193a79298cf82df0b3eda1cce",
+      "bytes": 4652
+    },
+    {
+      "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+      "sha256": "e99c46e6970972984889ac882590d2a9f29db325e9c4462691324f35189a1880",
+      "bytes": 11104
+    },
+    {
+      "path": "docs/errors.md",
+      "sha256": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
+      "bytes": 7903
+    },
+    {
+      "path": "docs/setup.md",
+      "sha256": "8afd89fd2699970255f791caf0ed9bff471adbc46a365414ea8e265c90ab6923",
+      "bytes": 7816
+    },
+    {
+      "path": "docs/status/compression-visual.md",
+      "sha256": "332ad0cb3176c699e9f26027eb47175d3ef70a8ddee561373250516d82c3af7b",
+      "bytes": 1830
+    },
+    {
+      "path": "docs/status/operations.md",
+      "sha256": "c30f30dcb3817b208e941a46c8c1806cf8b7e101c26eeea75baf2a78dfe2847b",
+      "bytes": 13268
+    },
+    {
+      "path": "docs/status/surfaces.md",
+      "sha256": "d6e6167964794020635993f1289e6756bdcea4d555ba1e2da81abefaf06b1ae1",
+      "bytes": 11204
+    },
+    {
+      "path": "installers/README.md",
+      "sha256": "e96624547523c0f579ac1e978be05da350bee922a9afbe1270f19431e7af95ff",
+      "bytes": 8589
+    },
+    {
+      "path": "tests/audit/test_terminology_contract.py",
+      "sha256": "206df2cffa6972bd80d98bb9393843ccb7bf71a111b58c3245771aefe386f4f9",
+      "bytes": 6058
+    },
+    {
+      "path": "tools/docs/verify_terminology.py",
+      "sha256": "9318f34f01f5dd24c33d3b63c3b17e3274070f61cd5894d0db4e8658f92a7756",
+      "bytes": 9672
+    },
+    {
+      "path": "tools/docs/verify_wiki.py",
+      "sha256": "53a7ecd54572ac4847873895c46150545fc8432964befaa179625a43c5a8ad28",
+      "bytes": 27487
+    }
+  ]
+}

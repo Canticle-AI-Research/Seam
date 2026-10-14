@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 739
+total_events: 740
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-28T14:55:30Z | history:479:450b261e | session-event | done | graph, retrieval, rank, provenance, test, verify, handoff... | seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/merger.p... |
 | 2026-07-28T15:26:55Z | history:480:14d762d7 | session-event | changed | selfhost, security, verify, graph, docker | tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.p... |
 | 2026-07-28T16:32:58Z | history:481:89070f00 | session-event | changed | roadmap, selfhost, packaging, mcp | ROADMAP.md |
 | 2026-07-28T17:43:24Z | history:482:e8f54f77 | session-event | changed | selfhost, licensing, busl, entitlement, security, docker | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compos... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T10:33:45Z | history:671:4523e322 | session-event | changed | maintenance/ci, maintenance/branches, protocol/context | docs/audits/2026-10-14-branch-ci-validation-repair.md |
 | 2026-10-14T10:39:48Z | history:672:51daf87b | session-event | changed | audit, ci, continuity, correction, docker, docs, gates, h... | docs/roadmap/BRANCH_RECOVERY.md,docs/audits/2026-10-14-branch-recovery.md,doc... |
 | 2026-10-14T11:05:02Z | history:673:55de4dc2 | session-event | in-progress | audit, ci, continuity, docs, docker, extras, handoff, his... | docs/audits/2026-10-14-branch-retirement-and-lock.md,docs/roadmap/BRANCH_RECO... |
+| 2026-10-14T11:27:09Z | history:674:3464c8ff | session-event | in-progress | audit, docs, wiki, verify, worktree | docs/audits/2026-10-14-factual-doc-recovery.md,docs/handoffs/2026-10-14-factu... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0539.cross.md | 2026-04-15T00:00:00Z..2026-07-28T14:55:22Z | 539 | (multi) | (multi) |
+| 0001-0540.cross.md | 2026-04-15T00:00:00Z..2026-07-28T14:55:30Z | 540 | (multi) | (multi) |

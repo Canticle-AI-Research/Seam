@@ -17,6 +17,7 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
 - Active execution direction: root `ROADMAP.md` registers `roadmap:track:MemoryFormation`; `docs/roadmap/MEMORY_FORMATION.md` is its detailed specification, request register, dependency graph and current ready set (HISTORY#645). When the operator asks what is next, consult that specification and the current handoff, verify live completion evidence, and choose the earliest unblocked slice. Preserve the opening formation priorities; BIL-3, provider setup and report routing can proceed in independent scopes. Plans do not supersede the governing SEAM/MIRL contracts or establish implementation evidence.
 - `MIRL`: Machine Intermediate Representation Language; canonical memory IR
+- Naming and representation glossary: [SEAM terminology](docs/TERMINOLOGY.md).
 - Benchmark funding correction (HISTORY#646): use the explicit `claude-code`
   transport for the operator's funded Claude.ai account; `claude` remains the
   separately billed API route. Never substitute an inherited API key or copy
@@ -112,7 +113,9 @@ bounded task-specific reading; do not maintain a competing sequence here.
   versions already published there retain Apache-2.0 and cannot be clawed
   back; later private versions and new MIRL or HS/1 material do not inherit that
   license. Its public `main` head at the freeze was
-  `0f4b40aab7fda643ce776e597f0b430faa465ca8`. The required Apache text is
+  `0f4b40aab7fda643ce776e597f0b430faa465ca8` (dated legacy-coordinate
+  provenance recovered on 2026-10-02, not the current Suite publication target).
+  The required Apache text is
   preserved at `LICENSES/Apache-2.0.txt` for unchanged legacy material
   incorporated into later private distributions.
 - The private-to-public mirror is gone, not merely disabled: `sync_public_mirror.py`
@@ -335,9 +338,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
   request must observe one committed read snapshot; routing connections through
   a pool without that snapshot contract is insufficient. This architecture is
   not authorization to change ranked behavior:
-  the full provider-free gate in HISTORY#503 found the uncommitted fixed-RRF
-  consolidation at 0.755616 context recall versus 0.766420 for the legacy
-  scorer, while warm median latency rose from 156.4 to 207.2 ms. Preserve the
+  the historical July 30 provider-free comparison in HISTORY#503 recorded
+  canonical mix at 0.755616 context recall versus 0.766420 for the legacy
+  scorer, while warm median latency rose from 156.4 to 207.2 ms. That broad
+  comparison changed ranking, graph, filtering and packing together; it cannot
+  isolate a graph or fixed-RRF causal effect or stand in for a current matched
+  ablation. Preserve the
   legacy RAW/BM25/weighted ranking semantics inside the orchestrator as the
   versioned behavioral baseline, isolate graph attribution with a same-code
   hybrid-versus-mix ablation, and require full-corpus non-regression before
@@ -389,9 +395,11 @@ bounded task-specific reading; do not maintain a competing sequence here.
   predicate admission now have provider-free counterexamples. A retrieved-ENT
   fixture resolves 5/5 entities through complete exact SPAN-to-RAW chains.
   Historical native LoCoMo ENT coverage remains 0.0000; native corpus
-  freeze/review and scorer promotion remain S9. S8 is the next stage and must
-  begin only from protected main containing the chronological S8-next handoff.
-  See HISTORY#602, HISTORY#603, and HISTORY#604.
+  freeze/review and scorer promotion remain S9. S8 is already protected through
+  PR #254 at `2f9a96b9bbc1015bb8057e01793e42cec95034af`; do not restart it
+  from an obsolete S8-next handoff. Current scoped evidence and remaining
+  boundaries live in [retrieval status](docs/status/retrieval.md). See
+  HISTORY#602–604 and HISTORY#641.
 - The deep knowledge ontology is a conservative 5W1H+Then lens over MIRL, not a
   parallel truth store. Explicit facets and already-present MIRL fields may
   project `who`, `what`, `when`, `where`, `why`, `how`, and `then`; missing

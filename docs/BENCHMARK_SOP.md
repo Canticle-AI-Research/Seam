@@ -16,6 +16,11 @@ It compares:
 - hybrid retrieval
 - pack quality under budget
 
+This is the in-memory fixture comparison in `seam_runtime/evals.py`; it does
+not measure the persisted runtime retrieval path or exercise pgvector SQL.
+Configuring a pgvector DSN does not turn this report into real-adapter proof.
+Use the dedicated real-service tests for that separate property.
+
 The hardened fixture set covers:
 
 - fact retrieval
@@ -31,12 +36,12 @@ The hardened fixture set covers:
 - **SQLite truth store** - the `--db` file you pass (`seam_validate.db`, etc.)
 - **pgvector store** - optional Postgres container on `localhost:55432`, database `seam`
 
-To start the pgvector container (credentials in private env file, never committed):
-
-```powershell
-docker compose --env-file <path-to-private-env> up -d seam-pgvector
-$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=postgres password=$env:PGPASSWORD"
-```
+Use the [local pgvector runbook](PGVECTOR_LOCAL.md) to preserve an existing
+private env file, start Compose **service** `pgvector`, and resolve the actual
+user, database, password and selected port into `SEAM_PGVECTOR_DSN`. The
+container name `seam-pgvector` is not a Compose service name. Do not assume the
+user is `postgres`, or that a Compose env file automatically exports variables
+into the benchmark process. Keep credential values out of logs.
 
 ## Run the local deterministic baseline
 
@@ -53,7 +58,7 @@ Use this when:
 - you are changing MIRL, retrieval, or pack logic
 - you do not want cloud calls during development
 
-## Run the live cloud benchmark
+## Run the provider-backed fixture comparison
 
 Uses your configured embedding provider:
 
@@ -61,7 +66,7 @@ Uses your configured embedding provider:
 $env:OPENAI_API_KEY="your-key"
 $env:SEAM_EMBEDDING_PROVIDER="openai-compatible"
 $env:SEAM_EMBEDDING_MODEL="text-embedding-3-small"
-$env:SEAM_PGVECTOR_DSN="host=localhost port=55432 dbname=seam user=postgres password=$env:PGPASSWORD"
+# Configure SEAM_PGVECTOR_DSN first using docs/PGVECTOR_LOCAL.md.
 
 python seam.py doctor
 python seam.py --db seam_validate.db stats
@@ -69,33 +74,33 @@ python seam.py --db seam_validate.db stats
 
 Use this when:
 
-- you want teacher-quality embedding behavior
+- you want to compare a chosen provider under matched fixtures and settings
 - you are comparing local models against a cloud baseline
-- you want to validate the real vector database path
+- you have explicitly authorized the provider calls and their costs
 
 ## How to read `stats`
 
 Look at `summary.tracks` first:
 
-- `raw` should be the weakest baseline
+- `raw` is the raw-overlap comparison baseline
 - `vector` shows pure embedding retrieval
 - `mirl` shows structured retrieval without vector help
-- `hybrid` shows the combined path you actually want to win
+- `hybrid` reports the combined comparison path; an improvement must be measured
 
 Then look at `summary.success_checks`:
 
 - `mirl_beats_raw_on_fact_or_relation`
-- `hybrid_matches_or_beats_vector_on_relation`
-- `expected_over_rejected_on_temporal_scope_contradiction`
+- `hybrid_beats_vector_on_relation`
 - `exact_packs_reversible`
 - `context_packs_traceable`
 
-Finally inspect per-fixture failures:
+Finally inspect per-fixture results:
 
 - `expected_ids` are the records that should come back
-- `rejected_ids` are stale, contradicted, or wrong-scope records that should not
-  outrank the expected answer
-- `rejection_rate` tells you how much junk survived into the result set
+- `tracks` reports each retrieval track (raw, vector, mirl, hybrid,
+  machine_nat_query, machine_vector, machine_hybrid) ranked against
+  `expected_ids`
+- `packs` reports the exact/context/narrative pack aggregation per fixture
 
 ## How to harden the benchmark
 
@@ -114,8 +119,13 @@ Each fixture should include:
 
 - `query`
 - `expected_ids`
-- `rejected_ids` when there is a wrong answer worth penalizing
-- `notes` explaining what failure mode the fixture is protecting
+- `name`, `source`, and `category`; `format` defaults to `dsl`
+- optional `budget` (selected records) and `pack_budget` (tokens)
+
+The loader does not consume `rejected_ids`, `rejection_rate`, `scope`, or
+`notes`. Explanatory notes can document intent, but they do not become a
+scored rejection or scope gate. Add a named executable check before claiming
+one of those guarantees.
 
 ## Test workflow
 

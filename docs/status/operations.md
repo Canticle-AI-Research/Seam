@@ -8,16 +8,25 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 - pgvector via Docker Compose: `docker compose --env-file <private-env> up -d pgvector`;
   container `seam-pgvector`; port **55432**; credentials stay outside the repo.
-- Docker Desktop is a user service (no system `docker.service`); start via
-  `~/.local/bin/docker-up`; auto-stops after 30 min idle.
-- Self-hosted CI runner `seam-terrabyte` (systemd user service, docker wake hook)
-  runs all Seam Linux CI. pgvector CI port 55433. Windows leg is manual-only.
+- Desktop-based local setups may use the documented user-service wake helper;
+  this is not a guarantee about a CI or managed execution environment.
+- Self-hosted Linux CI uses label `seam-box`. The pgvector lane starts its
+  own guarded fixture in steps through the approved local Unix socket, not
+  automatic pre-step services. It uses the reviewed 0.8.7 image, PG18 parent
+  tmpfs and a loopback ephemeral port; there is no fixed CI port 55433.
+  Missing daemon access fails before tests. The runner startup incident is
+  tracked separately in [issue #293](https://github.com/Canticle-AI-Research/Seam/issues/293);
+  local service qualification does not prove that runner incident resolved.
+  Windows qualification remains separately scheduled.
 - The protected-main required checks are `repo-hygiene`, `chroma-real-smoke`,
   and `locomo-quickstart-bil2`. The long `test-and-benchmark` suite runs after
   the short jobs but is advisory under the current live ruleset; Track S S10
   owns the proof required before making it a required merge check.
-- Full-suite zero-skip local run requires the container up and `PGVECTOR_TEST_DSN`
-  exported. CI runs `-m "not external"` plus a separate `-m external` job.
+- Real-service tests require a ready disposable database and both
+  `PGVECTOR_TEST_DSN` and `SEAM_PGVECTOR_DSN` in the test child. The owned
+  fixture injects these and forces strict no-skip enforcement. CI deselects
+  external cases in the main lane and names all six real pgvector files
+  explicitly in its dedicated lane.
 - No silent skips: any skip outside the curated allowlist fails the session.
 - Memory guardrails: 82% warning, 90% hard limit.
 - `scripts/run_guarded.ps1` and `scripts/run_real_adapters_guarded.ps1` for heavy
@@ -52,11 +61,13 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
 
 ## Track S operating state
 
-- The HISTORY#634 baseline is protected `main@8834601`, containing D1-D4,
-  T1, G1, and R1. R2 remains before S8 freeze; use the current handoff and
-  `docs/roadmap/TRACK_S_S8_S10_PRODUCTION_CORE.md` for execution details.
-  Historical D1-local qualification statements are superseded by the merged
-  source chain; this documentation pass does not rerun runtime qualification.
+- S8 mechanism work is complete: R2 exact backend parity qualified the S8
+  mechanisms and the protected S8 freeze landed through PR #254 at `2f9a96b9`
+  (HISTORY#641). S9 matched multi-benchmark qualification and S10
+  release/deployment proof remain open; use the current handoff for execution
+  details. Historical D1-local qualification statements are superseded by the
+  merged source chain; this documentation pass does not rerun runtime
+  qualification.
 - S1 routes real Uvicorn `--factory` startup through the same bind and worker
   safety validation as normal launch.
 - `tools.security.secret_scan` owns the canonical secret/session patterns.
@@ -69,9 +80,12 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   `textual`, `httpx`, `fastapi`, `uvicorn`, and a supported multipart namespace.
   Chroma, pgvector, and sentence-transformers remain informational optional
   availability checks; an absent Chroma installation cannot fail doctor.
-- S1's strict non-external suite and live pgvector external suite are locally
-  green. The live external lane used pgvector 0.8.5 while Compose declares
-  0.8.6; protected CI owns exact-image parity.
+- Earlier S1 evidence used pgvector 0.8.5; it does not qualify the current
+  image. The 2026-10-14 owned-fixture qualification ran all six real-service
+  files: 47 passed with zero skips against PostgreSQL 18.6 / pgvector 0.8.7.
+  Both disposable containers were removed, with private state and exact-ID
+  absence verified. This is local evidence; protected-runner recovery remains
+  separate.
 - S2's schema-version-2 migration spine is locally qualified. Empty, v1.2.0,
   v2.4.0, and supported intermediate-v1 paths upgrade through two transactional
   steps; each step is rollback-injected and integrity/foreign-key checked.
@@ -163,8 +177,8 @@ _Source of truth for current state in this area. History lives in `HISTORY.md`._
   from the running `seam-pgvector` container (`SEAM_PGVECTOR_DSN`, port 55432).
   Service-gated cases are marked `external`: run them against the live service
   or explicitly deselect the external marker for the non-external lane; they
-  must not silently skip. Current candidate evidence used an isolated pgvector
-  0.8.6 container: 23 external tests passed with 2,354 non-external cases
+  must not silently skip. The earlier S6 candidate evidence used an isolated
+  pgvector 0.8.6 container: 23 external tests passed with 2,354 non-external cases
   deselected. The isolated canonical lane passed 2,926 tests, deselected those
   same 23 external cases, and recorded 2 expected xfails plus 3 passed subtests.
 - The history advisory lock now resolves through a linked worktree's

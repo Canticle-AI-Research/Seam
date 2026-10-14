@@ -74,9 +74,10 @@ definition, current tail, new link, and state transition inside an immediate
 SQLite transaction. Explicit `--verify` always scans the complete chain, and a
 failed verification invalidates the cached head so later appends fail closed.
 
-The current core projection is `core-storage/3`; an exact registered
-`core-storage/2 -> /3` migration installs the ledger without rewriting existing
-proposal or retrieval state.
+The current core projection is `core-storage/4`; the exact registered
+`core-storage/2 -> /3` migration installs the ledger and the later registered
+`core-storage/3 -> /4` step adds the indexed public-memory-handle projection,
+without rewriting existing proposal or retrieval state.
 
 ## Operator workflow
 

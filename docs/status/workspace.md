@@ -5,7 +5,7 @@
 
 _Current branch reconciliation: 2026-10-14, source protected main
 `efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd`, website main
-`1514b89be0265517306fdd4e6cdea5ffa07f61f6`, HISTORY#673. Eleven original
+`1514b89be0265517306fdd4e6cdea5ffa07f61f6`, HISTORY#674. Eleven original
 audited branches are retired; 19 original tips remain. New delivery branches
 below are separately owned temporary work, not forgotten original branches.
 Older physical/sibling/branch registers are historical recovery references._
@@ -28,8 +28,8 @@ report a worktree as clean while removal would still destroy local data.
 | Logical item | Physical identities | Verified baseline | Next action |
 | --- | --- | --- | --- |
 | Source protected main | `origin/main`, Canticle-AI-Research/Seam | `efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd`, PR #303 exact qualified tree | Base of current follow-up; use live readback before new work |
-| Retirement/active lock closeout | `/workspace/Seam`, `maintenance/branch-recovery-closeout-20261014` | Root-owned metadata and independently qualified urllib3-only lock delta | Finish protected PR and remove merged branch |
-| Source factual/glossary/wiki recovery | `/workspace/scratch/seam-branch-audit-20261014/source-docs-worktree`, `integrate/docs-recovery-20261014` | Isolated at source `efa7962`; bounded delivery owns named docs/checker paths | Recover PRs #277→#278, integrate with current root metadata, qualify and remove worktree/branch |
+| Retirement/active lock closeout | `/workspace/Seam`, `maintenance/branch-recovery-closeout-20261014` | Root-owned metadata, qualified urllib3-only lock delta and imported/reviewed factual docs | Finish protected PR and remove merged branch |
+| Source factual/glossary/wiki recovery | `/workspace/scratch/seam-branch-audit-20261014/source-docs-worktree`, `integrate/docs-recovery-20261014` | Isolated at source `efa7962`; bounded delivery owns named docs/checker paths | All owned work imported/reviewed; verify in signed primary commit, then remove preserved worktree/base branch before push |
 | Website operator/current-interface facts | `/workspace/Cantlicle`, `integrate/operator-doc-recovery-20261014` | Website main `1514b89`; bounded public docs/tests; no auth/pricing policy changes | Recover PRs #14/#31, review/deploy/verify served pages, remove merged branch |
 | Original unresolved branch work | 13 source/six website exact original tips | [Frozen remaining inventory](../audits/evidence/2026-10-14-branch-recovery/remaining-branches.json) | Follow [ordered recovery/retirement criteria](../roadmap/BRANCH_RECOVERY.md); retain useful work |
 | Retired historical provenance | Original PR head refs plus three signed `archive/20261014/*` tags | [Exact-tip retirement proof](../audits/2026-10-14-branch-retirement-and-lock.md) | Read only when recovering dated intent; tags are not current implementation/licence authority |

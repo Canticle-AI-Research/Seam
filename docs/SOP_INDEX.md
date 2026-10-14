@@ -9,6 +9,13 @@ code, the [repo ledger](../REPO_LEDGER.md), and the
 DeepSeek packets record bounded procedures; they do not prove that the work ran
 or remains necessary.
 
+Era note: the DeepSeek task packets and the Track K/M packets predate the
+2026-06-02 removal of the `experimental/` tree (HISTORY#285) and the later
+2026-09-08 `seam-suite` package rename (HISTORY#642). Their `experimental/webui/`,
+top-level `webui/`, and `pip install seam[...]` references no longer resolve as
+written; treat those packets as historical task records and adapt paths and
+package names before reuse.
+
 ## Operator workflows
 
 - [Continuing SEAM work with Codex](SOP_SEAM_CODEX_WORKFLOW.md) — ordered

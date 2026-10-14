@@ -3,6 +3,10 @@
 Practical runbook for interacting with SEAM, running tests, and validating the
 live stack.
 
+Names and representation boundaries are defined in the
+[SEAM terminology glossary](TERMINOLOGY.md); runtime behavior remains governed
+by the [SEAM specification](../SEAM_SPEC_V0.1.md) and [MIRL v1](MIRL_V1.md).
+
 **Platform guides**
 
 - **macOS** — [MACOS.md](MACOS.md) (install, Application Support layout, MCP, troubleshooting)
@@ -196,6 +200,10 @@ command; these examples do not substitute it for a standalone CLI action.
 
 ### Live cloud + pgvector path
 
+The TUI can read its separate `~/.config/seam/seam.env` settings file.
+Compose reads the explicitly selected private env file; the REST server does
+not automatically load the TUI file. Export settings in its launch environment.
+
 First complete [local pgvector configuration](PGVECTOR_LOCAL.md#point-seam-at-it)
 and require its explicit `PgVector: reachable` output before continuing.
 Doctor exit zero alone does not establish that result, and `up -d` does not
@@ -243,7 +251,7 @@ macOS / Linux bash:
 docker compose --env-file "$HOME/.config/seam/.env" up -d pgvector
 ```
 
-Image: `pgvector/pgvector:0.8.6-pg18-trixie` | Service: `pgvector` |
+Image: `pgvector/pgvector:0.8.7-pg18-trixie` | Service: `pgvector` |
 Container: `seam-pgvector` | Host port: `${SEAM_PGVECTOR_PORT:-55432}` on loopback
 
 If the container exists but is stopped:

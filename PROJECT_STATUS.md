@@ -5,6 +5,19 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — factual recovery independently qualified; protected admission next.**
+Source PR277→278 useful facts/glossary/wiki work is recovered on the current
+follow-up, with 73 passing checker/wiki cases and independent successor PASS.
+The original blocked review stays preserved. Fresh public-v5 wheel/sdist each
+pass exact membership/legal checks and eight installed smokes; this supersedes
+v4 for updated README metadata. No upload occurred. The active-lock update is
+qualified separately; all30 branch dispositions remain mapped. Eleven original
+branches are retired and nineteen retained at preparation; master263 records
+final live retirement readbacks. Website PR14/31 recovery requires protected
+merge, production deployment and served-byte verification. See HISTORY#674,
+[recovery evidence](docs/audits/2026-10-14-factual-doc-recovery.md) and the
+[current handoff](docs/handoffs/INDEX.md). Older headlines below are historical.
+
 **2026-10-14 — initial branch recovery integrated; verified retirement underway.**
 [PR #303](https://github.com/Canticle-AI-Research/Seam/pull/303) merged at
 `efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd` with independent exact-state

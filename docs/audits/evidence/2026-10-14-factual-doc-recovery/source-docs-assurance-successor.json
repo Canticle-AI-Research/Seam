@@ -1,0 +1,848 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "run_id": "branch-recovery-20261014",
+  "task_id": "assure-source-factual-doc-recovery-successor",
+  "role": "seam_assurance_orchestrator",
+  "status": "PASS",
+  "reviewed_at": "2026-10-14T11:22:04.197960+00:00",
+  "base_sha": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+  "packet_schema_validation": {
+    "result": "PASS",
+    "validator": "system Python jsonschema.Draft202012Validator",
+    "packet_sha256": "e831427e25463df1be7498fb806d53e825c2344606a0e4c8b2bf0f4651406ee6"
+  },
+  "frozen_delivery_sha256": "c17785b58c85c728844c4defefccafa8bb79334c17faa1e616cd1b219f654474",
+  "owned_files": [
+    {
+      "path": "CONTRIBUTING.md",
+      "sha256": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
+      "bytes": 2660,
+      "changed_from_base": true,
+      "disposition": "Recovered dated legacy-coordinate provenance; current contribution/licensing instructions retained.",
+      "original_delivery_sha256": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "README.md",
+      "sha256": "71fb0bd274560f6c9e5e5e5c0015fdb40c0090dd309d0a86f15d2719b315536e",
+      "bytes": 30915,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary, Python/package distinction, install-first organization, credential pointer consolidation, optional MCP pgvector statement, published S6/turn/governance facts and exact MIRL expansion. Pinned installer command block moved byte-exact; current License section byte-exact; current metadata/publication guards retained.",
+      "original_delivery_sha256": "71fb0bd274560f6c9e5e5e5c0015fdb40c0090dd309d0a86f15d2719b315536e",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "SECURITY.md",
+      "sha256": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
+      "bytes": 2104,
+      "changed_from_base": true,
+      "disposition": "Recovered canonical private-advisory route with private-contact fallback; no advisory submitted.",
+      "original_delivery_sha256": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/BENCHMARK_SOP.md",
+      "sha256": "0c219eac21b189d2af694d67588c1875f69c950b230dc1b0acebe3595cffe901",
+      "bytes": 4609,
+      "changed_from_base": true,
+      "disposition": "Recovered actual eval success key/tracks/packs; removed nonexistent rejection fields and unsupported scored scope/notes claims. Routes Compose credentials through current no-clobber runbook. Clarifies stats in-memory fixture path versus live adapter proof and no assumed quality wins.",
+      "original_delivery_sha256": "0c219eac21b189d2af694d67588c1875f69c950b230dc1b0acebe3595cffe901",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/CODE_LAYOUT.md",
+      "sha256": "fe95bf4e5cd8aea6734a8c7e95fcfe5885194f8a46d1799949e458e947790224",
+      "bytes": 15160,
+      "changed_from_base": true,
+      "disposition": "Recovered dated legacy HTTP-client coordinate; no new publication qualification claim.",
+      "original_delivery_sha256": "fe95bf4e5cd8aea6734a8c7e95fcfe5885194f8a46d1799949e458e947790224",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/DOCUMENTATION_MAP.md",
+      "sha256": "c1ede398175660823def990a01c511d9e529fdd784cf176d8060f320157e8d89",
+      "bytes": 9893,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary contract route and all PR278 repository/root/benchmark/code-adjacent/branding/derived routing links; current targets passed full wiki validation.",
+      "original_delivery_sha256": "c1ede398175660823def990a01c511d9e529fdd784cf176d8060f320157e8d89",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/HOLOGRAPHIC_SURFACE.md",
+      "sha256": "632f1c2773d72b342c1d4e04e8117cb98663576d6d22dda6d95946f8738c9ddd",
+      "bytes": 6643,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary/spec/MIRL backlinks only; format/codec behavior untouched.",
+      "original_delivery_sha256": "632f1c2773d72b342c1d4e04e8117cb98663576d6d22dda6d95946f8738c9ddd",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+      "sha256": "61342dc852f57d76af6f8526be27b3da3364804ff0e85e33019dad0b5d8119ba",
+      "bytes": 6963,
+      "changed_from_base": true,
+      "disposition": "Recovered core-storage/4 and exact /2\u2192/3 ledger then /3\u2192/4 public-memory-handle migration facts verified in migrations.py.",
+      "original_delivery_sha256": "61342dc852f57d76af6f8526be27b3da3364804ff0e85e33019dad0b5d8119ba",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/MACOS.md",
+      "sha256": "57c156b099a739304d7f708c66e2ac7978b8dc2bf1538cd1b797bff7b559d260",
+      "bytes": 13242,
+      "changed_from_base": true,
+      "disposition": "Retained current Python3.11, pinned review flows, supported dependency/environment/console-script guidance. Recovered Vite removal and separate TUI seam.env versus Compose .env paths. Rejected always-overridden environment premise.",
+      "original_delivery_sha256": "57c156b099a739304d7f708c66e2ac7978b8dc2bf1538cd1b797bff7b559d260",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/MIRL_V1.md",
+      "sha256": "30ba6995428ed5a34d36f8aa453dd505155049bbae62a48f00301158cadbddea",
+      "bytes": 8685,
+      "changed_from_base": true,
+      "disposition": "Recovered exact expansion/glossary pointer while preserving newer governing contract/serializer clarification.",
+      "original_delivery_sha256": "30ba6995428ed5a34d36f8aa453dd505155049bbae62a48f00301158cadbddea",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/PGVECTOR_LOCAL.md",
+      "sha256": "0fcb9dbdd693f95386354216e62a31e76cd1e42efdf2200d9e1ea87fe7220bbd",
+      "bytes": 8493,
+      "changed_from_base": true,
+      "disposition": "Current main already owns robust service/env/port instructions; adapted current image to qualified0.8.7.",
+      "original_delivery_sha256": "0fcb9dbdd693f95386354216e62a31e76cd1e42efdf2200d9e1ea87fe7220bbd",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/PRODUCTS.md",
+      "sha256": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d",
+      "bytes": 6753,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary link only; settled Suite and separate paid SDK roles/grants retained.",
+      "original_delivery_sha256": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/PROTECTION_MODEL.md",
+      "sha256": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
+      "bytes": 8266,
+      "changed_from_base": true,
+      "disposition": "Retained historical/superseded/current-personal-license banners; recovered dated legacy provenance and removed-mirror-tool facts.",
+      "original_delivery_sha256": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/RAG_ARCHITECTURE.md",
+      "sha256": "7eb17b8b4d3e89c6c6813317a11757a7f67c917d749dcabd24738c5cb55304f9",
+      "bytes": 7310,
+      "changed_from_base": true,
+      "disposition": "Recovered three existing knowledge-graph/node/identity-merge MCP exports. Source-backed retrieval versus PACK modes, selected-record versus token budgets clarified.",
+      "original_delivery_sha256": "7eb17b8b4d3e89c6c6813317a11757a7f67c917d749dcabd24738c5cb55304f9",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/README.md",
+      "sha256": "b9d9a724191ecb01d50a74f89d181164b233bbc9dd6f7c3cc42b9cbdd2178b76",
+      "bytes": 7631,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary navigation; current release/MCP/generated CLI/safeguards routes retained.",
+      "original_delivery_sha256": "b9d9a724191ecb01d50a74f89d181164b233bbc9dd6f7c3cc42b9cbdd2178b76",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SEAM_OPERATOR_GUIDE.md",
+      "sha256": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
+      "bytes": 18654,
+      "changed_from_base": true,
+      "disposition": "Recovered glossary and TUI/Compose/server env separation; current correct inherited-db selection, MCP executable/absolute db guidance retained; current image0.8.7.",
+      "original_delivery_sha256": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+      "sha256": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
+      "bytes": 25661,
+      "changed_from_base": true,
+      "disposition": "Recovered dated image correction0.8.2\u21920.8.6 within historical proposal. Explicit wrapper routes current0.8.7 guarded fixture lifecycle and rejects old pre-step-service proposal as current operational instructions.",
+      "original_delivery_sha256": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+      "sha256": "4fcbb1e1ed3bd1cd6c1b9cb1e4e9737465616573c25800b1d1a63cdb3b61c51d",
+      "bytes": 14868,
+      "changed_from_base": true,
+      "disposition": "Recovered repository-local install coordinates with quoted extras; historical paid-provider checklist remains a proposal, no provider execution.",
+      "original_delivery_sha256": "4fcbb1e1ed3bd1cd6c1b9cb1e4e9737465616573c25800b1d1a63cdb3b61c51d",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+      "sha256": "64aa66017ecb1bc80855b3f8225098d7520117ce2cb52caa7f175cee47ff4f60",
+      "bytes": 15290,
+      "changed_from_base": true,
+      "disposition": "Recovered quoted bench-mem0 repository install instructions; existing authored comparator plan retained.",
+      "original_delivery_sha256": "64aa66017ecb1bc80855b3f8225098d7520117ce2cb52caa7f175cee47ff4f60",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+      "sha256": "cc6f2d15004f5ce3dc4ad232a032a16eadccfe427bf5d41ed0a7bec742bfc855",
+      "bytes": 16214,
+      "changed_from_base": true,
+      "disposition": "Recovered quoted bench-zep/bench-mem0 repository install instructions; no comparator service invocation.",
+      "original_delivery_sha256": "cc6f2d15004f5ce3dc4ad232a032a16eadccfe427bf5d41ed0a7bec742bfc855",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SOP_INDEX.md",
+      "sha256": "9365416636450044f49c7b647a2a4391fc9ead40a420cf6d36b4fb54187aeb6b",
+      "bytes": 4092,
+      "changed_from_base": true,
+      "disposition": "Recovered historical era warning for removed experimental/webui paths and foreign package examples.",
+      "original_delivery_sha256": "9365416636450044f49c7b647a2a4391fc9ead40a420cf6d36b4fb54187aeb6b",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+      "sha256": "c00f053762e3a0081be8ce5cff17e7e58f872936419c2584e532a5b5b799be00",
+      "bytes": 22573,
+      "changed_from_base": true,
+      "disposition": "Recovered resolved promoted-orchestrator/removal state; hypothetical future deletion safeguards retained.",
+      "original_delivery_sha256": "c00f053762e3a0081be8ce5cff17e7e58f872936419c2584e532a5b5b799be00",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/TERMINOLOGY.md",
+      "sha256": "f88a8c1bfa8c777b1acee1860a06fa8b59a6394193a79298cf82df0b3eda1cce",
+      "bytes": 4652,
+      "changed_from_base": true,
+      "disposition": "Recovered authored glossary representation/graphs/product names, adapted current proprietary exact-manifest personal grant, separate paid SDK and historical BUSL subset; no automatic conversion or entitlement expansion.",
+      "original_delivery_sha256": "f88a8c1bfa8c777b1acee1860a06fa8b59a6394193a79298cf82df0b3eda1cce",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+      "sha256": "e99c46e6970972984889ac882590d2a9f29db325e9c4462691324f35189a1880",
+      "bytes": 11104,
+      "changed_from_base": true,
+      "disposition": "Recovered landed PR273/274 handoff routing; original plan remains historical.",
+      "original_delivery_sha256": "e99c46e6970972984889ac882590d2a9f29db325e9c4462691324f35189a1880",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/errors.md",
+      "sha256": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
+      "bytes": 7903,
+      "changed_from_base": false,
+      "disposition": "UNCHANGED: current source already has service pgvector, loopback55432 default, preserved/no-clobber private env and dependency troubleshooting; old hunk would regress newer instructions.",
+      "original_delivery_sha256": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/setup.md",
+      "sha256": "8afd89fd2699970255f791caf0ed9bff471adbc46a365414ea8e265c90ab6923",
+      "bytes": 7816,
+      "changed_from_base": true,
+      "disposition": "Recovered obsolete Vite removal. Canonical owner, portable Windows paths and stronger reviewed-SHA flows already current and retained.",
+      "original_delivery_sha256": "8afd89fd2699970255f791caf0ed9bff471adbc46a365414ea8e265c90ab6923",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/status/compression-visual.md",
+      "sha256": "332ad0cb3176c699e9f26027eb47175d3ef70a8ddee561373250516d82c3af7b",
+      "bytes": 1830,
+      "changed_from_base": true,
+      "disposition": "Recovered explicitly supported rgba64 codec alongside existing codec list.",
+      "original_delivery_sha256": "332ad0cb3176c699e9f26027eb47175d3ef70a8ddee561373250516d82c3af7b",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/status/operations.md",
+      "sha256": "c30f30dcb3817b208e941a46c8c1806cf8b7e101c26eeea75baf2a78dfe2847b",
+      "bytes": 13268,
+      "changed_from_base": true,
+      "disposition": "Recovered seam-box/S8 freeze facts; adapted current guarded own-fixture image/tmpfs/ephemeral port and recorded47 local tests without claiming issue293 runner resolved. Earlier S1/S6 dated evidence retained as earlier evidence.",
+      "original_delivery_sha256": "c30f30dcb3817b208e941a46c8c1806cf8b7e101c26eeea75baf2a78dfe2847b",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "docs/status/surfaces.md",
+      "sha256": "d6e6167964794020635993f1289e6756bdcea4d555ba1e2da81abefaf06b1ae1",
+      "bytes": 11204,
+      "changed_from_base": true,
+      "disposition": "Recovered published S8 mechanism/R2 exact parity versus open S9/S10 distinction; no deployed UI/product-readiness inference.",
+      "original_delivery_sha256": "d6e6167964794020635993f1289e6756bdcea4d555ba1e2da81abefaf06b1ae1",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "installers/README.md",
+      "sha256": "e96624547523c0f579ac1e978be05da350bee922a9afbe1270f19431e7af95ff",
+      "bytes": 8589,
+      "changed_from_base": true,
+      "disposition": "Preserved reviewed source selection, environment-preserving shims, current default Suite deps and no-clobber guidance; recovered obsolete Vite removal and exact current optional dependency bounds.",
+      "original_delivery_sha256": "e96624547523c0f579ac1e978be05da350bee922a9afbe1270f19431e7af95ff",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "tests/audit/test_terminology_contract.py",
+      "sha256": "206df2cffa6972bd80d98bb9393843ccb7bf71a111b58c3245771aefe386f4f9",
+      "bytes": 6058,
+      "changed_from_base": true,
+      "disposition": "Rebuilt public helper/wiki CLIs with correct trailing prose, actual competing names including longer names, product collisions, historical exclusions, missing real checker/glossary, staged index protection and no external authority-symlink reads. Obsolete always-overridden-shim test rejected because current source contract contradicts it.",
+      "original_delivery_sha256": "6fc4faab4bffc327eeb3d1d5fe9e3b4fb2ee89b30f271b08bd4087e375819b43",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "tools/docs/verify_terminology.py",
+      "sha256": "9318f34f01f5dd24c33d3b63c3b17e3274070f61cd5894d0db4e8658f92a7756",
+      "bytes": 9672,
+      "changed_from_base": true,
+      "disposition": "Recovered deterministic active authority/glossary/package collision contract; repaired greedy expansion handling, rejected extra title words and unsafe core symlinks; historical/audit/roadmap exclusions preserved. Check-only, no source writes.",
+      "original_delivery_sha256": "ddc6972ea684b271a1129ed156c626849d0eb489a574c562e6a32a44a7d20e03",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    },
+    {
+      "path": "tools/docs/verify_wiki.py",
+      "sha256": "53a7ecd54572ac4847873895c46150545fc8432964befaa179625a43c5a8ad28",
+      "bytes": 27487,
+      "changed_from_base": true,
+      "disposition": "Added terminology invocation to current verifier while retaining parser/link/audit/staged safeguards. Real checkouts require safe checker; minimal standalone wiki fixtures preserve prior behavior. Staged exports run staged checker, proved by public regression.",
+      "original_delivery_sha256": "53a7ecd54572ac4847873895c46150545fc8432964befaa179625a43c5a8ad28",
+      "primary_matches_final_inventory": true,
+      "retained_worktree_matches_primary": true
+    }
+  ],
+  "owned_count": 33,
+  "changed_count": 32,
+  "blocking_findings": [],
+  "verified_preservation": {
+    "README_license_section_byte_exact": true,
+    "README_license_section_sha256": "d72113a9ad9a7249aaf4cb0d3e61df0cedf59df4a2ee5ead22b4a625902ea5ee",
+    "README_pinned_installer_block_byte_exact": true,
+    "README_pinned_installer_block_sha256": "3c826b9018031e3007b29af9c3e75fda4bd3e266fb4cf3bd9d4b86bc2f28537b",
+    "installer_guide_revision_marker_counts_preserved": true,
+    "content_free_secret_scan_findings": [],
+    "owned_hash_scan_command": "/workspace/Seam/.venv/bin/python -B - <<'PY'\nfrom pathlib import Path\np=Path('/workspace/scratch/seam-branch-audit-20261014/source-docs/verify_owned.py');exec(compile(p.read_text(),str(p),'exec'))\nPY",
+    "owned_hash_scan_exit": 0,
+    "command_invocation_note": "Direct external script invocation first lacked tools on sys.path; executing the unchanged read-only proof in repo-root interpreter context passed33/32hashes/markers/secret scan. No source modification."
+  },
+  "parser_and_gate_review": {
+    "correct_trailing_prose": "Independent actual CLI accepts MIRL means Machine Intermediate Representation Language and preserves provenance.",
+    "appended_competing_name": "Independent actual CLI rejects SEAM means Surface Encoded Agent Memory System.",
+    "authority_security": "Core/root authority and docs ancestor symlinks fail before content reads; nonauthority/history/audit/roadmap exclusions retained. Delivered symlink RED log shows prior outside reads, fixed GREEN covers them.",
+    "staged_index": "Current verify_wiki staged export runs the exported staged verifier from staged cwd with PYTHONPATH removed. New public fixture stages wrong name then repairs working file; staged check still fails. Existing navigation/parser/link/audit registry body unchanged except additive terminology call.",
+    "qualification_limit": "PASS limited to explicit terminology grammar, current safe authorities, public CLI/wiki and staged-index safeguards; no claim of arbitrary natural-language interpretation.",
+    "before_acronym_names": "Exact canonical or explicit The/A/An sentence articles accepted; substantive prepended titles fail. Independent original counterexamples now rejected; source/test hashes bound to final inventory."
+  },
+  "recorded_tdd_checks": [
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T10:57:48.622946+00:00",
+      "ended_at": "2026-10-14T10:57:49.762937+00:00",
+      "exit_code": 1,
+      "output_sha256": "235e188e92d75a548b24eac1eb8af8ed40f8f35f43e83b735c0856ded0ca5c73",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/terminology-red.log",
+      "phase": "witnessed_red",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "-k",
+        "competing",
+        "-q"
+      ],
+      "started_at": "2026-10-14T11:06:12.360517+00:00",
+      "ended_at": "2026-10-14T11:06:12.963079+00:00",
+      "exit_code": 1,
+      "output_sha256": "b02d3d4a90364c43305cd511178654fb5a8187ddfb711bac83b712a53bd00b5c",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/longer-name-red.log",
+      "phase": "witnessed_red",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "-k",
+        "symlink",
+        "-q"
+      ],
+      "started_at": "2026-10-14T11:07:05.833365+00:00",
+      "ended_at": "2026-10-14T11:07:06.251345+00:00",
+      "exit_code": 1,
+      "output_sha256": "71a2c2738ab8b2c400b6f1c0d8a8e0d817cb395d9f12fad9571bbea2a098c01b",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/unsafe-authority-red.log",
+      "phase": "witnessed_red",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "pytest",
+        "tests/audit/test_terminology_contract.py",
+        "tests/audit/test_wiki_navigation.py",
+        "-q"
+      ],
+      "started_at": "2026-10-14T11:07:20.389319+00:00",
+      "ended_at": "2026-10-14T11:07:22.035490+00:00",
+      "exit_code": 0,
+      "output_sha256": "07ef2673018afac0f550dc47983fd7c74e3e61ce80ed4a8d60881dc214204985",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/checkers-final.log",
+      "passed": 63,
+      "skipped": 0,
+      "phase": "green",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.docs.verify_wiki"
+      ],
+      "started_at": "2026-10-14T11:07:22.067248+00:00",
+      "ended_at": "2026-10-14T11:07:24.274647+00:00",
+      "exit_code": 0,
+      "output_sha256": "4142eac187dc717fa1b022dd732f1e2dd2dcf26d283ff3b861b57ce77e58ff80",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/wiki-final-state.log",
+      "reachable_active_docs": 296,
+      "phase": "green",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "tools.docs.verify_terminology"
+      ],
+      "started_at": "2026-10-14T11:07:24.309837+00:00",
+      "ended_at": "2026-10-14T11:07:24.535256+00:00",
+      "exit_code": 0,
+      "output_sha256": "6b1a0e4db51d2690be495539ef7566547106a8fecbd47faef01cd9d15832e4d4",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/terminology-final-state.log",
+      "active_authority_pages": 114,
+      "phase": "green",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-m",
+        "ruff",
+        "check",
+        "tools/docs/verify_terminology.py",
+        "tools/docs/verify_wiki.py",
+        "tests/audit/test_terminology_contract.py"
+      ],
+      "started_at": "2026-10-14T11:07:24.567050+00:00",
+      "ended_at": "2026-10-14T11:07:24.601462+00:00",
+      "exit_code": 0,
+      "output_sha256": "82b3e6a6c090a57601d22943bd23fca9218d1031dbe5a7b754092f9a156b4f18",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/lint-final-state.log",
+      "phase": "green",
+      "output_hash_independently_verified": true
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "/workspace/scratch/seam-branch-audit-20261014/source-docs/verify_owned.py"
+      ],
+      "started_at": "2026-10-14T11:08:46.404996+00:00",
+      "ended_at": "2026-10-14T11:08:46.492501+00:00",
+      "exit_code": 0,
+      "output_sha256": "ad26071ca953729ea043ff5a422055dda088f7414658a7d86688114f68b62cc8",
+      "log_path": "/workspace/scratch/seam-branch-audit-20261014/source-docs/owned-proof.log",
+      "phase": "green",
+      "output_hash_independently_verified": true
+    }
+  ],
+  "primary63_test_log": {
+    "path": "/workspace/scratch/seam-branch-audit-20261014/source-docs-primary-tests.log",
+    "sha256": "07ef2673018afac0f550dc47983fd7c74e3e61ce80ed4a8d60881dc214204985",
+    "observation": "63 progress dots,100%; root supplied successful primary63 test run. No broad test repetition by assurance."
+  },
+  "factual_authorities_reviewed": [
+    {
+      "claim": "CLI retrieval modes and record vs PACK budgets",
+      "proof": "cli.py context args546-556, pack604-608, shared retrieval args2440; runtime retrieve/pack delegation. Documentation uses retrieve --mode versus context --retrieval-mode; selected-record --budget vs token --pack-budget/pack--budget."
+    },
+    {
+      "claim": "Benchmark report/loader shape",
+      "proof": "evals.py RetrievalFixture/default_retrieval_fixtures/run_retrieval_benchmark: tracks, packs, expected_ids and actual success keys; no scored scope/notes/rejection fields; in-memory search_batch, not persisted pgvector SQL qualification."
+    },
+    {
+      "claim": "Current dependencies/Compose/installers",
+      "proof": "pyproject optional bounds match new tables; Compose servicepgvector image0.8.7, loopbackdefault55432, user/databaseseam, passwordrequired; installer preserves nonemptyDB env; config.py TUIseam.env0600, server launch environment separate."
+    },
+    {
+      "claim": "MCP tools and migrations",
+      "proof": "mcp.py graph/node/identity-merges descriptions/schema/dispatch; migrations.py registered /2->/3ledger then /3->/4public-memory-handles."
+    },
+    {
+      "claim": "Source-publication versus hosted claims",
+      "proof": "README now names current server /v1 correction/deletion/turn/governance source boundaries, explicitly no hosted deployment claim; source code named routes present. S8 frozen source ancestry already proven in prior branch audit, S9/S10 remain scopedopen."
+    },
+    {
+      "claim": "Root historical503 paragraph",
+      "proof": "New ledger describes original broad comparison as historical and confounded for causal attribution; exact bounded history503 evidence confirms0.755616vs0.766420 and cannot isolategraph/ranking. No unverified newer ablation promoted."
+    }
+  ],
+  "pending_factual_evidence": [],
+  "per_branch_accounting": [
+    {
+      "branch": "docs/doc-audit-20261002",
+      "tip": "8530717d800d397ba58283710b6e8f0a037aabf8",
+      "PR": 277,
+      "disposition": "Useful source-backed factual changes/glossary recovered on stronger current licensing/install/dependency baseline. Check-only terminology/wiki gate now repaired for trailing prose, appended and prepended competing expansions, safe authorities and staged content, with73GREEN. Original dated report preserved verbatim; root fresh continuity separate.",
+      "archived_original": "/workspace/Seam/docs/archive/branch-recovery-20261014/pr277/2026-10-02-documentation-drift-audit.md",
+      "archive_matches_original_exact_bytes": true,
+      "archive_sha256": "6a50e083ed360e6007638e04553d1e7823aef8450df1bd9e4ced0b60ddeb98c3",
+      "wrapper": "Explicit historical/unmerged/current-license/source-state nonauthority notice."
+    },
+    {
+      "branch": "docs/wiki-baseline-20261003",
+      "tip": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+      "PR": 278,
+      "dependency": "PR277 first; original branch contains PR277 ancestry",
+      "disposition": "Independent root/code-adjacent/benchmark/branding/generated-navigation increment recovered in current DOCUMENTATION_MAP, active links verified by delivered full wiki gate. No old chronology or branch-local current-status copy required."
+    }
+  ],
+  "remaining_owner_actions": [
+    "Root completes fresh metadata/reference/doc acknowledgement/H674/handoff and exact-head qualification before branch retirement; retained worktree remains until signed primary commit contains all qualified bytes."
+  ],
+  "limits": [
+    "Read-only source assurance; external temporary probe/report writes only. No source/Git/PR/deployment mutations, credentials/provider/service calls or broad HISTORY/ROADMAP reads.",
+    "Current33owned files match final inventory in primary and retained worktree; root metadata/derived state outside this ownership remains separate exact-head release responsibility.",
+    "Original initial63PASS and BLOCKED verdict remain immutable; successor RED2/GREEN73 is explicitly separate evidence.",
+    "Public source facts do not qualify hosted deployment, complete UI product acceptance, scorer promotion or registry publication. No legal grant, runtime membership or command contract change inferred from documentation.",
+    "Prior exact README license/pinned-installer/archive/security proof remains current because those31other owned files are byte-identical to original reviewed candidate."
+  ],
+  "initial_assurance": {
+    "path": "/workspace/scratch/seam-branch-audit-20261014/source-docs-assurance.json",
+    "sha256": "f4f10501fb2450209554149fe3210f8fc70091f84b880c9f079ad93d6e5df76d",
+    "status": "BLOCKED",
+    "immutable_prior_scope": "Initial c17785 frozen delivery; not rewritten."
+  },
+  "final_inventory": {
+    "path": "/workspace/scratch/seam-branch-audit-20261014/source-docs-final-inventory.json",
+    "sha256": "1ae0fd06937f3fbd19e4e56ecfb47133d3eb9a7a6c54f9d617bf80c730b1b32d",
+    "all33primary_and_worktree_bytes_verified": true,
+    "only_paths_changed_since_initial": [
+      "tests/audit/test_terminology_contract.py",
+      "tools/docs/verify_terminology.py"
+    ]
+  },
+  "resolved_findings": [
+    {
+      "id": "TERMINOLOGY_PREPENDED_COMPETING_EXPANSION",
+      "resolution": "_canonical_before accepts exact canonical name or only The/A/An article prefixes; arbitrary substantive title prefixes rejected. Both original actual public CLI counterexamples now exit1; canonical article forms and trailing prose exit0.",
+      "source_sha256": "9318f34f01f5dd24c33d3b63c3b17e3274070f61cd5894d0db4e8658f92a7756",
+      "test_sha256": "206df2cffa6972bd80d98bb9393843ccb7bf71a111b58c3245771aefe386f4f9",
+      "repair_record": {
+        "path": "/workspace/scratch/seam-branch-audit-20261014/source-docs-parser-repair.json",
+        "sha256": "4fa663012d2dd9ccc8013dff6ac7952d750b68396b1c76479b4a285b39e30024"
+      },
+      "witnessed_checks": [
+        {
+          "label": "source-docs-prefix-red",
+          "command": "/workspace/Seam/.venv/bin/python -m pytest -q tests/audit/test_terminology_contract.py -k 'competing or sentence_prefix'",
+          "cwd": "/workspace/Seam",
+          "started_at": "2026-10-14T11:19:01.403037+00:00",
+          "ended_at": "2026-10-14T11:19:02.266108+00:00",
+          "exit_code": 1,
+          "output_sha256": "e556ec52c9eef3522f1affc35dcee29547e18c6b6d0ec3ba4818b6bc8c9127e9",
+          "log": "/workspace/scratch/seam-release-20261014/packaging/source-docs-prefix-red.log",
+          "output_hash_independently_verified": true
+        },
+        {
+          "label": "source-docs-prefix-green",
+          "command": "/workspace/Seam/.venv/bin/python -m pytest -q tests/audit/test_terminology_contract.py tests/audit/test_wiki_navigation.py",
+          "cwd": "/workspace/Seam",
+          "started_at": "2026-10-14T11:19:19.777741+00:00",
+          "ended_at": "2026-10-14T11:19:21.969692+00:00",
+          "exit_code": 0,
+          "output_sha256": "19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca",
+          "log": "/workspace/scratch/seam-release-20261014/packaging/source-docs-prefix-green.log",
+          "output_hash_independently_verified": true
+        }
+      ],
+      "green_passed": 73,
+      "no_retroactive_claim": "Original63PASS did not cover prepend-name defect; successor2actualCLI RED failures and73GREEN resolve it."
+    }
+  ],
+  "independent_successor_checks": [
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-B",
+        "-m",
+        "tools.docs.verify_terminology",
+        "--root",
+        "ISOLATED_TEMP_FIXTURE"
+      ],
+      "cases": [
+        {
+          "text": "Parallel Machine Intermediate Representation Language (MIRL) is the representation.",
+          "exit": 1
+        },
+        {
+          "text": "Extended Surface Encoded Agent Memory (SEAM) is the system.",
+          "exit": 1
+        },
+        {
+          "text": "The Machine Intermediate Representation Language (MIRL) preserves provenance.",
+          "exit": 0
+        },
+        {
+          "text": "A Surface Encoded Agent Memory (SEAM) record is canonical.",
+          "exit": 0
+        },
+        {
+          "text": "MIRL means Machine Intermediate Representation Language and preserves provenance.",
+          "exit": 0
+        }
+      ],
+      "result": "All expected exits observed, external temporary fixtures only."
+    },
+    {
+      "command": [
+        "/workspace/Seam/.venv/bin/python",
+        "-B",
+        "-m",
+        "tools.docs.verify_terminology"
+      ],
+      "exit": 0,
+      "authority_pages": 114
+    },
+    {
+      "command": "scan_bytes on exactly two repaired source/test files",
+      "exit": 0,
+      "content_free_secret_findings": []
+    }
+  ],
+  "resolved_factual_evidence": [
+    {
+      "claim": "operations stream current47local real-service cases, PG18.6/extension0.8.7, both fixtures/private state removed",
+      "delivery": {
+        "path": "/workspace/Seam/docs/audits/evidence/2026-10-14-branch-recovery/pgvector-delivery.json",
+        "sha256": "2d455e653664686f07d01b0cce608fb74e0b74c11fd80b238e781f34bff66895"
+      },
+      "prior_independent_assurance": {
+        "path": "/workspace/Seam/docs/audits/evidence/2026-10-14-branch-recovery/pgvector-assurance.json",
+        "sha256": "02222322a2c4d84ba41c425cb1e27178988c308a7bd20813d746a903606106a0",
+        "result": "PASS"
+      },
+      "actual_final_lifecycle_logs": [
+        {
+          "command": [
+            "/workspace/Seam/.venv/bin/python",
+            "-m",
+            "tools.ci.pgvector_fixture",
+            "start",
+            "--state",
+            "/workspace/scratch/seam-branch-audit-20261014/pgvector/private-final/state.json"
+          ],
+          "started_at": "2026-10-14T10:20:27.784749+00:00",
+          "ended_at": "2026-10-14T10:20:37.773011+00:00",
+          "exit_code": 0,
+          "output_sha256": "9716aab77189755746fcb28ba040dddb3e9dfa6be4b20ded7c47986c1871d749",
+          "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/start-final.log",
+          "output_hash_independently_verified": true
+        },
+        {
+          "command": [
+            "/workspace/Seam/.venv/bin/python",
+            "-m",
+            "tools.ci.pgvector_fixture",
+            "run",
+            "--state",
+            "/workspace/scratch/seam-branch-audit-20261014/pgvector/private-final/state.json",
+            "--",
+            "/workspace/Seam/.venv/bin/python",
+            "-m",
+            "pytest",
+            "tests/audit/test_pgvector_real_adapter.py",
+            "tests/audit/test_pgvector_pk_composite.py",
+            "tests/audit/test_substream_isolation.py",
+            "tests/audit/test_pgvector_render_contract.py",
+            "tests/audit/test_pgvector_boundary_resync.py",
+            "tests/audit/test_s8_r2_pgvector_parity.py",
+            "-q"
+          ],
+          "started_at": "2026-10-14T10:21:02.630461+00:00",
+          "ended_at": "2026-10-14T10:21:52.701076+00:00",
+          "exit_code": 0,
+          "output_sha256": "325b7cf7b0d6ead544ebb7e833a08009fa10cf90ce29b8f9021e2ede461488f5",
+          "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/real-tests-final.log",
+          "passed": 47,
+          "skipped": 0,
+          "output_hash_independently_verified": true
+        },
+        {
+          "command": [
+            "/workspace/Seam/.venv/bin/python",
+            "-m",
+            "tools.ci.pgvector_fixture",
+            "stop",
+            "--state",
+            "/workspace/scratch/seam-branch-audit-20261014/pgvector/private-final/state.json"
+          ],
+          "started_at": "2026-10-14T10:22:28.146406+00:00",
+          "ended_at": "2026-10-14T10:22:28.629072+00:00",
+          "exit_code": 0,
+          "output_sha256": "b18a77ceee4a5246dd75196d3f352dd3bf10c682504ecd73e24b7f76aeee939a",
+          "log_path": "/workspace/scratch/seam-branch-audit-20261014/pgvector/stop-final.log",
+          "output_hash_independently_verified": true
+        }
+      ],
+      "metadata": {
+        "container_id": "de899c8cb272f65c3adc8e631770e6394131a03138666c201b668164d5119ea5",
+        "container_name": "seam-ci-pgvector-effd447b6d4646f4",
+        "extension_version": "0.8.7",
+        "image": "pgvector/pgvector:0.8.7-pg18-trixie",
+        "image_digest": "pgvector/pgvector@sha256:9d9c930220cb9bf2f956d10a8f909cf9973d9672ca0278aef2c1e6facccad2e0",
+        "image_id": "sha256:6056e3cfeacc60b20613aeee65585f56c0816c2b040982880b1f8053773c3062",
+        "mounts": [
+          {
+            "destination": "/var/lib/postgresql",
+            "type": "tmpfs"
+          }
+        ],
+        "port": 32769,
+        "postgres_version": "18.6 (Debian 18.6-1.pgdg13+2)",
+        "server_api": "1.51"
+      },
+      "cleanup_proof_both_cycles": [
+        {
+          "owned_resources": [
+            {
+              "command": [
+                "docker",
+                "--host=unix:///var/run/docker.sock",
+                "inspect",
+                "--format",
+                "{{.Id}}",
+                "de899c8cb272f65c3adc8e631770e6394131a03138666c201b668164d5119ea5"
+              ],
+              "started_at": "2026-10-14T10:22:28.661390+00:00",
+              "ended_at": "2026-10-14T10:22:28.681630+00:00",
+              "exit_code": 1,
+              "stdout_empty": true,
+              "output_sha256": "8723c704a0ecc5baa0edf8f07deca471405799164e54d017d6200c81f1c69530",
+              "expected_absence": true
+            },
+            {
+              "command": [
+                "docker",
+                "--host=unix:///var/run/docker.sock",
+                "ps",
+                "--all",
+                "--quiet",
+                "--filter",
+                "label=io.canticle.seam.pgvector-fixture=true",
+                "--filter",
+                "name=^/seam-ci-pgvector-effd447b6d4646f4$"
+              ],
+              "started_at": "2026-10-14T10:22:28.681679+00:00",
+              "ended_at": "2026-10-14T10:22:28.696215+00:00",
+              "exit_code": 0,
+              "stdout_empty": true,
+              "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_absence": true
+            }
+          ],
+          "private_state_absent": true,
+          "private_lock_absent": true,
+          "private_directory_absent": true
+        },
+        {
+          "owned_resources": [
+            {
+              "command": [
+                "docker",
+                "--host=unix:///var/run/docker.sock",
+                "inspect",
+                "--format",
+                "{{.Id}}",
+                "5a94be71db7fe593268e05e09442159ba411370feceacae1429fdb9fb38a76db"
+              ],
+              "started_at": "2026-10-14T10:18:58.135889+00:00",
+              "ended_at": "2026-10-14T10:18:58.158578+00:00",
+              "exit_code": 1,
+              "stdout_empty": true,
+              "output_sha256": "54a6600d6d71f17666defb0623f6dfe329b2d122bbc68c4bf5563a3dc3d9d8db",
+              "expected_absence": true
+            },
+            {
+              "command": [
+                "docker",
+                "--host=unix:///var/run/docker.sock",
+                "ps",
+                "--all",
+                "--quiet",
+                "--filter",
+                "label=io.canticle.seam.pgvector-fixture=true",
+                "--filter",
+                "name=^/seam-ci-pgvector-e6924ccd432c44f0$"
+              ],
+              "started_at": "2026-10-14T10:18:58.158609+00:00",
+              "ended_at": "2026-10-14T10:18:58.170323+00:00",
+              "exit_code": 0,
+              "stdout_empty": true,
+              "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+              "expected_absence": true
+            }
+          ],
+          "private_state_absent": true,
+          "private_lock_absent": true,
+          "private_directory_absent": true
+        }
+      ],
+      "evidence_scope": "Final start/tests/stop logs hash-checked and read; durable earlier/final cleanup records contain exact-ID absence, empty owner name filters, state/lock/directory absent. No deleted private state read, Docker call or fresh service run. Local proof expressly separate from remote issue293."
+    }
+  ]
+}

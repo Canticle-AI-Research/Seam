@@ -22027,3 +22027,17 @@ Narrow active uv.lock refresh changes only urllib3 from2.7.0 to2.8.0;158 other p
 
 Next active parallel scopes: isolated integrate/docs-recovery-20261014 worktree recovers source factual/glossary/wiki PR277 then278; website integrate/operator-doc-recovery-20261014 recovers current operator/interface facts fromPR14/31. Root owns integration/current state/reference regeneration/independent review/qualified merges and removal of those real dirty worktrees/branches. MIRL full authored name added to ledger identity as root-owned companion; glossary route waits until glossary exists on main. All other missing batching/skills/formation/report/workspace/Windows code stays tracked, not claimed complete. Public website safetyPR34 live1514b89, productionPages/worker pass, four changed resources match reviewed source. Managed-daemon47PG tests pass with cleanup but advisory shared-runner fixture startup fails before actual tests;293 remains open. TestPyPI access, broad-suite environment/baseline failures and pinnedAbout287 remain explicit external/acceptance conditions. Protected final checks and exact-state review still govern this followup.
 ---END-ENTRY-#673---
+
+---BEGIN-ENTRY-#674---
+id: 674
+date: 2026-10-14T11:27:09Z
+agent: codex
+status: in-progress
+topics: audit, docs, wiki, verify, worktree
+commits: pending
+refs: docs/audits/2026-10-14-factual-doc-recovery.md,docs/handoffs/2026-10-14-factual-doc-recovery.md,docs/roadmap/BRANCH_RECOVERY.md
+supersedes: 673
+tokens: 332
+---
+Recover PR277→278 factual docs/glossary/wiki on current main without importing stale root chronology. Preserve the exact old PR277 draft inactive; reconcile ledger S8 completion and multi-factor historical benchmark scope. Three author RED cycles and independent prefix-counterexample RED(2failures) lead to73 passing checker/wiki cases. Initial BLOCKED assurance is immutable; independent successor PASS verifies all33 owned hashes, canonical/trailing/article expansion and fail-closed authority behavior. README License and pinned installer blocks stay exact. Fresh public-v5 qualification records13 successful commands; wheel/sdist each match109 implementation hashes/seven legal documents and pass eight installed smokes. Narrow urllib3 lock qualification remains from673. Source worktree can be removed only after all owned bytes are proved in the signed primary commit (ledger companion already in d70280a); protected push/merge and exact-state receipt still required. Original30 audited:11retired/19retained at preparation;277/278 retirement follows main admission. Website14/31 remains separate production verification. No uploads/provider calls. TestPyPI, runnerPG293, security scope290/262 and About287 remain open; broad baseline failures not claimed green. Supersedes current delivery673, not immutable evidence.
+---END-ENTRY-#674---
