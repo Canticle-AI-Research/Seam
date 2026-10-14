@@ -4,7 +4,7 @@
   "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
   "documents": {
     ".github/RELEASE_CHECKLIST.md": "f5c152df77f5db80ecf4831c840d75ba69c13ffb9492704f7f58944832ab7b83",
-    ".github/pull_request_template.md": "d54fca27182e20151672ad83b26cf0b7f76d92f7971009b98617767646c08eb2",
+    ".github/pull_request_template.md": "257ff03ba0f2e903d35e71b682b01a4d11b7174f52d3e71bcf7174de5f02e177",
     "AGENTS.md": "7b8911538b6a54b34e21e2fc11f3b2d470bbbd28272ebea7081a91aefcb71151",
     "ANTIGRAVITY.md": "d3cd80e1983e502889484cfb2537a204258d8fd758aa48570f9024b870f8697f",
     "CLAUDE.md": "b4d9084c33c3a97c8b7ff430fc71f69b891b4e6eaff6b7d75e48be6a84b51a0f",
@@ -15,7 +15,7 @@
     "PROJECT_STATUS.md": "2bf74c0611b67a629ffe089170c2145d442e2390a9a1c597ac7aea7fe993b994",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
-    "REPO_LEDGER.md": "3ff6f4a7060c6ea9f0ec70f03cb0ccb7a6cb14d63d645dd3e10e9ea11c690759",
+    "REPO_LEDGER.md": "53ac97284836a0709d8e1f624ada06fd7a6f82fed948efc335a8b3916b5b2d5c",
     "ROADMAP.md": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
@@ -51,10 +51,11 @@
     "docs/MIRL_V1.md": "30ba6995428ed5a34d36f8aa453dd505155049bbae62a48f00301158cadbddea",
     "docs/PGVECTOR_LOCAL.md": "0fcb9dbdd693f95386354216e62a31e76cd1e42efdf2200d9e1ea87fe7220bbd",
     "docs/PRODUCTS.md": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d",
+    "docs/PROJECT_TRACKING.md": "e2b5098a0e8806628f3d38889d3937701e98feb4a2a18cf6f5603ce46625789e",
     "docs/PROTECTION_MODEL.md": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
     "docs/PUBLIC_SDK_API.md": "cc79e4124a6e93304063b08da598a7e9d1f41e03fc46b67da5a4d3cdc1db4a3c",
     "docs/RAG_ARCHITECTURE.md": "7eb17b8b4d3e89c6c6813317a11757a7f67c917d749dcabd24738c5cb55304f9",
-    "docs/README.md": "6a20892505ade7b4d60a5f6b26fb35338235cf92ef044fd27c10cbb812477389",
+    "docs/README.md": "5d3634a2a7f736696005a8df07eee6ff7a70194a7d8fed9dfe20a024f9533cfc",
     "docs/REASONING_GRAPH.md": "6cf7b938a67287b51ecd03528e1205de39ba60abf07d24c806b8193c7e1ff805",
     "docs/RELEASE_FLOW.md": "7776afc7e74531c210310cf1e2f5ae00e2526a4cf669b4f5454e65ae0f18ddaf",
     "docs/REPORTS_AND_EVIDENCE.md": "6696e2c168cb61180df393be4d3e5e46a8b5d5a83f252fe11e92eb992b82f1e8",
@@ -62,7 +63,7 @@
     "docs/SEAM_OPERATOR_GUIDE.md": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
     "docs/SELF_HOST_SECURITY.md": "e6c9227923d16ea8f129eaf86e6969c113f83a96528e68a26c2f836e614d8909",
     "docs/SOP_ADVISOR_EXECUTOR_LOOP.md": "b2b018793c28c47aa075f5699ed18cd464db4b05d9f3b8eb29048fd3ffd998ac",
-    "docs/SOP_AGENT_ORCHESTRATION.md": "cfd06a0f07287d132e7277bfd737803690818d4063c818350c56cf44a2812058",
+    "docs/SOP_AGENT_ORCHESTRATION.md": "8309615c24a2501a540d402e8a13c0fb3d306663eaff6f8a9da5dc1060271838",
     "docs/SOP_BENCHMARKABLE_STATE_ROADMAP.md": "43269d3e5ed93d972734484acc33af8b3f05b768d11738ca1996f0564aaec805",
     "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
     "docs/SOP_CI_HARDENING_DEEPSEEK.md": "853a213b7df80dd76b0b3679ba41b555245c9d5ec85605d386dc40ddfc94dec3",
@@ -201,6 +202,16 @@
   },
   "pending_reviews": {},
   "review_acknowledgements": {
+    ".github/pull_request_template.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "257ff03ba0f2e903d35e71b682b01a4d11b7174f52d3e71bcf7174de5f02e177",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "a55eacc8957f781aa5e0fb60771eed4aa197dbe8eb8d151b8d790b539de3cbc8"
+    },
     "AGENTS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "7b8911538b6a54b34e21e2fc11f3b2d470bbbd28272ebea7081a91aefcb71151",
@@ -253,7 +264,7 @@
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "3ff6f4a7060c6ea9f0ec70f03cb0ccb7a6cb14d63d645dd3e10e9ea11c690759",
+      "document_sha256": "53ac97284836a0709d8e1f624ada06fd7a6f82fed948efc335a8b3916b5b2d5c",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -512,6 +523,16 @@
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "a55eacc8957f781aa5e0fb60771eed4aa197dbe8eb8d151b8d790b539de3cbc8"
     },
+    "docs/PROJECT_TRACKING.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "e2b5098a0e8806628f3d38889d3937701e98feb4a2a18cf6f5603ce46625789e",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "a55eacc8957f781aa5e0fb60771eed4aa197dbe8eb8d151b8d790b539de3cbc8"
+    },
     "docs/PROTECTION_MODEL.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
       "document_sha256": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
@@ -534,7 +555,7 @@
     },
     "docs/README.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "6a20892505ade7b4d60a5f6b26fb35338235cf92ef044fd27c10cbb812477389",
+      "document_sha256": "5d3634a2a7f736696005a8df07eee6ff7a70194a7d8fed9dfe20a024f9533cfc",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -572,6 +593,16 @@
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
       "source_revisions_sha256": "356d3cb8e91e11ab7f81859e5aaa96356aba20850925b8cce8d74825fe9be435"
+    },
+    "docs/SOP_AGENT_ORCHESTRATION.md": {
+      "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
+      "document_sha256": "8309615c24a2501a540d402e8a13c0fb3d306663eaff6f8a9da5dc1060271838",
+      "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
+      "reasons": [
+        "hand-written content added/changed; review the authored change"
+      ],
+      "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
+      "source_revisions_sha256": "a55eacc8957f781aa5e0fb60771eed4aa197dbe8eb8d151b8d790b539de3cbc8"
     },
     "docs/SOP_BENCHMARKABLE_STATE_ROADMAP.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
@@ -1286,6 +1317,7 @@
     "docs/MIRL_V1.md",
     "docs/PGVECTOR_LOCAL.md",
     "docs/PRODUCTS.md",
+    "docs/PROJECT_TRACKING.md",
     "docs/PROTECTION_MODEL.md",
     "docs/PUBLIC_SDK_API.md",
     "docs/RAG_ARCHITECTURE.md",

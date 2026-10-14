@@ -295,7 +295,10 @@ request and repeat qualification before merge.
 
 The queue rejects oversized, malformed, symlinked, hash-mismatched,
 scope-mismatched, authority-expanding, incomplete-check, or conflicting
-records. A byte-equivalent existing receipt or attempt is idempotent. Receipt
+records. New requests record absolute receipt paths. A legacy repository-relative
+receipt path is accepted only without parent traversal and only when it resolves
+to the exact canonical receipt; the immutable request is never rewritten.
+A byte-equivalent existing receipt or attempt is idempotent. Receipt
 records are never overwritten or deleted, and a later `QUALIFIED` attempt may
 supersede prior non-qualified evidence. Supersession is admitted only for older
 requests in the same repository/worktree/branch lineage that already have a

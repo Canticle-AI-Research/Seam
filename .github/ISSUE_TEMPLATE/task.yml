@@ -1,0 +1,79 @@
+name: Project task
+description: Track one bounded repository task with explicit acceptance evidence.
+title: "[Task] "
+labels:
+  - "type:task"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Define the work here; use the roadmap, status pages, and history for their existing authority. Closing this issue coordinates work but does not prove qualification, deployment, or release.
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: State the observable result this task should produce.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope
+      description: Name the files, components, or operator surfaces included.
+    validations:
+      required: true
+
+  - type: textarea
+    id: exclusions
+    attributes:
+      label: Exclusions
+      description: Name adjacent work that this task deliberately leaves out.
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance evidence
+      description: List the tests, artifacts, or operator checks required to accept the result.
+      placeholder: |
+        - [ ] Named test or check ...
+        - [ ] Durable evidence artifact ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: Link prerequisite issues, PRs, decisions, or external conditions. Write "None" when there are none.
+    validations:
+      required: true
+
+  - type: textarea
+    id: governing
+    attributes:
+      label: Governing references
+      description: Link the specification, roadmap item, status page, policy, or prior HISTORY entry that governs the work.
+    validations:
+      required: true
+
+  - type: textarea
+    id: verification
+    attributes:
+      label: Verification plan
+      description: Name the exact commands or review steps and the claim each one can support.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Task checks
+      options:
+        - label: I checked for an existing issue, roadmap owner, or active workstream before opening this task.
+          required: true
+        - label: I have not presented planned work, issue closure, or a local test as qualified, deployed, or released behavior.
+          required: true

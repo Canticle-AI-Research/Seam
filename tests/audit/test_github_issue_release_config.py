@@ -42,15 +42,23 @@ def _write_sdist(path: Path, members: dict[str, bytes]) -> None:
 
 
 def test_issue_forms_are_structured_and_content_safe() -> None:
-    expected = {"bug.yml", "feature.yml", "release.yml", "research.yml"}
+    expected = {"bug.yml", "feature.yml", "release.yml", "research.yml", "task.yml"}
     assert expected <= {path.name for path in ISSUE_TEMPLATE_DIR.glob("*.yml")}
-    allowed_labels = {"bug", "documentation", "enhancement"}
+    expected_labels = {
+        "bug.yml": {"bug", "type:bug"},
+        "feature.yml": {"enhancement", "type:feature"},
+        "release.yml": {"enhancement", "type:release"},
+        "research.yml": {"documentation", "type:research"},
+        "task.yml": {"type:task"},
+    }
     for name in expected:
         document = yaml.safe_load((ISSUE_TEMPLATE_DIR / name).read_text(encoding="utf-8"))
         assert document["name"]
         assert document["description"]
         assert document["title"]
-        assert set(document.get("labels", [])) <= allowed_labels
+        labels = set(document.get("labels", []))
+        assert labels == expected_labels[name]
+        assert sum(label.startswith("type:") for label in labels) == 1
         fields = document["body"]
         ids = [field["id"] for field in fields if "id" in field]
         assert len(ids) == len(set(ids))

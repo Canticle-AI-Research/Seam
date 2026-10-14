@@ -3,6 +3,7 @@ description: Report a reproducible SEAM defect with a bounded evidence trail.
 title: "[Bug] "
 labels:
   - bug
+  - "type:bug"
 body:
   - type: markdown
     attributes:

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 683
-total_tokens: ~347516
-latest_id: 683
+total_entries: 685
+total_tokens: ~348194
+latest_id: 685
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,8 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 685 | 2026-10-14 | changed | 5c0591c63865fc47 | ci,config,operator,verify,+ | 684 |
+| 684 | 2026-10-14 | changed | 65f234136c6ea6e8 | ci,config,operator,bugfix,+ | none |
 | 683 | 2026-10-14 | changed | ea43c5a211272e6c | correction,verify | 682 |
 | 682 | 2026-10-14 | changed | d993d1c769b2baba | correction,verify | 681 |
 | 681 | 2026-10-14 | changed | 6ffc01c19b46e1cf | correction,verify,registry | 680 |
@@ -725,7 +727,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=87 latest=#679, #668, #629, #628, #624
+- bugfix: count=88 latest=#684, #679, #668, #629, #628
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -737,7 +739,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=88 latest=#679, #676, #673, #672, #669
+- ci: count=90 latest=#685, #684, #679, #676, #673
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -755,12 +757,12 @@ compact: true
 - compress: count=26 latest=#145, #144, #132, #131, #130
 - compression: count=3 latest=#316, #315, #314
 - concepts: count=1 latest=#180
-- config: count=18 latest=#652, #651, #650, #649, #646
+- config: count=20 latest=#685, #684, #652, #651, #650
 - confound: count=1 latest=#334
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=102 latest=#673, #672, #668, #667, #666
+- continuity: count=103 latest=#685, #673, #672, #668, #667
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -790,7 +792,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=12 latest=#673, #672, #621, #620, #483
-- docs: count=122 latest=#680, #675, #674, #673, #672
+- docs: count=123 latest=#684, #680, #675, #674, #673
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -906,7 +908,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=15 latest=#666, #665, #663, #662, #636
+- operator: count=17 latest=#685, #684, #666, #665, #663
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -1018,7 +1020,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=132 latest=#642, #638, #637, #632, #631
 - test-artifacts: count=1 latest=#506
-- tests: count=86 latest=#652, #650, #649, #648, #647
+- tests: count=87 latest=#684, #652, #650, #649, #648
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -1034,7 +1036,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=484 latest=#683, #682, #681, #680, #679
+- verify: count=486 latest=#685, #684, #683, #682, #681
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1050,8 +1052,8 @@ compact: true
 
 ## status rollup
 
-- roots: 90
-- changed: 83
+- roots: 91
+- changed: 85
 - done: 542
 - in-progress: 36
 - planned: 22

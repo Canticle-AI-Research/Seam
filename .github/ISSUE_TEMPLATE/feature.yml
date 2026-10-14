@@ -3,6 +3,7 @@ description: Propose a bounded SEAM capability or operator-workflow improvement.
 title: "[Feature] "
 labels:
   - enhancement
+  - "type:feature"
 body:
   - type: markdown
     attributes:

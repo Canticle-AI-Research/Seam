@@ -3,6 +3,7 @@ description: Define a reproducible research question without overstating the evi
 title: "[Research] "
 labels:
   - documentation
+  - "type:research"
 body:
   - type: textarea
     id: question

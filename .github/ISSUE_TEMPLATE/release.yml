@@ -3,6 +3,7 @@ description: Propose and track one private SEAM runtime GitHub Release.
 title: "[Release] "
 labels:
   - enhancement
+  - "type:release"
 body:
   - type: input
     id: version

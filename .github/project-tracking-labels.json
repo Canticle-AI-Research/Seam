@@ -1,0 +1,19 @@
+{
+  "schema": "seam-project-tracking-labels/v1",
+  "labels": [
+    {"name": "type:bug", "color": "D73A4A", "description": "A reproducible defect in existing behavior"},
+    {"name": "type:feature", "color": "A2EEEF", "description": "A bounded capability or operator-workflow proposal"},
+    {"name": "type:research", "color": "7057FF", "description": "A reproducible research or benchmark task"},
+    {"name": "type:release", "color": "0E8A16", "description": "A private SEAM release proposal"},
+    {"name": "type:task", "color": "C5DEF5", "description": "A bounded repository or project task"},
+    {"name": "status:triage", "color": "EDEDED", "description": "Needs scope, ownership, or governing-reference review"},
+    {"name": "status:ready", "color": "0E8A16", "description": "Scoped and ready for implementation"},
+    {"name": "status:in-progress", "color": "FBCA04", "description": "Actively being implemented or verified"},
+    {"name": "status:blocked", "color": "B60205", "description": "Cannot proceed until a named condition is resolved"},
+    {"name": "status:closed", "color": "5319E7", "description": "Issue is closed; qualification and deployment remain separate claims"},
+    {"name": "priority:p0", "color": "B60205", "description": "Urgent incident or release-blocking priority"},
+    {"name": "priority:p1", "color": "D93F0B", "description": "High priority with near-term impact"},
+    {"name": "priority:p2", "color": "FBCA04", "description": "Normal planned priority"},
+    {"name": "priority:p3", "color": "C2E0C6", "description": "Low priority or opportunistic work"}
+  ]
+}

@@ -22191,3 +22191,42 @@ Recorded-fact correction to HISTORY#681-682: the canonical static counter only d
 
 The count/collector wording revisions preserve their original evidence and do not weaken or suppress any gate. No runtime or release artifact changed. TestPyPI publication, both immutable hashes, settled licensing, and bounded batching next remain the independently reviewed final state.
 ---END-ENTRY-#683---
+
+---BEGIN-ENTRY-#684---
+id: 684
+date: 2026-10-14T13:13:10Z
+agent: codex
+status: changed
+topics: ci, config, operator, bugfix, docs, tests, verify
+commits: none
+refs: .github/workflows/project-tracking.yml,.github/project-tracking-labels.json,tools/ci/project_tracking.py,tools/agents/closeout_queue.py,tools/agents/session_end_closeout.py,tests/audit/test_project_tracking.py,tests/audit/test_github_issue_release_config.py,tests/audit/test_closeout_queue.py,tests/audit/test_session_end_agent_closeout.py,docs/PROJECT_TRACKING.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md
+supersedes: none
+tokens: 466
+---
+Previous state: existing issue forms lacked explicit type/status/priority tracking, and the closeout queue rejected one immutable legacy relative receipt path before reading its already-qualified successor. The repository-native tracking slice adds a reviewed label catalog, a task form, preserved legacy form labels, PR linkage guidance, bounded gh-api automation, and a discoverable operator guide. Priority, readiness, ownership and milestones remain maintainer decisions; issue closure does not prove qualification or deployment.
+
+Recovered only the receipt compatibility source and regression tests from commit 15a66de4aad491febf573ecce671a4bb355ceb39, preserving main's newer TDD classifier. New requests record absolute receipt paths; legacy relative paths must resolve to the exact canonical receipt without parent traversal. Original requests, receipts and history entries were not rewritten. Independent checker review found no issues, and the real original queue returns zero pending requests.
+
+Witnessed checker RED then GREEN and tracker RED then GREEN are retained in ignored root session state. Independent tracker review identified lost legacy form labels and an overstated race guarantee; delivery corrected both. A live preview exposed unsupported gh --slurp on this workstation, so the helper now uses bounded explicit pages and producer-side field projections instead of capturing issue bodies. The prescribed older virtual environment lacks pytest; verification used the existing test-registry tools environment without modifying either environment.
+
+Integrated verification command: /tmp/seam-testpypi-tools/bin/python -m pytest tests/audit/test_project_tracking.py tests/audit/test_github_issue_release_config.py tests/audit/test_closeout_queue.py tests/audit/test_session_end_agent_closeout.py -o addopts='' -q
+Result: 175 passed. Wiki navigation, Ruff and whitespace checks passed for their named delivery scopes. The canonical secret/session scan passed with its existing policy exclusions. The read-only live workflow-dispatch preview planned 14 catalog mutations and applied none.
+
+Protected PR publication, exact-head required GitHub checks, stored independent release qualification, merge authority, and live automation acceptance remain separate next steps. The active main ruleset requires repo-hygiene, chroma-real-smoke and locomo-quickstart-bil2. Original dirty worktrees and unrelated runtime/release work remain excluded. No provider calls, release publication, deployment, milestone invention or backlog sweep was performed.
+---END-ENTRY-#684---
+
+---BEGIN-ENTRY-#685---
+id: 685
+date: 2026-10-14T13:18:21Z
+agent: codex
+status: changed
+topics: ci, config, operator, verify, continuity
+commits: none
+refs: .github/project-tracking-labels.json,.github/workflows/project-tracking.yml,tools/ci/project_tracking.py,docs/PROJECT_TRACKING.md
+supersedes: 684
+tokens: 212
+---
+Follow-up to HISTORY#684: independent final assurance resolved both earlier findings and reports no remaining issues. Source review includes compatible bounded pagination and producer-side gh projections; the final tracking implementation hash is 195d2092a3172962c823ecca08bf4b57eb72299ad4238dcbce15094c01399560. Delivery also reported witnessed legacy-label and old-gh regression failures before its final passing tracking/forms run; the original red/green records remain preserved.
+
+Using gh api, root installed only the 14 catalog labels. Exact live name/color/description readback matches the checked-in catalog, and the legacy bug, enhancement and documentation labels remain present. Root created the actual implementation work item, issue #310, with type:task and status:in-progress plus explicit acceptance checks; no existing issue was swept or reprioritized. All six canonical local gates pass. Hosted CI, exact-state release qualification, protected merge and live workflow acceptance remain pending; no claim that automation is live follows from installed labels.
+---END-ENTRY-#685---

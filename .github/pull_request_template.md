@@ -2,6 +2,11 @@
 
 - 
 
+## Work tracking
+
+- Linked issue: <!-- Use `Closes #123` only when this PR completes the issue's accepted scope; use `Refs #123` for partial work. -->
+- Governing roadmap, status, specification, or HISTORY item:
+
 ## Verification
 
 - [ ] Relevant tests run locally and noted in the PR.

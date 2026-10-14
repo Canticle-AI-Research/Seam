@@ -226,6 +226,11 @@ bounded task-specific reading; do not maintain a competing sequence here.
   proposals; sensitive security findings route to private advisories. Issue
   closure, labels, and milestones do not by themselves prove implementation,
   qualification, publication, or deployment.
+  The repository-native tracking framework and its type, status, priority,
+  linked-work and automation boundaries are defined in
+  [project tracking](docs/PROJECT_TRACKING.md). Existing roadmap authorities
+  continue to govern product direction; automation does not assign priorities
+  or reinterpret historical evidence.
 - TEST REGISTRY FIRST (HISTORY#642). Validate an eligible Suite candidate on
   TestPyPI before any production PyPI publication. TestPyPI is public, not a
   private artifact store; never upload the private paid SDK there. Existing
