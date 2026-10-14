@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — publisher integrated; clean-checkout snapshot repair qualified.**
+PR #307 merged at `76d42b59d9ac85e831956d0ed340da8200448bea` after independent
+exact-state qualification and required/package checks. Its first TestPyPI run
+stopped before upload because the tracked snapshot predates the latest history.
+The follow-up generates a runner-local snapshot from exact checked-out history;
+all six strict gates pass in a fresh shared clone and 33 publisher tests pass.
+Independent successor review passes. Protected repair admission and a new
+exact-main dispatch remain next. No upload has occurred; licensing is finished.
+See HISTORY#679 and [current handoff](docs/handoffs/INDEX.md).
+
 **2026-10-14 — TestPyPI publisher locally qualified; protected merge and upload next.**
 The operator configured the GitHub Actions secret `TEST_PYPI` and authorized
 TestPyPI publication. A dedicated main-only publisher binds exact source,

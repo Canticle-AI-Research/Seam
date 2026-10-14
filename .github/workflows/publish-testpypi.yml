@@ -77,6 +77,26 @@ jobs:
           echo "head_sha=${head_sha}" >> "$GITHUB_OUTPUT"
           echo "remote_sha=${remote_sha}" >> "$GITHUB_OUTPUT"
 
+      - name: Write runner-local current-history snapshot
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          from tools.history.history_lib import HISTORY_PATH, parse_entries, read_history_bytes
+          from tools.history.write_snapshot import write_snapshot
+
+          entries = parse_entries(read_history_bytes(HISTORY_PATH))
+          if not entries:
+              raise SystemExit("Cannot publish from an empty HISTORY.md")
+          snapshot = write_snapshot(
+              agent="testpypi-ci",
+              entry_ids=[entry.id for entry in entries[-4:]],
+              token_budget=4000,
+              include_pack=False,
+          )
+          print(f"Wrote runner-local current-history snapshot: {snapshot}")
+          PY
+
       - name: Verify SEAM history integrity
         run: python -m tools.history.verify_integrity
 

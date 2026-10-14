@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-testpypi-publisher-ready
 supersedes: 2026-10-14-branch-recovery-closeout
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#676
 ---
 

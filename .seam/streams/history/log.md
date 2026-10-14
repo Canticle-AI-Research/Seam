@@ -22103,3 +22103,21 @@ tokens: 110
 ---
 Independent continuity review clarifies HISTORY#676: the Actions transfer digest is recorded and format-checked, not independently enforced by the helper. Fail-closed artifact-byte integrity is enforced through the independently pinned receipt SHA256 and its exact wheel/sdist hashes. Current handoff/status already describe that receipt binding accurately. Review also independently collected 33 publisher and 40 manifest-drift cases; the root reran both named suites successfully after advancing to PR #305 main. All publisher authority, preparation scope and pending-publication conditions remain unchanged; no upload has occurred.
 ---END-ENTRY-#678---
+
+---BEGIN-ENTRY-#679---
+id: 679
+date: 2026-10-14T12:08:34Z
+agent: codex
+status: changed
+topics: bugfix, ci, snapshot, registry, verify, handoff
+commits: pending
+refs: .github/workflows/publish-testpypi.yml,tests/audit/test_testpypi_release.py,docs/handoffs/2026-10-14-testpypi-snapshot-repair.md
+supersedes: 678
+tokens: 360
+---
+PR #307 merged at76d42b59d9ac85e831956d0ed340da8200448bea with independent exact-state qualification, all three required checks, package-smoke and CodeQL passing. First live dispatch https://github.com/Canticle-AI-Research/Seam/actions/runs/38560873494 failed credential-free prepare at strict continuity: latest tracked snapshot predates latest HISTORY#678. Upload job skipped; no registry upload occurred. Normal CI explicitly excludes snapshot verification; the publisher preserves the full strict check.
+
+Two-file follow-up uses canonical parsed history and snapshot writer to derive a runner-local no-pack snapshot for latest four checked-out entries before all six unchanged gates. Empty history fails closed. Independent successor review and 33 publisher audit cases pass. Witnessed RED/GREEN recorded in bounded state. Fresh shared-clone proof at merged76d42b5 with only owned two-file patch and five original tracked snapshots generated a sixth snapshot and passed all six unsuppressed gates. Proof log SHA256 f5f139ab7d07ae130e150d484c895c3b5d00678dad46803f2679179c0c13f51b; patch SHA2563eede15d8476c8aac608db3709e86f1ac83c72b2625b436df363d19e02ebc9fa. No runtime or licensing changes.
+
+Full operator approvals covered a documented one-push dirty-worktree exception for ten pre-existing unrelated linked worktrees; signature/secret checks remained enabled and their files were preserved/excluded. Next protected repair admission and exact-main dispatch, then actual public hashes/downloaded-install qualification. Production PyPI/private SDK/paid calls remain outside scope.
+---END-ENTRY-#679---

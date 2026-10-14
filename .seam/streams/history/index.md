@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 678
-total_tokens: ~346215
-latest_id: 678
+total_entries: 679
+total_tokens: ~346575
+latest_id: 679
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 679 | 2026-10-14 | changed | 1f45f511fecbdc46 | bugfix,ci,snapshot,registry,+ | 678 |
 | 678 | 2026-10-14 | changed | c8e740fb45f46223 | correction,security,verify | 677 |
 | 677 | 2026-10-14 | changed | 4fb8d57c11599361 | correction,verify,handoff | 676 |
 | 676 | 2026-10-14 | in-progress | a771d58323ce17b2 | registry,ci,security,verify,+ | 675 |
@@ -720,7 +721,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=86 latest=#668, #629, #628, #624, #623
+- bugfix: count=87 latest=#679, #668, #629, #628, #624
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -732,7 +733,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=87 latest=#676, #673, #672, #669, #667
+- ci: count=88 latest=#679, #676, #673, #672, #669
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -826,7 +827,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=135 latest=#677, #676, #675, #673, #672
+- handoff: count=136 latest=#679, #677, #676, #675, #673
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -954,7 +955,7 @@ compact: true
 - refactor: count=1 latest=#284
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
-- registry: count=13 latest=#676, #673, #672, #669, #667
+- registry: count=14 latest=#679, #676, #673, #672, #669
 - release: count=8 latest=#670, #486, #485, #484, #476
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
@@ -991,7 +992,7 @@ compact: true
 - skill: count=1 latest=#331
 - skip: count=1 latest=#294
 - skip-policy: count=1 latest=#361
-- snapshot: count=111 latest=#624, #239, #229, #227, #226
+- snapshot: count=112 latest=#679, #624, #239, #229, #227
 - spec: count=3 latest=#307, #305, #304
 - sql: count=1 latest=#319
 - sql2: count=1 latest=#318
@@ -1029,7 +1030,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=479 latest=#678, #677, #676, #674, #673
+- verify: count=480 latest=#679, #678, #677, #676, #674
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1046,7 +1047,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 79
+- changed: 80
 - done: 541
 - in-progress: 36
 - planned: 22

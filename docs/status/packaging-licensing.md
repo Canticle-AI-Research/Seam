@@ -7,6 +7,15 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
+## Integrated publisher and clean-checkout repair
+
+PR #307 merged at `76d42b59d9ac85e831956d0ed340da8200448bea`. Its first
+TestPyPI dispatch failed strict snapshot freshness before upload; publisher job
+was skipped. The follow-up derives a fresh runner-local snapshot from checked-out
+history before unchanged unsuppressed gates. Independent review, 33 publisher
+cases and all six gates in a fresh clone pass. Protected repair admission and
+new exact-main dispatch remain required. See HISTORY#679 and current handoff.
+
 ## TestPyPI publisher qualification
 
 The operator configured `TEST_PYPI` in GitHub Actions and authorized the Suite
