@@ -1,0 +1,26 @@
+[
+  {
+    "tip": "24e1725134d476798992cc7ecaef7de299d27cc6",
+    "path": "docs/roadmap/LATENT_CACHEBRIDGE.md",
+    "sha256": "23285825a85b4ad3dc4e86bb881f7bf99c2d2691eea99f9307b2a108f9dff104",
+    "status": "verbatim authored planning preserved; not implementation qualification"
+  },
+  {
+    "tip": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+    "path": "docs/roadmap/PERSISTENT_CONCEPT_STATE.md",
+    "sha256": "0301e34f4b3c57a07ce38ca53174d5917dbfc0214f5abb07608e5d50bd0d8aa7",
+    "status": "verbatim authored planning preserved; not implementation qualification"
+  },
+  {
+    "tip": "d69994491fef91abd4220016d64e322b0d106c11",
+    "path": "docs/audits/2026-08-18-advanced-agent-persistence-layers.md",
+    "sha256": "5f2cddc97ad1c06ebd2862bedffd9764f30138e13b6be3d774bf0b28297b557e",
+    "status": "verbatim authored planning preserved; not implementation qualification"
+  },
+  {
+    "tip": "d69994491fef91abd4220016d64e322b0d106c11",
+    "path": "docs/audits/2026-08-18-seam-second-brain-persistence-dissertation.md",
+    "sha256": "b6ec01f8a39f853a04aef1979ef83cd7515decae5c09b7b48e0f10266eca8fea",
+    "status": "verbatim authored planning preserved; not implementation qualification"
+  }
+]

@@ -1,0 +1,410 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "run_id": "branch-recovery-20261014",
+  "task_id": "assure-website-recovery",
+  "role": "seam_assurance_orchestrator",
+  "status": "PASS",
+  "finished_utc": "2026-10-14T10:15:35.131951+00:00",
+  "scope": "Exact eight uncommitted website safety/readiness files at website base a7be463; root canonical-link correction included. Read-only Git diff/show metadata. No source/Git/PR/deployment mutation, credentials/operator-data reads, production/provider calls or delegation. External report only.",
+  "packet_validation": {
+    "result": "PASS",
+    "validator": "system Python jsonschema.Draft202012Validator",
+    "schema_path": "/workspace/Seam/tools/agents/schemas/context-packet.schema.json",
+    "packet_sha256": "673d8ffeb5be94c6aa940a8895e6b9f781580bfe7e0effa02f9bb2fba0498907"
+  },
+  "website_base_head": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+  "head_observed": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+  "changed_files": [
+    {
+      "path": "release/package_release.py",
+      "bytes": 1093,
+      "sha256": "3042d3e5341cf2339adda52faf9cc39fc7da62b15a14de05893a094b6150bc2c",
+      "delivery_sha256": "c7315c013156715348e433a31a3384b9ac1a6f8d314f7a304afda9ee580f069c",
+      "only_delta_since_delivery": "Two documentation links use canonical Canticle-AI-Research/Seam coordinate."
+    },
+    {
+      "path": "tests/test_legacy_release_retirement.py",
+      "bytes": 3420,
+      "sha256": "2787b0f4f8b3a5f40b79f25d51a65a328d795d7872e8726fb2cd795bd43fb07e",
+      "delivery_sha256": "2787b0f4f8b3a5f40b79f25d51a65a328d795d7872e8726fb2cd795bd43fb07e",
+      "only_delta_since_delivery": null
+    },
+    {
+      "path": "tests/test_suite_readiness_copy.py",
+      "bytes": 3097,
+      "sha256": "e2e3621f281ac55f3f15fbdfc58d3d1cd12ac056279a83546f92aa3e0333a16b",
+      "delivery_sha256": "e2e3621f281ac55f3f15fbdfc58d3d1cd12ac056279a83546f92aa3e0333a16b",
+      "only_delta_since_delivery": null
+    },
+    {
+      "path": "console.html",
+      "bytes": 52342,
+      "sha256": "c33bf261eb419180632bac65d4510f483d1be59b4d611b1c84f5ffc4ea54f47a",
+      "delivery_sha256": "c33bf261eb419180632bac65d4510f483d1be59b4d611b1c84f5ffc4ea54f47a",
+      "only_delta_since_delivery": null
+    },
+    {
+      "path": "contributions.html",
+      "bytes": 24919,
+      "sha256": "971d72d79f6928d7d84d025c331625eab33325b4ed5e8e36169c297bff7a106b",
+      "delivery_sha256": "971d72d79f6928d7d84d025c331625eab33325b4ed5e8e36169c297bff7a106b",
+      "only_delta_since_delivery": null
+    },
+    {
+      "path": "tiers.js",
+      "bytes": 8182,
+      "sha256": "45a5e99b94e496399e354b3fea3dd338680a725b0b4c76bef47aac60b1eb1437",
+      "delivery_sha256": "45a5e99b94e496399e354b3fea3dd338680a725b0b4c76bef47aac60b1eb1437",
+      "only_delta_since_delivery": null
+    },
+    {
+      "path": "tiers.html",
+      "bytes": 26129,
+      "sha256": "cd58291d313476d05f027cb1266bfad85903e2d0d0eac55b20d660ba0124dc96",
+      "delivery_sha256": "cd58291d313476d05f027cb1266bfad85903e2d0d0eac55b20d660ba0124dc96",
+      "only_delta_since_delivery": null
+    },
+    {
+      "path": "release/README.md",
+      "bytes": 2300,
+      "sha256": "f62febe75ce2fd413cff6ff125f72233302243d074075a69c8d51f8f861ea697",
+      "delivery_sha256": "20cdb8783963caa8da394be741d8dae031be951e786e0a670306652c1e93a8ad",
+      "only_delta_since_delivery": "Two documentation links use canonical Canticle-AI-Research/Seam coordinate."
+    }
+  ],
+  "candidate_inventory_sha256": "1e17d665a4cd15183a855fc39d734f0acc20f7750054e384908cb55c39106d1e",
+  "blocking_findings": [],
+  "nonblocking_findings": [],
+  "resolved_findings": [
+    {
+      "id": "CANONICAL_SOURCE_URL_ROUTING",
+      "result": "Root changed four release-flow/TestPyPI links to canonical Canticle-AI-Research/Seam; independent byte normalization proves this is the only delta to previously reviewed two files. Retirement6tests rerunPASS."
+    }
+  ],
+  "retirement_assessment": {
+    "result": "PASS",
+    "proof": "31-line helper imports only sys plus future annotations. Sole standalone --help/-h prints guidance and exits0; every other argv exits2 on stderr. No parser/build/filesystem/network/mirror/archive/upload/clobber implementation survives. Mixed/repeated help cannot bypass refusal.",
+    "observed_green": "Independent6methodsPASS, including build/publish/private-source/dirty/mixed-help argv with side-effect trap never hit and isolated fixture unchanged. Rerun6PASS after canonical-link amendment.",
+    "red_green_review": "Original RED6methods/10failing subtests: actual git fetch/mirror module/rev-parse argv trapped at97 before execution, mixed help incorrectly0, noargs/help lack retirement guidance. Final test bytes equal replay fixture bytes; baseline helper exact pinned-base bytes. GREEN6PASS. All original logs hashes independently verified.",
+    "baseline_helper_sha256": "cebfab53cbf607e59216a8e97711394e5aa4fa75ef1288f49dfed3e2d8cb6675",
+    "baseline_test_sha256": "2787b0f4f8b3a5f40b79f25d51a65a328d795d7872e8726fb2cd795bd43fb07e"
+  },
+  "readiness_assessment": {
+    "result": "PASS",
+    "proof": "Console hero/overview/plan/usage, tiers lane/hero/actions and contribution link name Suite, personal noncommercial scope and source-candidate/registry-verification-pending state. Stable/live binary claims removed. Download destinations unchanged.",
+    "red_green_review": "Original actual HTML/exported free-tier/cache RED4methods/7failures; delivery and independent GREEN4PASS. Free Account Active describes the tier; adjacent Suite availability remains pending. No artifact or hosted release completion inferred."
+  },
+  "preserved_contracts": {
+    "inline_scripts": "Independent byte comparison: every nonempty inline script attributes/body pair unchanged in console/tiers/contributions. Auth, billing, cohort/MVP and Vault logic preserved.",
+    "tier_exports": "Independent Node vm comparison proves MODEL, all paid/design-partner fields and normalizePlan unchanged. Free differs only three display strings (availabilityLabel, one feature text, CTA label); flags/rank/prices/CTA kind unchanged.",
+    "licensing": "Current personal/noncommercial/business/employer/client/org/internal/unpaid-evaluation written-agreement language retained; accounts/subscriptions do not expand grant; private paidSDK separate. Existing4license testsPASS.",
+    "prices": "$12/$39/$99 and write/storage/overage assumptions unchanged.6economics testsPASS.",
+    "download_security": "seam-release.js/auth.js/downloads.html/_headers byte-identical to base; existing18selector testsPASS including malformed/redirected/untrusted URL, auth/MFA/logout, response races/timeout and clipboard invalidation.3package-wiring testsPASS.",
+    "cache": "tiers.js v13 in both current HTML references; reference inventory confirmed by supplied invariant script. styles.css/script.js unchanged.",
+    "locked_planning_terms": "terms.html byte-identical; exact working-change inventory8allowedpaths only, therefore subscription/brief/ledger/immutable reports untouched.",
+    "publisher": "Canonical source release guides route exact reviewed artifact process; website provides no replacement mirror/upload path. Metadata digest explicitly distinguished from publisher signature."
+  },
+  "recorded_witnessed_evidence": [
+    {
+      "label": "retirement-red",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_legacy_release_retirement.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:56:22.751272+00:00",
+      "end_utc": "2026-10-14T09:56:23.284028+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/retirement-red.log",
+      "output_sha256": "4b97189064ef178fe0feb334344804c8de99986e52965439a3570dbf225fdd47",
+      "log_hash_verified": true
+    },
+    {
+      "label": "retirement-red-command-evidence",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/seam-branch-audit-20261014/website-delivery/baseline-cli/tests",
+        "-p",
+        "test_legacy_release_retirement.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.919267+00:00",
+      "end_utc": "2026-10-14T09:58:35.694182+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/retirement-red-command-evidence.log",
+      "output_sha256": "41e20061e3e4248c045ab06607a54388d1d27fc3b0bdf7f441f858cac7111919",
+      "log_hash_verified": true
+    },
+    {
+      "label": "retirement-green-final",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_legacy_release_retirement.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.937103+00:00",
+      "end_utc": "2026-10-14T09:58:35.625238+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/retirement-green-final.log",
+      "output_sha256": "8aee09a50138b9263be2fdd018d336ba2db175a7bbe549fae7a92acfdbe48cbb",
+      "log_hash_verified": true
+    },
+    {
+      "label": "readiness-red",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_readiness_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:56:29.829949+00:00",
+      "end_utc": "2026-10-14T09:56:29.949343+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/readiness-red.log",
+      "output_sha256": "3c7792ce9c2a942fb503b2eb070a500fca43f9249a8ea19fa1b2a5b4b3cf0932",
+      "log_hash_verified": true
+    },
+    {
+      "label": "readiness-final-review",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_readiness_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:59:45.576462+00:00",
+      "end_utc": "2026-10-14T09:59:45.699251+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/readiness-final-review.log",
+      "output_sha256": "24759018e26ca4869a717d1cfca1705830d88f6e5a7f92214b9e6d23bea30216",
+      "log_hash_verified": true
+    },
+    {
+      "label": "selector",
+      "command": [
+        "node",
+        "--test",
+        "tests/downloads-release.test.js"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.965886+00:00",
+      "end_utc": "2026-10-14T09:58:35.292996+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/selector.log",
+      "output_sha256": "d1b5ef2c774013b0e3abc891aed721eb865230ea6341540a16afcfe1530d09d6",
+      "log_hash_verified": true
+    },
+    {
+      "label": "test_package_downloads",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_package_downloads.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:35.019111+00:00",
+      "end_utc": "2026-10-14T09:58:35.210356+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/test_package_downloads.log",
+      "output_sha256": "7f651a454b7b284efe70fac28605ab5d9c389d39a8b6c9aae1f2193f021e78e2",
+      "log_hash_verified": true
+    },
+    {
+      "label": "test_suite_license_copy",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_license_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:35.046594+00:00",
+      "end_utc": "2026-10-14T09:58:35.469004+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/test_suite_license_copy.log",
+      "output_sha256": "5a52b22cd60bef691728ab74d418d0da1f050a9d26bfb3e40b6a1823801456ad",
+      "log_hash_verified": true
+    },
+    {
+      "label": "test_subscription_economics",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_subscription_economics.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:35.135413+00:00",
+      "end_utc": "2026-10-14T09:58:35.314208+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/test_subscription_economics.log",
+      "output_sha256": "c6b9b1f09add0403cc07e90bfdf272129b1ddfa2f8f7675ea8218862f2516371",
+      "log_hash_verified": true
+    },
+    {
+      "label": "javascript-syntax",
+      "command": [
+        "node",
+        "--check",
+        "tiers.js"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.997890+00:00",
+      "end_utc": "2026-10-14T09:58:35.093416+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/javascript-syntax.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_hash_verified": true
+    },
+    {
+      "label": "behavior-invariants",
+      "command": [
+        "python3",
+        "/workspace/scratch/seam-branch-audit-20261014/website-delivery/check_invariants.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:59:27.973169+00:00",
+      "end_utc": "2026-10-14T09:59:28.098061+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/behavior-invariants.log",
+      "output_sha256": "daa7a04d828dd0b87c20d36482f1998822a9a6f0957f9338e70bcfb7eeb56b10",
+      "log_hash_verified": true
+    },
+    {
+      "label": "diff-final-review",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:59:45.573814+00:00",
+      "end_utc": "2026-10-14T09:59:45.578474+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/diff-final-review.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "log_hash_verified": true
+    }
+  ],
+  "independent_checks": [
+    {
+      "command": "python3 -B -m unittest discover -s tests -p test_legacy_release_retirement.py",
+      "cwd": "/workspace/Cantlicle",
+      "exit": 0,
+      "passed": 6
+    },
+    {
+      "command": "python3 -B -m unittest discover -s tests -p test_suite_readiness_copy.py",
+      "cwd": "/workspace/Cantlicle",
+      "exit": 0,
+      "passed": 4
+    },
+    {
+      "command": "node --test tests/downloads-release.test.js",
+      "cwd": "/workspace/Cantlicle",
+      "exit": 0,
+      "passed": 18
+    },
+    {
+      "command": "python3 -B -m unittest discover -s tests -p test_suite_license_copy.py",
+      "cwd": "/workspace/Cantlicle",
+      "exit": 0,
+      "passed": 4
+    },
+    {
+      "command": "python3 -B -m unittest discover -s tests -p test_subscription_economics.py",
+      "cwd": "/workspace/Cantlicle",
+      "exit": 0,
+      "passed": 6
+    },
+    {
+      "command": "python3 -B -m unittest discover -s tests -p test_package_downloads.py",
+      "cwd": "/workspace/Cantlicle",
+      "exit": 0,
+      "passed": 3
+    },
+    {
+      "command": "git diff --check",
+      "exit": 0
+    },
+    {
+      "command": "node --check tiers.js",
+      "exit": 0
+    },
+    {
+      "command": "python3 -B /workspace/scratch/seam-branch-audit-20261014/website-delivery/check_invariants.py",
+      "exit": 0,
+      "result": "8ownedpaths, no staging, current exported/model/inline/cache invariantsPASS."
+    },
+    {
+      "command": "Independent Node vm before/after tier exports comparison",
+      "exit": 0,
+      "result": "MODEL/paid fields/free only3strings/normalization alltrue."
+    },
+    {
+      "command": "python3 -B -m unittest discover -s tests -p test_legacy_release_retirement.py",
+      "exit": 0,
+      "passed": 6,
+      "scope": "Canonical-source URL successor; remaining six candidate files unchanged."
+    }
+  ],
+  "independent_unique_functional_tests_passed": 41,
+  "baseline_and_new_failures": {
+    "new_retirement_readiness": "Expected witnessed contractRED corrected; independent focused GREEN41distincttests plus6retirement rerunPASS.",
+    "unrelated_notifications": "Delivery/audit record pre-existing notification12-versus13 catalog assertion. Not rerun/edited or claimed repaired in this scope.",
+    "full_repository_ci": "No full-suite or protectedCI qualification here; root owns current integration checks."
+  },
+  "limitations": [
+    "Source safety/copy PASS only; production publication/deployment remains separately gated and neither performed nor claimed.",
+    "No real-browser desktop/mobile visual/interaction or fullUI acceptance performed.",
+    "Registry/publisher eligibility and stable production availability remain pending; SHA256 supports file integrity, not publisher authenticity.",
+    "Locked proposal preservation and remaining branch recovery remain separate root work; no auth, pricing, entitlement or data-policy change."
+  ]
+}

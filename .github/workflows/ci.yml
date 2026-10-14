@@ -136,20 +136,10 @@ jobs:
 
   pgvector-integration:
     runs-on: [self-hosted, seam-box]
-    services:
-      pgvector:
-        image: pgvector/pgvector:0.8.6-pg18-trixie
-        env:
-          POSTGRES_DB: seam_ci
-          POSTGRES_USER: seam_ci
-          POSTGRES_PASSWORD: seam_ci_password
-        ports:
-          - 55433:5432
-        options: >-
-          --health-cmd "pg_isready -U seam_ci -d seam_ci"
-          --health-interval 5s
-          --health-timeout 5s
-          --health-retries 10
+    # Automatic services start before steps and inherit the runner's stale
+    # Desktop socket. Probe/start the approved daemon through the owned fixture.
+    env:
+      SEAM_PGVECTOR_FIXTURE_STATE: ${{ runner.temp }}/seam-pgvector-${{ github.run_id }}-${{ github.run_attempt }}/state.json
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -163,7 +153,13 @@ jobs:
         run: python -m pip install -e ".[server]"
 
       - name: Install test dependencies
-        run: python -m pip install pytest psycopg[binary]
+        run: python -m pip install pytest psycopg[binary] 'PyYAML>=6,<7'
+
+      - name: Verify guarded pgvector fixture regressions
+        run: python -m pytest tests/audit/test_pgvector_ci_fixture.py -q
+
+      - name: Probe approved daemon and start owned ephemeral pgvector
+        run: python -m tools.ci.pgvector_fixture start --state "$SEAM_PGVECTOR_FIXTURE_STATE"
 
       - name: Run all real-pgvector tests
         # Target the real-service test files explicitly (not `-m external` over all
@@ -179,11 +175,11 @@ jobs:
         # no-skip could not see the gap. `test_ci_enforces_no_silent_skips`
         # now derives the required set from the test tree and fails if this
         # command omits any of them.
-        env:
-          PGPASSWORD: seam_ci_password
-          SEAM_PGVECTOR_DSN: postgresql://seam_ci@localhost:55433/seam_ci
-          PGVECTOR_TEST_DSN: "host=localhost port=55433 dbname=seam_ci user=seam_ci password=seam_ci_password"
-        run: python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py tests/audit/test_pgvector_render_contract.py tests/audit/test_pgvector_boundary_resync.py tests/audit/test_s8_r2_pgvector_parity.py -q
+        run: python -m tools.ci.pgvector_fixture run --state "$SEAM_PGVECTOR_FIXTURE_STATE" -- python -m pytest tests/audit/test_pgvector_real_adapter.py tests/audit/test_pgvector_pk_composite.py tests/audit/test_substream_isolation.py tests/audit/test_pgvector_render_contract.py tests/audit/test_pgvector_boundary_resync.py tests/audit/test_s8_r2_pgvector_parity.py -q
+
+      - name: Remove only owned pgvector fixture and private state
+        if: always()
+        run: python -m tools.ci.pgvector_fixture stop --state "$SEAM_PGVECTOR_FIXTURE_STATE"
 
   package-smoke:
     runs-on: [self-hosted, seam-box]

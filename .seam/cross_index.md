@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 735
+total_events: 736
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-28T04:15:54Z | history:475:f30d3857 | session-event | changed | pricing, docs, licensing | docs/pricing-tiers.md |
 | 2026-07-28T04:16:06Z | history:476:d2c2881a | session-event | changed | release, licensing, distribution-boundary, ci | public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/... |
 | 2026-07-28T05:52:28Z | history:477:cd1540ba | session-event | changed | selfhost, licensing, busl, security, verify, docker | selfhost/Dockerfile,pyproject.toml,tools/release/build_selfhost.py,tools/rele... |
 | 2026-07-28T14:55:22Z | history:478:e836d773 | session-event | done | graph, retrieval, provenance, history, handoff, verify, t... | seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orches... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T07:10:45Z | history:667:57e82a9d | session-event | changed | pyproject, installer, mcp, registry, ci, doctor, docs, wo... | pyproject.toml,requirements.txt,uv.lock,seam_runtime/doctor.py,seam_runtime/d... |
 | 2026-10-14T07:57:59Z | history:668:7bd3422a | session-event | changed | agent, protocol, bugfix, gates, docs, continuity, verify | tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tests/aud... |
 | 2026-10-14T08:26:17Z | history:669:6d13d1a9 | session-event | done | docs, status, handoff, registry, ci, worktree | PROJECT_STATUS.md,docs/handoffs/2026-10-14-suite-integrated-testpypi-next.md,... |
+| 2026-10-14T10:26:47Z | history:670:167043be | session-event | in-progress | maintenance/branches, maintenance/pgvector, runtime/retri... | docs/roadmap/BRANCH_RECOVERY.md,docs/audits/2026-10-14-branch-recovery.md,doc... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0535.cross.md | 2026-04-15T00:00:00Z..2026-07-28T04:15:42Z | 535 | (multi) | (multi) |
+| 0001-0536.cross.md | 2026-04-15T00:00:00Z..2026-07-28T04:15:54Z | 536 | (multi) | (multi) |

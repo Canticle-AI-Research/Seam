@@ -30,6 +30,16 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Exhaustive branch recovery (2026-10-14).** The owner requires every
+  remaining source and website branch inspected for useful missing work before
+  retirement. Exact-tip, per-path and intermediate-commit dispositions and
+  dependency/acceptance issues are maintained in
+  [the branch plan](docs/roadmap/BRANCH_RECOVERY.md). Static audits do not qualify
+  features. Recover useful slices against current main with witnessed tests;
+  preserve authored plans verbatim with planned status. Never wholesale import
+  stale chronology, obsolete licensing or rejected designs. Delete only after
+  all useful work has main preservation or an explicit accountable disposition,
+  exact live tip and PR/worktree checks; age or PR closure is insufficient.
 - **Release-candidate membership and branch cleanup (2026-10-14).** The
   owner-authorized TestPyPI-first Suite candidate receives independent exact
   source/archive and installed-behavior review before its private-upload

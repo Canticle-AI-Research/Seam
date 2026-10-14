@@ -5,6 +5,22 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — exhaustive branch recovery active.** All 30 captured source/site
+branches have individual exact-tip semantic audits, covering 84 distinct unique
+commit objects. Missing useful work, dependencies, rejected implementations and
+retirement conditions are mapped in the [branch recovery plan](docs/roadmap/BRANCH_RECOVERY.md)
+and [master issue #263](https://github.com/Canticle-AI-Research/Seam/issues/263),
+with 12 linked workstreams. The audit is complete; recovery and retirement are
+not. Initial cache, website safety and owned PostgreSQL fixture slices are being
+qualified against current main. Four authored research documents are restored
+verbatim as plans/historical research, not qualified runtime behavior. See
+HISTORY#670 and the [current handoff](docs/handoffs/INDEX.md).
+
+The owner-directed branch recovery is the current engineering priority.
+TestPyPI publisher access remains an external release dependency. Runtime
+recovery requires fresh artifact qualification; the earlier public-v3 candidate
+is historical evidence, not proof for newly changed runtime bytes.
+
 **2026-10-14 — Suite release candidate integrated; website verified live.**
 [PR #288](https://github.com/Canticle-AI-Research/Seam/pull/288) merged at
 `6c6ecd13490c9b675a77f246573491824313343c` after independent exact-state

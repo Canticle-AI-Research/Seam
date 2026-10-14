@@ -1,0 +1,3375 @@
+{
+  "schema": "seam-branch-semantic-audit/v1",
+  "run_id": "branch-recovery-20261014",
+  "role": "seam_context_orchestrator",
+  "task_id": "audit-docs",
+  "reviewed_at_utc": "2026-10-14T09:33:45.962424+00:00",
+  "source_main": "07b20a424ace842b9d3c88f836efff88906b6451",
+  "website_main": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+  "packet_sha256": "3a4d2eccf0e495ab985e538ac5ebe140705335717b69e7562fa2dfacb661be80",
+  "read_scope": "Six assigned exact-ref deltas and direct main counterparts. Forbidden whole HISTORY/ROADMAP not loaded; ROADMAP authored diff only; chronology metadata only. No source/Git/PR writes or tests against operator data.",
+  "branches": [
+    {
+      "branch": "docs/doc-audit-20261002",
+      "ref": "refs/remotes/origin/docs/doc-audit-20261002",
+      "tip": "8530717d800d397ba58283710b6e8f0a037aabf8",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+      "pull_requests": [
+        {
+          "headRefName": "docs/doc-audit-20261002",
+          "headRefOid": "8530717d800d397ba58283710b6e8f0a037aabf8",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 277,
+          "state": "OPEN",
+          "title": "docs: documentation drift audit and correction",
+          "updatedAt": "2026-10-03T03:53:56Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/277"
+        }
+      ],
+      "unique_commit_count": 7,
+      "is_ancestor_of_main": false,
+      "commits": [
+        {
+          "sha": "44dce9d41bb3938f94b46cb793354a794a42738c",
+          "date": "2026-10-02T07:28:17-05:00",
+          "subject": "docs: documentation drift audit and correction (HISTORY#653)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0518.cross.md",
+            ".seam/cross_index_archive/0001-0519.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "CONTRIBUTING.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "PROJECT_STATUS.md",
+            "README.md",
+            "REPO_LEDGER.md",
+            "SECURITY.md",
+            "docs/BENCHMARK_SOP.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/IMPROVEMENT_EXPERIMENTS.md",
+            "docs/MACOS.md",
+            "docs/PGVECTOR_LOCAL.md",
+            "docs/PROTECTION_MODEL.md",
+            "docs/RAG_ARCHITECTURE.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+            "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+            "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+            "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+            "docs/SOP_INDEX.md",
+            "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "docs/audits/INDEX.md",
+            "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+            "docs/errors.md",
+            "docs/setup.md",
+            "docs/status/compression-visual.md",
+            "docs/status/operations.md",
+            "docs/status/surfaces.md",
+            "docs/status/workspace.md",
+            "installers/README.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "CONTRIBUTING.md",
+            "PROJECT_STATUS.md",
+            "README.md",
+            "REPO_LEDGER.md",
+            "SECURITY.md",
+            "docs/BENCHMARK_SOP.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/IMPROVEMENT_EXPERIMENTS.md",
+            "docs/MACOS.md",
+            "docs/PGVECTOR_LOCAL.md",
+            "docs/PROTECTION_MODEL.md",
+            "docs/RAG_ARCHITECTURE.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+            "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+            "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+            "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+            "docs/SOP_INDEX.md",
+            "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "docs/audits/INDEX.md",
+            "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+            "docs/errors.md",
+            "docs/setup.md",
+            "docs/status/compression-visual.md",
+            "docs/status/operations.md",
+            "docs/status/surfaces.md",
+            "docs/status/workspace.md",
+            "installers/README.md"
+          ]
+        },
+        {
+          "sha": "664cc29921e60883e56d8a753bee528f1d8a3910",
+          "date": "2026-10-02T07:32:29-05:00",
+          "subject": "docs: consolidate README credential/webui pointer cards (HISTORY#654)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0519.cross.md",
+            ".seam/cross_index_archive/0001-0520.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "README.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "README.md"
+          ]
+        },
+        {
+          "sha": "4397a6caf3064c9f6ed9c06088a66eada111939e",
+          "date": "2026-10-02T07:41:58-05:00",
+          "subject": "docs: restructure README install/package map and /v1 split (HISTORY#655)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0520.cross.md",
+            ".seam/cross_index_archive/0001-0521.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "README.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "README.md"
+          ]
+        },
+        {
+          "sha": "2ca37340c8bad38ce9907870c63a1d9729ddfd29",
+          "date": "2026-10-02T07:55:54-05:00",
+          "subject": "docs: log site documentation expansion (HISTORY#656)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0521.cross.md",
+            ".seam/cross_index_archive/0001-0522.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": []
+        },
+        {
+          "sha": "8ee8856d89dfb88a42e9dfef94262147096089de",
+          "date": "2026-10-02T08:29:57-05:00",
+          "subject": "docs: log public-surface cleanup pass (HISTORY#657)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0522.cross.md",
+            ".seam/cross_index_archive/0001-0523.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "docs/audits/2026-10-02-documentation-drift-audit.md"
+          ]
+        },
+        {
+          "sha": "665f8c8e578eb0ec2d76000599d563b0afade26f",
+          "date": "2026-10-02T22:22:58-05:00",
+          "subject": "docs: establish canonical terminology contract",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0523.cross.md",
+            ".seam/cross_index_archive/0001-0524.cross.md",
+            ".seam/snapshots/20261003-030955-612158-codex.json",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "README.md",
+            "REPO_LEDGER.md",
+            "docs/DOCUMENTATION_MAP.md",
+            "docs/HOLOGRAPHIC_SURFACE.md",
+            "docs/MACOS.md",
+            "docs/MIRL_V1.md",
+            "docs/PRODUCTS.md",
+            "docs/README.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/TERMINOLOGY.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "tests/audit/test_terminology_contract.py",
+            "tools/docs/verify_terminology.py",
+            "tools/docs/verify_wiki.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "README.md",
+            "REPO_LEDGER.md",
+            "docs/DOCUMENTATION_MAP.md",
+            "docs/HOLOGRAPHIC_SURFACE.md",
+            "docs/MACOS.md",
+            "docs/MIRL_V1.md",
+            "docs/PRODUCTS.md",
+            "docs/README.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/TERMINOLOGY.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "tests/audit/test_terminology_contract.py",
+            "tools/docs/verify_terminology.py",
+            "tools/docs/verify_wiki.py"
+          ]
+        },
+        {
+          "sha": "8530717d800d397ba58283710b6e8f0a037aabf8",
+          "date": "2026-10-02T22:35:53-05:00",
+          "subject": "chore: satisfy terminology documentation gate",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0524.cross.md",
+            ".seam/cross_index_archive/0001-0525.cross.md",
+            ".seam/snapshots/20261003-033422-697583-codex.json",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "tools/docs/verify_terminology.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "tools/docs/verify_terminology.py"
+          ]
+        }
+      ],
+      "paths": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "base_blob": "10daf3c458498270f3d454de7bffe9b8d857b272",
+          "tip_blob": "90e4172874541d0dfde6bacbea000f71218b2a11",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0518.cross.md",
+          "status": "R098",
+          "base_blob": "2bd4dee0d8f8282f111411722c6865ad97f5bb89",
+          "tip_blob": null,
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0525.cross.md",
+          "status": "R098",
+          "base_blob": null,
+          "tip_blob": "d0c374b2f6ba97760da3c4acd5b6b8865a884eb4",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/snapshots/20261003-030955-612158-codex.json",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "229dc4b77a7cb39332c9826fde91604e04decb73",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/snapshots/20261003-033422-697583-codex.json",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "1c8b0b2cdf75dcbe7d2c522b562cf6b25c2aa1d9",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "base_blob": "688dbf7c06bdc8cb20a72fdb98560dc6f4e240ec",
+          "tip_blob": "c02fa15d473ec31b534e40ec8485ff6d07098d08",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "base_blob": "d598e08ca4f15732ce8d89d1d24a068d8dc22e95",
+          "tip_blob": "6f79973111d8208a43909885a063ba5af35095ce",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "M",
+          "base_blob": "16ddb21106405604c54e6c5eb80a25687f47425d",
+          "tip_blob": "272bb7bc91c4ab3f764612e8db81ad9a89c780c0",
+          "main_blob": "ccdf7e4a48f2bf7e97d2e7f1fea272de0727dbe3",
+          "tip_equals_main": false,
+          "disposition": "ADAPT_DATED_PROVENANCE",
+          "semantic_proof": "Legacy repository coordinate no longer resolved as of 2026-10-02; exact frozen SHA/license record. Keep current contribution and licensing policy."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "base_blob": "d598e08ca4f15732ce8d89d1d24a068d8dc22e95",
+          "tip_blob": "6f79973111d8208a43909885a063ba5af35095ce",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "base_blob": "688dbf7c06bdc8cb20a72fdb98560dc6f4e240ec",
+          "tip_blob": "c02fa15d473ec31b534e40ec8485ff6d07098d08",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "status": "M",
+          "base_blob": "0119b1a77a9177e12be1e9ef022af30fc28a0eec",
+          "tip_blob": "00d2116c611fc97ea26ca87699622a383e31110f",
+          "main_blob": "d108f1122ccbf064783aa30f4a776eb2830ae13d",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_CONTINUITY",
+          "semantic_proof": "Old audit/website/wiki completion headlines were branch-local observations. Root routes current recovery through fresh handoff; no stale status replacement."
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "base_blob": "f58ed7ba7e7499680efb7cecba574e9de99905e8",
+          "tip_blob": "e176843e0ec8aeebc1b856893cec5f8bc7e40da8",
+          "main_blob": "586d80311c32f2488168bf32cd7b3a5b7bd7a329",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_FACTUAL_DOCS",
+          "semantic_proof": "Recover credential/WebUI pointer-card consolidation, package-name caution, MIRL expansion, published S6/turn/governance source facts. Preserve current proprietary terms, exact reviewed installer revision, dependencies, API and publication wording; reject old private-tripwire and unpinned-clone regressions."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "base_blob": "e498240ea75d514f7c0a3d254a75d2bb8b38073e",
+          "tip_blob": "b89bf90701f689ed666dcd6dbdeddde798effee4",
+          "main_blob": "b9f994e7ef792d3f186602ee5235cff8913961d6",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Recover MIRL/glossary routing; replace confounded 0.755616 justification with current retrieval-status matched 0.776048 versus 0.766420; retain legacy-weighted/1 and open category gate. Correct S8-next to frozen S8 after R2, S9/S10 open. Dated legacy coordinate observation must stay dated."
+        },
+        {
+          "path": "SECURITY.md",
+          "status": "M",
+          "base_blob": "41239bc9d508525be5a6b030c72130f80eb0391a",
+          "tip_blob": "b5f1fa1dcf1f31a620dd773980dd8503b3600678",
+          "main_blob": "f6c9de3b43a0a6e61bf3f7f54349301f9e01605a",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Explicit private-advisory URL plus conditional owner-contact fallback. Keep current licensing paragraph."
+        },
+        {
+          "path": "docs/BENCHMARK_SOP.md",
+          "status": "M",
+          "base_blob": "974511689ae04f79c8b5e4dd5662f85fe3d39bfd",
+          "tip_blob": "080ee1c35c0ad712316a353ed26d81ce346cbc74",
+          "main_blob": "974511689ae04f79c8b5e4dd5662f85fe3d39bfd",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Compose SERVICE pgvector, DSN POSTGRES_USER, actual hybrid_beats_vector_on_relation key and tracks/packs/expected_ids; remove nonexistent rejection_rate/rejected_ids claims. Current evals.py:112 confirms key."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "status": "M",
+          "base_blob": "e27cb75367535d023492fb50ddcf0492bb0526d7",
+          "tip_blob": "946416e36fb46fe16764685c5761f62036e8aea3",
+          "main_blob": "36bf2d79f45f860a18dfebf55e03e295b9b4ab9f",
+          "tip_equals_main": false,
+          "disposition": "ADAPT_DATED_PROVENANCE",
+          "semantic_proof": "Legacy public-client location observation only, dated; preserve current source/publication metadata."
+        },
+        {
+          "path": "docs/DOCUMENTATION_MAP.md",
+          "status": "M",
+          "base_blob": "1ecc60c94b4042689bac97fce90e4a8167507ad9",
+          "tip_blob": "d7a6a7c090f32142dd9bbbb462a405844d4a3c8d",
+          "main_blob": "1ecc60c94b4042689bac97fce90e4a8167507ad9",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Add glossary route after recovery; PR278 adds separate root/code-adjacent/benchmark/branding/derived-index navigation. Only currently existing reviewed paths, label historical/generated appropriately."
+        },
+        {
+          "path": "docs/HOLOGRAPHIC_SURFACE.md",
+          "status": "M",
+          "base_blob": "258da5c22f3df4c3d5bda2c3c441aabb9278f51f",
+          "tip_blob": "5b9a73faadaff8831fc9626cf1feabe6b411592a",
+          "main_blob": "258da5c22f3df4c3d5bda2c3c441aabb9278f51f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Canonical names/spec backlinks only; no representation/codec behavior change."
+        },
+        {
+          "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+          "status": "M",
+          "base_blob": "d4cf31e3c1750621cd2409b83f995a63fbc0ebcd",
+          "tip_blob": "f913b063fcce166193bf70768f91cc8136c68de6",
+          "main_blob": "d4cf31e3c1750621cd2409b83f995a63fbc0ebcd",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "core-storage/4 and registered /2->/3 ledger, /3->/4 public-memory-handle migration; current migrations.py:683,903 confirms."
+        },
+        {
+          "path": "docs/MACOS.md",
+          "status": "M",
+          "base_blob": "cfaee860691cf930acf0921969bdef7748902059",
+          "tip_blob": "9f0f58e05ec990b88a99b9123b1a5d5df2027424",
+          "main_blob": "eed06b74ac67b1d5fe33df36eb9104fbc4bc416c",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Recover truthful console/MCP paths, Compose service, Python floor, runtime seam.env vs Compose env, optional Chroma. Reject claim managed shim always overrides SEAM_DB_PATH: current installer.py:232 preserves nonempty environment; preserve current dependency and credential protections."
+        },
+        {
+          "path": "docs/MIRL_V1.md",
+          "status": "M",
+          "base_blob": "91c50a3f66688b9752115f91f3ff0170d98e3917",
+          "tip_blob": "83840a114da7eb374812210f9838c9b7018eaa08",
+          "main_blob": "cac873a3f0bef6d9b8dc39412c8d19b1d45d286e",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Exact MIRL expansion and glossary pointer; preserve newer governing-contract/current-serializer clarification."
+        },
+        {
+          "path": "docs/PGVECTOR_LOCAL.md",
+          "status": "M",
+          "base_blob": "9deb01e3cef07f3ce9b1a3a01e4eb7b463245d35",
+          "tip_blob": "c1d349e8b7b040f887e60b6c7bcfcda3c9621aa2",
+          "main_blob": "92bf4f91f1b73a8cc6c4a83d497f7af7e6be6555",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Use Compose SERVICE pgvector rather than container-name seam-pgvector."
+        },
+        {
+          "path": "docs/PRODUCTS.md",
+          "status": "M",
+          "base_blob": "d0431461623654ade51b0577ab842730a607d64d",
+          "tip_blob": "a593567b214760bab672d2a53b6cfc9b06aa78ab",
+          "main_blob": "cf837089d89449681e714f99cd62f39d8163fb2f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Glossary pointer only; preserve current settled personal/noncommercial/business-written-agreement and private-paid-SDK map."
+        },
+        {
+          "path": "docs/PROTECTION_MODEL.md",
+          "status": "M",
+          "base_blob": "e31ee50492581473a0eaaf4df3e83682c4c6d401",
+          "tip_blob": "c99c68f0d70788ad8f7f65c8920649cd252ab9e4",
+          "main_blob": "02c8276cce34623a4cf0bcb1a12e497bbe2c3498",
+          "tip_equals_main": false,
+          "disposition": "ADAPT_HISTORICAL_DOCS",
+          "semantic_proof": "Dated legacy coordinate/frozen-head observation and removed sync utility factual correction; preserve clear historical banner/current licensing routing."
+        },
+        {
+          "path": "docs/RAG_ARCHITECTURE.md",
+          "status": "M",
+          "base_blob": "7d13a4c5e6f856b9245ed2a216d9b1332b0e4f6a",
+          "tip_blob": "ce1ddaa96cd050d0a387d3b187f0248fe82d9b1f",
+          "main_blob": "7d13a4c5e6f856b9245ed2a216d9b1332b0e4f6a",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Missing MCP seam_knowledge_graph, seam_knowledge_node, seam_identity_merges; current mcp.py:21-23,249-277 confirms."
+        },
+        {
+          "path": "docs/README.md",
+          "status": "M",
+          "base_blob": "acae46c0143e20bedd96192c1d8c91049d3dde17",
+          "tip_blob": "d75ad907c34117695c82bcb12d83ad9f2bdb0fb1",
+          "main_blob": "4ecef7cfa25d2aa9bd10f0e3c49ebc9b80e24b65",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Glossary navigation; preserve current new source/packaging handoff."
+        },
+        {
+          "path": "docs/SEAM_OPERATOR_GUIDE.md",
+          "status": "M",
+          "base_blob": "5b943a188026ebad89d7a1dbbfbba87a3ddf7986",
+          "tip_blob": "754e222f524248f58afc694a3a86e0b37953d8ed",
+          "main_blob": "2283075a0d944fcec9f198ca176350de066980bc",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Compose service/environment split and real MCP venv/shim executable guidance useful. Discard always-overridden SEAM_DB_PATH premise; retain current selected source SHA and new dependencies."
+        },
+        {
+          "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+          "status": "M",
+          "base_blob": "59124761f1a3ce0b3473f37f07fce849c192884b",
+          "tip_blob": "915a39bd6ee186ae384efc11014bfa04c7736f45",
+          "main_blob": "59124761f1a3ce0b3473f37f07fce849c192884b",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "pgvector image 0.8.6-pg18-trixie matches current Compose/CI. Keep document as historical task packet, not evidence runtime check ran."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+          "status": "M",
+          "base_blob": "efd74c9a2286c056ad23cccd1b237f6ede62706f",
+          "tip_blob": "a3f4f15161dae34cff91ae6bad33c0b4ae1ac04f",
+          "main_blob": "efd74c9a2286c056ad23cccd1b237f6ede62706f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_HISTORICAL_CORRECTION",
+          "semantic_proof": "Foreign PyPI seam install -> quoted repository extras installs. Current public seam-suite coordinate can be described separately only after actual upload; no paid execution authorized."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+          "status": "M",
+          "base_blob": "510df1e0a2f818a4e4f078033073e26ea3baa76b",
+          "tip_blob": "cc1efee295c8edc578102dda91465beca9b4b1d0",
+          "main_blob": "510df1e0a2f818a4e4f078033073e26ea3baa76b",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_HISTORICAL_CORRECTION",
+          "semantic_proof": "Foreign seam extras -> repository bench-mem0; quote shell extras and preserve current measured dependencies."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+          "status": "M",
+          "base_blob": "c64242a64c7cfe04effd2454614e89f781b27b58",
+          "tip_blob": "31e0f1d77b987ea241dcdbdbbb9691b0f2c9fa14",
+          "main_blob": "c64242a64c7cfe04effd2454614e89f781b27b58",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_HISTORICAL_CORRECTION",
+          "semantic_proof": "Foreign seam extras -> repository bench-zep/bench-mem0; historical future checklist is not functional evidence."
+        },
+        {
+          "path": "docs/SOP_INDEX.md",
+          "status": "M",
+          "base_blob": "1db9d4254ed5a34b7c54f11ce41af3518a90586d",
+          "tip_blob": "c078ed40ae5a588eb38f6190aec2db5bfc8b1f06",
+          "main_blob": "1db9d4254ed5a34b7c54f11ce41af3518a90586d",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Explicit era note for removed experimental/webui tree and package rename; prevents executing stale packets."
+        },
+        {
+          "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+          "status": "M",
+          "base_blob": "aa87991580ba90ad572f1241885de83283ad4173",
+          "tip_blob": "6ba95b73fe09308936ce237428bfde94f7d7d4fe",
+          "main_blob": "aa87991580ba90ad572f1241885de83283ad4173",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Retired experimental orchestrator already promoted/removed; obsolete deletion task resolved, comparable future removals still require actual scope review."
+        },
+        {
+          "path": "docs/TERMINOLOGY.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "fb436d5390ecfaa69833307e6e21640631137bd6",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_AUTHORED_GLOSSARY",
+          "semantic_proof": "Missing main; accurate RAW/IR/PACK/LENS, directly readable RC, LX reconstruction backing, HS PNG container, canonical SQLite/derived graph, paid SDK vs public HTTP client. License-defined Distributed Runtime is historical subset, not blanket current entitlement."
+        },
+        {
+          "path": "docs/audits/2026-10-02-documentation-drift-audit.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "4f5a5faffc0afcda80b072d475b2b36c37d0f376",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_REPORT",
+          "semantic_proof": "Preserve exact authored dated evidence and 14-cluster pointer-card backlog; obsolete BUSL/private/upload/site claims remain dated. No claim its described working overlays were later deployed; current site resolved independently by root."
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "status": "M",
+          "base_blob": "d61ade839ef9276bbf4a9749f73370a47c74356a",
+          "tip_blob": "3cd3cea97b09684fcd6fe58930d3be666258d7b7",
+          "main_blob": "93083048b7d3155ef834c01841795e1ea98e8527",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_ROUTE",
+          "semantic_proof": "Register dated report using current report registry; do not replace current index with branch."
+        },
+        {
+          "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+          "status": "M",
+          "base_blob": "a79b928d61d27f8def5622610c73e49d46fa23e2",
+          "tip_blob": "82868e9a184208d3db03b2d0c4e445151a511fed",
+          "main_blob": "a79b928d61d27f8def5622610c73e49d46fa23e2",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Replace pending stacked PR273/274 language with landed current handoff route; source plan body remains historical."
+        },
+        {
+          "path": "docs/errors.md",
+          "status": "M",
+          "base_blob": "57be84278c12bb34e71e05796604ff35b8eecc7f",
+          "tip_blob": "f508d1e330bdba4d6dd5ef10d8a471bb30deae1e",
+          "main_blob": "29c6f245f978a501d1af811bbfaf4e8791a2670b",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Compose SERVICE pgvector; retain already-current 55432/dependency/error guidance."
+        },
+        {
+          "path": "docs/setup.md",
+          "status": "M",
+          "base_blob": "e5e9647871fb93e37fffbdaef3facc856958b3ce",
+          "tip_blob": "38f47c68b6bddc8f8fede76a1b5e2a554cd13a48",
+          "main_blob": "04c6deae034d24063066109c3b2ff7e573cdaf8a",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Canonical repo owner and portable Windows path useful, removed Vite reference useful. Preserve current pinned reviewed source selection; never restore unpinned clone recipes."
+        },
+        {
+          "path": "docs/status/compression-visual.md",
+          "status": "M",
+          "base_blob": "cd5747811815da9c5d34e719c0b6e461bc913720",
+          "tip_blob": "b2ea7d189e094569304bc1da7133a0061b3d892a",
+          "main_blob": "cd5747811815da9c5d34e719c0b6e461bc913720",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Missing explicit rgba64 codec; current MIRL contract supports it. No new functionality claim."
+        },
+        {
+          "path": "docs/status/operations.md",
+          "status": "M",
+          "base_blob": "a03ba4d7d9657a9bbdc40c9d2d2acd57a9ecba48",
+          "tip_blob": "126be92740c80498c73b13119a3e984c90c74fa4",
+          "main_blob": "560998a42d3ae32b5e5917858c0e0c8e6647fd24",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Correct CI label seam-box and frozen S8/open S9/S10; preserve newer release/REST/dependency facts."
+        },
+        {
+          "path": "docs/status/surfaces.md",
+          "status": "M",
+          "base_blob": "cccb7451e54cf5be7ea4e60d606865e850e0370e",
+          "tip_blob": "84e34c39f3e7b9c39bc6d361a634e6d21ef517b7",
+          "main_blob": "f68c2890699fa1d710179fb30366dcd1d6043e2c",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Replace stale R2-before-S8 freeze paragraph with published S8 mechanism parity; no full UI/product acceptance inference."
+        },
+        {
+          "path": "docs/status/workspace.md",
+          "status": "M",
+          "base_blob": "9b4530dcc0df9e99f5351aab2a996c455c9b0f8f",
+          "tip_blob": "a0634cd27ae054eb788f8ff978ea718091b7cca7",
+          "main_blob": "9b4530dcc0df9e99f5351aab2a996c455c9b0f8f",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_STATE",
+          "semantic_proof": "Branch adds dated fe528a5/current-worktree cleanup decisions now obsolete; current root branch audit replaces them, no stale worktree operational instructions."
+        },
+        {
+          "path": "installers/README.md",
+          "status": "M",
+          "base_blob": "a21ce5822c0b1beda5c17cb2e3bccace28987a35",
+          "tip_blob": "624eda62aa2218796dd1195a4b0211b57cd3bfb7",
+          "main_blob": "770338bef4de2df9ade6418c17aaa5445a247e4f",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Useful names/service/Python/extras/mcp facts, most superseded by current exact-source qualification. Preserve current installer environment behavior and dependency contract."
+        },
+        {
+          "path": "tests/audit/test_terminology_contract.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "24db4adbdd42c09077cfa9d01ae1b9f1c3e1fa49",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Useful wrong-name/package-alias/history-exclusion/wiki-integration fixtures. Replace obsolete managed-shim environment test; add valid-following-prose expansion fixture observed failing branch checker."
+        },
+        {
+          "path": "tools/docs/verify_terminology.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "6e5a6a080d1b60fe718580b09d4ac66a7b4137ba",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Missing checker; observed greedy IGNORECASE expansion regex rejects correct expansions followed by lowercase prose. Repair before enabling. Exclusions historical/audits/roadmap useful."
+        },
+        {
+          "path": "tools/docs/verify_wiki.py",
+          "status": "M",
+          "base_blob": "f1ca04b2f94994c59d0632c5880dd4300997226c",
+          "tip_blob": "30426eebe12cf8faf257307d68f655fb2d7377bd",
+          "main_blob": "f1ca04b2f94994c59d0632c5880dd4300997226c",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Add terminology invocation/fail-closed checkout requirement to current staged/index-aware wiki verifier; never overwrite newer safeguards."
+        }
+      ],
+      "intermediate_delta_hidden_at_tip": [],
+      "recommendation": "REBUILD_DOCS_AND_TERMINOLOGY_GATE",
+      "completion_condition": "Recover factual docs/glossary and repaired terminology tool on current main. Use current policy/source pinning, fresh continuity, public gate red/green. Close PR277/delete only once accepted slices or immutable rejected records durably mapped."
+    },
+    {
+      "branch": "docs/seam-native-model-roadmap",
+      "ref": "refs/remotes/origin/docs/seam-native-model-roadmap",
+      "tip": "4a4f8d86552ab41e289231e5f6293014800e0330",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "f5d304c606312a0df3eeee7f360e10eab5626f82",
+      "pull_requests": [
+        {
+          "headRefName": "docs/seam-native-model-roadmap",
+          "headRefOid": "4a4f8d86552ab41e289231e5f6293014800e0330",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 207,
+          "state": "CLOSED",
+          "title": "docs: define SEAM-native model end-state roadmap",
+          "updatedAt": "2026-09-03T06:54:20Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/207"
+        }
+      ],
+      "unique_commit_count": 3,
+      "is_ancestor_of_main": false,
+      "commits": [
+        {
+          "sha": "ea739d4740dfe1b8874344556e0d58c6d8ce062b",
+          "date": "2026-08-12T18:54:21-05:00",
+          "subject": "docs: reconcile native model and embodied agent roadmap (HISTORY#560)",
+          "changed_paths_metadata": [
+            ".gitignore",
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0422.cross.md",
+            ".seam/cross_index_archive/0001-0468.cross.md",
+            ".seam/streams/executed/README.md",
+            ".seam/streams/executed/index.md",
+            ".seam/streams/executed/log.md",
+            ".seam/streams/future-ideas/README.md",
+            ".seam/streams/future-ideas/index.md",
+            ".seam/streams/future-ideas/log.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            ".seam/streams/plans/README.md",
+            ".seam/streams/plans/index.md",
+            ".seam/streams/plans/log.md",
+            ".seam/streams/roadmap/index.md",
+            ".seam/streams/roadmap/log.md",
+            ".seam/streams/roadmap/state.md",
+            ".seam/streams/roadmap_workflow_state.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "PROJECT_STATUS.md",
+            "REPO_LEDGER.md",
+            "ROADMAP.md",
+            "benchmarks/external/common/run_record.py",
+            "docs/BENCHMARK_RUN_RECORDS.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/DATA_ROUTING.md",
+            "docs/README.md",
+            "docs/roadmap/APPEND_ONLY_ROADMAP.md",
+            "docs/roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md",
+            "docs/roadmap/SEAM_NATIVE_MODEL.md",
+            "tests/audit/test_run_record.py",
+            "tools/h2/paid_validation.py",
+            "tools/streams/roadmap_lifecycle.py",
+            "tools/streams/test_streams.py",
+            "tools/streams/verify_streams.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            ".gitignore",
+            "PROJECT_STATUS.md",
+            "REPO_LEDGER.md",
+            "benchmarks/external/common/run_record.py",
+            "docs/BENCHMARK_RUN_RECORDS.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/DATA_ROUTING.md",
+            "docs/README.md",
+            "docs/roadmap/APPEND_ONLY_ROADMAP.md",
+            "docs/roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md",
+            "docs/roadmap/SEAM_NATIVE_MODEL.md",
+            "tests/audit/test_run_record.py",
+            "tools/h2/paid_validation.py",
+            "tools/streams/roadmap_lifecycle.py",
+            "tools/streams/test_streams.py",
+            "tools/streams/verify_streams.py"
+          ]
+        },
+        {
+          "sha": "1772f2d867772082c493e54a73cc5562016d96b0",
+          "date": "2026-08-12T18:55:51-05:00",
+          "subject": "fix(ci): restore executable pre-commit enforcement (HISTORY#561)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0468.cross.md",
+            ".seam/cross_index_archive/0001-0469.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "tests/audit/test_local_gates_match_ci.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "tests/audit/test_local_gates_match_ci.py"
+          ]
+        },
+        {
+          "sha": "4a4f8d86552ab41e289231e5f6293014800e0330",
+          "date": "2026-08-12T18:56:16-05:00",
+          "subject": "fix(ci): mark canonical pre-commit hook executable",
+          "changed_paths_metadata": [
+            "tools/git-hooks/pre-commit"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "tools/git-hooks/pre-commit"
+          ]
+        }
+      ],
+      "paths": [
+        {
+          "path": ".gitignore",
+          "status": "M",
+          "base_blob": "4d8c60a86f47fb6bd090bbf2b89b54f5a393451f",
+          "tip_blob": "ac7ffd054bbb5a85a1c76ec3adc91010818c6874",
+          "main_blob": "9db5684703ebcc21f404b49f5f5ee82ca1e5893d",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Missing local advisory stream log.lock ignore; harmless local-state hygiene after lifecycle recovery."
+        },
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "base_blob": "5f255c3fb1deb1a33ffced72196e0000ce81faec",
+          "tip_blob": "3df202db7ea16c3f95f098c634e20d7c6cdf7e16",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0422.cross.md",
+          "status": "R089",
+          "base_blob": "e270e917bd71b0b5fdfd37723bf5f622013567ac",
+          "tip_blob": null,
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0469.cross.md",
+          "status": "R089",
+          "base_blob": null,
+          "tip_blob": "1bfdfade59905966a85b88ae13fc8db7691e52d7",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/executed/README.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "8886107647e3daae3a4a4645300d954b6791fbfc",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/executed/index.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "13f3b13c2630208cce485cdb665cb4736ab52492",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/executed/log.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "7de0781640a25d53003a938cf898c9dd62cdca9e",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/future-ideas/README.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "8886107647e3daae3a4a4645300d954b6791fbfc",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/future-ideas/index.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "d885eb54e7455254d4f0793586863f0224e28c15",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/future-ideas/log.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "45739d0c9bf33be50bdf7e6fbbc150520b206f34",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "base_blob": "e64106fa6d975eacebd85b89d6fcc5fc30dfbc46",
+          "tip_blob": "0945344044e3edaf2c52e1d52e82a7581c48bc6b",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "base_blob": "189e9029e4117cc5193dfeb03222fd2d687cf77d",
+          "tip_blob": "40eff1f415d277e7d9132436b57f8756a233eefb",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/plans/README.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "8886107647e3daae3a4a4645300d954b6791fbfc",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/plans/index.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "b7e39b21862445956f4dd69416c34294d3da8d62",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/plans/log.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "684290f57258d75403910098b943ee6ea06279ec",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "RECREATE_STREAMS_NOT_OLD_EVENTS",
+          "semantic_proof": "Authored per-stream README/schema intent recoverable; never import old event/index chronology. Initialize current logs and register contemporary plans/outcomes after lifecycle tool qualification."
+        },
+        {
+          "path": ".seam/streams/roadmap/index.md",
+          "status": "M",
+          "base_blob": "74313e479012225a2f539755d079d568bd894e96",
+          "tip_blob": "7c74b9779cb3e3207fbdcf2bafdc688247b8f04a",
+          "main_blob": "c089d3185f7dfd3f9c76169a253957f3b86133cf",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/roadmap/log.md",
+          "status": "M",
+          "base_blob": "dbcbfb500aeeba48cb65f2480f3dc348a0e51026",
+          "tip_blob": "c4bcfe170f019c0f9c9a5be78cdeedcfa522591e",
+          "main_blob": "158d632b3a981459d156d64cffc8687805a271da",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/roadmap/state.md",
+          "status": "M",
+          "base_blob": "c92082398f6b1480b4c1cf43f2187e7a07196ded",
+          "tip_blob": "3350e4295d2a91376c484a63a1c3d83b449ccb78",
+          "main_blob": "9fa264c2b2d33ad84ce9501dbb45e54914057207",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/roadmap_workflow_state.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "ccdfd336ee7bcd75a574936cc3c3817a0dc3e52d",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_DERIVED",
+          "semantic_proof": "Disposable state regenerated from newly reconciled canonical events, never old branch bytes."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "base_blob": "189e9029e4117cc5193dfeb03222fd2d687cf77d",
+          "tip_blob": "40eff1f415d277e7d9132436b57f8756a233eefb",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "base_blob": "e64106fa6d975eacebd85b89d6fcc5fc30dfbc46",
+          "tip_blob": "0945344044e3edaf2c52e1d52e82a7581c48bc6b",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "status": "M",
+          "base_blob": "8d6a5901b5ad9abf950d6b1bd292806c5c24cd09",
+          "tip_blob": "e8d1a8e897da4fd2fa09e1553ba2e257fa8e1722",
+          "main_blob": "d108f1122ccbf064783aa30f4a776eb2830ae13d",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_CONTINUITY",
+          "semantic_proof": "Old S6-next/native current-session state obsolete; root fresh status/handoff."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "base_blob": "4d103d3a0380ee877f196402a4adfb29d673b6ec",
+          "tip_blob": "55c3981864021ea3ecb5aac9ebc9c37fc21f7429",
+          "main_blob": "b9f994e7ef792d3f186602ee5235cff8913961d6",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_AFTER_CODE",
+          "semantic_proof": "Lifecycle authority description only after tool/streams qualified; keep current policies."
+        },
+        {
+          "path": "ROADMAP.md",
+          "status": "M",
+          "base_blob": "19996678e295443ad8b00937ca221c498663f5d0",
+          "tip_blob": "6096f79a27085d14c8ce39e78b30c5a70565b7a2",
+          "main_blob": "97c2e0134119618d81334a7e8436dd905b8ddae6",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_SCOPED_PLANNING",
+          "semantic_proof": "Only added Track T/U planning/item definitions and dataset->grading->views->splits->model chain useful. Reject parked S6-next/current-priority rewrite; root appends/reconciles contemporary item IDs and status, not whole file."
+        },
+        {
+          "path": "benchmarks/external/common/run_record.py",
+          "status": "M",
+          "base_blob": "41cf988a01061cafded736eba25d93323bf20650",
+          "tip_blob": "dde7a1524d5219175d0039a77812411eca0d0e59",
+          "main_blob": "843fa8a418639379c363997f5ad215479061d8c3",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Missing RunRecord.write_audit_jsonl, artifact_class=evaluation_audit_export, training_eligible=false, exclusion reasons; preserve exact gold/judge/trace as quarantined audit and legacy write_training_jsonl alias. Current main still calls unquarantined training writer."
+        },
+        {
+          "path": "docs/BENCHMARK_RUN_RECORDS.md",
+          "status": "M",
+          "base_blob": "08faf7d68e2f3fe8bc2321b994efdb84751fd157",
+          "tip_blob": "2d6dcd7214cd2b26282eaa032be331f9bcaa0501",
+          "main_blob": "4d54114125b74fde69f5c9127e8673735630b671",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_AFTER_CODE",
+          "semantic_proof": "Describe quarantined evaluation export only after actual writer/public-caller tests pass."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "status": "M",
+          "base_blob": "e6b8895aa4ae1c6ec2534a3f98d808284d5c7eff",
+          "tip_blob": "fa787ee09208d89637e3c013e9fcee73b95dba77",
+          "main_blob": "36bf2d79f45f860a18dfebf55e03e295b9b4ab9f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_AFTER_CODE",
+          "semantic_proof": "Lifecycle source symbol route after recovery."
+        },
+        {
+          "path": "docs/DATA_ROUTING.md",
+          "status": "M",
+          "base_blob": "af9b3ca068b0ebda60876563ec9ddbee9019f637",
+          "tip_blob": "7b4c6744c79422de78f67de136d1d0bc556004cd",
+          "main_blob": "87a07b3b41afcbee107ec25e1923ac65aef89904",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_AFTER_CODE",
+          "semantic_proof": "Immutable future/plans/executed event routing and derived-state semantics after qualification."
+        },
+        {
+          "path": "docs/README.md",
+          "status": "M",
+          "base_blob": "681b577b79b4827706668c363033a73a1bb66938",
+          "tip_blob": "2a719e94a3eccca81aa2022487e65233d2761ffe",
+          "main_blob": "4ecef7cfa25d2aa9bd10f0e3c49ebc9b80e24b65",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Route missing planning pages without implying implementation."
+        },
+        {
+          "path": "docs/roadmap/APPEND_ONLY_ROADMAP.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "bcaa890165677a81e53c81fe376cfa59a54b8ed5",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_PLAN_THEN_REBUILD",
+          "semantic_proof": "Three-stream stable item/origin/supersedes design useful; obsolete tonight/S0-S5/S6-next paragraph must be clearly historical wrapper. Operational commands become current only after recovered lifecycle qualified."
+        },
+        {
+          "path": "docs/roadmap/SEAM_ESP32_EMBODIED_SPATIAL.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "dfe7e77f1a6eea6cb3995a568e7214d31da216af",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_VERBATIM_PLANNING",
+          "semantic_proof": "Genuinely absent Tab A7 visual/voice + exactly three ESP32-S3 nodes, calibration/privacy/time/provenance, independent node qualification before fusion, measured occupancy->3D ladder and E0-E11 gates. Transport and actual hardware capability remain measured choices; no flashing/capture action or capability assertion."
+        },
+        {
+          "path": "docs/roadmap/SEAM_NATIVE_MODEL.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "7aa28b7b35922aed1b396cfb0cba1c779830fc36",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_VERBATIM_PLANNING",
+          "semantic_proof": "Genuinely missing ~250K->1B->4B program, provenance/rights/split/dedup dataset generator FIRST, independent skeptical grading and predeclared measured gates, RAW/RC/MIRL sibling anchors, typed dream/derived hypotheses, bounded EPOC. Preserve authored planning verbatim with external current-status note: historic S6-next state is superseded, no executed training/model claim."
+        },
+        {
+          "path": "tests/audit/test_local_gates_match_ci.py",
+          "status": "M",
+          "base_blob": "c33cd31942c3e054180140692cd0f3e054034f84",
+          "tip_blob": "1b7c478ac90bd4218569499d094542f1f115c24d",
+          "main_blob": "0a2452b342f9af4acc7c341b5c0b5a78ec93b7de",
+          "tip_equals_main": false,
+          "disposition": "RECOVER_REGRESSION_TEST",
+          "semantic_proof": "Executable-bit regression absent main; current both hooks already tracked 100755, so hook mode repair preserved. Test regression via meaningful controlled mode fixture/public gate on current main."
+        },
+        {
+          "path": "tests/audit/test_run_record.py",
+          "status": "M",
+          "base_blob": "f27919ed4494db04d8eac11a328a51571fb231f2",
+          "tip_blob": "b2da557b42321a5cfc07437d5761420a22246a30",
+          "main_blob": "f27919ed4494db04d8eac11a328a51571fb231f2",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Actual scorer and paid-validation mocked caller assertions must witness every row ineligible and both aliases same artifact; not broad scoring behavior changes."
+        },
+        {
+          "path": "tools/git-hooks/pre-commit",
+          "status": "M",
+          "base_blob": "56e9765775815407e318dd4be23780b8c0eecf3a",
+          "tip_blob": "56e9765775815407e318dd4be23780b8c0eecf3a",
+          "main_blob": "314ef33be67402ef636a1184d560486954c62426",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_MODE",
+          "semantic_proof": "Current main 100755; branch only mode recovery, current hook body newer, no copy."
+        },
+        {
+          "path": "tools/h2/paid_validation.py",
+          "status": "M",
+          "base_blob": "6da99c3e0d7fb0af35e1306b3679ce64bc83c395",
+          "tip_blob": "0e5ccb172edcda3e1d063ee9c3ade74d55b2a7a3",
+          "main_blob": "6da99c3e0d7fb0af35e1306b3679ce64bc83c395",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "_write_record returns audit_jsonl plus identical legacy training_jsonl path; use local mocked public caller, no paid providers."
+        },
+        {
+          "path": "tools/streams/roadmap_lifecycle.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "9469995b826de1565efdcd22e2c74b52dd9622bb",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Genuinely absent initialize/verify/append/rebuild-state tool. Linear same-item/stream supersession, promotion origins, known/cycle-free dependencies, workflow thread/process lock, external IDs validation before append, derived atomic replace. Rebuild atop current append-only stream contract; verify generic writer concurrency and durable append followed by failed derived rebuild recovery, partial initialization failclosed, Windows lock behavior."
+        },
+        {
+          "path": "tools/streams/test_streams.py",
+          "status": "M",
+          "base_blob": "12d756cc3e019efca9dbb27aedf0be942bb74fd1",
+          "tip_blob": "88250fc1464524cf045e46fb417516d8ef50cc95",
+          "main_blob": "12d756cc3e019efca9dbb27aedf0be942bb74fd1",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Recover fixture tests for valid promotion, fork/cross-item/missing-origin/evidence rejection, inactive dependency cycles, invalid external origin before append, serialized append; actual CLI/public-seam red/green needed on current main."
+        },
+        {
+          "path": "tools/streams/verify_streams.py",
+          "status": "M",
+          "base_blob": "d63658cfd7fc2c34ad1e162ff6ca21943cd7efa8",
+          "tip_blob": "026bd8d9b9996b502f0f0e7f84223514ac6454d6",
+          "main_blob": "d63658cfd7fc2c34ad1e162ff6ca21943cd7efa8",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Additive lifecycle verification only after new empty canonical logs initialized and current IDs reconciled; branch unconditional verifier would fail main without missing streams."
+        }
+      ],
+      "intermediate_delta_hidden_at_tip": [],
+      "recommendation": "INTEGRATE_VERBATIM_PLANNING_AND_REBUILD_TOOLS",
+      "completion_condition": "Preserve native/ESP32 pages verbatim with current status routing; separately qualify export quarantine, optional roadmap lifecycle and hook-mode regression. No paid/training/sensor execution. PR207 closed UNMERGED; recover then remove branch after durable slice map."
+    },
+    {
+      "branch": "docs/seam-product-license-boundary-20260829",
+      "ref": "refs/remotes/origin/docs/seam-product-license-boundary-20260829",
+      "tip": "0c0b77446f17e832961375d466ead2b9add9d4de",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "780b3772c76281597ee3c6f6d07caa5adf284df2",
+      "pull_requests": [
+        {
+          "headRefName": "docs/seam-product-license-boundary-20260829",
+          "headRefOid": "0c0b77446f17e832961375d466ead2b9add9d4de",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 236,
+          "state": "CLOSED",
+          "title": "docs: define SEAM product and licensing boundary",
+          "updatedAt": "2026-09-03T06:55:23Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/236"
+        }
+      ],
+      "unique_commit_count": 2,
+      "is_ancestor_of_main": false,
+      "commits": [
+        {
+          "sha": "f7bad6d1c385d53e59f5a02aead10a08b6b27454",
+          "date": "2026-08-29T19:59:01-05:00",
+          "subject": "docs: define SEAM product and licensing boundary",
+          "changed_paths_metadata": [
+            "CONTEXT.md",
+            "docs/DOCUMENTATION_MAP.md",
+            "docs/README.md",
+            "docs/superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "CONTEXT.md",
+            "docs/DOCUMENTATION_MAP.md",
+            "docs/README.md",
+            "docs/superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md"
+          ]
+        },
+        {
+          "sha": "0c0b77446f17e832961375d466ead2b9add9d4de",
+          "date": "2026-08-29T20:02:20-05:00",
+          "subject": "docs: record approved SEAM boundary policy",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0477.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "PROJECT_STATUS.md",
+            "REPO_LEDGER.md",
+            "docs/status/packaging-licensing.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "PROJECT_STATUS.md",
+            "REPO_LEDGER.md",
+            "docs/status/packaging-licensing.md"
+          ]
+        }
+      ],
+      "paths": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "base_blob": "0804a0b1664e29767c9cb548380266b14de5f12c",
+          "tip_blob": "b6a2e352e331b6eec3ed1b0d39f6d6ffed3ed475",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0477.cross.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "348461456b9cfce28e792c534b9f618f2ad0e71f",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "base_blob": "13e515555b4d59e4c815f5ddcba786457fa2e126",
+          "tip_blob": "b5296ef48e25cc744f4099150fa41cb5b2c0f27a",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "base_blob": "8427150c509bb81d33a43e44407e594fc04bcc78",
+          "tip_blob": "c887cd4d9fa259bd2d83442ae450e4cd9358fd73",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "CONTEXT.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "7c0c1ae1e0a94403dfbf7d2325b07ff19978950f",
+          "main_blob": "797400ad3f7486132886234483e9e902f28e00ac",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_GLOSSARY",
+          "semantic_proof": "Old source-available/Shield SDK and managed-name map contradicts current PRODUCTS. Nonlicense complete-Suite/browser/opaque-agent-vs-operator definitions already substantially present current PRODUCTS; recover Ghost-owns-behavior/SEAM-owns-memory wording into terminology only if useful."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "base_blob": "8427150c509bb81d33a43e44407e594fc04bcc78",
+          "tip_blob": "c887cd4d9fa259bd2d83442ae450e4cd9358fd73",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "base_blob": "13e515555b4d59e4c815f5ddcba786457fa2e126",
+          "tip_blob": "b5296ef48e25cc744f4099150fa41cb5b2c0f27a",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "status": "M",
+          "base_blob": "6cdf0666769f23838bed7fb5b0ebfaf21b0946c2",
+          "tip_blob": "8e570869ef5643abac14638353b6aa6ffc9a15bb",
+          "main_blob": "d108f1122ccbf064783aa30f4a776eb2830ae13d",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_CURRENT_COPY",
+          "semantic_proof": "Old Shield target/private current-state and approval routes superseded by settled proprietary personal-use terms/current PRODUCTS/status and exact Suite manifest. No independent source behavior."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "base_blob": "b9b9a5546263d4cc10a58700e2b5c5e40ecca51d",
+          "tip_blob": "1bf1eaccb9d69a65af61a0810fe1ba783c9f41b6",
+          "main_blob": "b9f994e7ef792d3f186602ee5235cff8913961d6",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_CURRENT_COPY",
+          "semantic_proof": "Old Shield target/private current-state and approval routes superseded by settled proprietary personal-use terms/current PRODUCTS/status and exact Suite manifest. No independent source behavior."
+        },
+        {
+          "path": "docs/DOCUMENTATION_MAP.md",
+          "status": "M",
+          "base_blob": "1ecc60c94b4042689bac97fce90e4a8167507ad9",
+          "tip_blob": "91f03d3061a92e8a07e49abda4cea083263a38fb",
+          "main_blob": "1ecc60c94b4042689bac97fce90e4a8167507ad9",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_CURRENT_COPY",
+          "semantic_proof": "Old Shield target/private current-state and approval routes superseded by settled proprietary personal-use terms/current PRODUCTS/status and exact Suite manifest. No independent source behavior."
+        },
+        {
+          "path": "docs/README.md",
+          "status": "M",
+          "base_blob": "e2cf5f0a502fd6c733ac4da7e94efe29e58a7120",
+          "tip_blob": "e9f6141327d9284672af60e0576da0e08e8e38f6",
+          "main_blob": "4ecef7cfa25d2aa9bd10f0e3c49ebc9b80e24b65",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_CURRENT_COPY",
+          "semantic_proof": "Old Shield target/private current-state and approval routes superseded by settled proprietary personal-use terms/current PRODUCTS/status and exact Suite manifest. No independent source behavior."
+        },
+        {
+          "path": "docs/status/packaging-licensing.md",
+          "status": "M",
+          "base_blob": "6ee9a996cbe033d61c6a8dcbaff9bde538c20cf7",
+          "tip_blob": "0a65ce18ed4314492c36759f19cdae24b73635de",
+          "main_blob": "e5f2e45f746799ae122e1864f40a94f0e1b8cdf0",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_CURRENT_COPY",
+          "semantic_proof": "Old Shield target/private current-state and approval routes superseded by settled proprietary personal-use terms/current PRODUCTS/status and exact Suite manifest. No independent source behavior."
+        },
+        {
+          "path": "docs/superpowers/plans/2026-08-29-seam-product-licensing-boundary-design.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "37b11ead0e7e05d4b73f54db7f96166bcf8817dd",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_SUPERSEDED_DESIGN",
+          "semantic_proof": "Read all ten sections. Shield+Apache/frontend matrix and legal-review/relicensing implementation dependency obsolete. Complete self-host, separate Ghost/SDK/client roles, browser graph/glassbox, no paid calls absent approval, exact artifact allowlists/provenance are useful design reasoning largely current PRODUCTS/license/archive guards. Preserve dated document verbatim historically with external supersession route, do not enact grants."
+        }
+      ],
+      "intermediate_delta_hidden_at_tip": [],
+      "recommendation": "ARCHIVE_SUPERSEDED_DESIGN",
+      "completion_condition": "No license matrix recovery. Exact dated design supports historical product reasoning; current PRODUCTS substantially preserves nonpolicy concepts. Preserve exact document/commit in archival reference, optionally Ghost role in glossary, then remove branch (closed unmerged PR236)."
+    },
+    {
+      "branch": "docs/wiki-baseline-20261003",
+      "ref": "refs/remotes/origin/docs/wiki-baseline-20261003",
+      "tip": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+      "pull_requests": [
+        {
+          "headRefName": "docs/wiki-baseline-20261003",
+          "headRefOid": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 278,
+          "state": "OPEN",
+          "title": "docs: complete repository-level wiki navigation",
+          "updatedAt": "2026-10-03T22:09:09Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/278"
+        }
+      ],
+      "unique_commit_count": 8,
+      "is_ancestor_of_main": false,
+      "commits": [
+        {
+          "sha": "44dce9d41bb3938f94b46cb793354a794a42738c",
+          "date": "2026-10-02T07:28:17-05:00",
+          "subject": "docs: documentation drift audit and correction (HISTORY#653)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0518.cross.md",
+            ".seam/cross_index_archive/0001-0519.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "CONTRIBUTING.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "PROJECT_STATUS.md",
+            "README.md",
+            "REPO_LEDGER.md",
+            "SECURITY.md",
+            "docs/BENCHMARK_SOP.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/IMPROVEMENT_EXPERIMENTS.md",
+            "docs/MACOS.md",
+            "docs/PGVECTOR_LOCAL.md",
+            "docs/PROTECTION_MODEL.md",
+            "docs/RAG_ARCHITECTURE.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+            "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+            "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+            "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+            "docs/SOP_INDEX.md",
+            "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "docs/audits/INDEX.md",
+            "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+            "docs/errors.md",
+            "docs/setup.md",
+            "docs/status/compression-visual.md",
+            "docs/status/operations.md",
+            "docs/status/surfaces.md",
+            "docs/status/workspace.md",
+            "installers/README.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "CONTRIBUTING.md",
+            "PROJECT_STATUS.md",
+            "README.md",
+            "REPO_LEDGER.md",
+            "SECURITY.md",
+            "docs/BENCHMARK_SOP.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/IMPROVEMENT_EXPERIMENTS.md",
+            "docs/MACOS.md",
+            "docs/PGVECTOR_LOCAL.md",
+            "docs/PROTECTION_MODEL.md",
+            "docs/RAG_ARCHITECTURE.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+            "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+            "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+            "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+            "docs/SOP_INDEX.md",
+            "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "docs/audits/INDEX.md",
+            "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+            "docs/errors.md",
+            "docs/setup.md",
+            "docs/status/compression-visual.md",
+            "docs/status/operations.md",
+            "docs/status/surfaces.md",
+            "docs/status/workspace.md",
+            "installers/README.md"
+          ]
+        },
+        {
+          "sha": "664cc29921e60883e56d8a753bee528f1d8a3910",
+          "date": "2026-10-02T07:32:29-05:00",
+          "subject": "docs: consolidate README credential/webui pointer cards (HISTORY#654)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0519.cross.md",
+            ".seam/cross_index_archive/0001-0520.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "README.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "README.md"
+          ]
+        },
+        {
+          "sha": "4397a6caf3064c9f6ed9c06088a66eada111939e",
+          "date": "2026-10-02T07:41:58-05:00",
+          "subject": "docs: restructure README install/package map and /v1 split (HISTORY#655)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0520.cross.md",
+            ".seam/cross_index_archive/0001-0521.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "README.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "README.md"
+          ]
+        },
+        {
+          "sha": "2ca37340c8bad38ce9907870c63a1d9729ddfd29",
+          "date": "2026-10-02T07:55:54-05:00",
+          "subject": "docs: log site documentation expansion (HISTORY#656)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0521.cross.md",
+            ".seam/cross_index_archive/0001-0522.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": []
+        },
+        {
+          "sha": "8ee8856d89dfb88a42e9dfef94262147096089de",
+          "date": "2026-10-02T08:29:57-05:00",
+          "subject": "docs: log public-surface cleanup pass (HISTORY#657)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0522.cross.md",
+            ".seam/cross_index_archive/0001-0523.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "docs/audits/2026-10-02-documentation-drift-audit.md"
+          ]
+        },
+        {
+          "sha": "665f8c8e578eb0ec2d76000599d563b0afade26f",
+          "date": "2026-10-02T22:22:58-05:00",
+          "subject": "docs: establish canonical terminology contract",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0523.cross.md",
+            ".seam/cross_index_archive/0001-0524.cross.md",
+            ".seam/snapshots/20261003-030955-612158-codex.json",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "README.md",
+            "REPO_LEDGER.md",
+            "docs/DOCUMENTATION_MAP.md",
+            "docs/HOLOGRAPHIC_SURFACE.md",
+            "docs/MACOS.md",
+            "docs/MIRL_V1.md",
+            "docs/PRODUCTS.md",
+            "docs/README.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/TERMINOLOGY.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "tests/audit/test_terminology_contract.py",
+            "tools/docs/verify_terminology.py",
+            "tools/docs/verify_wiki.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "README.md",
+            "REPO_LEDGER.md",
+            "docs/DOCUMENTATION_MAP.md",
+            "docs/HOLOGRAPHIC_SURFACE.md",
+            "docs/MACOS.md",
+            "docs/MIRL_V1.md",
+            "docs/PRODUCTS.md",
+            "docs/README.md",
+            "docs/SEAM_OPERATOR_GUIDE.md",
+            "docs/TERMINOLOGY.md",
+            "docs/audits/2026-10-02-documentation-drift-audit.md",
+            "tests/audit/test_terminology_contract.py",
+            "tools/docs/verify_terminology.py",
+            "tools/docs/verify_wiki.py"
+          ]
+        },
+        {
+          "sha": "8530717d800d397ba58283710b6e8f0a037aabf8",
+          "date": "2026-10-02T22:35:53-05:00",
+          "subject": "chore: satisfy terminology documentation gate",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0524.cross.md",
+            ".seam/cross_index_archive/0001-0525.cross.md",
+            ".seam/snapshots/20261003-033422-697583-codex.json",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "tools/docs/verify_terminology.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "tools/docs/verify_terminology.py"
+          ]
+        },
+        {
+          "sha": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+          "date": "2026-10-03T17:04:25-05:00",
+          "subject": "docs: add repository-level wiki navigation and verified baseline",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0525.cross.md",
+            ".seam/cross_index_archive/0001-0527.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "PROJECT_STATUS.md",
+            "docs/DOCUMENTATION_MAP.md"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "PROJECT_STATUS.md",
+            "docs/DOCUMENTATION_MAP.md"
+          ]
+        }
+      ],
+      "paths": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "base_blob": "10daf3c458498270f3d454de7bffe9b8d857b272",
+          "tip_blob": "870109268627beb54e49a19514c619eddc968fae",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0518.cross.md",
+          "status": "R098",
+          "base_blob": "2bd4dee0d8f8282f111411722c6865ad97f5bb89",
+          "tip_blob": null,
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0527.cross.md",
+          "status": "R098",
+          "base_blob": null,
+          "tip_blob": "999ff1ddb62154ccecffa57b5bbe4949af5b5d89",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/snapshots/20261003-030955-612158-codex.json",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "229dc4b77a7cb39332c9826fde91604e04decb73",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/snapshots/20261003-033422-697583-codex.json",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "1c8b0b2cdf75dcbe7d2c522b562cf6b25c2aa1d9",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "base_blob": "688dbf7c06bdc8cb20a72fdb98560dc6f4e240ec",
+          "tip_blob": "d0985cfcd2480a15e80e4e9376b7f5e0bf840d83",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "base_blob": "d598e08ca4f15732ce8d89d1d24a068d8dc22e95",
+          "tip_blob": "7c3d0dccb31dd198ea1b496fca59ca2f6ba4f55e",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "M",
+          "base_blob": "16ddb21106405604c54e6c5eb80a25687f47425d",
+          "tip_blob": "272bb7bc91c4ab3f764612e8db81ad9a89c780c0",
+          "main_blob": "ccdf7e4a48f2bf7e97d2e7f1fea272de0727dbe3",
+          "tip_equals_main": false,
+          "disposition": "ADAPT_DATED_PROVENANCE",
+          "semantic_proof": "Legacy repository coordinate no longer resolved as of 2026-10-02; exact frozen SHA/license record. Keep current contribution and licensing policy."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "base_blob": "d598e08ca4f15732ce8d89d1d24a068d8dc22e95",
+          "tip_blob": "7c3d0dccb31dd198ea1b496fca59ca2f6ba4f55e",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "base_blob": "688dbf7c06bdc8cb20a72fdb98560dc6f4e240ec",
+          "tip_blob": "d0985cfcd2480a15e80e4e9376b7f5e0bf840d83",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "status": "M",
+          "base_blob": "0119b1a77a9177e12be1e9ef022af30fc28a0eec",
+          "tip_blob": "274cc54edf7898f8cfd975f89e8b145060aa85da",
+          "main_blob": "d108f1122ccbf064783aa30f4a776eb2830ae13d",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_CONTINUITY",
+          "semantic_proof": "Old audit/website/wiki completion headlines were branch-local observations. Root routes current recovery through fresh handoff; no stale status replacement."
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "base_blob": "f58ed7ba7e7499680efb7cecba574e9de99905e8",
+          "tip_blob": "e176843e0ec8aeebc1b856893cec5f8bc7e40da8",
+          "main_blob": "586d80311c32f2488168bf32cd7b3a5b7bd7a329",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_FACTUAL_DOCS",
+          "semantic_proof": "Recover credential/WebUI pointer-card consolidation, package-name caution, MIRL expansion, published S6/turn/governance source facts. Preserve current proprietary terms, exact reviewed installer revision, dependencies, API and publication wording; reject old private-tripwire and unpinned-clone regressions."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "base_blob": "e498240ea75d514f7c0a3d254a75d2bb8b38073e",
+          "tip_blob": "b89bf90701f689ed666dcd6dbdeddde798effee4",
+          "main_blob": "b9f994e7ef792d3f186602ee5235cff8913961d6",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Recover MIRL/glossary routing; replace confounded 0.755616 justification with current retrieval-status matched 0.776048 versus 0.766420; retain legacy-weighted/1 and open category gate. Correct S8-next to frozen S8 after R2, S9/S10 open. Dated legacy coordinate observation must stay dated."
+        },
+        {
+          "path": "SECURITY.md",
+          "status": "M",
+          "base_blob": "41239bc9d508525be5a6b030c72130f80eb0391a",
+          "tip_blob": "b5f1fa1dcf1f31a620dd773980dd8503b3600678",
+          "main_blob": "f6c9de3b43a0a6e61bf3f7f54349301f9e01605a",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Explicit private-advisory URL plus conditional owner-contact fallback. Keep current licensing paragraph."
+        },
+        {
+          "path": "docs/BENCHMARK_SOP.md",
+          "status": "M",
+          "base_blob": "974511689ae04f79c8b5e4dd5662f85fe3d39bfd",
+          "tip_blob": "080ee1c35c0ad712316a353ed26d81ce346cbc74",
+          "main_blob": "974511689ae04f79c8b5e4dd5662f85fe3d39bfd",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Compose SERVICE pgvector, DSN POSTGRES_USER, actual hybrid_beats_vector_on_relation key and tracks/packs/expected_ids; remove nonexistent rejection_rate/rejected_ids claims. Current evals.py:112 confirms key."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "status": "M",
+          "base_blob": "e27cb75367535d023492fb50ddcf0492bb0526d7",
+          "tip_blob": "946416e36fb46fe16764685c5761f62036e8aea3",
+          "main_blob": "36bf2d79f45f860a18dfebf55e03e295b9b4ab9f",
+          "tip_equals_main": false,
+          "disposition": "ADAPT_DATED_PROVENANCE",
+          "semantic_proof": "Legacy public-client location observation only, dated; preserve current source/publication metadata."
+        },
+        {
+          "path": "docs/DOCUMENTATION_MAP.md",
+          "status": "M",
+          "base_blob": "1ecc60c94b4042689bac97fce90e4a8167507ad9",
+          "tip_blob": "9dae80da070fc6174d7c91f1a805ee4947289081",
+          "main_blob": "1ecc60c94b4042689bac97fce90e4a8167507ad9",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Add glossary route after recovery; PR278 adds separate root/code-adjacent/benchmark/branding/derived-index navigation. Only currently existing reviewed paths, label historical/generated appropriately."
+        },
+        {
+          "path": "docs/HOLOGRAPHIC_SURFACE.md",
+          "status": "M",
+          "base_blob": "258da5c22f3df4c3d5bda2c3c441aabb9278f51f",
+          "tip_blob": "5b9a73faadaff8831fc9626cf1feabe6b411592a",
+          "main_blob": "258da5c22f3df4c3d5bda2c3c441aabb9278f51f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Canonical names/spec backlinks only; no representation/codec behavior change."
+        },
+        {
+          "path": "docs/IMPROVEMENT_EXPERIMENTS.md",
+          "status": "M",
+          "base_blob": "d4cf31e3c1750621cd2409b83f995a63fbc0ebcd",
+          "tip_blob": "f913b063fcce166193bf70768f91cc8136c68de6",
+          "main_blob": "d4cf31e3c1750621cd2409b83f995a63fbc0ebcd",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "core-storage/4 and registered /2->/3 ledger, /3->/4 public-memory-handle migration; current migrations.py:683,903 confirms."
+        },
+        {
+          "path": "docs/MACOS.md",
+          "status": "M",
+          "base_blob": "cfaee860691cf930acf0921969bdef7748902059",
+          "tip_blob": "9f0f58e05ec990b88a99b9123b1a5d5df2027424",
+          "main_blob": "eed06b74ac67b1d5fe33df36eb9104fbc4bc416c",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Recover truthful console/MCP paths, Compose service, Python floor, runtime seam.env vs Compose env, optional Chroma. Reject claim managed shim always overrides SEAM_DB_PATH: current installer.py:232 preserves nonempty environment; preserve current dependency and credential protections."
+        },
+        {
+          "path": "docs/MIRL_V1.md",
+          "status": "M",
+          "base_blob": "91c50a3f66688b9752115f91f3ff0170d98e3917",
+          "tip_blob": "83840a114da7eb374812210f9838c9b7018eaa08",
+          "main_blob": "cac873a3f0bef6d9b8dc39412c8d19b1d45d286e",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Exact MIRL expansion and glossary pointer; preserve newer governing-contract/current-serializer clarification."
+        },
+        {
+          "path": "docs/PGVECTOR_LOCAL.md",
+          "status": "M",
+          "base_blob": "9deb01e3cef07f3ce9b1a3a01e4eb7b463245d35",
+          "tip_blob": "c1d349e8b7b040f887e60b6c7bcfcda3c9621aa2",
+          "main_blob": "92bf4f91f1b73a8cc6c4a83d497f7af7e6be6555",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Use Compose SERVICE pgvector rather than container-name seam-pgvector."
+        },
+        {
+          "path": "docs/PRODUCTS.md",
+          "status": "M",
+          "base_blob": "d0431461623654ade51b0577ab842730a607d64d",
+          "tip_blob": "a593567b214760bab672d2a53b6cfc9b06aa78ab",
+          "main_blob": "cf837089d89449681e714f99cd62f39d8163fb2f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Glossary pointer only; preserve current settled personal/noncommercial/business-written-agreement and private-paid-SDK map."
+        },
+        {
+          "path": "docs/PROTECTION_MODEL.md",
+          "status": "M",
+          "base_blob": "e31ee50492581473a0eaaf4df3e83682c4c6d401",
+          "tip_blob": "c99c68f0d70788ad8f7f65c8920649cd252ab9e4",
+          "main_blob": "02c8276cce34623a4cf0bcb1a12e497bbe2c3498",
+          "tip_equals_main": false,
+          "disposition": "ADAPT_HISTORICAL_DOCS",
+          "semantic_proof": "Dated legacy coordinate/frozen-head observation and removed sync utility factual correction; preserve clear historical banner/current licensing routing."
+        },
+        {
+          "path": "docs/RAG_ARCHITECTURE.md",
+          "status": "M",
+          "base_blob": "7d13a4c5e6f856b9245ed2a216d9b1332b0e4f6a",
+          "tip_blob": "ce1ddaa96cd050d0a387d3b187f0248fe82d9b1f",
+          "main_blob": "7d13a4c5e6f856b9245ed2a216d9b1332b0e4f6a",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Missing MCP seam_knowledge_graph, seam_knowledge_node, seam_identity_merges; current mcp.py:21-23,249-277 confirms."
+        },
+        {
+          "path": "docs/README.md",
+          "status": "M",
+          "base_blob": "acae46c0143e20bedd96192c1d8c91049d3dde17",
+          "tip_blob": "d75ad907c34117695c82bcb12d83ad9f2bdb0fb1",
+          "main_blob": "4ecef7cfa25d2aa9bd10f0e3c49ebc9b80e24b65",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_ROUTES",
+          "semantic_proof": "Glossary navigation; preserve current new source/packaging handoff."
+        },
+        {
+          "path": "docs/SEAM_OPERATOR_GUIDE.md",
+          "status": "M",
+          "base_blob": "5b943a188026ebad89d7a1dbbfbba87a3ddf7986",
+          "tip_blob": "754e222f524248f58afc694a3a86e0b37953d8ed",
+          "main_blob": "2283075a0d944fcec9f198ca176350de066980bc",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Compose service/environment split and real MCP venv/shim executable guidance useful. Discard always-overridden SEAM_DB_PATH premise; retain current selected source SHA and new dependencies."
+        },
+        {
+          "path": "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md",
+          "status": "M",
+          "base_blob": "59124761f1a3ce0b3473f37f07fce849c192884b",
+          "tip_blob": "915a39bd6ee186ae384efc11014bfa04c7736f45",
+          "main_blob": "59124761f1a3ce0b3473f37f07fce849c192884b",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "pgvector image 0.8.6-pg18-trixie matches current Compose/CI. Keep document as historical task packet, not evidence runtime check ran."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_LLM_JUDGE.md",
+          "status": "M",
+          "base_blob": "efd74c9a2286c056ad23cccd1b237f6ede62706f",
+          "tip_blob": "a3f4f15161dae34cff91ae6bad33c0b4ae1ac04f",
+          "main_blob": "efd74c9a2286c056ad23cccd1b237f6ede62706f",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_HISTORICAL_CORRECTION",
+          "semantic_proof": "Foreign PyPI seam install -> quoted repository extras installs. Current public seam-suite coordinate can be described separately only after actual upload; no paid execution authorized."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_MEM0_COMPARATOR.md",
+          "status": "M",
+          "base_blob": "510df1e0a2f818a4e4f078033073e26ea3baa76b",
+          "tip_blob": "cc1efee295c8edc578102dda91465beca9b4b1d0",
+          "main_blob": "510df1e0a2f818a4e4f078033073e26ea3baa76b",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_HISTORICAL_CORRECTION",
+          "semantic_proof": "Foreign seam extras -> repository bench-mem0; quote shell extras and preserve current measured dependencies."
+        },
+        {
+          "path": "docs/SOP_EXTERNAL_BENCH_ZEP_COMPARATOR.md",
+          "status": "M",
+          "base_blob": "c64242a64c7cfe04effd2454614e89f781b27b58",
+          "tip_blob": "31e0f1d77b987ea241dcdbdbbb9691b0f2c9fa14",
+          "main_blob": "c64242a64c7cfe04effd2454614e89f781b27b58",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_HISTORICAL_CORRECTION",
+          "semantic_proof": "Foreign seam extras -> repository bench-zep/bench-mem0; historical future checklist is not functional evidence."
+        },
+        {
+          "path": "docs/SOP_INDEX.md",
+          "status": "M",
+          "base_blob": "1db9d4254ed5a34b7c54f11ce41af3518a90586d",
+          "tip_blob": "c078ed40ae5a588eb38f6190aec2db5bfc8b1f06",
+          "main_blob": "1db9d4254ed5a34b7c54f11ce41af3518a90586d",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Explicit era note for removed experimental/webui tree and package rename; prevents executing stale packets."
+        },
+        {
+          "path": "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md",
+          "status": "M",
+          "base_blob": "aa87991580ba90ad572f1241885de83283ad4173",
+          "tip_blob": "6ba95b73fe09308936ce237428bfde94f7d7d4fe",
+          "main_blob": "aa87991580ba90ad572f1241885de83283ad4173",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Retired experimental orchestrator already promoted/removed; obsolete deletion task resolved, comparable future removals still require actual scope review."
+        },
+        {
+          "path": "docs/TERMINOLOGY.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "fb436d5390ecfaa69833307e6e21640631137bd6",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_AUTHORED_GLOSSARY",
+          "semantic_proof": "Missing main; accurate RAW/IR/PACK/LENS, directly readable RC, LX reconstruction backing, HS PNG container, canonical SQLite/derived graph, paid SDK vs public HTTP client. License-defined Distributed Runtime is historical subset, not blanket current entitlement."
+        },
+        {
+          "path": "docs/audits/2026-10-02-documentation-drift-audit.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "4f5a5faffc0afcda80b072d475b2b36c37d0f376",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_REPORT",
+          "semantic_proof": "Preserve exact authored dated evidence and 14-cluster pointer-card backlog; obsolete BUSL/private/upload/site claims remain dated. No claim its described working overlays were later deployed; current site resolved independently by root."
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "status": "M",
+          "base_blob": "d61ade839ef9276bbf4a9749f73370a47c74356a",
+          "tip_blob": "3cd3cea97b09684fcd6fe58930d3be666258d7b7",
+          "main_blob": "93083048b7d3155ef834c01841795e1ea98e8527",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_ROUTE",
+          "semantic_proof": "Register dated report using current report registry; do not replace current index with branch."
+        },
+        {
+          "path": "docs/engineering/AGENT_CONFIG_GATE_RECOVERY.md",
+          "status": "M",
+          "base_blob": "a79b928d61d27f8def5622610c73e49d46fa23e2",
+          "tip_blob": "82868e9a184208d3db03b2d0c4e445151a511fed",
+          "main_blob": "a79b928d61d27f8def5622610c73e49d46fa23e2",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Replace pending stacked PR273/274 language with landed current handoff route; source plan body remains historical."
+        },
+        {
+          "path": "docs/errors.md",
+          "status": "M",
+          "base_blob": "57be84278c12bb34e71e05796604ff35b8eecc7f",
+          "tip_blob": "f508d1e330bdba4d6dd5ef10d8a471bb30deae1e",
+          "main_blob": "29c6f245f978a501d1af811bbfaf4e8791a2670b",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Compose SERVICE pgvector; retain already-current 55432/dependency/error guidance."
+        },
+        {
+          "path": "docs/setup.md",
+          "status": "M",
+          "base_blob": "e5e9647871fb93e37fffbdaef3facc856958b3ce",
+          "tip_blob": "38f47c68b6bddc8f8fede76a1b5e2a554cd13a48",
+          "main_blob": "04c6deae034d24063066109c3b2ff7e573cdaf8a",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Canonical repo owner and portable Windows path useful, removed Vite reference useful. Preserve current pinned reviewed source selection; never restore unpinned clone recipes."
+        },
+        {
+          "path": "docs/status/compression-visual.md",
+          "status": "M",
+          "base_blob": "cd5747811815da9c5d34e719c0b6e461bc913720",
+          "tip_blob": "b2ea7d189e094569304bc1da7133a0061b3d892a",
+          "main_blob": "cd5747811815da9c5d34e719c0b6e461bc913720",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_DOC_PATCH",
+          "semantic_proof": "Missing explicit rgba64 codec; current MIRL contract supports it. No new functionality claim."
+        },
+        {
+          "path": "docs/status/operations.md",
+          "status": "M",
+          "base_blob": "a03ba4d7d9657a9bbdc40c9d2d2acd57a9ecba48",
+          "tip_blob": "126be92740c80498c73b13119a3e984c90c74fa4",
+          "main_blob": "560998a42d3ae32b5e5917858c0e0c8e6647fd24",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Correct CI label seam-box and frozen S8/open S9/S10; preserve newer release/REST/dependency facts."
+        },
+        {
+          "path": "docs/status/surfaces.md",
+          "status": "M",
+          "base_blob": "cccb7451e54cf5be7ea4e60d606865e850e0370e",
+          "tip_blob": "84e34c39f3e7b9c39bc6d361a634e6d21ef517b7",
+          "main_blob": "f68c2890699fa1d710179fb30366dcd1d6043e2c",
+          "tip_equals_main": false,
+          "disposition": "INTEGRATE_CORRECTED_FACTS",
+          "semantic_proof": "Replace stale R2-before-S8 freeze paragraph with published S8 mechanism parity; no full UI/product acceptance inference."
+        },
+        {
+          "path": "docs/status/workspace.md",
+          "status": "M",
+          "base_blob": "9b4530dcc0df9e99f5351aab2a996c455c9b0f8f",
+          "tip_blob": "a0634cd27ae054eb788f8ff978ea718091b7cca7",
+          "main_blob": "9b4530dcc0df9e99f5351aab2a996c455c9b0f8f",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_STATE",
+          "semantic_proof": "Branch adds dated fe528a5/current-worktree cleanup decisions now obsolete; current root branch audit replaces them, no stale worktree operational instructions."
+        },
+        {
+          "path": "installers/README.md",
+          "status": "M",
+          "base_blob": "a21ce5822c0b1beda5c17cb2e3bccace28987a35",
+          "tip_blob": "624eda62aa2218796dd1195a4b0211b57cd3bfb7",
+          "main_blob": "770338bef4de2df9ade6418c17aaa5445a247e4f",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_MIXED_DOCS",
+          "semantic_proof": "Useful names/service/Python/extras/mcp facts, most superseded by current exact-source qualification. Preserve current installer environment behavior and dependency contract."
+        },
+        {
+          "path": "tests/audit/test_terminology_contract.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "24db4adbdd42c09077cfa9d01ae1b9f1c3e1fa49",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Useful wrong-name/package-alias/history-exclusion/wiki-integration fixtures. Replace obsolete managed-shim environment test; add valid-following-prose expansion fixture observed failing branch checker."
+        },
+        {
+          "path": "tools/docs/verify_terminology.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "6e5a6a080d1b60fe718580b09d4ac66a7b4137ba",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Missing checker; observed greedy IGNORECASE expansion regex rejects correct expansions followed by lowercase prose. Repair before enabling. Exclusions historical/audits/roadmap useful."
+        },
+        {
+          "path": "tools/docs/verify_wiki.py",
+          "status": "M",
+          "base_blob": "f1ca04b2f94994c59d0632c5880dd4300997226c",
+          "tip_blob": "30426eebe12cf8faf257307d68f655fb2d7377bd",
+          "main_blob": "f1ca04b2f94994c59d0632c5880dd4300997226c",
+          "tip_equals_main": false,
+          "disposition": "REBUILD_WITH_TDD",
+          "semantic_proof": "Add terminology invocation/fail-closed checkout requirement to current staged/index-aware wiki verifier; never overwrite newer safeguards."
+        }
+      ],
+      "intermediate_delta_hidden_at_tip": [],
+      "recommendation": "RECOVER_INCREMENT_AFTER_DOC_AUDIT",
+      "completion_condition": "Stack depends on PR277. Only independent material increment is DOCUMENTATION_MAP root-level navigation plus stale PROJECT_STATUS/chronology. Recover navigation after glossary exists; verify each link/reachability without reading forbidden chronology. Then close PR278/delete."
+    },
+    {
+      "branch": "handoff/archive",
+      "ref": "refs/remotes/origin/handoff/archive",
+      "tip": "6469d717c2a33c3976b67ccfedefa6b930a73e81",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "e30573727e8ebdd51463b60ca4c23642007b2cd1",
+      "pull_requests": [],
+      "unique_commit_count": 3,
+      "is_ancestor_of_main": false,
+      "commits": [
+        {
+          "sha": "0b0c6d96a5551bdcacd73ebda7c88c1d889779a9",
+          "date": "2026-04-15T04:05:07-05:00",
+          "subject": "add retrieval pipeline and simplify cli terminology",
+          "changed_paths_metadata": [
+            ".gitignore",
+            "HANDOFF_DONE.md",
+            "HANDOFF_NEXT.md",
+            "README.md",
+            "experimental/__init__.py",
+            "experimental/hybrid_orchestrator/README.md",
+            "experimental/hybrid_orchestrator/__init__.py",
+            "experimental/hybrid_orchestrator/adapters.py",
+            "experimental/hybrid_orchestrator/merger.py",
+            "experimental/hybrid_orchestrator/orchestrator.py",
+            "experimental/hybrid_orchestrator/planner.py",
+            "experimental/hybrid_orchestrator/types.py",
+            "requirements.txt",
+            "seam_runtime/cli.py",
+            "seam_runtime/storage.py",
+            "seam_runtime/vector.py",
+            "test_seam.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            ".gitignore",
+            "HANDOFF_DONE.md",
+            "HANDOFF_NEXT.md",
+            "README.md",
+            "experimental/__init__.py",
+            "experimental/hybrid_orchestrator/README.md",
+            "experimental/hybrid_orchestrator/__init__.py",
+            "experimental/hybrid_orchestrator/adapters.py",
+            "experimental/hybrid_orchestrator/merger.py",
+            "experimental/hybrid_orchestrator/orchestrator.py",
+            "experimental/hybrid_orchestrator/planner.py",
+            "experimental/hybrid_orchestrator/types.py",
+            "requirements.txt",
+            "seam_runtime/cli.py",
+            "seam_runtime/storage.py",
+            "seam_runtime/vector.py",
+            "test_seam.py"
+          ]
+        },
+        {
+          "sha": "664ae814c8a33e87f3fb1d0bde3df553ac3fc7ef",
+          "date": "2026-04-15T09:05:59-05:00",
+          "subject": "add runnable seam branding previews",
+          "changed_paths_metadata": [
+            "HANDOFF_BRANDING.md",
+            "branding/README.md",
+            "branding/assets/seam-dashboard-reference.png",
+            "branding/references/cli-aesthetic-design-principles.md",
+            "branding/retro-direction.md",
+            "branding/screenshots/retro-preview-v7.png",
+            "branding/seam-mark-join.svg",
+            "branding/seam-mark-retro.svg",
+            "branding/seam-mark-stack.svg",
+            "branding/seam-mark-terminal.svg",
+            "branding/seam-retro-preview.html",
+            "branding/seam_terminal_preview.py",
+            "requirements.txt"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "HANDOFF_BRANDING.md",
+            "branding/README.md",
+            "branding/assets/seam-dashboard-reference.png",
+            "branding/references/cli-aesthetic-design-principles.md",
+            "branding/retro-direction.md",
+            "branding/screenshots/retro-preview-v7.png",
+            "branding/seam-mark-join.svg",
+            "branding/seam-mark-retro.svg",
+            "branding/seam-mark-stack.svg",
+            "branding/seam-mark-terminal.svg",
+            "branding/seam-retro-preview.html",
+            "branding/seam_terminal_preview.py",
+            "requirements.txt"
+          ]
+        },
+        {
+          "sha": "6469d717c2a33c3976b67ccfedefa6b930a73e81",
+          "date": "2026-04-16T01:47:50-05:00",
+          "subject": "Merge main into handoff/archive and resolve conflicts",
+          "changed_paths_metadata": [
+            ".gitignore",
+            "CLAUDE.md",
+            "HANDOFF_BRANDING.md",
+            "HANDOFF_DONE.md",
+            "HANDOFF_NEXT.md",
+            "README.md",
+            "branding/README.md",
+            "branding/assets/seam-dashboard-reference.png",
+            "branding/references/cli-aesthetic-design-principles.md",
+            "branding/retro-direction.md",
+            "branding/screenshots/retro-preview-v7.png",
+            "branding/seam-mark-join.svg",
+            "branding/seam-mark-retro.svg",
+            "branding/seam-mark-stack.svg",
+            "branding/seam-mark-terminal.svg",
+            "branding/seam-retro-preview.html",
+            "branding/seam_terminal_preview.py",
+            "docs/RETRIEVAL_EVAL_V1.md",
+            "docs/retrieval_gold_fixtures.json",
+            "experimental/__init__.py",
+            "experimental/hybrid_orchestrator/README.md",
+            "experimental/hybrid_orchestrator/__init__.py",
+            "experimental/hybrid_orchestrator/adapters.py",
+            "experimental/hybrid_orchestrator/merger.py",
+            "experimental/hybrid_orchestrator/orchestrator.py",
+            "experimental/hybrid_orchestrator/planner.py",
+            "experimental/hybrid_orchestrator/types.py",
+            "requirements.txt",
+            "seam_runtime/cli.py",
+            "seam_runtime/evals.py",
+            "seam_runtime/models.py",
+            "seam_runtime/pack.py",
+            "seam_runtime/runtime.py",
+            "seam_runtime/storage.py",
+            "seam_runtime/vector.py",
+            "seam_runtime/vector_adapters.py",
+            "test_seam.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            ".gitignore",
+            "CLAUDE.md",
+            "HANDOFF_BRANDING.md",
+            "HANDOFF_DONE.md",
+            "HANDOFF_NEXT.md",
+            "README.md",
+            "branding/README.md",
+            "branding/assets/seam-dashboard-reference.png",
+            "branding/references/cli-aesthetic-design-principles.md",
+            "branding/retro-direction.md",
+            "branding/screenshots/retro-preview-v7.png",
+            "branding/seam-mark-join.svg",
+            "branding/seam-mark-retro.svg",
+            "branding/seam-mark-stack.svg",
+            "branding/seam-mark-terminal.svg",
+            "branding/seam-retro-preview.html",
+            "branding/seam_terminal_preview.py",
+            "docs/RETRIEVAL_EVAL_V1.md",
+            "docs/retrieval_gold_fixtures.json",
+            "experimental/__init__.py",
+            "experimental/hybrid_orchestrator/README.md",
+            "experimental/hybrid_orchestrator/__init__.py",
+            "experimental/hybrid_orchestrator/adapters.py",
+            "experimental/hybrid_orchestrator/merger.py",
+            "experimental/hybrid_orchestrator/orchestrator.py",
+            "experimental/hybrid_orchestrator/planner.py",
+            "experimental/hybrid_orchestrator/types.py",
+            "requirements.txt",
+            "seam_runtime/cli.py",
+            "seam_runtime/evals.py",
+            "seam_runtime/models.py",
+            "seam_runtime/pack.py",
+            "seam_runtime/runtime.py",
+            "seam_runtime/storage.py",
+            "seam_runtime/vector.py",
+            "seam_runtime/vector_adapters.py",
+            "test_seam.py"
+          ]
+        }
+      ],
+      "paths": [
+        {
+          "path": ".gitignore",
+          "status": "M",
+          "base_blob": "087762656da8da2be0b8f154c6d64aea68b0c0fa",
+          "tip_blob": "14cfebd8c51c74f8788af6c38f36e6b33c3449c2",
+          "main_blob": "9db5684703ebcc21f404b49f5f5ee82ca1e5893d",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_EXTENDED_HYGIENE",
+          "semantic_proof": "Old database/vector/env/key/credential/conversation ignores substantially superseded by current expanded hygiene; no omission identified."
+        },
+        {
+          "path": "HANDOFF_BRANDING.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "c858bf34c13e1709c4a3e4934f595b6d98ed7edc",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_HANDOFF",
+          "semantic_proof": "Historical environment/validation/next steps. Promotion, fielded SQL, richer context views and real dashboard now present; branding current kits supersede styling prototype. No new unfinished feature discovered."
+        },
+        {
+          "path": "HANDOFF_DONE.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "ef47bc529999553daea48b30bcc17a03141d7425",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_HANDOFF",
+          "semantic_proof": "Historical environment/validation/next steps. Promotion, fielded SQL, richer context views and real dashboard now present; branding current kits supersede styling prototype. No new unfinished feature discovered."
+        },
+        {
+          "path": "HANDOFF_NEXT.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "8a0d64e9d06d0e68bd32493dd5e559952061af58",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DATED_HANDOFF",
+          "semantic_proof": "Historical environment/validation/next steps. Promotion, fielded SQL, richer context views and real dashboard now present; branding current kits supersede styling prototype. No new unfinished feature discovered."
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "base_blob": "e22a54e76b72612baeb5b24a0ccd6d60f536728b",
+          "tip_blob": "356b3a14a2e2c9f74cbc91d17e0679b00dfb038e",
+          "main_blob": "586d80311c32f2488168bf32cd7b3a5b7bd7a329",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_CURRENT_DOCS",
+          "semantic_proof": "Retrieval/context commands active; current exact-source install/terms/default optional backends supersede old PowerShell flow."
+        },
+        {
+          "path": "branding/README.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "b3f0c1982433a972d47db5a376f7b55025b19b5f",
+          "main_blob": "54df3eb5c21da765fb3f68d644aa15f761f7083f",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_SUPERSEDED_PROSE",
+          "semantic_proof": "Retro direction current body preserved with historical banner; branding hub now routes newer canonical/cosmic kits while enumerating old concepts. Never replace hub."
+        },
+        {
+          "path": "branding/assets/seam-dashboard-reference.png",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "7ccdbdb10d051ba0a6a9e3f6bdaef5e24129ea11",
+          "main_blob": "7ccdbdb10d051ba0a6a9e3f6bdaef5e24129ea11",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/references/cli-aesthetic-design-principles.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "6d79c8cef4dd1e5e05198419cf216ce1af1aba52",
+          "main_blob": "6d79c8cef4dd1e5e05198419cf216ce1af1aba52",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/retro-direction.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "abda852fc459a64df8bf924da7ad0c5d2d2298a9",
+          "main_blob": "6816b4b015fcacbc17fa962640941bd7015e1169",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_SUPERSEDED_PROSE",
+          "semantic_proof": "Retro direction current body preserved with historical banner; branding hub now routes newer canonical/cosmic kits while enumerating old concepts. Never replace hub."
+        },
+        {
+          "path": "branding/screenshots/retro-preview-v7.png",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "fe9e3c8e69296483bcf86c90c7fa3e2f4d9b4aa3",
+          "main_blob": "fe9e3c8e69296483bcf86c90c7fa3e2f4d9b4aa3",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/seam-mark-join.svg",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "a205e75dd3926bd7d0e757f91780a85fca72316f",
+          "main_blob": "a205e75dd3926bd7d0e757f91780a85fca72316f",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/seam-mark-retro.svg",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "62b4f2f7bbddc0da12d5e9dde79202cd1e72f905",
+          "main_blob": "62b4f2f7bbddc0da12d5e9dde79202cd1e72f905",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/seam-mark-stack.svg",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "0dc10e091fb033a79d6a0be34f5ae1e4483169d3",
+          "main_blob": "0dc10e091fb033a79d6a0be34f5ae1e4483169d3",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/seam-mark-terminal.svg",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "485dacfe1882d171a15016d9c8bfc4bac3aeb07d",
+          "main_blob": "485dacfe1882d171a15016d9c8bfc4bac3aeb07d",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/seam-retro-preview.html",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "79c278a9cbf8a924ba541d3dafbbc169c97a8263",
+          "main_blob": "79c278a9cbf8a924ba541d3dafbbc169c97a8263",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "branding/seam_terminal_preview.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "9758034816608360b04952155c47f8bb5d508bf9",
+          "main_blob": "9758034816608360b04952155c47f8bb5d508bf9",
+          "tip_equals_main": true,
+          "disposition": "PRESERVED_EXACT_BLOB",
+          "semantic_proof": "Byte-identical on current main; branding hub labels old concept assets historical."
+        },
+        {
+          "path": "experimental/__init__.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "c8e9da3cab9f0f9d3c5f8c3b8c73d2225903b853",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Obsolete experimental package marker; actual orchestrator moved to seam_runtime/retrieval_orchestrator, whose current __init__.py exports compatibility aliases. No restoration of experimental namespace."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/README.md",
+          "status": "M",
+          "base_blob": "639ec240a2f5a55718d3bc5311bbe31566db677b",
+          "tip_blob": "30dd636aab7a47d8b5d94e14778b17a54516fc2f",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/README.md contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/__init__.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "73f14569d3abe813cc9017231cbcd426a46f481e",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/__init__.py contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/adapters.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "b969015c9be398d5959ff239dea3bbbd814cc81b",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/adapters.py contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/merger.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "605fec9036d5f0bc998cd1f771485d4194f8d5af",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/merger.py contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/orchestrator.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "4764ad2438595c4cde3642374d35d756caa4d5f4",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/orchestrator.py contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/planner.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "a17cbcf3bfb82c8c0366374d5c40a647955828c1",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/planner.py contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "experimental/hybrid_orchestrator/types.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "dd580820a64827dbb01bebf0bfdfead08c893bec",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_PROMOTED_AND_EXTENDED",
+          "semantic_proof": "Main seam_runtime/retrieval_orchestrator/types.py contains equivalent planner/filter/SQLite/semantic/merge/sync/RAG contract and newer temporal/graph/canonical admissibility/RRF/snapshot features; Hybrid names aliases in current __init__.py. Never restore retired experimental tree."
+        },
+        {
+          "path": "requirements.txt",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "e7b66dbb53a46adf50c9c9dff20dbc496785a24d",
+          "main_blob": "06f4faa7ced7eef5258f1a878f70ddd1f1a89e54",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_DEPENDENCIES",
+          "semantic_proof": "Old mandatory chromadb==1.5.7/rich13.9.4 pins conflict with qualified current dependency/extras policy."
+        },
+        {
+          "path": "seam_runtime/cli.py",
+          "status": "M",
+          "base_blob": "1cff8f253adb1b5c362b7d6d4459c135bfd0d067",
+          "tip_blob": "a993f2f0fe440c9ba4cda99701f78fe3299d8e9c",
+          "main_blob": "499e27ad84a88ac689e0cec02444dfba6eed4a79",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_EVOLVED_RUNTIME",
+          "semantic_proof": "CLI plan/retrieve/compare/index/context and old aliases remain current. SQLite commit/close fixes evolved to current owned connection pool/transaction contract; vector uses closing and explicit commits. Restoring old source would regress current snapshot/lifecycle/index consistency."
+        },
+        {
+          "path": "seam_runtime/storage.py",
+          "status": "M",
+          "base_blob": "8c37468a37607e6298110847f6d0a2f6d1ab1e17",
+          "tip_blob": "c93dc74a8c83cddc90f31ab92a1881a8208d4d2c",
+          "main_blob": "949e8547c3058e950bc673f98e30a1c4ce1458ca",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_EVOLVED_RUNTIME",
+          "semantic_proof": "CLI plan/retrieve/compare/index/context and old aliases remain current. SQLite commit/close fixes evolved to current owned connection pool/transaction contract; vector uses closing and explicit commits. Restoring old source would regress current snapshot/lifecycle/index consistency."
+        },
+        {
+          "path": "seam_runtime/vector.py",
+          "status": "M",
+          "base_blob": "3a91e5e98f8e0e24f5a203aa16ed0469c867a7db",
+          "tip_blob": "631c19cf7bec2ccb08f2d19b5091128d4b8c476f",
+          "main_blob": "2cf01a39c9446071d02cf46999e242a18fd4f09e",
+          "tip_equals_main": false,
+          "disposition": "PRESERVED_EVOLVED_RUNTIME",
+          "semantic_proof": "CLI plan/retrieve/compare/index/context and old aliases remain current. SQLite commit/close fixes evolved to current owned connection pool/transaction contract; vector uses closing and explicit commits. Restoring old source would regress current snapshot/lifecycle/index consistency."
+        }
+      ],
+      "intermediate_delta_hidden_at_tip": [
+        {
+          "commit": "0b0c6d96a5551bdcacd73ebda7c88c1d889779a9",
+          "path": "test_seam.py"
+        }
+      ],
+      "recommendation": "RESOLVED_AFTER_DURABLE_PROVENANCE",
+      "completion_condition": "Runtime functionality, all ten tip-hidden tests and nine exact branding assets preserved; old handoffs/prose superseded. No runtime recovery. Record pinned original commits/handoff text in durable preservation map or bundle, then branch deletion is safe."
+    },
+    {
+      "branch": "preserve/superseded-private-license-draft-20260829",
+      "ref": "refs/remotes/origin/preserve/superseded-private-license-draft-20260829",
+      "tip": "03c5878d6c3d36c14d160d7444bf4af59623929d",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "bc6b927e6fbc3cbef7db505e1af0929a6cf839f2",
+      "pull_requests": [],
+      "unique_commit_count": 5,
+      "is_ancestor_of_main": false,
+      "commits": [
+        {
+          "sha": "4c222e031c6a21ca75d87aad4b0429685bcf27ea",
+          "date": "2026-08-25T13:32:28-05:00",
+          "subject": "perf: batch embedding for bulk ingest (HISTORY#608)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0470.cross.md",
+            ".seam/cross_index_archive/0001-0471.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "seam_runtime/models.py",
+            "seam_runtime/runtime.py",
+            "seam_runtime/vector.py",
+            "seam_runtime/vector_adapters.py",
+            "tests/audit/test_batched_embedding.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "seam_runtime/models.py",
+            "seam_runtime/runtime.py",
+            "seam_runtime/vector.py",
+            "seam_runtime/vector_adapters.py",
+            "tests/audit/test_batched_embedding.py"
+          ]
+        },
+        {
+          "sha": "d975f201e85a6e53e2cd98c76af38331d13bd83e",
+          "date": "2026-08-25T14:01:12-05:00",
+          "subject": "fix: close PR #230 review findings (HISTORY#609)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0471.cross.md",
+            ".seam/cross_index_archive/0001-0472.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "seam_runtime/models.py",
+            "seam_runtime/vector.py",
+            "seam_runtime/vector_adapters.py",
+            "tests/audit/test_batched_embedding.py",
+            "tools/ingest_throughput_probe.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "seam_runtime/models.py",
+            "seam_runtime/vector.py",
+            "seam_runtime/vector_adapters.py",
+            "tests/audit/test_batched_embedding.py",
+            "tools/ingest_throughput_probe.py"
+          ]
+        },
+        {
+          "sha": "e482d3c9cab6f0c18298e394d958aeb3d0d287f3",
+          "date": "2026-08-25T14:36:08-05:00",
+          "subject": "fix: close second review round and correct the parity claim (HISTORY#610)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0472.cross.md",
+            ".seam/cross_index_archive/0001-0473.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "seam_runtime/runtime.py",
+            "tests/audit/test_batched_embedding.py",
+            "tools/ingest_throughput_probe.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "seam_runtime/runtime.py",
+            "tests/audit/test_batched_embedding.py",
+            "tools/ingest_throughput_probe.py"
+          ]
+        },
+        {
+          "sha": "a4fe6188acbd16b3be59a594cba9f05ca924d39c",
+          "date": "2026-08-25T15:08:49-05:00",
+          "subject": "fix: close third review round and correct the extrapolation (HISTORY#611)",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0473.cross.md",
+            ".seam/cross_index_archive/0001-0474.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "seam_runtime/models.py",
+            "seam_runtime/runtime.py",
+            "tests/audit/test_batched_embedding.py",
+            "tools/ingest_throughput_probe.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "seam_runtime/models.py",
+            "seam_runtime/runtime.py",
+            "tests/audit/test_batched_embedding.py",
+            "tools/ingest_throughput_probe.py"
+          ]
+        },
+        {
+          "sha": "03c5878d6c3d36c14d160d7444bf4af59623929d",
+          "date": "2026-08-29T20:08:46-05:00",
+          "subject": "wip: preserve superseded private licensing draft",
+          "changed_paths_metadata": [
+            ".seam/cross_index.md",
+            ".seam/cross_index_archive/0001-0475.cross.md",
+            ".seam/streams/history/index.md",
+            ".seam/streams/history/log.md",
+            "COMMERCIAL_LICENSE.md",
+            "CONTRIBUTING.md",
+            "HISTORY.md",
+            "HISTORY_INDEX.md",
+            "LICENSE",
+            "LICENSES/HISTORICAL/BUSL-1.1.txt",
+            "LICENSES/README.md",
+            "NOTICE",
+            "README.md",
+            "REPO_LEDGER.md",
+            "SECURITY.md",
+            "TRADEMARKS.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/PROTECTION_MODEL.md",
+            "docs/README.md",
+            "docs/SELF_HOST_SECURITY.md",
+            "docs/SOP_SEAM_SELF_HOST_WHEEL.md",
+            "docs/audits/2026-08-25-seam-company-licensing-boundary.md",
+            "docs/audits/INDEX.md",
+            "docs/legal/COMPANY_IP_READINESS.md",
+            "docs/legal/LICENSING_ARCHITECTURE.md",
+            "docs/legal/README.md",
+            "docs/pricing-terms.md",
+            "docs/pricing-tiers.md",
+            "docs/roadmap/COMPETITIVE_ROADMAP.md",
+            "docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md",
+            "docs/status/packaging-licensing.md",
+            "pyproject.toml",
+            "tests/audit/test_licensing_boundary.py"
+          ],
+          "history_content_read": false,
+          "material_paths_for_commit_reconciliation": [
+            "COMMERCIAL_LICENSE.md",
+            "CONTRIBUTING.md",
+            "LICENSE",
+            "LICENSES/HISTORICAL/BUSL-1.1.txt",
+            "LICENSES/README.md",
+            "NOTICE",
+            "README.md",
+            "REPO_LEDGER.md",
+            "SECURITY.md",
+            "TRADEMARKS.md",
+            "docs/CODE_LAYOUT.md",
+            "docs/PROTECTION_MODEL.md",
+            "docs/README.md",
+            "docs/SELF_HOST_SECURITY.md",
+            "docs/SOP_SEAM_SELF_HOST_WHEEL.md",
+            "docs/audits/2026-08-25-seam-company-licensing-boundary.md",
+            "docs/audits/INDEX.md",
+            "docs/legal/COMPANY_IP_READINESS.md",
+            "docs/legal/LICENSING_ARCHITECTURE.md",
+            "docs/legal/README.md",
+            "docs/pricing-terms.md",
+            "docs/pricing-tiers.md",
+            "docs/roadmap/COMPETITIVE_ROADMAP.md",
+            "docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md",
+            "docs/status/packaging-licensing.md",
+            "pyproject.toml",
+            "tests/audit/test_licensing_boundary.py"
+          ]
+        }
+      ],
+      "paths": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "base_blob": "86f33ba5c964e9db25bddbce7ebcc1f2966f8c83",
+          "tip_blob": "c7e792cdd96881d1eb64a667bd246a4b01b08b88",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0470.cross.md",
+          "status": "R099",
+          "base_blob": "e3fe0816739fe60f68aed3e51d635480e4ff8a44",
+          "tip_blob": null,
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0474.cross.md",
+          "status": "R099",
+          "base_blob": null,
+          "tip_blob": "bff567e4166b32638bc1e121d8ca343c1b885606",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0475.cross.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "578943f53918829126c08e75005977fc63efd2d2",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "base_blob": "4a2112832b8d05b07c62ce29e45f9fd1390df6ab",
+          "tip_blob": "6853560945f68bd7969f371d0cb882df2441bf3e",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "base_blob": "c73c7e3145d3e73f0d9d5ad90a6f03ba5762ae81",
+          "tip_blob": "fa4a47f0a44e6efe1755b3ddde42b10533d6f35d",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "COMMERCIAL_LICENSE.md",
+          "status": "M",
+          "base_blob": "fabf81e2e5e1a86d0f1ad10ca426a14f511a8d35",
+          "tip_blob": "fabd05366cf5689f6e9a87d588ed50c21b6e05cc",
+          "main_blob": "431978680ea4ddf9673bbf4f23cff4089ed978be",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "CONTRIBUTING.md",
+          "status": "M",
+          "base_blob": "16ddb21106405604c54e6c5eb80a25687f47425d",
+          "tip_blob": "4ec6aa45c4788c05c969581b5e20e51eb3545f53",
+          "main_blob": "ccdf7e4a48f2bf7e97d2e7f1fea272de0727dbe3",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "base_blob": "c73c7e3145d3e73f0d9d5ad90a6f03ba5762ae81",
+          "tip_blob": "fa4a47f0a44e6efe1755b3ddde42b10533d6f35d",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "base_blob": "4a2112832b8d05b07c62ce29e45f9fd1390df6ab",
+          "tip_blob": "6853560945f68bd7969f371d0cb882df2441bf3e",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_REBUILD_CONTINUITY",
+          "semantic_proof": "Archive chronology from pinned commits only; root creates new append-only continuity and rebuilds indexes/snapshots. No old HISTORY IDs or derived bytes may be merged."
+        },
+        {
+          "path": "LICENSE",
+          "status": "M",
+          "base_blob": "186fb845f42ab471e84bd4fda798c10e16e18f11",
+          "tip_blob": "667bb9878a7106ace5969772955ac4e521a95c2f",
+          "main_blob": "b380c3c052d578c2b23a5dcddbb6acd299d8c49a",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "LICENSES/HISTORICAL/BUSL-1.1.txt",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "f697b04fd99291e89429b9abfe9f39fec6d1522f",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REDUNDANT_HISTORICAL_COPY",
+          "semantic_proof": "Historical byte copy of original parameterized text; current historical BUSL remains unchanged at LICENSES/BUSL-1.1.txt. No repair/relicensing/reclassification needed."
+        },
+        {
+          "path": "LICENSES/README.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "5777876ce2c677af5bd0a84a4cd3a3ba42241f33",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "NOTICE",
+          "status": "M",
+          "base_blob": "eeb187b325c136a28c733439ac14c66ce5827d4a",
+          "tip_blob": "2e86995fcd0857f31a648b24727aa968e5ea3ea8",
+          "main_blob": "e0228526f23bf40f9e158f8d875933699090da00",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "README.md",
+          "status": "M",
+          "base_blob": "3e1c4b9baf4f0228af2f37e6ec62b1caa5ec7d0f",
+          "tip_blob": "ac926ffa18cc649b29241a223b9589bcb4129a60",
+          "main_blob": "586d80311c32f2488168bf32cd7b3a5b7bd7a329",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "base_blob": "13cc0e3f5c86587de9fff31e3858d1d974cad1d7",
+          "tip_blob": "696fd23362dc996a3896e6c26278be5af0797e1b",
+          "main_blob": "b9f994e7ef792d3f186602ee5235cff8913961d6",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "SECURITY.md",
+          "status": "M",
+          "base_blob": "41239bc9d508525be5a6b030c72130f80eb0391a",
+          "tip_blob": "6995356dcb8ab345be9193fbd6a2af4b3166b500",
+          "main_blob": "f6c9de3b43a0a6e61bf3f7f54349301f9e01605a",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "TRADEMARKS.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "9e09ef08fb2d2550b85acac99df30dcb4f547282",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_DRAFT_POLICY",
+          "semantic_proof": "Marks-not-code distinction/nominative use useful, but new founder/SEAM-U/Ghost rights/endorsement policy not independently established. Current licence reserves marks; do not install draft as binding policy. Preserve dated text as counsel packet input if needed."
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "status": "M",
+          "base_blob": "8d646e85f2dc5304cbfd4b7274b1752b55a3666b",
+          "tip_blob": "1ebc87901251e61f35248bfdd4c3b7a85bdec4c3",
+          "main_blob": "36bf2d79f45f860a18dfebf55e03e295b9b4ab9f",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/PROTECTION_MODEL.md",
+          "status": "M",
+          "base_blob": "8925adacbf76db34b03c6ec8d254e3c98c787be5",
+          "tip_blob": "72577d7dab4e088a7a2fd3e974849142b09c1688",
+          "main_blob": "02c8276cce34623a4cf0bcb1a12e497bbe2c3498",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_HISTORICAL_ROUTING",
+          "semantic_proof": "Current clear historical banners/current-license routes preserve meaning. Branch wholesale abridgment of historical SOP discards old evidence; reject."
+        },
+        {
+          "path": "docs/README.md",
+          "status": "M",
+          "base_blob": "e2cf5f0a502fd6c733ac4da7e94efe29e58a7120",
+          "tip_blob": "8fa51bb09a9698e08e26de7098fe8a33103d42d9",
+          "main_blob": "4ecef7cfa25d2aa9bd10f0e3c49ebc9b80e24b65",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/SELF_HOST_SECURITY.md",
+          "status": "M",
+          "base_blob": "829eea03fac73e1293c600c25698688bf61968e4",
+          "tip_blob": "3edf39f033d79c1d0121c8e4e4c3e4269646503c",
+          "main_blob": "7278b3ad66430a0a48485fdf87a550fec661b014",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_HISTORICAL_ROUTING",
+          "semantic_proof": "Current clear historical banners/current-license routes preserve meaning. Branch wholesale abridgment of historical SOP discards old evidence; reject."
+        },
+        {
+          "path": "docs/SOP_SEAM_SELF_HOST_WHEEL.md",
+          "status": "M",
+          "base_blob": "a6ea46211ae27f270c25cf35c742693b94c0abc6",
+          "tip_blob": "09a5dff4bbed4aaaf6d60ca63c5c7681331c5395",
+          "main_blob": "a6ea46211ae27f270c25cf35c742693b94c0abc6",
+          "tip_equals_main": false,
+          "disposition": "SUPERSEDED_HISTORICAL_ROUTING",
+          "semantic_proof": "Current clear historical banners/current-license routes preserve meaning. Branch wholesale abridgment of historical SOP discards old evidence; reject."
+        },
+        {
+          "path": "docs/audits/2026-08-25-seam-company-licensing-boundary.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "778270395ad47d61f8c88c64cfb9aa8b5877b0e5",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_SUPERSEDED_DESIGN",
+          "semantic_proof": "Read exact drafting state: obsolete Shield SDK/Node/private-only matrix and claimed branch-local tests/wheel not current policy or qualification. Audit explicitly superseded/unmerged; preserve historical authorship and never upgrade verification claims."
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "status": "M",
+          "base_blob": "d9d2587074902a67df47c7a13215af66346250c7",
+          "tip_blob": "e7c37626e1ca1ea0b3a69f51483132f36a2f45a1",
+          "main_blob": "93083048b7d3155ef834c01841795e1ea98e8527",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/legal/COMPANY_IP_READINESS.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "481c254d528b0ca1dc3486566aab33c1f7327824",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REBUILD_NONPOLICY_PLANNING",
+          "semantic_proof": "Missing useful asset/third-party/contributor/account inventory, founder assignment schedule, prospective-not-backdated notices, private corporate signed records, model/data provenance/rights/weights-access checklist. Adapt obsolete Shield and unverified owner/entity/status assertions; do not enact new legal requirement or license policy."
+        },
+        {
+          "path": "docs/legal/LICENSING_ARCHITECTURE.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "f1028c0f0cfac1ff389958451296855da4e5c0a3",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_SUPERSEDED_DESIGN",
+          "semantic_proof": "Read exact drafting state: obsolete Shield SDK/Node/private-only matrix and claimed branch-local tests/wheel not current policy or qualification. Audit explicitly superseded/unmerged; preserve historical authorship and never upgrade verification claims."
+        },
+        {
+          "path": "docs/legal/README.md",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "5aeb3026268161b1b4805476659016c795921cf5",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "ARCHIVE_SUPERSEDED_DESIGN",
+          "semantic_proof": "Read exact drafting state: obsolete Shield SDK/Node/private-only matrix and claimed branch-local tests/wheel not current policy or qualification. Audit explicitly superseded/unmerged; preserve historical authorship and never upgrade verification claims."
+        },
+        {
+          "path": "docs/pricing-terms.md",
+          "status": "M",
+          "base_blob": "e91241b0b2cd8e117b5386af75d490416277be99",
+          "tip_blob": "a6fa4706dded82a366f69bb159d18bb9364566d2",
+          "main_blob": "cee5e5088355f9497820c429f7b6ccf1492a7e52",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/pricing-tiers.md",
+          "status": "M",
+          "base_blob": "1e052b290310d313cd0a38e0b6aca78c12ef5be5",
+          "tip_blob": "7306e92c2da7edfef1938cd56dd4f0232c7f250d",
+          "main_blob": "79466f5707d751fe9560de7baf75765f0b4c9192",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/roadmap/COMPETITIVE_ROADMAP.md",
+          "status": "M",
+          "base_blob": "61ecc2caa8cf09f3cc0c74ef87c0dc3e9b1b348f",
+          "tip_blob": "ab8d5ae65dd01d57f0c7c8900a4a623f1aa7c9f3",
+          "main_blob": "67a433ebb4764c4bc57789411db1152bf94b368c",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md",
+          "status": "M",
+          "base_blob": "83c4d298fb1a76b0d15b5effed22d7db447142fc",
+          "tip_blob": "c2eb73eeb535528e9d6abdd6de223a92cc9944ca",
+          "main_blob": "6d401ef1ac861a9d8f76cbbd6106e26ab8210488",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "docs/status/packaging-licensing.md",
+          "status": "M",
+          "base_blob": "6ee9a996cbe033d61c6a8dcbaff9bde538c20cf7",
+          "tip_blob": "97edd62187495bc81cfd5e89461514d14d34ccb9",
+          "main_blob": "e5f2e45f746799ae122e1864f40a94f0e1b8cdf0",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "M",
+          "base_blob": "080350166703c1502d2586573ad1c6b2b02891a4",
+          "tip_blob": "a97b7d30587fa5994d0461e950dba28d70221834",
+          "main_blob": "e6d0208ba27dda1c994acd4fa833ebdc84f66250",
+          "tip_equals_main": false,
+          "disposition": "REJECT_SUPERSEDED_LICENSE_COPY",
+          "semantic_proof": "Private-only/Shield/Node package/metadata/current grant copy superseded by settled current Suite grant, actual artifacts and paid SDK policy; no current licence or publication guard restoration."
+        },
+        {
+          "path": "seam_runtime/models.py",
+          "status": "M",
+          "base_blob": "57bb758f1bd78208e51ccf1d4db6c315b47a483d",
+          "tip_blob": "d52114d8a88a154da08087d601ceaed8a78d00cb",
+          "main_blob": "57bb758f1bd78208e51ccf1d4db6c315b47a483d",
+          "tip_equals_main": false,
+          "disposition": "DEPENDENCY_PERFORMANCE_RECOVERY",
+          "semantic_proof": "Four shared PR230 performance commits useful missing batched embedding/no-op cache reuse; performance lane owns recovery on current contracts/TDD. Do NOT import private draft/source_hash fingerprint: actual vector bytes intentionally fingerprint same-source replacements/snapshots. Probe default_embedding_model can call provider, so explicit provider-free qualification only; private throughput assertions not reproduced here."
+        },
+        {
+          "path": "seam_runtime/runtime.py",
+          "status": "M",
+          "base_blob": "26df78425456ef24e1d24fbc0b4100907eafb0e6",
+          "tip_blob": "47874a1ab43e29af96c146fe27a0580c2606275d",
+          "main_blob": "fcb560f9bb06751dd2ab873a83d1a1e0b5410cbe",
+          "tip_equals_main": false,
+          "disposition": "DEPENDENCY_PERFORMANCE_RECOVERY",
+          "semantic_proof": "Four shared PR230 performance commits useful missing batched embedding/no-op cache reuse; performance lane owns recovery on current contracts/TDD. Do NOT import private draft/source_hash fingerprint: actual vector bytes intentionally fingerprint same-source replacements/snapshots. Probe default_embedding_model can call provider, so explicit provider-free qualification only; private throughput assertions not reproduced here."
+        },
+        {
+          "path": "seam_runtime/vector.py",
+          "status": "M",
+          "base_blob": "89a2cda60e8fcab66e4f8d8482be16391b81bb4b",
+          "tip_blob": "ac9f029f0c9dfa42be90d44420041fc4a3511a96",
+          "main_blob": "2cf01a39c9446071d02cf46999e242a18fd4f09e",
+          "tip_equals_main": false,
+          "disposition": "DEPENDENCY_PERFORMANCE_RECOVERY",
+          "semantic_proof": "Four shared PR230 performance commits useful missing batched embedding/no-op cache reuse; performance lane owns recovery on current contracts/TDD. Do NOT import private draft/source_hash fingerprint: actual vector bytes intentionally fingerprint same-source replacements/snapshots. Probe default_embedding_model can call provider, so explicit provider-free qualification only; private throughput assertions not reproduced here."
+        },
+        {
+          "path": "seam_runtime/vector_adapters.py",
+          "status": "M",
+          "base_blob": "3866d59b8c1a0daa06b2a24219f84e7b89ae7ec8",
+          "tip_blob": "255a0580ba677cf94854335abb5aec0ab3b05fa2",
+          "main_blob": "4b529b862642bbf3d274b94c3d1cfc1cbd7961dd",
+          "tip_equals_main": false,
+          "disposition": "DEPENDENCY_PERFORMANCE_RECOVERY",
+          "semantic_proof": "Four shared PR230 performance commits useful missing batched embedding/no-op cache reuse; performance lane owns recovery on current contracts/TDD. Do NOT import private draft/source_hash fingerprint: actual vector bytes intentionally fingerprint same-source replacements/snapshots. Probe default_embedding_model can call provider, so explicit provider-free qualification only; private throughput assertions not reproduced here."
+        },
+        {
+          "path": "tests/audit/test_batched_embedding.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "b2569bdea7e0ccb6285f0ab4dd71af0b347e443f",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "DEPENDENCY_PERFORMANCE_RECOVERY",
+          "semantic_proof": "Four shared PR230 performance commits useful missing batched embedding/no-op cache reuse; performance lane owns recovery on current contracts/TDD. Do NOT import private draft/source_hash fingerprint: actual vector bytes intentionally fingerprint same-source replacements/snapshots. Probe default_embedding_model can call provider, so explicit provider-free qualification only; private throughput assertions not reproduced here."
+        },
+        {
+          "path": "tests/audit/test_licensing_boundary.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "655ca2b3aeae0a767494ae6044aee7015e95bdc3",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "REJECT_OBSOLETE_POLICY_TEST",
+          "semantic_proof": "Asserts private upload tripwire/no personal grant/Shield SDK architecture/old license expression. Contradicts current qualified licensing/package state; cannot port."
+        },
+        {
+          "path": "tools/ingest_throughput_probe.py",
+          "status": "A",
+          "base_blob": null,
+          "tip_blob": "cb19e34dbb757b226f510c276411ac1e38682d4d",
+          "main_blob": null,
+          "tip_equals_main": false,
+          "disposition": "DEPENDENCY_PERFORMANCE_RECOVERY",
+          "semantic_proof": "Four shared PR230 performance commits useful missing batched embedding/no-op cache reuse; performance lane owns recovery on current contracts/TDD. Do NOT import private draft/source_hash fingerprint: actual vector bytes intentionally fingerprint same-source replacements/snapshots. Probe default_embedding_model can call provider, so explicit provider-free qualification only; private throughput assertions not reproduced here."
+        }
+      ],
+      "intermediate_delta_hidden_at_tip": [],
+      "recommendation": "RECOVER_CHECKLIST_MAP_PERF_ARCHIVE_DRAFT",
+      "completion_condition": "Recover nonpolicy company/model IP-readiness planning after current-fact adaptation. Map shared performance commits to performance lane and never duplicate private source-hash regression. Archive obsolete license/marks draft exactly; delete branch after both dependencies have durable preservation proof."
+    }
+  ],
+  "ordered_recovery_slices": [
+    {
+      "id": "DOC_FACTS",
+      "sources": [
+        "44dce9d41bb3938f94b46cb793354a794a42738c",
+        "664cc29921e60883e56d8a753bee528f1d8a3910",
+        "4397a6caf3064c9f6ed9c06088a66eada111939e"
+      ],
+      "depends_on": [],
+      "validation": "Current source symbol/config + named main ancestry for factual changes, wiki/references and authored doc acknowledgement. Preserve source pinning/environment/new license/dependency facts."
+    },
+    {
+      "id": "TERMINOLOGY",
+      "sources": [
+        "665f8c8e578eb0ec2d76000599d563b0afade26f",
+        "8530717d800d397ba58283710b6e8f0a037aabf8"
+      ],
+      "depends_on": [
+        "DOC_FACTS"
+      ],
+      "validation": "Repaired greedy-regex meaningful public CLI/wiki red/green; product alias collisions/history exclusions/current staged source parity; update stale environment regression."
+    },
+    {
+      "id": "WIKI_ROOT_ROUTES",
+      "sources": [
+        "7b76849ad55b35ae2288d65925c6150deaf5a1d4"
+      ],
+      "depends_on": [
+        "TERMINOLOGY"
+      ],
+      "validation": "Current link targets and navigation gate; no old chronology copy."
+    },
+    {
+      "id": "NATIVE_PLANNING",
+      "sources": [
+        "ea739d4740dfe1b8874344556e0d58c6d8ce062b"
+      ],
+      "depends_on": [],
+      "validation": "Native and embodied authored pages verbatim, external current-status wrapper, glossary and governing RAW/IR readable contract routing. Plans only."
+    },
+    {
+      "id": "AUDIT_EXPORT_QUARANTINE",
+      "sources": [
+        "ea739d4740dfe1b8874344556e0d58c6d8ce062b"
+      ],
+      "depends_on": [],
+      "validation": "Actual RunRecord scorer/public validation mocked provider red/green on current main. Every alias row ineligible; full fidelity and existing scoring unchanged."
+    },
+    {
+      "id": "ROADMAP_LIFECYCLE",
+      "sources": [
+        "ea739d4740dfe1b8874344556e0d58c6d8ce062b"
+      ],
+      "depends_on": [
+        "NATIVE_PLANNING"
+      ],
+      "validation": "CLI invalid-origin/fork/dependency/concurrent append and interrupted derived rebuild red/green; initialize current streams, preserve canonical immutable events and rebuild all derived state. No transplant old TrackS state."
+    },
+    {
+      "id": "HOOK_MODE_REGRESSION",
+      "sources": [
+        "1772f2d867772082c493e54a73cc5562016d96b0",
+        "4a4f8d86552ab41e289231e5f6293014800e0330"
+      ],
+      "depends_on": [],
+      "validation": "Both current hooks already100755; recovery is regression test only with controlled meaningful red/green."
+    },
+    {
+      "id": "COMPANY_MODEL_READINESS",
+      "sources": [
+        "03c5878d6c3d36c14d160d7444bf4af59623929d:docs/legal/COMPANY_IP_READINESS.md"
+      ],
+      "depends_on": [
+        "NATIVE_PLANNING"
+      ],
+      "validation": "Nonpolicy checklist, remove obsolete Shield/entity/status assertions, no new license grant or unverified ownership assertion."
+    },
+    {
+      "id": "PERFORMANCE_DEPENDENCY",
+      "sources": [
+        "4c222e031c6a21ca75d87aad4b0429685bcf27ea",
+        "d975f201e85a6e53e2cd98c76af38331d13bd83e",
+        "e482d3c9cab6f0c18298e394d958aeb3d0d287f3",
+        "a4fe6188acbd16b3be59a594cba9f05ca924d39c"
+      ],
+      "depends_on": [
+        "root performance lane report/delivery"
+      ],
+      "validation": "Performance lane independently rebuilds batched/no-op optimization; keep actual-vector-byte fingerprints and refresh exact Suite manifest after runtime integration."
+    }
+  ],
+  "observed_verification": [
+    {
+      "check": "Exact branch/base/main blob inventory for every tip changed path",
+      "result": "Completed",
+      "evidence_file": "docs-blob-inventory.json"
+    },
+    {
+      "check": "All unique commit changed-path metadata and reverted-tip material",
+      "result": "One hidden intermediate test_seam.py delta; all10 named tests current test_seam_all/test_seam.py:1481-1626,2575; no other material path change wholly vanished relative base."
+    },
+    {
+      "check": "Terminology _verify_text in-memory branch function fixtures, no filesystem scan",
+      "exit_code": 0,
+      "result": "Canonical punctuation fixture accepted; correct MIRL/SEAM expansion followed by prose falsely rejected. This observes a defect, not tool qualification."
+    },
+    {
+      "check": "S8 freeze commit2f9a96b9 ancestry of pinned main",
+      "exit_code": 0,
+      "result": "Ancestor confirmed; stale S8-next prose remains current ledger/surfaces."
+    },
+    {
+      "check": "Current source direct references",
+      "result": "migrations core-storage/4; eval relation key; mcp graph/node/merges; CI seam-box/pgvector0.8.6; installer selected nonempty SEAM_DB_PATH all confirmed."
+    },
+    {
+      "check": "Current hooks Git mode",
+      "result": "pre-commit/pre-push100755, executable mode restored already."
+    },
+    {
+      "check": "Preserved draft historical BUSL vs current original exact bytes",
+      "result": "Identical",
+      "sha256": "e84b6996cfc3fab624b6950648a68446a8c9abe6c05ac6659c767e9637ed88e5"
+    }
+  ],
+  "unproven_claims": [
+    "No branch full test suite was executed in this read-only audit; historical PASS/throughput/paid/spatial/model claims are authored evidence, not independently reproduced.",
+    "No training/dataset/hardware/live-UI qualification inferred; website latest state supplied by root only.",
+    "No all-branch Git deletion is authorized by this report until useful accepted slices and rejected historical text have durable preservation mapping."
+  ],
+  "missing_context": [],
+  "cross_group_dependency": {
+    "performance": "Root preliminary states batched embedding/no-op cache reuse useful absent; private draft/source_hash fingerprint must not return; full performance report pending for root unified integration."
+  }
+}

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-suite-integrated-testpypi-next
 supersedes: 2026-10-14-suite-release-readiness
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#669
 ---
 

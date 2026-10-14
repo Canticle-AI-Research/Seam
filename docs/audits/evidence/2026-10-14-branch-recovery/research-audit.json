@@ -1,0 +1,3643 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "base_sha": "07b20a424ace842b9d3c88f836efff88906b6451",
+  "scope": "six individually audited research/formation/rejected-UI branches",
+  "observed_tests": {
+    "executed": [],
+    "qualification": "Static source/test review only. Historical test statements retained as claims; no runtime, paid provider, user DB, build/deployment, or Git mutation executed."
+  },
+  "license": "Settled proprietary personal/noncommercial; business by written agreement; paid SDK separate. No reopened decision.",
+  "branches": [
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "ref": "refs/remotes/origin/claude/roadmap-implementation-4cn2al",
+      "branch": "claude/roadmap-implementation-4cn2al",
+      "tip": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "unique_commit_count": 9,
+      "unique_commits": [
+        {
+          "sha": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+          "date": "2026-09-19T20:13:11-05:00",
+          "subject": "Add opt-in context-preserving memory formation"
+        },
+        {
+          "sha": "93eafed269f2f49252ad382a92c7b5bfbf3cbc00",
+          "date": "2026-09-19T18:57:15-05:00",
+          "subject": "Verify M1 formation evidence and repair checkpoint expectations"
+        },
+        {
+          "sha": "2133d60a4ff8fb1057f3a69ade648989744a9262",
+          "date": "2026-09-19T20:24:30Z",
+          "subject": "Register handoff head for E1/B1/M1 and the seam-box CI blocker"
+        },
+        {
+          "sha": "782820f3ecc608af501875f18d8d32e239257380",
+          "date": "2026-09-19T05:44:34Z",
+          "subject": "Split M1 out of #264 and give its probe a test suite"
+        },
+        {
+          "sha": "24049e0850c2d0b60c0cc22ff0894fb4c94118e2",
+          "date": "2026-09-19T05:29:12Z",
+          "subject": "Give LoCoMo checkpoints a resumable identity"
+        },
+        {
+          "sha": "619a996f0b2c37ac19c8ee2366c0dd0cb4bccefc",
+          "date": "2026-09-19T05:07:13Z",
+          "subject": "Correct the E1 contract's batch-judging row and version the contract"
+        },
+        {
+          "sha": "fad0f890325b214155f752c005df570d418d7260",
+          "date": "2026-09-19T01:16:44Z",
+          "subject": "Specify BIL-3 Signed Reproducibility Bundle (B1)"
+        },
+        {
+          "sha": "12a4c9f1dde7266d7ef5ebda163a170c5d929ef5",
+          "date": "2026-09-19T01:04:38Z",
+          "subject": "Freeze E1 evaluation contract and pin LoCoMo holdout split"
+        },
+        {
+          "sha": "0a23f2a51e21b137c136f9f59d2ab02b5a583821",
+          "date": "2026-09-18T19:58:19Z",
+          "subject": "Reconcile roadmap fork and register live PR state"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            ".seam/cross_index.md"
+          ]
+        },
+        {
+          "status": "R098",
+          "paths": [
+            ".seam/cross_index_archive/0001-0512.cross.md",
+            ".seam/cross_index_archive/0001-0521.cross.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/index.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/log.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY_INDEX.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "PROJECT_STATUS.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "REPO_LEDGER.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "benchmarks/external/locomo/holdout_assignment.json"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "benchmarks/external/locomo/run.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/BIL_3_SPEC.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/E1_EVALUATION_CONTRACT.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/README.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/2026-09-13-memory-formation-m1.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/2026-09-18-roadmap-fork-reconciliation.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/audits/INDEX.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/handoffs/2026-09-14-claude-code-benchmark-next.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/handoffs/2026-09-19-m1-evidence-repair-next.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/handoffs/2026-09-20-formation-m3-next.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/handoffs/INDEX.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/roadmap/MEMORY_FORMATION.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/formation.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "seam_runtime/nl.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "seam_runtime/runtime.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tests/audit/test_locomo_adapter_real_embedding.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_locomo_resume.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_memory_formation_m1_probe.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_memory_formation_m3.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/memory_formation_m1.py"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "claude/roadmap-implementation-4cn2al",
+          "headRefOid": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 269,
+          "state": "OPEN",
+          "title": "Add opt-in context-preserving formation and resolve M1/M2 design",
+          "updatedAt": "2026-09-20T01:24:46Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/269"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "recommendation": "rebuild on main with public-seam TDD; integrate bounded planning",
+      "priority": 1,
+      "useful_missing": [
+        "formation.py FormationSegment/segment_context: exact Unicode source anchors, sentence/newline and bounded hard splits, quote/speaker/parent context",
+        "nl.py compile_nl: opt-in context-segments/1, baseline default, deterministic-only reject controls, conservative attribution and content-free diagnostics",
+        "runtime.py _formation_document_id, compile_nl, ingest_text, ingest_conversation_turn, _commit_ingest: candidate configuration identity, atomic same-source generations, formation metadata, pre-normalization chunk counts",
+        "run.py ResumeMismatch/_checkpoint_payload/_resume_state/_build_parser: durable checkpoint case-set identity; NOT functioning resume CLI",
+        "E1 evaluation contract v1.1 and pinned holdout split; BIL-3 public-key signed reproducibility proposal",
+        "M1 evidence/audit and synthetic probe qualification fixtures; M2/M3 bounded design"
+      ],
+      "current_equivalents": [
+        "Current nl.py/runtime.py have baseline compilation and canonical ingest lifecycle; current MEMORY_FORMATION roadmap already describes M1-M5/B1-B2/E1-E2/P0; branch adds implementation and contracts absent from main",
+        "Current common/runner.py grouped runners initialize empty case_results; seed/carry-forward is absent"
+      ],
+      "conflicts": [
+        "E1 section4 uses same Haiku answerer/judge and cross-judge off; final M3 handoff explicitly requires two independent judges distinct from answerer and separate adjudication. Retain original as historical contract; amend before future campaign",
+        "Probe assert controls vanish under python -O: incorporate a5a19d4 explicit checks from reports branch, but retain branch269 describe() missing-evidence-safe next(...,None)",
+        "Candidate rejects configured environment extractor when allow_env_extractor=True and rejects configured regex enrichment regardless of that flag; default clean environment remains supported. Explicitly disable environment extractor in synthetic probes and test configured enrichment refusal before persistence.",
+        "Runtime source membership guard must refresh exact reviewed hashes",
+        "No baseline result, BIL3 implementation, M4 temporal projection, native-loader event IDs/captions or retrieval quality proof supplied"
+      ],
+      "slices": [
+        "P1: preserve E1/B1 specs + split manifest, map status/version conflict, append pointers only",
+        "P2: rebuild optimized-safe M1 probe + both complementary suites on main in synthetic temp DBs; witness fail under normal/-O corrupted control before implementing",
+        "P3: witness compile_nl Unicode/quotes/line speaker/continuation/envelope/replay red then segmentation green; baseline byte-equivalence and rich extractor rejection before persistence",
+        "P4: witness SeamRuntime public ingestion replay/config-generation/source-dedup/correction/delete/rebuild red then identity/metadata integration green; refresh membership receipt",
+        "P5: checkpoint identity helpers and tests; separately rebuild grouped runner seed+ordered prior-result aggregation+duplicate/unknown IDs/config fingerprint validation; only then --resume CLI; rate limiting separate"
+      ],
+      "dependencies": [
+        "M1/P1 before M2 design status; M3 before M4; B2 and amended E1 plus seeded grouped resume before M5; no paid execution"
+      ],
+      "intermediate": [
+        "24049e0 adds identity helpers, deliberately leaves resume withheld; 93eafed repairs probe missing evidence with next(...,None) and real embedding checkpoint expectations; 406f9c4 adds M3. No material runtime reversion hidden at tip identified."
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "0a23f2a51e21b137c136f9f59d2ab02b5a583821",
+          "date": "2026-09-18T19:58:19Z",
+          "subject": "Reconcile roadmap fork and register live PR state",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0512.cross.md\t.seam/cross_index_archive/0001-0513.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tREPO_LEDGER.md",
+            "A\tdocs/audits/2026-09-18-roadmap-fork-reconciliation.md",
+            "M\tdocs/audits/INDEX.md",
+            "M\tdocs/handoffs/2026-09-14-claude-code-benchmark-next.md",
+            "A\tdocs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md",
+            "M\tdocs/handoffs/INDEX.md"
+          ]
+        },
+        {
+          "sha": "12a4c9f1dde7266d7ef5ebda163a170c5d929ef5",
+          "date": "2026-09-19T01:04:38Z",
+          "subject": "Freeze E1 evaluation contract and pin LoCoMo holdout split",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0513.cross.md\t.seam/cross_index_archive/0001-0514.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "A\tbenchmarks/external/locomo/holdout_assignment.json",
+            "A\tdocs/E1_EVALUATION_CONTRACT.md",
+            "M\tdocs/README.md"
+          ]
+        },
+        {
+          "sha": "fad0f890325b214155f752c005df570d418d7260",
+          "date": "2026-09-19T01:16:44Z",
+          "subject": "Specify BIL-3 Signed Reproducibility Bundle (B1)",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0514.cross.md\t.seam/cross_index_archive/0001-0515.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "A\tdocs/BIL_3_SPEC.md",
+            "M\tdocs/README.md"
+          ]
+        },
+        {
+          "sha": "619a996f0b2c37ac19c8ee2366c0dd0cb4bccefc",
+          "date": "2026-09-19T05:07:13Z",
+          "subject": "Correct the E1 contract's batch-judging row and version the contract",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0515.cross.md\t.seam/cross_index_archive/0001-0516.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tdocs/BIL_3_SPEC.md",
+            "M\tdocs/E1_EVALUATION_CONTRACT.md"
+          ]
+        },
+        {
+          "sha": "24049e0850c2d0b60c0cc22ff0894fb4c94118e2",
+          "date": "2026-09-19T05:29:12Z",
+          "subject": "Give LoCoMo checkpoints a resumable identity",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0516.cross.md\t.seam/cross_index_archive/0001-0517.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tbenchmarks/external/locomo/run.py",
+            "A\ttests/audit/test_locomo_resume.py"
+          ]
+        },
+        {
+          "sha": "782820f3ecc608af501875f18d8d32e239257380",
+          "date": "2026-09-19T05:44:34Z",
+          "subject": "Split M1 out of #264 and give its probe a test suite",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0517.cross.md\t.seam/cross_index_archive/0001-0518.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "A\tdocs/audits/2026-09-13-memory-formation-m1.md",
+            "M\tdocs/audits/INDEX.md",
+            "A\tdocs/audits/evidence/2026-09-13-memory-formation-m1/observations.json",
+            "A\ttests/audit/test_memory_formation_m1_probe.py",
+            "A\ttools/memory_formation_m1.py"
+          ]
+        },
+        {
+          "sha": "2133d60a4ff8fb1057f3a69ade648989744a9262",
+          "date": "2026-09-19T20:24:30Z",
+          "subject": "Register handoff head for E1/B1/M1 and the seam-box CI blocker",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0518.cross.md\t.seam/cross_index_archive/0001-0519.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tdocs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md",
+            "A\tdocs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md",
+            "M\tdocs/handoffs/INDEX.md"
+          ]
+        },
+        {
+          "sha": "93eafed269f2f49252ad382a92c7b5bfbf3cbc00",
+          "date": "2026-09-19T18:57:15-05:00",
+          "subject": "Verify M1 formation evidence and repair checkpoint expectations",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0519.cross.md\t.seam/cross_index_archive/0001-0520.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tdocs/audits/2026-09-13-memory-formation-m1.md",
+            "M\tdocs/audits/INDEX.md",
+            "M\tdocs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md",
+            "A\tdocs/handoffs/2026-09-19-m1-evidence-repair-next.md",
+            "M\tdocs/handoffs/INDEX.md",
+            "M\tdocs/roadmap/MEMORY_FORMATION.md",
+            "M\ttests/audit/test_locomo_adapter_real_embedding.py",
+            "M\ttests/audit/test_memory_formation_m1_probe.py",
+            "M\ttools/memory_formation_m1.py"
+          ]
+        },
+        {
+          "sha": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+          "date": "2026-09-19T20:13:11-05:00",
+          "subject": "Add opt-in context-preserving memory formation",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0520.cross.md\t.seam/cross_index_archive/0001-0521.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tREPO_LEDGER.md",
+            "M\tdocs/handoffs/2026-09-19-m1-evidence-repair-next.md",
+            "A\tdocs/handoffs/2026-09-20-formation-m3-next.md",
+            "M\tdocs/handoffs/INDEX.md",
+            "M\tdocs/roadmap/MEMORY_FORMATION.md",
+            "A\tseam_runtime/formation.py",
+            "M\tseam_runtime/nl.py",
+            "M\tseam_runtime/runtime.py",
+            "A\ttests/audit/test_memory_formation_m3.py"
+          ]
+        }
+      ],
+      "path_dispositions": [
+        {
+          "path": ".seam/cross_index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "0477f4a90ebc6e765d1c7928ff992e13188f6a494e595adcabbe04715659864c",
+          "main_sha256": "2964f8d5354188428b195f4e9fde42d84fb5c026ca47b1a304762dd74c63744d",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0512.cross.md",
+          "branch_status": "R098",
+          "main_state": "absent",
+          "tip_sha256": null,
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0521.cross.md",
+          "branch_status": "R098",
+          "main_state": "absent",
+          "tip_sha256": "28bdc187a940ee4efa3e8ecf01105eb664a4a3e237dd72dfb5f22279b11b2fa0",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "54f0107f30b15ba7e6df628ad3982e458f7c5ff37d7a9a54c38cec01ede50103",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "2f42dcd7bc24e1d86423771becb7fe91ac6a3f01073268dd0714f50e63799ccb",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "2f42dcd7bc24e1d86423771becb7fe91ac6a3f01073268dd0714f50e63799ccb",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "54f0107f30b15ba7e6df628ad3982e458f7c5ff37d7a9a54c38cec01ede50103",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "6b6a68d0da91bed68d753d189108c23b202a2d23a3343fdbdd5915fa16d01640",
+          "main_sha256": "4c5e304632dbcabffddb8f7668f9a1ec38dfc600f60d4ed9567e0ad86eb33ab1",
+          "symbols": [],
+          "disposition": "stale control/status text: root reconcile only, retain current licensing and startup authority"
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "0e11232ca933916b9f5fbf52b5108e1e96122d2c1d1a1b6f48b587056206b4de",
+          "main_sha256": "5df3d63c8e311936e0e050637e032beb5c45340f3bb16e2bbeb7446657ff7ec2",
+          "symbols": [],
+          "disposition": "stale control/status text: root reconcile only, retain current licensing and startup authority"
+        },
+        {
+          "path": "benchmarks/external/locomo/holdout_assignment.json",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "ea3e481ee052c620cc22aef4127a423e9b2e1c5d95f720911c8627ec4ccbfad4",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "benchmarks/external/locomo/run.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "8f41356ac51149e8263c1acd92d1af5245a1f003589e45d055a4490bf37a3ec9",
+          "main_sha256": "9e895853bb649f7d47c5c22b0b84e80e03ddcb1dc62fb2f3b1fcbd285818dc12",
+          "symbols": [
+            "_paid_adapter_configuration",
+            "build_adapter",
+            "_maybe_wrap_answerer",
+            "ResumeMismatch",
+            "_checkpoint_payload",
+            "_resume_state",
+            "_fixture_hash",
+            "_dry_run_report",
+            "_validate_locomo_categories",
+            "_locomo_scope_id",
+            "_attach_embedding_preflight_integrity",
+            "_build_parser",
+            "main",
+            "_fail_on_infrastructure_error",
+            "_is_ephemeral_path",
+            "_resolve_archive_dir",
+            "_run_stem",
+            "_atomic_write",
+            "_verify_saved",
+            "_build_adapter_for_run",
+            "_checkpoint",
+            "_under"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/BIL_3_SPEC.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "a5938af932e0bd9bfd1ae9baab6f5fed0b5142f550cf505dfcc07604b680fd31",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/E1_EVALUATION_CONTRACT.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "1960f09519364986f05137209c42b358671502dddcec099a5d12ef46408c0805",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/README.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "9eb41c0c4160e29a27aa67ac2857d957172607f704e54fe9c3a02c47831fdcd3",
+          "main_sha256": "de8029c2c59c66e973567b9d91cc0055716c61a0b876bfdfcfe2d3461aef36d6",
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/audits/2026-09-13-memory-formation-m1.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "216d9d34b6489c4d3d42538b2cc03d5ab3d33c925923e98ef06d67f6a47a3fa2",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/audits/2026-09-18-roadmap-fork-reconciliation.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "5f58cc202c2959045fed9285811b2588f73bb5c801d7ca0c9308e77310f1f4dd",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "18d9871255cab5c4b6046cd03b502f69c8a9a00ff5a7a076e80ef31ea34c53c1",
+          "main_sha256": "791347f9eadd2463faab498ebec928c0218a960e5ca8bd3ea95fa0f40b42e64b",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        },
+        {
+          "path": "docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "85a3096c0010d5875ad7ea630704f4936be10350ee9141a604c3a8148550b8df",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/2026-09-14-claude-code-benchmark-next.md",
+          "branch_status": "M",
+          "main_state": "identical",
+          "tip_sha256": "b5ea60c96d77f05eaeb3fb935f02e51aa031c4b23df4fc7ae2727f49a3867274",
+          "main_sha256": "b5ea60c96d77f05eaeb3fb935f02e51aa031c4b23df4fc7ae2727f49a3867274",
+          "symbols": [],
+          "disposition": "already identical on current main"
+        },
+        {
+          "path": "docs/handoffs/2026-09-18-roadmap-fork-reconciliation-next.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "1c0314fba8021749e4a102ab4671665c95d057cd3cb3e5b23181f45a33fb8387",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/2026-09-19-e1-b1-m1-split-ci-blocked-next.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "d9eb78d64c911328d29b32e5dd0e77086a981bb5e595e8bfd4463d4292706498",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/2026-09-19-m1-evidence-repair-next.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "835625657baa201ee3ef2359f6fc69e0813bba7a539d73f73f0c8fcb37e9363b",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/2026-09-20-formation-m3-next.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "264813c3970a2fcbc5ef7f3e70712207428cab8101a3a3092bf7c3d035beb3a2",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "f1704dc9fb900994fcc504469f3f9cf11cc301453aea269304399cd753bb16f0",
+          "main_sha256": "73b76b356f174fd815f0aa0e76b48f675a969913467b51b63a64b2d91ccb6e32",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        },
+        {
+          "path": "docs/roadmap/MEMORY_FORMATION.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "1e63ae4fc18aeb274185ffa3783665b046fedf12bb579072628b7de562891a66",
+          "main_sha256": "38f0efc2be24619ec18c88a728c76056eb9319a438ea404c56b34e760e13fc29",
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "seam_runtime/formation.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "eeb48309867cb10c1bad3b930d38102a12860c9a50fcb8cb90a2d9ae0f366759",
+          "main_sha256": null,
+          "symbols": [
+            "FormationSegment",
+            "segment_context",
+            "_is_sentence_boundary",
+            "_append_bounded",
+            "_segment",
+            "_quote_states",
+            "_line_starts"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "seam_runtime/nl.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "d6546a84786b7857c931fcd916557ea7bd615881bc2546a37c53fa2736534c44",
+          "main_sha256": "3f800a5ae4ef92d4898a0c2fe8f1824a43c025c6eb62c496d6ddf94061b4ef03",
+          "symbols": [
+            "compile_nl",
+            "_extract_conversational",
+            "_content_words",
+            "_normalized_label",
+            "_validated_turn_metadata",
+            "_candidate_claim_is_lossless",
+            "_grounded_spans_payload",
+            "_metadata_fingerprint",
+            "_derived_claim_record_id",
+            "_sentence_fact_record_id",
+            "_starts_with_quote",
+            "_strip_quote_prefix",
+            "_leading_subject",
+            "_proper_noun_runs",
+            "suggest_symbols",
+            "entity_id",
+            "add_claim",
+            "add_relation",
+            "normalized"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "seam_runtime/runtime.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "aa2a35fc35886097f6abfe07b789d37b8f77cee4038ef598c1514481722d5117",
+          "main_sha256": "dcad9038e3c3ec80a621c7c8e7646bb1c96a49bfaa22722338b2af7652c6060b",
+          "symbols": [
+            "_formation_document_id",
+            "_RuntimePersistLock",
+            "_runtime_persist_lock",
+            "SeamRuntime",
+            "__init__",
+            "__enter__",
+            "__exit__",
+            "_acquire_process_lock",
+            "_release_process_lock",
+            "__init__",
+            "close",
+            "check_ready",
+            "register_derived_delete_hook",
+            "_delete_derived_records",
+            "__enter__",
+            "__exit__",
+            "_resolve_agent_id",
+            "compile_nl",
+            "compile_dsl",
+            "ingest_text",
+            "_commit_ingest",
+            "verify_ir",
+            "normalize_ir",
+            "persist_ir",
+            "_persist_ir_locked",
+            "_acknowledge_vector_outbox",
+            "_note_vector_outbox_failure",
+            "replay_vector_outbox",
+            "_restore_external_vector_projection",
+            "_semantic_seed_env",
+            "knowledge_graph",
+            "rebuild_graph_products",
+            "graph_products",
+            "graph_product_history",
+            "assemble_context",
+            "plan_scoped_delete",
+            "register_public_memory_handles",
+            "apply_scoped_delete",
+            "batch_ingest",
+            "resume_lifecycle_operation",
+            "_apply_batch_ingest",
+            "apply_reasoning_promotion",
+            "reverse_reasoning_promotion",
+            "project_node_vectors",
+            "_project_node_vectors_locked",
+            "refresh_retrieval_flags",
+            "_retrieval_flags_cached",
+            "_retrieval_orchestrator_cached",
+            "retrieve",
+            "search_ir",
+            "ingest_conversation_turn",
+            "memory_search",
+            "memory_get",
+            "pack_ir",
+            "_pack_ir_locked",
+            "decompile_ir",
+            "trace",
+            "reconcile_ir",
+            "transpile_ir",
+            "suggest_symbols",
+            "promote_symbols",
+            "export_symbols",
+            "run_retrieval_benchmark",
+            "run_benchmark_suite",
+            "verify_benchmark_bundle",
+            "diff_benchmark_runs",
+            "evaluate_benchmark_gate",
+            "read_benchmark_run",
+            "list_benchmark_runs",
+            "reindex_vectors",
+            "_reindex_vectors_locked",
+            "verify_vector_divergence",
+            "repair_vector_divergence"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_locomo_adapter_real_embedding.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "6e408866e15b1b0d1908fd1c630eaa2eef20a072013bc118822f701825449fbb",
+          "main_sha256": "7bb8c8f9c9c1c1a1b8371267791d19bedc525ac713ba0dfdab3ed8cdee593547",
+          "symbols": [
+            "_contract",
+            "_ExactFakeModel",
+            "_install_exact_fake",
+            "test_open_runtime_constructs_exact_pinned_local_model",
+            "test_embedding_preflight_forces_real_embed_and_returns_receipt",
+            "test_embedding_preflight_surfaces_lazy_model_load_failure",
+            "test_embedding_preflight_rejects_identity_drift",
+            "test_embedding_preflight_rejects_non_boolean_local_only_claim",
+            "test_embedding_preflight_rejects_nonlocal_contract_without_false_receipt",
+            "test_embedding_preflight_rejects_declared_dimension_drift",
+            "test_embedding_preflight_rejects_vector_length_drift",
+            "test_embedding_preflight_rejects_nonfinite_vector",
+            "test_open_runtime_surfaces_constructor_failure",
+            "test_open_runtime_rejects_model_identity_or_revision_drift",
+            "_seed_scope",
+            "test_keep_db_preflight_accepts_complete_exact_model_coverage",
+            "test_keep_db_preflight_rejects_inexact_or_incomplete_vectors",
+            "test_keep_db_preflight_rejects_current_model_orphan_vector",
+            "test_cli_preflights_in_parent_before_runner_and_records_receipt",
+            "test_cli_preflight_failure_happens_before_runner_or_checkpoint_dir",
+            "test_cli_closes_serial_adapter_when_runner_fails",
+            "test_cli_preserves_completed_report_when_preflight_binding_fails",
+            "test_ingest_only_preflights_before_ingest_and_records_receipt",
+            "test_ingest_only_rejects_existing_sqlite_file_before_adapter_or_preflight",
+            "test_required_quickstart_ci_provisions_exact_revision_then_runs_offline",
+            "test_full_ci_suite_restores_pinned_embedding_cache_offline",
+            "__init__",
+            "embed",
+            "FakeSentenceTransformer",
+            "_raise",
+            "FakeAdapter",
+            "fake_build_adapter",
+            "fake_serial",
+            "fake_parallel",
+            "capture_atomic_write",
+            "FailingAdapter",
+            "FakeAdapter",
+            "FakeAdapter",
+            "FakeAdapter",
+            "fake_build_adapter",
+            "fake_load",
+            "fake_build",
+            "__init__",
+            "preflight",
+            "close",
+            "preflight",
+            "close",
+            "preflight",
+            "close",
+            "preflight",
+            "close",
+            "preflight",
+            "reset",
+            "ingest_turn",
+            "close"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_locomo_resume.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "904cb04c6c6f824d3329154480f14b8c246cec003b5d24730b07bf095447f2e6",
+          "main_sha256": null,
+          "symbols": [
+            "_partial",
+            "TestCheckpointIdentifiesItsCaseSet",
+            "TestResumeRefusesIncompatibleCheckpoints",
+            "TestResumeReportsCompletedWork",
+            "TestResumeCliIsDeliberatelyNotWiredYet",
+            "test_checkpoint_payload_records_fixture_hash",
+            "test_mismatched_fixture_hash_is_rejected",
+            "test_checkpoint_without_fixture_hash_is_rejected",
+            "test_missing_file_is_rejected",
+            "test_malformed_json_is_rejected",
+            "test_returns_completed_ids_and_prior_results",
+            "test_results_without_case_id_are_not_counted_done",
+            "test_empty_checkpoint_resumes_from_zero",
+            "test_resume_flag_is_not_exposed"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_memory_formation_m1_probe.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "43b3489f10baabb73c5c9a762f9bd2858341b75466da9c007464638efcd2a29b",
+          "main_sha256": null,
+          "symbols": [
+            "_claim_semantics",
+            "_compiler_semantics",
+            "compiled_samples",
+            "TestProbeDeclaresItsOwnScope",
+            "TestRawContentIsPreservedExactly",
+            "TestSpanOffsetsIndexTheExactClaim",
+            "TestDescribeReportsFaithfully",
+            "TestSpeakerAttributionIsObservable",
+            "TestUnpunctuatedInputHasNoSizeBound",
+            "TestRecordedEvidenceIsReproducible",
+            "test_samples_cover_the_documented_formation_signals",
+            "test_samples_are_synthetic_not_dataset_rows",
+            "test_raw_content_is_byte_identical_to_input",
+            "test_unicode_survives_compilation_unchanged",
+            "test_describe_reports_span_text_exact",
+            "test_span_bounds_are_ordered_and_within_the_raw",
+            "test_span_count_matches_reported_bounds",
+            "test_describe_does_not_mutate_the_batch",
+            "test_describe_is_deterministic_over_one_batch",
+            "test_every_claim_resolves_its_subject_label",
+            "test_claims_carry_their_supporting_evidence",
+            "test_orphan_span_is_reported_as_inexact",
+            "test_bracket_and_colon_forms_both_compile",
+            "test_distinct_speakers_produce_distinct_raw_content",
+            "test_bracketed_first_person_loses_speaker_attribution",
+            "test_colon_form_keeps_speaker_attribution",
+            "test_long_unpunctuated_text_forms_one_9999_character_span",
+            "recorded",
+            "reproduced",
+            "test_historical_evidence_hash_is_unchanged",
+            "test_evidence_declares_its_schema",
+            "test_compiler_semantics_reproduce_without_generated_ids",
+            "test_long_unpunctuated_missing_bound_reproduces",
+            "test_unicode_zero_proposition_and_chunk_accounting_reproduce",
+            "test_abbreviation_and_newline_segmentation_reproduce",
+            "test_temporal_prose_has_no_structured_time_records",
+            "test_storage_text_column_checks_reproduce",
+            "test_known_present_control_is_found",
+            "test_unstated_sentinel_is_absent",
+            "test_caption_metadata_is_dropped",
+            "test_loader_collapses_distinct_dialogue_ids",
+            "test_duplicate_loaded_events_collapse_to_one_raw",
+            "test_distinct_source_refs_stay_distinct",
+            "test_adapter_first_person_claims_share_one_persisted_subject",
+            "test_graph_projection_counts_reproduce",
+            "test_graph_product_build_semantics_reproduce",
+            "test_shared_first_person_attribution_reaches_graph_observation",
+            "test_embedding_model_identity_is_pinned",
+            "test_retrieval_is_evidence_only_not_generation"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_memory_formation_m3.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "ba3404e390714b225fb3a4a0f57f91bf4ab842a50f69a56bfe0999757e39866b",
+          "main_sha256": null,
+          "symbols": [
+            "test_candidate_preserves_unicode_propositions_with_exact_anchors",
+            "test_candidate_respects_abbreviations_decimals_and_newline_boundaries",
+            "test_candidate_hard_bound_prefers_whitespace_then_splits_by_character",
+            "test_candidate_long_input_remains_bounded_and_exactly_anchored",
+            "test_candidate_binds_only_unquoted_first_person_to_grounded_speaker",
+            "test_possessive_determiners_keep_lexical_subjects_and_pronoun_is_unresolved",
+            "test_quote_state_survives_sentences_and_size_cuts_then_closes",
+            "test_quoted_first_person_is_scoped_for_supported_quote_styles",
+            "test_possessive_apostrophe_does_not_open_quote_state",
+            "test_nested_quote_styles_preserve_outer_quote_state",
+            "test_intra_word_apostrophe_does_not_close_quote_state",
+            "test_hard_split_keeps_parent_context_without_rebinding_continuation",
+            "test_nonlexical_candidate_input_is_raw_only_with_zero_diagnostics",
+            "test_candidate_emits_content_free_versioned_formation_diagnostics",
+            "test_candidate_uses_exact_canonical_envelope_as_context_not_content",
+            "test_empty_canonical_timestamp_remains_unknown_in_diagnostics",
+            "test_candidate_rejects_malformed_supplied_envelope_without_echoing_source",
+            "test_candidate_rejects_enrichment_and_invalid_configuration",
+            "test_explicit_baseline_preserves_legacy_unbounded_unicode_behavior",
+            "test_runtime_ingests_candidate_records_and_formation_diagnostics",
+            "test_runtime_config_replay_and_supersession_are_source_scoped",
+            "test_runtime_source_envelope_changes_identity_and_malformed_input_is_atomic",
+            "test_runtime_baseline_candidate_baseline_transition_retires_prior_generation",
+            "test_runtime_correction_delete_and_reopen_do_not_resurrect_retired_content"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/memory_formation_m1.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "a4f3ec3e8b5aed75fb8100c6b48c0182749f256fdbbe801ec9946c9087388e4a",
+          "main_sha256": null,
+          "symbols": [
+            "describe",
+            "run",
+            "main"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        }
+      ]
+    },
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "ref": "refs/remotes/origin/feat/latent-cachebridge-roadmap-20260917",
+      "branch": "feat/latent-cachebridge-roadmap-20260917",
+      "tip": "24e1725134d476798992cc7ecaef7de299d27cc6",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "unique_commit_count": 5,
+      "unique_commits": [
+        {
+          "sha": "24e1725134d476798992cc7ecaef7de299d27cc6",
+          "date": "2026-09-17T19:52:29-07:00",
+          "subject": "Record baseline-first CacheBridge roadmap invariant"
+        },
+        {
+          "sha": "5bb85ffd66413ed84e3c24336e573705e9754039",
+          "date": "2026-09-17T19:52:19-07:00",
+          "subject": "Define baseline-first discipline for CacheBridge research"
+        },
+        {
+          "sha": "4afdecc340f73d779e3e343c7e4940fa2a268937",
+          "date": "2026-09-17T17:06:22-07:00",
+          "subject": "Index Latent CacheBridge research lane"
+        },
+        {
+          "sha": "7dfd9cdbd00de80a01c871b5350bcb7f00f5b614",
+          "date": "2026-09-17T17:06:20-07:00",
+          "subject": "Register Latent CacheBridge roadmap lane"
+        },
+        {
+          "sha": "b10c3c74ea6060a666d2f06cd51b1a0fdaf74adf",
+          "date": "2026-09-17T17:06:17-07:00",
+          "subject": "Add Latent CacheBridge research roadmap"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "ROADMAP.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/roadmap/LATENT_CACHEBRIDGE.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/roadmap/README.md"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "feat/latent-cachebridge-roadmap-20260917",
+          "headRefOid": "24e1725134d476798992cc7ecaef7de299d27cc6",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 267,
+          "state": "OPEN",
+          "title": "roadmap: open Latent CacheBridge research lane",
+          "updatedAt": "2026-09-18T02:52:30Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/267"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "recommendation": "integrate verbatim planning document with current pointers; no runtime qualification",
+      "priority": 2,
+      "useful_missing": [
+        "docs/roadmap/LATENT_CACHEBRIDGE.md: LC0-LC8 staged reproduction/PACK/capture/projector/trust/multi-model/security/extraction lane; LatentContextSpec/LatentArtifact proposal; strict clean pre-change baseline retention"
+      ],
+      "current_equivalents": [
+        "Current formation roadmap supplies general baseline discipline but not model-internal cache transfer stages; document absent on main"
+      ],
+      "conflicts": [
+        "No latent state canonicalization; retain RAW/MIRL durable versus PACK/LATENT derived invariant",
+        "Source attribution/patent review needed before implementing borrowed mechanism; suite licence unchanged",
+        "ROADMAP registration and docs/roadmap/README pointers require minimal fresh insertion, never full stale replacement"
+      ],
+      "slices": [
+        "Copy exact LATENT_CACHEBRIDGE planning text; fresh pointer cards/index row; classify planned experimental",
+        "LC0 only as future implementation slice: offline local measurement contract and reproducible unchanged baseline before behavior changes"
+      ],
+      "dependencies": [
+        "Complementary PCS0/PCS1-4 baselines; does not block or displace current formation work"
+      ],
+      "intermediate": [
+        "5bb85ff strengthens initial b10c3c7 baseline discipline; retain final document; no reverted code."
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "b10c3c74ea6060a666d2f06cd51b1a0fdaf74adf",
+          "date": "2026-09-17T17:06:17-07:00",
+          "subject": "Add Latent CacheBridge research roadmap",
+          "changed_paths": [
+            "A\tdocs/roadmap/LATENT_CACHEBRIDGE.md"
+          ]
+        },
+        {
+          "sha": "7dfd9cdbd00de80a01c871b5350bcb7f00f5b614",
+          "date": "2026-09-17T17:06:20-07:00",
+          "subject": "Register Latent CacheBridge roadmap lane",
+          "changed_paths": [
+            "M\tROADMAP.md"
+          ]
+        },
+        {
+          "sha": "4afdecc340f73d779e3e343c7e4940fa2a268937",
+          "date": "2026-09-17T17:06:22-07:00",
+          "subject": "Index Latent CacheBridge research lane",
+          "changed_paths": [
+            "M\tdocs/roadmap/README.md"
+          ]
+        },
+        {
+          "sha": "5bb85ffd66413ed84e3c24336e573705e9754039",
+          "date": "2026-09-17T19:52:19-07:00",
+          "subject": "Define baseline-first discipline for CacheBridge research",
+          "changed_paths": [
+            "M\tdocs/roadmap/LATENT_CACHEBRIDGE.md"
+          ]
+        },
+        {
+          "sha": "24e1725134d476798992cc7ecaef7de299d27cc6",
+          "date": "2026-09-17T19:52:29-07:00",
+          "subject": "Record baseline-first CacheBridge roadmap invariant",
+          "changed_paths": [
+            "M\tROADMAP.md"
+          ]
+        }
+      ],
+      "path_dispositions": [
+        {
+          "path": "ROADMAP.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "91d5c11b08006aad155279e5479fde20300fc4cd26992285034f2a293319acb1",
+          "main_sha256": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        },
+        {
+          "path": "docs/roadmap/LATENT_CACHEBRIDGE.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "23285825a85b4ad3dc4e86bb881f7bf99c2d2691eea99f9307b2a108f9dff104",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "preserve exact dated/planned text; do not promote claims to qualified implementation"
+        },
+        {
+          "path": "docs/roadmap/README.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "ad750975090536650215a273eab167660abc257d45db3bd3e0c26f39a7f0a583",
+          "main_sha256": "25b694d5f23b60621383a30eb4a6e8a851b2887fbdc3a36eca756612118a39a9",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        }
+      ]
+    },
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "ref": "refs/remotes/origin/feat/seam-reports-pages-20260912",
+      "branch": "feat/seam-reports-pages-20260912",
+      "tip": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "614141c5aa96fd51d4dee2e09c186bb4035c0377",
+      "unique_commit_count": 5,
+      "unique_commits": [
+        {
+          "sha": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+          "date": "2026-10-12T15:37:47-05:00",
+          "subject": "Enforce M1 probe controls under optimized Python"
+        },
+        {
+          "sha": "18abe44236021ba0bfddb78f55d067754c0d42ef",
+          "date": "2026-09-13T03:24:07-05:00",
+          "subject": "Checkpoint reports deployment and owned-domain authorization"
+        },
+        {
+          "sha": "99d0ffa0e12982b14eaee33241151bfc052bf8e9",
+          "date": "2026-09-13T02:54:04-05:00",
+          "subject": "Record PR 264 and the outstanding M1 probe qualification gap"
+        },
+        {
+          "sha": "0ebdde80595497a43b61754f216b919e6ee6bcc9",
+          "date": "2026-09-13T02:46:29-05:00",
+          "subject": "Admit the M1 public report and record benchmark-preparation handoff"
+        },
+        {
+          "sha": "e01284de37140b2d56a2c53e68d45f309f7e89e5",
+          "date": "2026-09-13T02:33:14-05:00",
+          "subject": "Prepare private-data-safe report publisher and M1 audit source"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "A",
+          "paths": [
+            ".github/workflows/reports-pages.yml"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/cross_index.md"
+          ]
+        },
+        {
+          "status": "R097",
+          "paths": [
+            ".seam/cross_index_archive/0001-0511.cross.md",
+            ".seam/cross_index_archive/0001-0521.cross.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/index.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/log.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY_INDEX.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "PROJECT_STATUS.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "REPO_LEDGER.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/CODE_LAYOUT.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/REPORTS_AND_EVIDENCE.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/REPORT_SITE.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/2026-09-13-memory-formation-m1.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/audits/INDEX.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/handoffs/2026-09-12-memory-formation-roadmap.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/handoffs/2026-09-13-reports-domain-publication-next.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/handoffs/INDEX.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/404.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/README.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/_config.yml"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/_layouts/default.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/_layouts/report.html"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/about.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/assets/library.js"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/assets/reports.css"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/catalog.json"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/editions/2026-09-13-memory-formation-m1.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/feed.xml"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "report-site/index.html"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tests/audit/test_history_closeout.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_memory_formation_m1.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_report_deployment_boundary.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_report_publication_safety.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_report_site.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/memory_formation_m1.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/reports/__init__.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/reports/prepare_site.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/reports/publication_safety.py"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "feat/seam-reports-pages-20260912",
+          "headRefOid": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 264,
+          "state": "OPEN",
+          "title": "Publish the first M1 report with a curated GitHub Pages library",
+          "updatedAt": "2026-10-13T01:03:43Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/264"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "recommendation": "rebuild report tooling with TDD; retain public editions/pinned provenance; separate deployment activation",
+      "priority": 1,
+      "useful_missing": [
+        "tools/reports/prepare_site.py prepare/source_bytes/source_links/check_public: explicit catalog, SHA-pinned original provenance, separately hashed sanitized editions, relative GitHub-link rewriting, source allowlist",
+        "tools/reports/publication_safety.py validate_text/validate_file/scan_site: encoding-aware content scanning, bounded UTF8 text, symlink and artifact allowlist refusal",
+        "report-site Jekyll library/layouts/catalog/feed/assets and curated M1 edition",
+        "a5a19d4 optimized-Python M1 controls + tests/audit/test_memory_formation_m1.py subprocess normal/-O failure matrix",
+        "reports-pages.yml PR build versus main deployment boundary tests"
+      ],
+      "current_equivalents": [
+        "Main secret scanner and canonical mark usable as dependencies; all report-site/tools/reports additions absent; current report guidance is docs/REPORTS_AND_EVIDENCE.md"
+      ],
+      "conflicts": [
+        "Never import stale PROJECT_STATUS/REPO_LEDGER/HISTORY/index replacement",
+        "Workflow deploys automatically on main with nonempty catalog: do not activate merely by integrating tooling; production publishing is excluded here",
+        "Catalog pins e01284de old M1 audit. Branch269 corrected audit is different: preserve admitted public edition verbatim and provenance; a new edition needs explicit review, not silent replacement",
+        "Privacy regex is fail-closed heuristic, not proof of confidentiality; test nested symlink/path alias and all emitted artifact bytes",
+        "Probe describe() next without default is older than branch269 safe evidence lookup; combine hardened controls with safe lookup"
+      ],
+      "slices": [
+        "First recover hardened M1 control checks alongside branch269 repaired describe and two nonidentical fixture suites",
+        "Witness exporter allowlist/hash/symlink/unsafe encoding/output-preexistence and relative-link failures then rebuild offline; branch tests serve fixtures, not witnessed TDD",
+        "Retain exact public edition + hashes/catalog/pinned source audit; build and inspect Jekyll artifact offline",
+        "Preserve workflow as reviewed proposal; activate deploy only under root authorization and deployment context"
+      ],
+      "dependencies": [
+        "Main secret_scan and branding mark; M1 source pinned historical object must remain fetchable after branch retirement; source audit revision e01284de preservation required"
+      ],
+      "intermediate": [
+        "0ebdde8 admits catalog after initial empty catalog; 18abe44 only publication/domain continuity; a5a19d4 independent probe hardening is useful even if site deferred. No code reverted at tip."
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "e01284de37140b2d56a2c53e68d45f309f7e89e5",
+          "date": "2026-09-13T02:33:14-05:00",
+          "subject": "Prepare private-data-safe report publisher and M1 audit source",
+          "changed_paths": [
+            "A\t.github/workflows/reports-pages.yml",
+            "M\t.seam/cross_index.md",
+            "R098\t.seam/cross_index_archive/0001-0511.cross.md\t.seam/cross_index_archive/0001-0516.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tREPO_LEDGER.md",
+            "M\tdocs/CODE_LAYOUT.md",
+            "M\tdocs/REPORTS_AND_EVIDENCE.md",
+            "A\tdocs/REPORT_SITE.md",
+            "A\tdocs/audits/2026-09-13-memory-formation-m1.md",
+            "M\tdocs/audits/INDEX.md",
+            "A\tdocs/audits/evidence/2026-09-13-memory-formation-m1/observations.json",
+            "A\treport-site/404.html",
+            "A\treport-site/README.md",
+            "A\treport-site/_config.yml",
+            "A\treport-site/_layouts/default.html",
+            "A\treport-site/_layouts/report.html",
+            "A\treport-site/about.md",
+            "A\treport-site/assets/library.js",
+            "A\treport-site/assets/reports.css",
+            "A\treport-site/catalog.json",
+            "A\treport-site/editions/2026-09-13-memory-formation-m1.md",
+            "A\treport-site/feed.xml",
+            "A\treport-site/index.html",
+            "A\ttests/audit/test_report_deployment_boundary.py",
+            "A\ttests/audit/test_report_publication_safety.py",
+            "A\ttests/audit/test_report_site.py",
+            "A\ttools/memory_formation_m1.py",
+            "A\ttools/reports/__init__.py",
+            "A\ttools/reports/prepare_site.py",
+            "A\ttools/reports/publication_safety.py"
+          ]
+        },
+        {
+          "sha": "0ebdde80595497a43b61754f216b919e6ee6bcc9",
+          "date": "2026-09-13T02:46:29-05:00",
+          "subject": "Admit the M1 public report and record benchmark-preparation handoff",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0516.cross.md\t.seam/cross_index_archive/0001-0517.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tdocs/REPORT_SITE.md",
+            "M\tdocs/handoffs/2026-09-12-memory-formation-roadmap.md",
+            "A\tdocs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md",
+            "M\tdocs/handoffs/INDEX.md",
+            "M\treport-site/README.md",
+            "M\treport-site/catalog.json"
+          ]
+        },
+        {
+          "sha": "99d0ffa0e12982b14eaee33241151bfc052bf8e9",
+          "date": "2026-09-13T02:54:04-05:00",
+          "subject": "Record PR 264 and the outstanding M1 probe qualification gap",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0517.cross.md\t.seam/cross_index_archive/0001-0518.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tdocs/REPORT_SITE.md",
+            "M\tdocs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md",
+            "M\tdocs/handoffs/INDEX.md"
+          ]
+        },
+        {
+          "sha": "18abe44236021ba0bfddb78f55d067754c0d42ef",
+          "date": "2026-09-13T03:24:07-05:00",
+          "subject": "Checkpoint reports deployment and owned-domain authorization",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0518.cross.md\t.seam/cross_index_archive/0001-0519.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tREPO_LEDGER.md",
+            "M\tdocs/REPORT_SITE.md",
+            "M\tdocs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md",
+            "A\tdocs/handoffs/2026-09-13-reports-domain-publication-next.md",
+            "M\tdocs/handoffs/INDEX.md"
+          ]
+        },
+        {
+          "sha": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+          "date": "2026-10-12T15:37:47-05:00",
+          "subject": "Enforce M1 probe controls under optimized Python",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0519.cross.md\t.seam/cross_index_archive/0001-0521.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\ttests/audit/test_history_closeout.py",
+            "A\ttests/audit/test_memory_formation_m1.py",
+            "M\ttools/memory_formation_m1.py"
+          ]
+        }
+      ],
+      "path_dispositions": [
+        {
+          "path": ".github/workflows/reports-pages.yml",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "b5894551ed17f3c83410576a5196a964352d6f94ba2129856b790eef4e91e83a",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": ".seam/cross_index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "a7836b1132f5fa0f8eca1ae1fcde52cec265c35ef22d7f48456845ff2e080446",
+          "main_sha256": "2964f8d5354188428b195f4e9fde42d84fb5c026ca47b1a304762dd74c63744d",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0511.cross.md",
+          "branch_status": "R097",
+          "main_state": "absent",
+          "tip_sha256": null,
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0521.cross.md",
+          "branch_status": "R097",
+          "main_state": "absent",
+          "tip_sha256": "28bdc187a940ee4efa3e8ecf01105eb664a4a3e237dd72dfb5f22279b11b2fa0",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "31564f6ea9334d1b8b92c4c1fb424c157ff312947f24e4ce20fcc81864db105f",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "55a13027f3d8149b6d740ae505260d352a4d889af9ee71c4cf32f65e1629b9d8",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "55a13027f3d8149b6d740ae505260d352a4d889af9ee71c4cf32f65e1629b9d8",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "31564f6ea9334d1b8b92c4c1fb424c157ff312947f24e4ce20fcc81864db105f",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "PROJECT_STATUS.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "14d7b97919403df057b6a2da9e0e70cc3ae8ba1ff06b191f977ebe99d55f8ce8",
+          "main_sha256": "4c5e304632dbcabffddb8f7668f9a1ec38dfc600f60d4ed9567e0ad86eb33ab1",
+          "symbols": [],
+          "disposition": "stale control/status text: root reconcile only, retain current licensing and startup authority"
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "057edfba1b8821c623d3e20ca5ea8f81f92a1d23b639c142878d7f51a5785e59",
+          "main_sha256": "5df3d63c8e311936e0e050637e032beb5c45340f3bb16e2bbeb7446657ff7ec2",
+          "symbols": [],
+          "disposition": "stale control/status text: root reconcile only, retain current licensing and startup authority"
+        },
+        {
+          "path": "docs/CODE_LAYOUT.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "77025008e9ead4a6358fa4cbce4bb64f56c22ac1090dedabf73ed7ffb744f876",
+          "main_sha256": "afb378c2e7d4bf9caadf5337dedba42e5bcd7e0f4930f80e9e2394b0f5b3f6cf",
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/REPORTS_AND_EVIDENCE.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "6a7de72f6db3fc23e39a7001f5d60947e3e0a4bc7f9309e04667eedad8b36b44",
+          "main_sha256": "6696e2c168cb61180df393be4d3e5e46a8b5d5a83f252fe11e92eb992b82f1e8",
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/REPORT_SITE.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "7b2c9e1406321f7bc44ddac449293ffbcb364d35a2b1cf796fab578cceddced8",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/audits/2026-09-13-memory-formation-m1.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "6622d77ac780d45a7192834ddf63e7a0b8e3d8148a36cdb67220f963e92a5a39",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "94c6b3d7280a0b3338370aad64160e21885f513c84cc855496682bc263eff7a6",
+          "main_sha256": "791347f9eadd2463faab498ebec928c0218a960e5ca8bd3ea95fa0f40b42e64b",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        },
+        {
+          "path": "docs/audits/evidence/2026-09-13-memory-formation-m1/observations.json",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "85a3096c0010d5875ad7ea630704f4936be10350ee9141a604c3a8148550b8df",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/2026-09-12-memory-formation-roadmap.md",
+          "branch_status": "M",
+          "main_state": "identical",
+          "tip_sha256": "ace15c31d1200e6c4778f6c0f3acecebbdace9866a1a7a36fe289e621a5104da",
+          "main_sha256": "ace15c31d1200e6c4778f6c0f3acecebbdace9866a1a7a36fe289e621a5104da",
+          "symbols": [],
+          "disposition": "already identical on current main"
+        },
+        {
+          "path": "docs/handoffs/2026-09-13-m1-report-publication-benchmark-prep.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "09b78ed4f7de0afb39013955fdd661dfb711def79a1abb45f38d8f42c231c080",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/2026-09-13-reports-domain-publication-next.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "42661705dec60c0969c65462f169cd94c5e4c1b7d8932ff6366c7f2ae2560a2c",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "docs/handoffs/INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "2c20efd27da6b2339d559706c3c7d87daeb998dbbea6e7508377e07416fea89d",
+          "main_sha256": "73b76b356f174fd815f0aa0e76b48f675a969913467b51b63a64b2d91ccb6e32",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        },
+        {
+          "path": "report-site/404.html",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "df1890870c5e6fadd85158f13d1d7f6d3c7b44230c2fd67ceb78eece5540d75c",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/README.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "0c514078da68507f4373feb655c3af4d5974ea6b7cd7f3e5cbba8620a1623e9f",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/_config.yml",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "abc761501cd3bc73354af8a03391131ac2c99f172a6d8b9b5ad40b1b32977ec5",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/_layouts/default.html",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "69f21ecdaac33a83a23dc7fb9722053f52bca6a0b85d2c65eee03a8aea34d801",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/_layouts/report.html",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "34df02cd352ef71c6de9cee95c776a5b8fedf9733dc3534629aef52cbdb0b981",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/about.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "1d2894c2429cbc20e327f90db9fa40afc9641e8d079a5c82872b46993faa45da",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/assets/library.js",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "089a4a482f6cdac5f5c7a25f9add94985f9c3e70000eea0b304a27235a2b715d",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/assets/reports.css",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "91997acd40c43527525eb6da153e3874fdc146d8814bda1e4999ca248e0fc930",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/catalog.json",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "099cf9564777709eb25d57b359cf6cb5a422fff18df000d5e1bec3df98c62e4c",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/editions/2026-09-13-memory-formation-m1.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "101aaf0e2bc00e8625ee1a3b851b2a0ee6678afc40e66a7ea756a811364b9658",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/feed.xml",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "c4213c31d1f63b9b33ebd7e6f89b8d9b3e32c9033c4661bffb2065bd5ae6aa23",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "report-site/index.html",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "506cd8350d62c6b93f61964f0202d26df3a6bba4c1b754345f9b11f003a2a6a8",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_history_closeout.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "b2bc92957b4eee7574f7b689986be5be4a4f0ce5b7d4ca7f8c4ad2625a61f1d6",
+          "main_sha256": "18d8b99086e04b002e587ac49b85d685f82e1590ff768ceb5c517c1f1579ae6e",
+          "symbols": [
+            "_base_args",
+            "_hook_gates",
+            "test_commit_hook_enforces_every_canonical_preflight_gate",
+            "test_commit_hook_gate_arguments_match_canonical_invocations",
+            "test_commit_hook_chain_preserves_canonical_gate_order",
+            "test_gates_outside_the_run_gate_chain_abort_the_commit",
+            "test_positive_int_rejects_non_positive_values",
+            "test_resume_rebuilds_without_appending_duplicate",
+            "test_failure_after_append_prints_safe_resume_hint",
+            "test_snapshot_entry_count_rejects_zero",
+            "fail_after_append"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_memory_formation_m1.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "774f288d8e5ecedc39b85f786cf158e8d21fba81d1ddf34d3d1cbb69f029a7b3",
+          "main_sha256": null,
+          "symbols": [
+            "_record",
+            "_Batch",
+            "_Cursor",
+            "_Connection",
+            "_Store",
+            "_Runtime",
+            "_execute_run",
+            "_control_probe",
+            "test_invalid_control_rejected_under_normal_and_optimized_python",
+            "test_describe_uses_real_record_links_and_exact_span_text",
+            "test_valid_synthetic_run_preserves_sections_and_cleanup",
+            "test_main_failure_returns_one_without_output_or_sensitive_detail",
+            "test_main_valid_result_keeps_public_schema_and_offline_markers",
+            "__init__",
+            "by_id",
+            "kind",
+            "__init__",
+            "fetchone",
+            "__init__",
+            "execute",
+            "close",
+            "__init__",
+            "load_ir",
+            "_connect",
+            "rebuild_graph_products",
+            "graph_products",
+            "__init__",
+            "__enter__",
+            "__exit__",
+            "ingest_conversation_turn",
+            "Adapter",
+            "DirectRuntime",
+            "compile_fixture",
+            "__init__",
+            "ingest_turn",
+            "_runtime",
+            "answer",
+            "close",
+            "__init__",
+            "__exit__"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_report_deployment_boundary.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "188c2188715790a43341d29c179f1922e89aa2c328f52c462567b1465c5a757b",
+          "main_sha256": null,
+          "symbols": [
+            "test_pages_upload_and_deploy_require_main_reports_and_successful_safety_gate"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_report_publication_safety.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "f04fa49fa4daa1b49a5081cc69d88c42955cce912200c255fe12394bb36370a9",
+          "main_sha256": null,
+          "symbols": [
+            "test_confidential_content_is_rejected_without_echo",
+            "test_scans_every_output_surface_and_rejects_unexpected_files",
+            "test_accepts_plain_public_text_assets_and_metadata",
+            "test_rejects_symlink_to_material_outside_artifact"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_report_site.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "52c2477770d483adc0cfe0e5e4a4c82502e5d5a505a43274e19d359301e280ed",
+          "main_sha256": null,
+          "symbols": [
+            "git",
+            "publication",
+            "export",
+            "test_exports_pinned_report_not_changed_working_copy",
+            "test_empty_catalog_does_not_export_existing_reports",
+            "test_rejects_unpinned_or_invalid_publication",
+            "test_rejects_unsafe_source_before_writing",
+            "test_rejects_duplicate_ids",
+            "test_invalid_date_is_not_echoed",
+            "test_will_not_overwrite_existing_destination",
+            "test_rejects_changed_public_edition",
+            "test_rejects_template_or_asset_contamination"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/memory_formation_m1.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "a86482464f8e6c6110f439aae99981c4883e2c9aba56b7e90efee24e0dd0cf41",
+          "main_sha256": null,
+          "symbols": [
+            "describe",
+            "run",
+            "main"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/reports/__init__.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "7d15774d2b648e11aa4048825be33a79ae172df844efb5d7ee94c261d0853d87",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/reports/prepare_site.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "ecd03a715706c81f9d779f49cda773ae9bfac65bf861514cd998d3ec03bc5c4c",
+          "main_sha256": null,
+          "symbols": [
+            "check_public",
+            "source_bytes",
+            "source_links",
+            "prepare",
+            "main",
+            "replace"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/reports/publication_safety.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "59e17f6c983d7d6f680413203b50053b12a0b57d88ffaab1226942229707d549",
+          "main_sha256": null,
+          "symbols": [
+            "PublicationSafetyError",
+            "validate_text",
+            "validate_file",
+            "scan_site",
+            "main"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        }
+      ]
+    },
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "ref": "refs/remotes/origin/preserve/rejected-terminal-graph-tui-20260829",
+      "branch": "preserve/rejected-terminal-graph-tui-20260829",
+      "tip": "859863c42277470520d0014f24f3b38932b779d9",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "440a014313870067d4c2f04a528aec9e235ba01f",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "859863c42277470520d0014f24f3b38932b779d9",
+          "date": "2026-08-29T20:14:33-05:00",
+          "subject": "wip: preserve rejected terminal graph TUI"
+        },
+        {
+          "sha": "ad302ecebe9b8a4340099e90882db31600893112",
+          "date": "2026-08-26T04:08:50-05:00",
+          "subject": "Renumber the Cline entries and land the deletion-incident protocol (HISTORY#612, #613)"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "A",
+          "paths": [
+            ".disposable/README.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".gitignore"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/cross_index.md"
+          ]
+        },
+        {
+          "status": "R098",
+          "paths": [
+            ".seam/cross_index_archive/0001-0467.cross.md",
+            ".seam/cross_index_archive/0001-0476.cross.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            ".seam/cross_index_archive/0001-0479.cross.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            ".seam/cross_index_archive/0001-0480.cross.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/index.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/log.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "AGENTS.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY_INDEX.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "REPO_LEDGER.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "seam_runtime/tui/app.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/tui/graph_canvas.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/tui/memory_page.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/tui/nav.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/tui/overlays.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "seam_runtime/tui/panels.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/tui/retrieval_page.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "seam_runtime/tui/settings_screen.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "seam_runtime/tui/split_pane.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "seam_runtime/tui/theme.tcss"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tests/audit/test_command_palette_task_menu.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tests/audit/test_deletion_guard.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tests/audit/test_tui_input_modes.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tests/audit/test_tui_supersedes_dashboard.py"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/claude/deletion_guard.sh"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "tools/history/audit_latest.py"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "tools/history/test_history_tools.py"
+          ]
+        }
+      ],
+      "pull_requests": [],
+      "is_ancestor_of_main": false,
+      "recommendation": "archive rejected UI verbatim; rebuild useful independent history tooling if desired; preserve incident protocol without stale authority import",
+      "priority": 3,
+      "useful_missing": [
+        "tools/history/audit_latest.py audit_latest_entry/LatestEntryIssue: latest controlled topics, monotone ISO dates and supersedes validity; focused tools/history/test_history_tools.py fixtures",
+        "Historical incident-specific .disposable README and deletion_guard.sh/test_deletion_guard.py provenance, separate from rejected UI"
+      ],
+      "current_equivalents": [
+        "Main tabbed SeamTUI, command palette, keyboard/input modes, settings, memory/retrieval panels remain accepted presentation",
+        "Main REPO_LEDGER says branch deletion requires reachability or verified preservation; workspace inventory grants no deletion authority; current test_count_audit/recorded_fact_audit cover parts of recent-entry auditing"
+      ],
+      "conflicts": [
+        "Terminal graph UI explicitly rejected: do not integrate ConstellationGraph, MemoryPage, NavRail, drawers/popover, RetrievalPage, PaneDivider, theme/application rewrites",
+        "Old .disposable/AGENTS claims blanket no deletion of branches conflict with current explicit user resolution authorization and current release policy; archived incident evidence is not current authority",
+        "deletion_guard regex is incomplete (absolute redirection check nested under relative regex) and echoes full blocked command risking secret disclosure; no direct hook adoption",
+        "audit_latest hardcoded topic vocabulary drifts and mixed timezone dates can raise TypeError; rebuild with canonical vocabulary and timezone-normalization fixtures"
+      ],
+      "slices": [
+        "Export full branch bundle plus rejected-UI patch and design rejection reason before branch deletion",
+        "Optional history audit public API red/green: unknown topic, malformed/naive date, reversed timestamp and bad supersedes using synthetic Entry objects; reuse existing audits, no whole HISTORY reads"
+      ],
+      "dependencies": [
+        "Root owns rejection record and archived bundle; no new UI decision needed"
+      ],
+      "intermediate": [
+        "ad302ece independent deletion/history tooling precedes rejected 859863c4 UI; preserve useful independent code separately. No tip reversion."
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "ad302ecebe9b8a4340099e90882db31600893112",
+          "date": "2026-08-26T04:08:50-05:00",
+          "subject": "Renumber the Cline entries and land the deletion-incident protocol (HISTORY#612, #613)",
+          "changed_paths": [
+            "A\t.disposable/README.md",
+            "M\t.gitignore",
+            "M\t.seam/cross_index.md",
+            "R098\t.seam/cross_index_archive/0001-0467.cross.md\t.seam/cross_index_archive/0001-0476.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tAGENTS.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tREPO_LEDGER.md",
+            "A\ttests/audit/test_deletion_guard.py",
+            "A\ttools/claude/deletion_guard.sh",
+            "A\ttools/history/audit_latest.py",
+            "M\ttools/history/test_history_tools.py"
+          ]
+        },
+        {
+          "sha": "859863c42277470520d0014f24f3b38932b779d9",
+          "date": "2026-08-29T20:14:33-05:00",
+          "subject": "wip: preserve rejected terminal graph TUI",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "A\t.seam/cross_index_archive/0001-0479.cross.md",
+            "A\t.seam/cross_index_archive/0001-0480.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tseam_runtime/tui/app.py",
+            "A\tseam_runtime/tui/graph_canvas.py",
+            "A\tseam_runtime/tui/memory_page.py",
+            "A\tseam_runtime/tui/nav.py",
+            "A\tseam_runtime/tui/overlays.py",
+            "M\tseam_runtime/tui/panels.py",
+            "A\tseam_runtime/tui/retrieval_page.py",
+            "M\tseam_runtime/tui/settings_screen.py",
+            "A\tseam_runtime/tui/split_pane.py",
+            "M\tseam_runtime/tui/theme.tcss",
+            "M\ttests/audit/test_command_palette_task_menu.py",
+            "M\ttests/audit/test_tui_input_modes.py",
+            "M\ttests/audit/test_tui_supersedes_dashboard.py"
+          ]
+        }
+      ],
+      "path_dispositions": [
+        {
+          "path": ".disposable/README.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "a0aa342adc7b644ec506b06d09d2900abdb493e612c7cf57e1ca06b64eb83635",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": ".gitignore",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "e75605f19175eb21ac1bb27e2c84880f19d7f672539b854c6a73fef650779d9e",
+          "main_sha256": "2f07b09c47d8dcf9f274e497b20dd426fbe1b16b9f19ce5296cc9d9d1d89192f",
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": ".seam/cross_index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "d9295dec154e08ccc3cad22697a5c6e6d38219387ea9e9002602c3abe571eaa6",
+          "main_sha256": "2964f8d5354188428b195f4e9fde42d84fb5c026ca47b1a304762dd74c63744d",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0467.cross.md",
+          "branch_status": "R098",
+          "main_state": "absent",
+          "tip_sha256": null,
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0476.cross.md",
+          "branch_status": "R098",
+          "main_state": "absent",
+          "tip_sha256": "21f0953ba028d61da6cbaa5c9ed3d3d81f2467cdaba78116ba90c809582df68f",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0479.cross.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "b14cb687bc67eebb2f41540ee378c464ee573a3922e4f6a9e5177f284ffe16b1",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0480.cross.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "38364609c3a0d33bf784734d08efa0c8e9dcb3a217cffaccfa3abdfb942c499b",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "02dc7f7534bd1115a5620a66cd0139d7608b0c269471b630fa21538e50aa1f5e",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "8ff42a6d273b13af2f978aaae002c6d5c23446cd865caac24a3fe4051557ded3",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "AGENTS.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "5e89795c2df1650432ca77fa9240c03c55bbcb5e9b3c419ca917405da575cf49",
+          "main_sha256": "7b8911538b6a54b34e21e2fc11f3b2d470bbbd28272ebea7081a91aefcb71151",
+          "symbols": [],
+          "disposition": "stale control/status text: root reconcile only, retain current licensing and startup authority"
+        },
+        {
+          "path": "HISTORY.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "8ff42a6d273b13af2f978aaae002c6d5c23446cd865caac24a3fe4051557ded3",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "02dc7f7534bd1115a5620a66cd0139d7608b0c269471b630fa21538e50aa1f5e",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "72e777f6c7186aa0679f0c4dfd0826b78f69f1d20409b999b2de811ed3837c90",
+          "main_sha256": "5df3d63c8e311936e0e050637e032beb5c45340f3bb16e2bbeb7446657ff7ec2",
+          "symbols": [],
+          "disposition": "stale control/status text: root reconcile only, retain current licensing and startup authority"
+        },
+        {
+          "path": "seam_runtime/tui/app.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "a3d04dbead46a1fd25ef0340fdaa1521c53ceaa29a81dc27dcdaf3daba4c1387",
+          "main_sha256": "1b049980cabe13ce262917051720a0353992541b2bfdf3c250099ec499051ba4",
+          "symbols": [
+            "CommandPalette",
+            "SeamTUI",
+            "run",
+            "main",
+            "__init__",
+            "compose",
+            "on_mount",
+            "_render_options",
+            "_add_modes_group",
+            "_on_filter",
+            "_on_submit",
+            "_on_selected",
+            "action_dismiss_palette",
+            "action_cursor_down",
+            "action_cursor_up",
+            "__init__",
+            "refresh_cached_settings",
+            "compose",
+            "_blink",
+            "_start_startup_animation",
+            "_advance_startup_animation",
+            "_finish_startup_animation",
+            "on_key",
+            "on_resize",
+            "on_mount",
+            "_active_tab_id",
+            "_activate_section",
+            "_update_breadcrumb",
+            "_on_memory_view_breadcrumb",
+            "_on_memory_selection_breadcrumb",
+            "_on_nav_selected",
+            "_on_nav_help",
+            "_on_topbar_chat",
+            "_on_topbar_memories",
+            "_on_topbar_connections",
+            "_on_topbar_log",
+            "_open_overlay",
+            "_close_overlays",
+            "_set_app_log_open",
+            "_write",
+            "_set_status",
+            "_set_mode",
+            "_show_chat_tab",
+            "action_seam_mode",
+            "check_action",
+            "action_focus_mode",
+            "action_open_palette",
+            "_palette_result",
+            "_apply_mode_selection",
+            "_latch_shell_mode",
+            "_refresh_chat_client",
+            "_sync_chat_model_line",
+            "_enter_chat_mode",
+            "start_new_chat",
+            "_show_reference",
+            "action_show_settings",
+            "action_clear_output",
+            "action_jump_tab",
+            "action_jump_tab_meta",
+            "action_next_tab",
+            "action_previous_tab",
+            "_cycle_tab",
+            "_on_input_prefix",
+            "_on_command",
+            "_run_command",
+            "_run_tab_command",
+            "_run_shell",
+            "_execute_shell",
+            "_render_shell_result",
+            "_run_chat",
+            "_execute_chat",
+            "_build_chat_context_prompt",
+            "_render_chat_reply",
+            "_execute",
+            "_render_result",
+            "_refresh_panel",
+            "add_section",
+            "add_rows"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/graph_canvas.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "dd40e1a13eab282a71874f333640b36d4f3485e38c7abdaf2b2bb0f7ea8e1801",
+          "main_sha256": null,
+          "symbols": [
+            "_Node",
+            "_Edge",
+            "_stable_fraction",
+            "ConstellationGraph",
+            "NodeSelected",
+            "ViewChanged",
+            "__init__",
+            "node_count",
+            "edge_count",
+            "set_graph",
+            "set_selected",
+            "set_layout",
+            "zoom_by",
+            "reset_view",
+            "action_zoom",
+            "action_reset_view",
+            "action_layout",
+            "_rebuild_layout",
+            "_constellation_positions",
+            "_tree_positions",
+            "_force_positions",
+            "_project",
+            "_line_points",
+            "render",
+            "_node_at",
+            "on_mouse_down",
+            "on_mouse_move",
+            "on_mouse_up",
+            "on_mouse_scroll_up",
+            "on_mouse_scroll_down",
+            "__init__"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/memory_page.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "85b91f45a8bfb033d89e7c467b5b313a320d3aeb6ea0ad662d4306254b57f35c",
+          "main_sha256": null,
+          "symbols": [
+            "_kind_color",
+            "MemoryPage",
+            "__init__",
+            "compose",
+            "on_mount",
+            "reload",
+            "_sync_view_mode",
+            "_on_view_table",
+            "_on_view_graph",
+            "_sync_graph_controls",
+            "_on_graph_zoom_in",
+            "_on_graph_zoom_out",
+            "_on_graph_zoom_reset",
+            "_on_graph_force",
+            "_on_graph_tree",
+            "_on_graph_constellation",
+            "_on_graph_view_changed",
+            "_on_graph_node_selected",
+            "_load_graph",
+            "_render_knowledge_graph",
+            "_on_memory_resized",
+            "_on_search_changed",
+            "_on_search_submitted",
+            "_sync_detail_mode",
+            "_on_detail_record",
+            "_on_detail_mirl",
+            "_on_detail_copy",
+            "_render_no_record",
+            "_on_record_selected",
+            "_render_record",
+            "_load_record",
+            "_render_detail_record",
+            "_render_detail_error",
+            "_render_graph_error"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/nav.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "4b8c138506c358f97a70a6ffc2be4d934bdc60ce3a5a3323d623ca88eb81f65d",
+          "main_sha256": null,
+          "symbols": [
+            "SectionSpec",
+            "NavRailItem",
+            "NavRail",
+            "__init__",
+            "compose",
+            "__init__",
+            "compose",
+            "highlight"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/overlays.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "51bc8fa4a38611fe29a638024832ada81d3c4f9576c453f7f736fdb527c467f9",
+          "main_sha256": null,
+          "symbols": [
+            "ChatDrawer",
+            "_DrawerRecordItem",
+            "MemoriesDrawer",
+            "ConnectionsPopover",
+            "__init__",
+            "compose",
+            "open",
+            "set_open",
+            "set_model_line",
+            "write",
+            "clear_transcript",
+            "focus_draft",
+            "_on_close",
+            "_on_new",
+            "_on_draft_submitted",
+            "_on_send",
+            "__init__",
+            "compose",
+            "__init__",
+            "compose",
+            "open",
+            "set_open",
+            "_on_close",
+            "_on_filter",
+            "_on_record_selected",
+            "refresh_records",
+            "_render_loaded",
+            "_render_records",
+            "_render_records_error",
+            "__init__",
+            "compose",
+            "open",
+            "set_open",
+            "refresh_report",
+            "_load_report",
+            "_render_error",
+            "_render_report",
+            "_on_close"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/panels.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "b521ae808e456c257b75cf797a3c6408e4ba00f97f0b0e552b35ab881ccb4ef5",
+          "main_sha256": "f4cb8100ad6e58ca5b2b1747833f5de0bd2af1c1c3b150152df4ae052670a613",
+          "symbols": [
+            "_truncate",
+            "_preview_attrs",
+            "_status_row",
+            "_RuntimePanel",
+            "MemoryRecordsPanel",
+            "RetrievalPanel",
+            "BenchmarksPanel",
+            "CompressionPanel",
+            "ChatPanel",
+            "_event_summary",
+            "LivePanel",
+            "ProvPanel",
+            "MemoryPanel",
+            "_runtime",
+            "RecordSelected",
+            "__init__",
+            "compose",
+            "on_mount",
+            "reload",
+            "refresh_records",
+            "_load_rows",
+            "_render_rows",
+            "_render_visible_rows",
+            "apply_filter",
+            "try_select_id",
+            "_publish_selection",
+            "_render_error",
+            "_record_id_at",
+            "_log",
+            "action_yank_id",
+            "_on_row_selected",
+            "compose",
+            "on_mount",
+            "reload",
+            "_on_submit",
+            "_run_query",
+            "_render_candidates",
+            "_render_error",
+            "compose",
+            "on_mount",
+            "reload",
+            "refresh_runs",
+            "_load_rows",
+            "_render_rows",
+            "_render_error",
+            "compose",
+            "on_mount",
+            "reload",
+            "refresh_documents",
+            "_render_rows",
+            "_render_error",
+            "compose",
+            "reload",
+            "compose",
+            "on_mount",
+            "reload",
+            "refresh_events",
+            "_render_events",
+            "_render_error",
+            "compose",
+            "reload",
+            "_on_submit",
+            "_on_copy_id",
+            "_run_trace",
+            "_render_graph",
+            "_render_error",
+            "compose",
+            "reload",
+            "__init__"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/retrieval_page.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "98de024aaa656d58c13df7869ae639ec1609329b6753644f0a82ab8ba5f203bd",
+          "main_sha256": null,
+          "symbols": [
+            "_StatusCard",
+            "_ScoreCard",
+            "RetrievalPage",
+            "__init__",
+            "compose",
+            "set_state",
+            "__init__",
+            "compose",
+            "compose",
+            "on_mount",
+            "reload",
+            "_load_status",
+            "_render_status",
+            "_render_status_error"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/settings_screen.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "853373285d7877e666befa48daa27899fc3a96d38a82d1f49d1bddf32506cfaa",
+          "main_sha256": "f5268905b525b3dc7c5198de91cfba58e46cd241b693dbf86b13c3360ec9b879",
+          "symbols": [
+            "_slug",
+            "SettingRow",
+            "SettingsSectionItem",
+            "SettingsPanel",
+            "SettingsScreen",
+            "__init__",
+            "compose",
+            "_widget_id",
+            "raw_value",
+            "is_untouched_secret",
+            "set_invalid",
+            "clear_invalid",
+            "__init__",
+            "__init__",
+            "compose",
+            "on_mount",
+            "_select_group",
+            "_show_group",
+            "_resize_settings_sections",
+            "_compose_add_key",
+            "_add_key",
+            "_filter",
+            "_save",
+            "_reload",
+            "compose"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/split_pane.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "052a0747b61b77edcddf3f2cc27632eab807147241cd06aa0190dfb0fcf92150",
+          "main_sha256": null,
+          "symbols": [
+            "PaneDivider",
+            "Resized",
+            "__init__",
+            "_target_width",
+            "_bounded",
+            "_resize",
+            "action_nudge",
+            "on_mouse_down",
+            "on_mouse_move",
+            "on_mouse_up",
+            "__init__"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "seam_runtime/tui/theme.tcss",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "959fdf53b7653d788cbab3cc3dbd7aa985b4cc548df91e840d57603f4f393c97",
+          "main_sha256": "2924faf8d3392a32b38d6a738e0e98812ee1ba05790507b64882dcb2ae5ab521",
+          "symbols": [],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "tests/audit/test_command_palette_task_menu.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "585bceb89817ff44a996e31d797ed4d44d3efbb8dd7099da26db012f1a3efb30",
+          "main_sha256": "22fc90ce4e42bb336e302c95fd6db2e4575ba24d7fcf417c59ca8025d217de1d",
+          "symbols": [
+            "_catalog",
+            "TestEveryCommandIsDescribed",
+            "TestEveryCommandIsGrouped",
+            "TestWalkParserReadsArgparseHelp",
+            "TestRouteRegexCapturesOptionalSummary",
+            "TestRunSectionSortsAheadOfReference",
+            "TestFirstSentenceCutsOnSentenceNotLine",
+            "TestMcpSummaryIsCutAtFirstSentence",
+            "TestSdkRowsAreTrimmedButKeepTheFullSignature",
+            "TestPaletteRendersTwoSections",
+            "TestModesGroupIsDiscoverableFromTheMenu",
+            "TestReferenceCardCarriesTheFullSdkSignature",
+            "test_every_spec_has_a_nonempty_summary",
+            "test_every_spec_group_is_in_the_task_vocabulary",
+            "test_no_real_bucket_is_a_quiet_catch_all",
+            "_tree",
+            "test_help_kwarg_is_picked_up",
+            "test_falls_back_to_description_when_no_help",
+            "test_neither_help_nor_description_yields_empty_not_a_crash",
+            "test_subparser_help_degrades_without_choices_actions",
+            "test_captures_summary_when_present",
+            "test_still_yields_the_route_when_summary_is_absent",
+            "test_multiple_routes_in_one_source_blob",
+            "test_executable_rows_form_one_contiguous_leading_block",
+            "test_run_rows_are_exactly_the_executable_dash_verbs",
+            "test_single_sentence_with_no_terminal_punctuation_is_unchanged",
+            "test_multi_sentence_text_is_cut_at_the_first_period",
+            "test_a_sentence_word_wrapped_across_source_lines_is_not_cut_mid_sentence",
+            "test_trailing_sentence_with_no_following_text_is_kept_whole",
+            "test_empty_and_blank_text_yield_empty",
+            "test_synthetic_multi_sentence_description_is_cut_to_one_sentence",
+            "_knowledge_spec",
+            "test_row_name_is_a_trimmed_call_form",
+            "test_full_signature_keeps_the_untrimmed_form",
+            "test_full_signature_is_empty_for_every_non_sdk_surface",
+            "test_sdk_summary_is_still_derived_and_sentence_cut",
+            "test_run_header_precedes_reference_header",
+            "test_sdk_row_shows_the_trimmed_call_form_not_the_full_signature",
+            "test_modes_group_and_all_three_rows_render",
+            "test_selecting_a_mode_row_dismisses_with_a_mode_id",
+            "test_selecting_an_sdk_entry_prints_the_full_signature",
+            "BareAction",
+            "_PaletteHarness",
+            "_check",
+            "_PaletteHarness",
+            "_check",
+            "_PaletteHarness",
+            "_check",
+            "_PaletteHarness",
+            "_check",
+            "_check",
+            "on_mount",
+            "on_mount",
+            "on_mount",
+            "on_mount"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "tests/audit/test_deletion_guard.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "3d1f076b9c3c989ba526f2e368dc0b4b1a4b39dce92ca4f84474aa991f68f3a6",
+          "main_sha256": null,
+          "symbols": [
+            "_run_guard",
+            "test_guard_blocks_deletion_commands",
+            "test_guard_allows_ordinary_commands",
+            "test_settings_json_registers_the_guard_before_the_preflight",
+            "test_guard_script_is_executable_and_referenced",
+            "test_malformed_hook_input_fails_open_as_a_nop"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tests/audit/test_tui_input_modes.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "d5b7c6bc057acc7795df564edecd035ea10caf191c315b7ebb656012d20ecb8c",
+          "main_sha256": "32ff5ce039b6bbbb47c2a12f5cd9570050d8718d33b7ad3c4a47e9535e50b524",
+          "symbols": [
+            "_backend",
+            "_backend_with_a_record",
+            "TestModeDispatch",
+            "_log_text",
+            "TestPaletteSeeding",
+            "TestTabNavigation",
+            "TestChatNeverCallsTheNetwork",
+            "test_bare_bang_latches_shell_mode",
+            "test_bare_question_mark_latches_chat_mode_and_opens_drawer",
+            "test_typed_bang_latches_before_following_shell_text",
+            "test_typed_question_latches_before_following_chat_text",
+            "test_mode_sigils_work_when_the_memory_table_has_focus",
+            "test_question_mark_remains_text_inside_the_provenance_input",
+            "test_escape_in_command_input_returns_to_seam_mode",
+            "test_pasted_prefixed_shell_command_runs_once_while_latched_in_chat",
+            "test_palette_command_runs_once_while_latched_in_shell",
+            "test_unprefixed_text_runs_in_the_latched_shell_mode",
+            "test_unprefixed_text_runs_dashboard_commands_in_seam_mode",
+            "test_action_open_palette_reads_leftover_text_and_clears_the_field",
+            "test_on_mount_applies_initial_as_a_live_filter",
+            "test_empty_leftover_opens_unfiltered_as_before",
+            "test_alt_n_jumps_directly",
+            "test_meta_digit_table_matches_what_textual_actually_parses",
+            "test_alt_n_jumps_when_the_terminal_sends_escape_then_digit",
+            "test_meta_digit_jump_can_be_switched_off",
+            "test_meta_digit_jump_switches_off_after_settings_reload",
+            "test_every_mounted_input_is_a_seam_input",
+            "test_ctrl_right_cycles_forward_even_with_command_input_focused",
+            "test_ctrl_left_cycles_backward_and_wraps",
+            "test_tab_command_switches_by_case_insensitive_prefix",
+            "test_tab_command_by_label_prefix",
+            "test_unknown_tab_name_errors_and_changes_nothing",
+            "test_bare_tab_command_shows_usage_and_changes_nothing",
+            "_isolated_chat_settings",
+            "test_not_configured_message_renders_without_a_key",
+            "test_chat_reloads_settings_saved_after_app_construction",
+            "test_injected_memory_ids_reach_the_log",
+            "test_chat_history_is_kept_on_the_app",
+            "test_chat_serializes_requests_and_snapshots_worker_state",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_Harness",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "fake_complete",
+            "_check",
+            "fake_complete",
+            "_check",
+            "_check",
+            "_check",
+            "on_mount"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "tests/audit/test_tui_supersedes_dashboard.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "46f24cc9ba379495f52acf320895e3f5ecf716bdae564c2a02b67834768848ab",
+          "main_sha256": "9adb8db836c6673f0c161561290e10be9b3b88ea59b21831a979c120f9092f90",
+          "symbols": [
+            "_write_env",
+            "TestPersistedEnvParsing",
+            "TestUnusableNamesAreRejected",
+            "TestWidgetIdsAreAlwaysLegal",
+            "TestTuiMountsAgainstAHandEditedFile",
+            "TestSupersession",
+            "TestBackendContractHoldsForTheNewUi",
+            "TestCanticleBrandLaunch",
+            "TestMemoryPageIsNowAWorkspace",
+            "test_persisted_file_is_never_the_repo_env",
+            "test_export_prefix_is_stripped",
+            "test_bare_assignment_still_parses",
+            "test_export_and_bare_forms_coexist",
+            "test_export_alone_is_not_a_key",
+            "test_exported_key_reaches_the_environment",
+            "test_is_env_name",
+            "test_unusable_name_is_not_applied_to_environ",
+            "test_unusable_name_synthesizes_no_row",
+            "test_process_env_still_wins",
+            "test_file_promoted_value_refreshes_without_becoming_an_env_override",
+            "test_real_process_override_is_never_refreshed_from_file",
+            "_id_for",
+            "test_ordinary_name",
+            "test_hostile_name_yields_a_legal_id",
+            "test_group_slug_is_legal",
+            "test_registry_rows_all_construct",
+            "test_mounts_with_export_lines_and_junk_names",
+            "_backend",
+            "test_interactive_launch_runs_the_new_tui",
+            "test_snapshot_mode_does_not_launch_the_tui",
+            "test_script_mode_does_not_launch_the_tui",
+            "test_seam_tui_console_script_is_registered",
+            "test_theme_is_shipped_as_package_data",
+            "test_textual_pin_covers_the_installed_api",
+            "test_dashboard_app_exposes_what_the_tui_uses",
+            "test_catalog_is_derived_from_the_backend_parser",
+            "_backend",
+            "test_full_motion_types_the_exact_seam_frames",
+            "test_motion_off_mounts_no_launch_layer",
+            "test_reduced_motion_shows_only_the_static_final_lockup",
+            "test_no_prov_tab_or_panel_class",
+            "_backend_with_a_record",
+            "test_mounted_app_has_exactly_one_of_each_shared_widget",
+            "test_row_selection_traces_without_changing_clipboard",
+            "test_copy_id_button_copies_the_full_visible_id",
+            "test_yank_copies_id_without_changing_prov_query",
+            "test_empty_store_guard_no_ops_without_raising",
+            "test_memory_panel_reload_reloads_both_children",
+            "test_first_visible_record_populates_detail_without_enter",
+            "test_memory_search_filters_live_and_keeps_detail_in_sync",
+            "test_graph_view_uses_the_real_knowledge_graph_and_constellation_layout",
+            "test_memory_divider_drag_resizes_both_panes",
+            "test_settings_section_divider_is_also_resizable",
+            "test_overlays_are_exclusive_and_escape_closes_the_open_surface",
+            "test_new_chat_resets_history_and_activity_log_is_collapsible",
+            "test_compact_terminal_collapses_rail_without_hiding_memory_detail",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_knowledge_graph",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check",
+            "_check"
+          ],
+          "disposition": "rejected UI archive; no runtime integration"
+        },
+        {
+          "path": "tools/claude/deletion_guard.sh",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "2a2635a8f20b3c25479be691a0ce35c7d8bfb70392ed24f68c1755d0b07aec90",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/history/audit_latest.py",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "d6b7c561bd129e56f664d1c38ef7bcec6234dd8a466b2201d569d8bbff3c271b",
+          "main_sha256": null,
+          "symbols": [
+            "LatestEntryIssue",
+            "_parse_entry_date",
+            "audit_latest_entry",
+            "format"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        },
+        {
+          "path": "tools/history/test_history_tools.py",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "d4de9064452a342e7de16992968b75d63527d9d9e2d3cfbbb001b6965c4da65b",
+          "main_sha256": "3726da058437dfd2b60fb41ff61358d80a5a04430403eb33287d87413f38b9f6",
+          "symbols": [
+            "TempRepoBase",
+            "_MultiPatch",
+            "sample_entry",
+            "TestFormatAndParse",
+            "TestSupersedesChain",
+            "TestRebuildIndexIdempotent",
+            "TestHistoryLockPath",
+            "TestNewEntryLock",
+            "TestVerifyIntegrity",
+            "TestSnapshots",
+            "TestSurgicalRead",
+            "TestContextPack",
+            "TestVerifyContinuity",
+            "TestTestCountAudit",
+            "TestRecordedFactAudit",
+            "TestVerifyRouting",
+            "audit_entries",
+            "TestAuditLatestEntryTopics",
+            "TestAuditLatestEntryDates",
+            "TestAuditLatestEntrySupersedes",
+            "setUp",
+            "tearDown",
+            "write_entries",
+            "patch_paths",
+            "__init__",
+            "__enter__",
+            "__exit__",
+            "test_format_roundtrip",
+            "test_parse_three_entries",
+            "test_invalid_status_raises",
+            "test_ids_must_increase",
+            "test_marker_mismatch_raises",
+            "test_hash_is_deterministic",
+            "test_estimate_tokens",
+            "test_next_entry_id",
+            "test_simple_chain",
+            "test_no_supersedes",
+            "test_rebuild_twice_identical",
+            "test_empty_history",
+            "test_lock_lives_in_git_dir_for_an_ordinary_clone",
+            "test_lock_lives_in_the_real_git_dir_for_a_worktree",
+            "test_lock_resolves_a_relative_worktree_gitdir_pointer",
+            "test_lock_falls_back_beside_the_index_without_any_git_dir",
+            "test_new_entry_in_a_worktree_leaves_no_lock_file_in_the_tree",
+            "test_new_entry_releases_process_lock_when_file_lock_fails",
+            "test_new_entry_lock_serializes_concurrent_writes",
+            "test_verify_ok",
+            "test_verify_detects_tampering",
+            "test_verify_rejects_partial_index_hash_match",
+            "test_write_and_load_roundtrip",
+            "test_write_snapshot_uses_atomic_replace",
+            "test_snapshot_records_pack_entries_skipped_by_token_budget",
+            "test_find_latest_accepts_repo_root_path",
+            "test_tampered_history_invalidates_snapshot",
+            "test_tampered_snapshot_itself_detected",
+            "test_byte_range_matches_hash",
+            "test_builds_latest_topic_pack_with_chain",
+            "test_respects_token_budget",
+            "test_invalid_utf8_survives_decode_replace",
+            "test_refs_pattern_is_literal_not_regex",
+            "test_continuity_ok_with_latest_snapshot",
+            "test_continuity_fails_when_latest_snapshot_missing",
+            "test_continuity_fails_on_broken_supersedes",
+            "_write_test_file",
+            "test_audit_flags_stale_scoped_count",
+            "test_audit_flags_ambiguous_bare_count",
+            "test_audit_flags_split_line_bare_count",
+            "test_audit_ignores_non_pytest_fraction_count",
+            "test_audit_ignores_non_pytest_fraction_on_shared_line",
+            "test_audit_flags_stale_pytest_count_after_non_pytest_sentence",
+            "test_audit_flags_stale_handoff_pointer",
+            "test_audit_flags_missing_latest_entry_ref",
+            "test_audit_flags_precedence_drop_for_same_test_scope",
+            "test_audit_accepts_relative_repo_root",
+            "test_precedence_handles_pytest_after_non_pytest_sentence",
+            "_write_manifest",
+            "_manifest",
+            "test_verify_routing_ok",
+            "test_verify_routing_detects_missing_parent",
+            "test_verify_routing_detects_missing_history_ref",
+            "test_out_of_vocabulary_topic_is_flagged",
+            "test_controlled_vocabulary_topics_pass",
+            "test_non_iso_date_is_flagged",
+            "test_date_before_predecessor_is_flagged",
+            "test_supersedes_pointing_at_missing_entry_is_flagged",
+            "test_supersedes_pointing_at_self_is_flagged",
+            "test_supersedes_none_passes",
+            "write_entry"
+          ],
+          "disposition": "candidate exact path: see useful_missing/conflicts/slices; rebuild code/tests, preserve historical evidence"
+        }
+      ]
+    },
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "ref": "refs/remotes/origin/research/advanced-persistence-landscape",
+      "branch": "research/advanced-persistence-landscape",
+      "tip": "d69994491fef91abd4220016d64e322b0d106c11",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "48c5448157711f6db74f4c24be06b9c563aef5c6",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "d69994491fef91abd4220016d64e322b0d106c11",
+          "date": "2026-08-18T03:07:31-05:00",
+          "subject": "docs: define benchmark-proven second-brain persistence thesis"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            ".seam/cross_index.md"
+          ]
+        },
+        {
+          "status": "R099",
+          "paths": [
+            ".seam/cross_index_archive/0001-0433.cross.md",
+            ".seam/cross_index_archive/0001-0434.cross.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/index.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            ".seam/streams/history/log.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "HISTORY_INDEX.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/2026-08-18-advanced-agent-persistence-layers.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/audits/2026-08-18-seam-second-brain-persistence-dissertation.md"
+          ]
+        },
+        {
+          "status": "M",
+          "paths": [
+            "docs/audits/INDEX.md"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "research/advanced-persistence-landscape",
+          "headRefOid": "d69994491fef91abd4220016d64e322b0d106c11",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 221,
+          "state": "CLOSED",
+          "title": "docs: define benchmark-proven second-brain persistence thesis",
+          "updatedAt": "2026-09-03T06:54:25Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/221"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "recommendation": "preserve dated research verbatim as historical planning; integrate selective evidence-index pointers, not asserted product authority",
+      "priority": 2,
+      "useful_missing": [
+        "2026-08-18-advanced-agent-persistence-layers.md: competitor/evidence tables, claim tuples, separate QA versus write correctness, long-horizon benchmark axes",
+        "2026-08-18-seam-second-brain-persistence-dissertation.md: canonical/derived/ephemeral split, evidence constitution, matched experimental arms, proposed compiled knowledge/runbook projections and adversarial conformance"
+      ],
+      "current_equivalents": [
+        "Current lifecycle/graph/PACK contracts already cover canonical evidence and derived topology; MEMORY_FORMATION covers segmentation and temporal projection; comparative dated evidence and benchmark-arm matrix absent"
+      ],
+      "conflicts": [
+        "Closed PR221 is NOT merged; document represents proposal and external-source claims, not qualification",
+        "No live source revalidation done; preserve publication date and source links, avoid current benchmark leaderboard assertions",
+        "Derivable graph topology remains derived; no new second-brain product or autonomous canonical promotion; suite licence settled",
+        "Audit indexes must append dated rows without changing current latest entries; do not import stale history"
+      ],
+      "slices": [
+        "Archive exact two research docs and optionally add dated historical research entries; extract proposed experiment backlog explicitly unqualified",
+        "Future compiled-knowledge candidate needs red/green evidence closure, lifecycle invalidation, source independence and namespace isolation before runtime integration"
+      ],
+      "dependencies": [
+        "Formation/temporal contracts for later compiled projection; external literature revalidation before claiming current scores"
+      ],
+      "intermediate": [
+        "Single unique docs commit; no reverted code."
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "d69994491fef91abd4220016d64e322b0d106c11",
+          "date": "2026-08-18T03:07:31-05:00",
+          "subject": "docs: define benchmark-proven second-brain persistence thesis",
+          "changed_paths": [
+            "M\t.seam/cross_index.md",
+            "R099\t.seam/cross_index_archive/0001-0433.cross.md\t.seam/cross_index_archive/0001-0434.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "A\tdocs/audits/2026-08-18-advanced-agent-persistence-layers.md",
+            "A\tdocs/audits/2026-08-18-seam-second-brain-persistence-dissertation.md",
+            "M\tdocs/audits/INDEX.md"
+          ]
+        }
+      ],
+      "path_dispositions": [
+        {
+          "path": ".seam/cross_index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "0b7301b7a0044bd5d6d9622d251bfdae72c7f9445c79896a1749038e3f1e0c14",
+          "main_sha256": "2964f8d5354188428b195f4e9fde42d84fb5c026ca47b1a304762dd74c63744d",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0433.cross.md",
+          "branch_status": "R099",
+          "main_state": "absent",
+          "tip_sha256": null,
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0434.cross.md",
+          "branch_status": "R099",
+          "main_state": "absent",
+          "tip_sha256": "e7f1d1c25d7e1b5a0efd1b349d3a12becd2cd01f0e5658f88d19c0c816a6986e",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "ffe6bc5f6d15646244f29eb23061442b1b1213ba8f87bac26f88a3da46dbd8e1",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "86f7875c32102024beedfb0808f071b1d1d7b6c9951b13de90547ff266ed8e05",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "86f7875c32102024beedfb0808f071b1d1d7b6c9951b13de90547ff266ed8e05",
+          "main_sha256": "075120b0354ffe82eb00d69864e517b8c77431095a0a886ae1405e76c16aa0ff",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "ffe6bc5f6d15646244f29eb23061442b1b1213ba8f87bac26f88a3da46dbd8e1",
+          "main_sha256": "caafa471e07b1bc7e99ff70e03191cdfd6abff01d20eb93eb2fa30e28360816b",
+          "symbols": [],
+          "disposition": "chronology/index metadata: preserve externally; root reconciles append-only chronology, never stale replace"
+        },
+        {
+          "path": "docs/audits/2026-08-18-advanced-agent-persistence-layers.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "5f2cddc97ad1c06ebd2862bedffd9764f30138e13b6be3d774bf0b28297b557e",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "preserve exact dated/planned text; do not promote claims to qualified implementation"
+        },
+        {
+          "path": "docs/audits/2026-08-18-seam-second-brain-persistence-dissertation.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "b6ec01f8a39f853a04aef1979ef83cd7515decae5c09b7b48e0f10266eca8fea",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "preserve exact dated/planned text; do not promote claims to qualified implementation"
+        },
+        {
+          "path": "docs/audits/INDEX.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "e9d57251399a221109bfd2fbb8296a50e660a654d0e7ccef29818b6988325cbd",
+          "main_sha256": "791347f9eadd2463faab498ebec928c0218a960e5ca8bd3ea95fa0f40b42e64b",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        }
+      ]
+    },
+    {
+      "repository": "Seam",
+      "slug": "Canticle-AI-Research/Seam",
+      "cwd": "/workspace/Seam",
+      "ref": "refs/remotes/origin/research/pcs-c2c-dlcm-roadmap",
+      "branch": "research/pcs-c2c-dlcm-roadmap",
+      "tip": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+          "date": "2026-09-18T07:53:16-07:00",
+          "subject": "docs: register PCS CacheBridge research track"
+        },
+        {
+          "sha": "5bcd3247127cf3f339b4c9bde63df5abf6318eae",
+          "date": "2026-09-18T07:52:55-07:00",
+          "subject": "docs: add persistent concept state research roadmap"
+        }
+      ],
+      "changed_paths": [
+        {
+          "status": "M",
+          "paths": [
+            "ROADMAP.md"
+          ]
+        },
+        {
+          "status": "A",
+          "paths": [
+            "docs/roadmap/PERSISTENT_CONCEPT_STATE.md"
+          ]
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "research/pcs-c2c-dlcm-roadmap",
+          "headRefOid": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 268,
+          "state": "OPEN",
+          "title": "docs: add Persistent Concept State / CacheBridge research track",
+          "updatedAt": "2026-09-18T14:53:42Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/268"
+        }
+      ],
+      "is_ancestor_of_main": false,
+      "recommendation": "integrate verbatim experimental planning, correct pointer context on main",
+      "priority": 2,
+      "useful_missing": [
+        "docs/roadmap/PERSISTENT_CONCEPT_STATE.md PCS0-PCS10: measurement freeze, full/bounded-context, C2C/LCF/DLCM reproduction baselines, textual concepts then semantic delta then latent/novelty/graph/heterogeneous reactivation; quality/efficiency/persistence/provenance matrix"
+      ],
+      "current_equivalents": [
+        "Current RAW/MIRL/PACK/lifecycle governing separation overlaps architecture; no PCS staged experiment plan"
+      ],
+      "conflicts": [
+        "Canonical graph state phrase must be interpreted as canonical lifecycle/record state; graph topology and concept/KV state remain disposable derived per current contracts",
+        "Patent/licensing promotion review concerns mechanisms, not reopening suite licence",
+        "Overlaps LATENT_CACHEBRIDGE but adds concept/text/delta stages; preserve both and cross-link rather than discard by title similarity"
+      ],
+      "slices": [
+        "Copy planning text with planned status preserved; insert fresh ROADMAP pointer only; add cross-link to complementary CacheBridge LC0 measurement lane",
+        "PCS0 only implementation start, then PCS1-4 retained controls before PCS5+ mutations"
+      ],
+      "dependencies": [
+        "LC0/PCS0 harmonized measurement contracts; baseline-only future research lane; independent of formation acceptance"
+      ],
+      "intermediate": [
+        "5bcd324 adds whole plan, ab1bcd3 registration only; no runtime or revert."
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "5bcd3247127cf3f339b4c9bde63df5abf6318eae",
+          "date": "2026-09-18T07:52:55-07:00",
+          "subject": "docs: add persistent concept state research roadmap",
+          "changed_paths": [
+            "A\tdocs/roadmap/PERSISTENT_CONCEPT_STATE.md"
+          ]
+        },
+        {
+          "sha": "ab1bcd348d1a07e3546b77dfe67a5c923253cce7",
+          "date": "2026-09-18T07:53:16-07:00",
+          "subject": "docs: register PCS CacheBridge research track",
+          "changed_paths": [
+            "M\tROADMAP.md"
+          ]
+        }
+      ],
+      "path_dispositions": [
+        {
+          "path": "ROADMAP.md",
+          "branch_status": "M",
+          "main_state": "different",
+          "tip_sha256": "e4ac1914086a80af91577a83c6a3671598c9b873f4aa3408b624e70b03d9da04",
+          "main_sha256": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
+          "symbols": [],
+          "disposition": "fresh minimal pointer/dated registry reconciliation only"
+        },
+        {
+          "path": "docs/roadmap/PERSISTENT_CONCEPT_STATE.md",
+          "branch_status": "A",
+          "main_state": "absent",
+          "tip_sha256": "0301e34f4b3c57a07ce38ca53174d5917dbfc0214f5abb07608e5d50bd0d8aa7",
+          "main_sha256": null,
+          "symbols": [],
+          "disposition": "preserve exact dated/planned text; do not promote claims to qualified implementation"
+        }
+      ]
+    }
+  ],
+  "dependency_order": [
+    "Preserve exact reviewed tips/unique history and rejected UI archive first",
+    "Retain planning E1/B1 + LC/PCS + dated research without qualification claims",
+    "Combine optimized-safe reports M1 checks with roadmap repaired evidence lookup; witness normal/-O synthetic red/green",
+    "Rebuild opt-in compiler segmentation then public runtime identity/lifecycle slices, exact membership receipt",
+    "Rebuild checkpoint identity then grouped prior-result seeding/resume and rate-limit policy",
+    "Rebuild offline report exporter/privacy checks and retain exact curated edition; root handles deployment separately",
+    "M4/B2/E1 protocol amendment before any M5 campaign; LC0/PCS0 retained baseline before latent research changes"
+  ]
+}

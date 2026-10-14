@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-10-14-suite-release-readiness
+latest: 2026-10-14-branch-recovery
 policy_start: 2026-08-11
 ---
 
@@ -28,12 +28,15 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-10-14 | [Exhaustive branch recovery](2026-10-14-branch-recovery.md) | 30 exact branch tips, semantic preservation and ordered integration | `HISTORY#670` |
 | 2026-10-14 | [Suite release-candidate readiness](2026-10-14-suite-release-readiness.md) | default install, exact archives, prerelease/MCP controls and verified branch cleanup | `HISTORY#668` |
 | 2026-10-14 | [Current Suite licensing reconciliation](2026-10-14-licensing-reconciliation.md) | first-launch terms, current implementation membership and package metadata | `HISTORY#665` |
 | 2026-09-14 | [Claude.ai subscription benchmark transport verification](2026-09-14-claude-code-benchmarks.md) | subscription transport, bounded real smoke and failure accounting | `HISTORY#646` |
 | 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |
 | 2026-08-29 | [Full-repository audit](2026-08-29-full-repo-audit.md) | whole-repo health audit | `HISTORY#632` |
 | 2026-08-19 | [Track S S6 principal-tenancy threat-model delta](2026-08-19-track-s-s6-principal-tenancy-threat-model.md) | security / tenancy / deletion | `HISTORY#575` |
+| 2026-08-18 | [SEAM second-brain persistence dissertation](2026-08-18-seam-second-brain-persistence-dissertation.md) | recovered verbatim historical architecture research; not newly qualified | `HISTORY#571` |
+| 2026-08-18 | [Advanced agent persistence layers](2026-08-18-advanced-agent-persistence-layers.md) | recovered verbatim historical comparative research; not newly qualified | `HISTORY#571` |
 | 2026-08-18 | [Track S and deployment readiness audit](2026-08-18-track-s-deployment-readiness-audit.md) | Track S / surfaces / deployment | `HISTORY#571` |
 | 2026-08-18 | [Graph benchmark readiness beyond LoCoMo](2026-08-18-graph-benchmark-readiness-research.md) | benchmark research | `HISTORY#571` |
 | 2026-08-12 | [Full-repository audit](2026-08-12-full-repo-audit.md) | **whole-repo** | `HISTORY#560` |
@@ -84,3 +87,11 @@ finding before reporting. File the result as
 - **Never** a credential, DSN with a password, provider session URL, or any
   copy-pasteable exploit payload. Describe a vulnerability precisely enough to
   fix; do not weaponize it. Repository rule, per `AGENTS.md` Security Rules.
+
+## Verbatim recovered historical research
+
+The following authored reports are restored from PR #221, exact tip
+`d69994491fef91abd4220016d64e322b0d106c11`. They retain their original text,
+including historical comparisons and proposed experiments. Their claims are
+not newly validated by the branch audit. Preservation evidence is recorded in
+the October 14 branch-recovery report; current contracts remain authoritative.

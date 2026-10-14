@@ -75,11 +75,16 @@ def test_ci_enforces_no_silent_skips() -> None:
     pgvector_commands = " ".join(step.get("run", "") for step in pgvector_steps)
     chroma_commands = " ".join(step.get("run", "") for step in chroma_steps)
     commands = pgvector_commands + " " + chroma_commands
-    env_blocks = " ".join(
-        " ".join(f"{k}={v}" for k, v in (step.get("env") or {}).items())
-        for step in pgvector_steps
-    )
-    assert "PGVECTOR_TEST_DSN" in env_blocks  # pgvector job sets the gate's DSN
+    # The fixture injects credentials only into its owned test child. Automatic
+    # services allocate before a guarded daemon probe and cannot be used here.
+    assert "services" not in workflow["jobs"]["pgvector-integration"]
+    assert "tools.ci.pgvector_fixture start" in pgvector_commands
+    assert "tools.ci.pgvector_fixture run" in pgvector_commands
+    assert "tools.ci.pgvector_fixture stop" in pgvector_commands
+    fixture = (CI_WORKFLOW.parents[2] / "tools/ci/pgvector_fixture.py").read_text()
+    assert "PGVECTOR_TEST_DSN" in fixture
+    assert "SEAM_PGVECTOR_DSN" in fixture
+    assert 'env["SEAM_STRICT_NO_SKIP"] = "1"' in fixture
     assert "tests/audit/test_s8_r2_pgvector_parity.py" in pgvector_commands
     assert "tests/audit/test_s8_r2_chroma_exact.py" in chroma_commands
     assert "tests/audit/test_s8_r2_semantic_admission.py" in chroma_commands

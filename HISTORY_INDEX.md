@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 669
-total_tokens: ~342579
-latest_id: 669
+total_entries: 670
+total_tokens: ~343409
+latest_id: 670
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 670 | 2026-10-14 | in-progress | 167043beadaf37d9 | maintenance/branches,maintenance/pgvector,runtime/retrieval,docs,+ | none |
 | 669 | 2026-10-14 | done | 6d13d1a949559815 | docs,status,handoff,registry,+ | 668 |
 | 668 | 2026-10-14 | changed | 7bd3422aadbf590d | agent,protocol,bugfix,gates,+ | 667 |
 | 667 | 2026-10-14 | changed | 57e82a9d41db831a | pyproject,installer,mcp,registry,+ | 666 |
@@ -776,7 +777,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=116 latest=#669, #668, #667, #666, #665
+- docs: count=117 latest=#670, #669, #668, #667, #666
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -860,6 +861,8 @@ compact: true
 - lx1: count=6 latest=#206, #197, #088, #018, #011
 - macos: count=6 latest=#664, #663, #354, #353, #352
 - maintenance: count=1 latest=#301
+- maintenance/branches: count=1 latest=#670
+- maintenance/pgvector: count=1 latest=#670
 - manual: count=1 latest=#331
 - mcp: count=27 latest=#667, #642, #520, #491, #487
 - measurement: count=2 latest=#459, #369
@@ -942,7 +945,7 @@ compact: true
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
 - registry: count=10 latest=#669, #667, #582, #580, #526
-- release: count=7 latest=#486, #485, #484, #476, #356
+- release: count=8 latest=#670, #486, #485, #484, #476
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
 - resolution: count=5 latest=#459, #458, #457, #456, #455
@@ -957,6 +960,7 @@ compact: true
 - routing: count=1 latest=#355
 - rule: count=1 latest=#304
 - run-record: count=2 latest=#367, #366
+- runtime/retrieval: count=1 latest=#670
 - salvage: count=1 latest=#179
 - sbert: count=3 latest=#023, #022, #011
 - scope: count=1 latest=#318
@@ -1031,8 +1035,8 @@ compact: true
 
 ## status rollup
 
-- roots: 87
+- roots: 88
 - changed: 74
 - done: 541
-- in-progress: 32
+- in-progress: 33
 - planned: 22

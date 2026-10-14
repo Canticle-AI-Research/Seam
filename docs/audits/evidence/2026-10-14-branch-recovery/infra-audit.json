@@ -1,0 +1,1359 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task": "audit-infra",
+  "observed_at": "2026-10-14T09:30:52.049294+00:00",
+  "fixed_main": "07b20a424ace842b9d3c88f836efff88906b6451",
+  "root_context_packet": "/workspace/scratch/seam-branch-audit-20261014/infra-packet.json",
+  "inventory_sha256": "09cc379e41ec7544e87175d19ee051207d03df78612e4ab1d33bdf009af3fa6b",
+  "branches": [
+    {
+      "repository": "Seam",
+      "branch": "backup/local-pgvector-bootstrap",
+      "ref": "refs/remotes/origin/backup/local-pgvector-bootstrap",
+      "tip": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "75bc2d6a5c6a04173c722ec17a02e75947bee720",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea",
+          "date": "2026-04-28T09:46:04-05:00",
+          "subject": "Update pgvector backup branch from main"
+        },
+        {
+          "sha": "7be4416fa87e39ddf89d810e57675a78229e78d8",
+          "date": "2026-04-17T08:48:04-05:00",
+          "subject": "Add local pgvector bootstrap and restore repo wiring"
+        }
+      ],
+      "pull_requests": [],
+      "recommendation": "REBUILD_SAFE_MISSING_CONVENIENCES_AND_ARCHIVE_HISTORICAL_DOCUMENTS; REJECT_DESTRUCTIVE_STARTUP",
+      "priority": 3,
+      "useful_missing_work": [
+        "Windows one-command prerequisite/setup and explicit session test-DSN convenience, if retained, should delegate to current ensure_pgvector and native installer instead of duplicating environment/database lifecycle.",
+        "The authored ordered video walkthrough is unique planning material; preserve its outline and historical PDF, refresh current commands/spec/license pointers before active documentation.",
+        "Compose parent-volume/init-extension ideas are useful comparison inputs for the coordinated PG18 persistence/CI work, not an extra competing compose definition."
+      ],
+      "already_preserved": [
+        "Current seam_runtime/pgvector_bootstrap.py:ensure_pgvector/_ensure_docker_ready/_wait_for_pgvector/_ensure_vector_extension already supply nondestructive Docker Desktop/service readiness, quoted DSN generation and extension creation.",
+        "Current docker-compose.yaml uses loopback port 55432 and active 0.8.6 image; current test suites and CODE_LAYOUT supersede hardcoded workstation/test_seam.py notes."
+      ],
+      "blockers": [
+        "scripts/pgvector-up.ps1 always docker rm -f and docker volume rm -f before startup; regex can remove matching named data from multiple compose projects. Never import as routine startup.",
+        "Readiness accepts running without healthy and exits its deadline loop without a failed-timeout check before printing ready.",
+        "setup-seam.ps1 rewrites .env with only four keys, drops unrelated settings/comments and its default Port=5432 overrides an existing custom port; pip installs into the ambient interpreter.",
+        "Old compose exposes port on all interfaces, pins 0.8.2, introduces a second compose file preferred by Docker Compose, and old test DSN name differs from current PGVECTOR_TEST_DSN lanes.",
+        "_imports/awesome-design-md is an unregistered gitlink (62437487397768c31f665de7e3a108956a25f381); no .gitmodules mapping. No active requirement or source/license provenance was established.",
+        "PDF/video are dated April state, with obsolete local absolute paths, remote and claims; retain as history rather than live instruction."
+      ],
+      "integration_slices": [
+        {
+          "order": 1,
+          "action": "After coordinated PG18 layout/image work, prove current bootstrap preserves data and propagates readiness errors in disposable fixtures; add missing Windows wrapper only around those tested current seams.",
+          "tests": [
+            "No-force-delete command trace",
+            "Timeout returns nonzero",
+            "Existing settings preserved",
+            "Custom port/quoted DSN",
+            "Fresh virtual environment and current external-test DSN"
+          ]
+        },
+        {
+          "order": 2,
+          "action": "Rewrite one current Windows/pgvector command page and walkthrough outline; link an archived exact dated PDF rather than importing stale AGENTS/ledger/test instructions."
+        }
+      ],
+      "commit_reviews": [
+        {
+          "sha": "7be4416fa87e39ddf89d810e57675a78229e78d8",
+          "finding": "Introduces all ten bootstrap/tutorial/import additions plus old AGENTS/ledger and newline-only .gitignore changes. No runtime retrieval implementation in this commit; outdated policy drafts superseded by main."
+        },
+        {
+          "sha": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea",
+          "finding": "Merge of contemporaneous main 75bc2d6; bootstrap script/compose bodies match intermediate 7be exactly, no useful hidden tip reversion. Other merge-parent runtime changes belong to historical main ancestry, not this branch delta."
+        }
+      ],
+      "cleanup_condition": "Rebuild/qualify accepted conveniences or explicitly record their existing equivalents; preserve authored PDF/SOP and old no-PR tip in a durable archive ref/bundle before deleting the backup branch.",
+      "file_dispositions": [
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "tip_blob": "f94931893a918d8e21d1e8ef219c8be37b8a7cdf",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "tip_blob": "96f98364f7b18226d3259fe169ef32121bb7c8e5",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "_imports/awesome-design-md",
+          "status": "A",
+          "tip_blob": "62437487397768c31f665de7e3a108956a25f381",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Unregistered external gitlink; archive pointer only; no automatic source/dependency import."
+        },
+        {
+          "path": "compose.yaml",
+          "status": "A",
+          "tip_blob": "d35d62664720e9b2508c686da595533524cf77d8",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Partial useful PG18 parent volume layout; superseded active compose name/version/loopback; do not introduce competing file."
+        },
+        {
+          "path": "docker/initdb/01-vector.sql",
+          "status": "A",
+          "tip_blob": "93a854cdaf68756b00396be51a6d4de344b9bd6c",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "CREATE EXTENSION idea already covered by current _ensure_vector_extension; optional fresh-only init file needs qualification."
+        },
+        {
+          "path": "docs/COMMANDS.md",
+          "status": "A",
+          "tip_blob": "f94bde9b2721509de6db4df89dacf7eec5718f8d",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Rewrite useful command organization; absolute machine paths, retired tests and destructive setup are obsolete."
+        },
+        {
+          "path": "docs/CONVENTIONS.md",
+          "status": "A",
+          "tip_blob": "105201ca8290b9ea24e213f128d9a8c9cefd0327",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Stable API/provenance/small-change principles already in current governing contracts; obsolete unittest path superseded."
+        },
+        {
+          "path": "docs/PROJECT_MAP.md",
+          "status": "A",
+          "tip_blob": "57cbcf6101413139d2dbd13c091c432670027e26",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Current CODE_LAYOUT supplies maintained mapping; old test/module overview is obsolete."
+        },
+        {
+          "path": "docs/SEAM_NotebookLM_Brief_2026-04-17.pdf",
+          "status": "A",
+          "tip_blob": "8204b55deee5732e0e3c9ba2663cd5c55b4516f0",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "PDF text inspected via pdftotext; dated briefing reiterates existing runtime/sidecar architecture and old setup flow. Archive exact artifact, no unique implementation inside."
+        },
+        {
+          "path": "docs/SOP_VIDEO_COMMANDS_AND_STRUCTURE.md",
+          "status": "A",
+          "tip_blob": "af0366f7cb1b856cd52e235bb371e1d9ccfc66ee",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Unique narration outline recoverable as planning; refresh commands and canonical RAW/IR/PACK/LENS and licensing distinctions."
+        },
+        {
+          "path": "scripts/pgvector-up.ps1",
+          "status": "A",
+          "tip_blob": "f75729f9e9b5725972d052c6c749c6e0ba14ce1c",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Useful ergonomics but unsafe destructive implementation and false readiness; rebuild around current bootstrap."
+        },
+        {
+          "path": "scripts/setup-seam.ps1",
+          "status": "A",
+          "tip_blob": "702b36befa9d70842d30bff923f8e993a438589c",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Useful one-command setup idea; replace ambient pip and destructive .env rewrite with current installer/config path."
+        }
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "4911bd55846ffa5c990c57d5fb4d38b765f8b6ea",
+          "parents": [
+            "7be4416fa87e39ddf89d810e57675a78229e78d8",
+            "75bc2d6a5c6a04173c722ec17a02e75947bee720"
+          ],
+          "subject": "Update pgvector backup branch from main",
+          "path_metadata": [
+            "A\t.env.example",
+            "A\t.gitattributes",
+            "A\t.github/workflows/ci.yml",
+            "M\t.gitignore",
+            "A\t.rgignore",
+            "A\t.seam/snapshots/.gitkeep",
+            "M\tAGENTS.md",
+            "M\tANTIGRAVITY.md",
+            "M\tCLAUDE.md",
+            "M\tGEMINI.md",
+            "A\tHISTORY.md",
+            "A\tHISTORY_INDEX.md",
+            "M\tPROJECT_STATUS.md",
+            "M\tREADME.md",
+            "M\tREPO_LEDGER.md",
+            "A\tROADMAP.md",
+            "A\tarchive/README.md",
+            "A\tarchive/code/README.md",
+            "A\tbenchmarks/BENCHMARK_LOG.md",
+            "M\tbenchmarks/README.md",
+            "A\tbenchmarks/fixtures/holdout/README.md",
+            "A\tbenchmarks/runs/20260417_111912_hash_projection.json",
+            "A\tbenchmarks/runs/20260417_112108_hash_projection.json",
+            "A\tbenchmarks/runs/20260417_112108_sbert_projection.json",
+            "A\tbenchmarks/runs/20260417_120506_hash_projection.json",
+            "A\tbenchmarks/runs/20260417_120506_sbert_projection.json",
+            "A\tbenchmarks/runs/holdout/README.md",
+            "A\tbranding/assets/mature/palette.json",
+            "A\tbranding/assets/mature/preview.html",
+            "A\tbranding/assets/mature/restart-dashboard.bat",
+            "A\tbranding/assets/mature/seam-terminal-logo.txt",
+            "A\tbranding/screenshots/retro-preview-v10-raster.png",
+            "A\tbranding/screenshots/retro-preview-v10.svg",
+            "A\tbranding/screenshots/retro-preview-v8-raster.png",
+            "A\tbranding/screenshots/retro-preview-v8.png",
+            "A\tbranding/screenshots/retro-preview-v8.svg",
+            "A\tbranding/screenshots/retro-preview-v9-raster.png",
+            "A\tbranding/screenshots/retro-preview-v9.svg",
+            "A\tdocker-compose.yaml",
+            "A\tdocs/CODE_LAYOUT.md",
+            "A\tdocs/DATA_ROUTING.md",
+            "M\tdocs/MIRL_V1.md",
+            "A\tdocs/RAG_ARCHITECTURE.md",
+            "A\tdocs/README.md",
+            "M\tdocs/SOP_MODEL_INTEGRATION.md",
+            "A\tdocs/archive/README.md",
+            "A\tdocs/archive/handoffs/HANDOFF_2026-04-20_seam_ui_layer.md",
+            "A\tdocs/errors.md",
+            "A\tdocs/howto/README.md",
+            "A\tdocs/ledgers/README.md",
+            "A\tdocs/ledgers/maintenance/README.md",
+            "A\tdocs/ledgers/maintenance/docker.md",
+            "A\tdocs/ledgers/maintenance/pgvector.md",
+            "A\tdocs/ledgers/protocol/README.md",
+            "A\tdocs/ledgers/protocol/context.md",
+            "A\tdocs/ledgers/protocol/security.md",
+            "A\tdocs/ledgers/runtime/compression.md",
+            "A\tdocs/setup.md",
+            "M\texperimental/retrieval_orchestrator/__init__.py",
+            "M\texperimental/retrieval_orchestrator/adapters.py",
+            "M\texperimental/retrieval_orchestrator/orchestrator.py",
+            "M\texperimental/retrieval_orchestrator/planner.py",
+            "M\texperimental/retrieval_orchestrator/types.py",
+            "M\tinstallers/README.md",
+            "M\tinstallers/install_seam.py",
+            "M\tpyproject.toml",
+            "A\tpytest.ini",
+            "M\trequirements.txt",
+            "M\tscripts/bootstrap_seam.ps1",
+            "M\tscripts/install_global_seam_command.ps1",
+            "A\tscripts/run_guarded.ps1",
+            "A\tscripts/run_real_adapters_guarded.ps1",
+            "A\tscripts/store_benchmark.ps1",
+            "A\tscripts/windows/launch_dashboard.bat",
+            "A\tscripts/windows/launch_dashboard.ps1",
+            "M\tseam.py",
+            "A\tseam_runtime/agent_memory.py",
+            "M\tseam_runtime/benchmarks.py",
+            "M\tseam_runtime/cli.py",
+            "A\tseam_runtime/config.toml",
+            "M\tseam_runtime/dashboard.py",
+            "M\tseam_runtime/evals.py",
+            "M\tseam_runtime/installer.py",
+            "M\tseam_runtime/lossless.py",
+            "A\tseam_runtime/lx1.py",
+            "A\tseam_runtime/mcp.py",
+            "M\tseam_runtime/models.py",
+            "M\tseam_runtime/runtime.py",
+            "A\tseam_runtime/server.py",
+            "M\tseam_runtime/storage.py",
+            "A\tseam_runtime/ui/__init__.py",
+            "A\tseam_runtime/ui/animations.py",
+            "A\tseam_runtime/ui/bars.py",
+            "A\tseam_runtime/ui/logo.py",
+            "A\tseam_runtime/ui/theme.py",
+            "M\tseam_runtime/vector.py",
+            "M\tseam_runtime/vector_adapters.py",
+            "M\ttest_seam.py",
+            "A\ttools/extract_projection_metrics.py",
+            "A\ttools/history/__init__.py",
+            "A\ttools/history/build_context_pack.py",
+            "A\ttools/history/history_lib.py",
+            "A\ttools/history/load_snapshot.py",
+            "A\ttools/history/new_entry.py",
+            "A\ttools/history/rebuild_index.py",
+            "A\ttools/history/routing_manifest.json",
+            "A\ttools/history/seed_from_existing.py",
+            "A\ttools/history/test_history_tools.py",
+            "A\ttools/history/verify_continuity.py",
+            "A\ttools/history/verify_integrity.py",
+            "A\ttools/history/verify_routing.py",
+            "A\ttools/history/write_snapshot.py",
+            "A\ttools/projection_sbert_comparison.py",
+            "A\ttools/run_projection_benchmarks.py",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "A\t_imports/awesome-design-md",
+            "A\tcompose.yaml",
+            "A\tdocker/initdb/01-vector.sql",
+            "A\tdocs/COMMANDS.md",
+            "A\tdocs/CONVENTIONS.md",
+            "A\tdocs/PROJECT_MAP.md",
+            "A\tdocs/SEAM_NotebookLM_Brief_2026-04-17.pdf",
+            "A\tdocs/SOP_VIDEO_COMMANDS_AND_STRUCTURE.md",
+            "A\tscripts/pgvector-up.ps1",
+            "A\tscripts/setup-seam.ps1"
+          ],
+          "historical_scripts_executed": false
+        },
+        {
+          "sha": "7be4416fa87e39ddf89d810e57675a78229e78d8",
+          "parents": [
+            "6a8c49ee7afa6b737af6e4b161b110ecabfe935c"
+          ],
+          "subject": "Add local pgvector bootstrap and restore repo wiring",
+          "path_metadata": [
+            "M\t.gitignore",
+            "A\tAGENTS.md",
+            "M\tREPO_LEDGER.md",
+            "A\t_imports/awesome-design-md",
+            "A\tcompose.yaml",
+            "A\tdocker/initdb/01-vector.sql",
+            "A\tdocs/COMMANDS.md",
+            "A\tdocs/CONVENTIONS.md",
+            "A\tdocs/PROJECT_MAP.md",
+            "A\tdocs/SEAM_NotebookLM_Brief_2026-04-17.pdf",
+            "A\tdocs/SOP_VIDEO_COMMANDS_AND_STRUCTURE.md",
+            "A\tscripts/pgvector-up.ps1",
+            "A\tscripts/setup-seam.ps1"
+          ],
+          "historical_scripts_executed": false
+        }
+      ],
+      "observed_checks": [],
+      "qualification": {
+        "tests_run_in_this_audit": false,
+        "current_functional_qualification": false,
+        "old_ci_checks_provenance_only": true,
+        "historical_test_claims_not_independently_replayed": true
+      }
+    },
+    {
+      "repository": "Seam",
+      "branch": "claude/ci-gate-parity-and-timeouts",
+      "ref": "refs/remotes/origin/claude/ci-gate-parity-and-timeouts",
+      "tip": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "unique_commit_count": 2,
+      "unique_commits": [
+        {
+          "sha": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+          "date": "2026-09-24T08:51:41Z",
+          "subject": "Gate workspace hygiene instead of documenting it"
+        },
+        {
+          "sha": "a511a9fbd12aa6000378473c957f3a608e502566",
+          "date": "2026-09-24T08:31:09Z",
+          "subject": "Assert gate parity as an invariant, not a syntactic shape"
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "claude/ci-gate-parity-and-timeouts",
+          "headRefOid": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 270,
+          "state": "OPEN",
+          "title": "Make the hygiene gates actually gate",
+          "updatedAt": "2026-09-28T21:25:04Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/270"
+        }
+      ],
+      "recommendation": "PARTIAL_ALREADY_PRESERVED; REBUILD_CHECK_ONLY_WORKSPACE_GATE_ON_MAIN_WITH_TDD",
+      "priority": 2,
+      "useful_missing_work": [
+        "Declarative ignored-root/disposable-sink/scratch/worktree inventory with budgets and actionable read-only findings is absent from main.",
+        "Source contract plus local/required-CI enforcement can catch ignored clutter currently invisible to git status."
+      ],
+      "already_preserved": [
+        "Intermediate a511a9f four invariant gate tests (_hook_gates coverage, allowed args, relative order, aborting bare calls) are already in current tests/audit/test_history_closeout.py; current main further recognizes staged reference/manifest checks."
+      ],
+      "blockers": [
+        "Do not restore obsolete pyproject/license or history files; carry only the workspace contract/tool/new tests.",
+        "_git discards return codes; Git failures can report an empty clean inventory. check_root_scratch calls _git without repo_root, so --repo-root can inspect tracked paths from the module default repository.",
+        "_worktrees ignores detached entries because it only records branch lines; detached/missing/dirty worktrees can escape counts/checks.",
+        "_prunable does not exclude a registered worktree or its parent from undeclared ignored roots/sink contents; --fix can rmtree unpushed work despite its stated guarantee. It also recursively deletes unknown ignored roots, which are not proven disposable.",
+        "Ignore coverage skips all dot-prefixed and wildcard patterns, so new .secret or wildcard rules need not receive dispositions despite the promised invariant.",
+        "Proposed contract treats repo .env as forbidden while current pgvector bootstrap still explicitly supports repo .env. Reconcile allowed config location and new managed roots (.codex/.seam) before enforcing.",
+        "Only pre-commit and closeout acquire new gate; required repo-hygiene and Claude preflight have no workspace check in this branch. Add full parity, preserve current stronger doc/license gates.",
+        "Fixed 3-worktree and 25MB/2MB limits need current workload reconciliation; do not silently classify all old visuals/Webui-final-dash as regenerable."
+      ],
+      "integration_slices": [
+        {
+          "order": 1,
+          "action": "Rebuild a check-only explicit schema/contract reader and inventory CLI; propagate Git failures, use selected repo root, include detached worktrees; retain filename-only credential checks without reading secret values.",
+          "tests": [
+            "Public CLI clean/fail fixtures",
+            "Git unavailable/nonzero",
+            "Alternate --repo-root",
+            "Detached and dirty worktrees",
+            "New dotted/wildcard ignores",
+            "Symlink containment",
+            "Current managed roots and legitimate local config"
+          ]
+        },
+        {
+          "order": 2,
+          "action": "Add unsuppressed current-main CI/local/closeout gates and extend existing parity tests; update policies only after source tests are green."
+        },
+        {
+          "order": 3,
+          "action": "Defer --fix until deletion candidates are demonstrably disposable, contained, and exclude every worktree/ancestor/credential path; require concrete reviewed deletion inventory."
+        }
+      ],
+      "commit_reviews": [
+        {
+          "sha": "a511a9fbd12aa6000378473c957f3a608e502566",
+          "finding": "Substantive invariant test repair is already preserved in current main; exact difference is expanded STAGED_SCOPED allowlist."
+        },
+        {
+          "sha": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+          "finding": "Adds workspace contract, tool/tests and local gates; useful work absent from main, with unsafe --fix/fail-open and parity gaps. No hidden reversion of a511 feature."
+        }
+      ],
+      "cleanup_condition": "Retire after safe successor check-only CLI and complete parity qualify, then record rejected auto-delete semantics and preserve PR270 head ref; do not merge entire stale branch.",
+      "file_dispositions": [
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "tip_blob": "1414393a656d7f1246a0100bc38e17c43a6d5038",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0512.cross.md",
+          "status": "R099",
+          "tip_blob": null,
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0514.cross.md",
+          "status": "R099",
+          "tip_blob": "567581a2e8805eb0a7861947aa69db131e466f08",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "tip_blob": "6ac9c91fddebbf166c1f82540ee7042d092f3910",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "tip_blob": "0cd05fcd3934eb2a689cb23fa92143cebf64ed45",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "AGENTS.md",
+          "status": "M",
+          "tip_blob": "6a89e5cbcc5e4fcf11c0e4584983aeb233ec981f",
+          "main_blob": "8d1d887d68c9ac78ff462362025b843c3f7aabe9",
+          "same_blob": false,
+          "reason": "Missing check-only workspace policy useful after implementation; do not copy historical startup text."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "tip_blob": "0cd05fcd3934eb2a689cb23fa92143cebf64ed45",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "tip_blob": "6ac9c91fddebbf166c1f82540ee7042d092f3910",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "REPO_LEDGER.md",
+          "status": "M",
+          "tip_blob": "3899ab3a0784d9bd93a20feaa48500e8e952e8fe",
+          "main_blob": "b9f994e7ef792d3f186602ee5235cff8913961d6",
+          "same_blob": false,
+          "reason": "Workspace contract policy useful after safe rebuild; current gate-parity paragraph already preserved."
+        },
+        {
+          "path": "pyproject.toml",
+          "status": "M",
+          "tip_blob": "144cc214a9dc37fba2c8cce0cd4cf7bdf4f4f308",
+          "main_blob": "e6d0208ba27dda1c994acd4fa833ebdc84f66250",
+          "same_blob": false,
+          "reason": "Carry reviewed workspace-contract table only; reconcile local configs/generated roots/budgets and preserve current licensing/default dependencies."
+        },
+        {
+          "path": "tests/audit/test_history_closeout.py",
+          "status": "M",
+          "tip_blob": "84f669a4cef1f8b4a5cfdc42a9972280edadc9c0",
+          "main_blob": "8789fc05f5a662e642665306204697f8944598c6",
+          "same_blob": false,
+          "reason": "First commit fully preserved by main, with additional staged modules."
+        },
+        {
+          "path": "tests/audit/test_workspace_hygiene.py",
+          "status": "A",
+          "tip_blob": "110391e707ba9f562167cc05d285d9a5e502dd58",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Useful dirty/ignored/sink fixtures; rebuild stronger CLI/Git-failure/detached/containment tests; do not execute historical --fix scripts."
+        },
+        {
+          "path": "tools/git-hooks/pre-commit",
+          "status": "M",
+          "tip_blob": "337d5450ac5d42b8756c038619352a67dced7f28",
+          "main_blob": "314ef33be67402ef636a1184d560486954c62426",
+          "same_blob": false,
+          "reason": "Workspace run_gate absent; append safe check without replacing current staged source/docs or early agent gate."
+        },
+        {
+          "path": "tools/git/verify_workspace.py",
+          "status": "A",
+          "tip_blob": "4a45d29e646051f0d28c93fdc50309fe4a692146",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "New capability absent; reconstruct safe check-only subset and repair identified fail-open/unsafe-delete paths."
+        },
+        {
+          "path": "tools/history/closeout.py",
+          "status": "M",
+          "tip_blob": "49e95fa11d616a8a2cfd18ae84c373d1a1ab6f38",
+          "main_blob": "6d9295dd555bcd41a28a1596207a0ce72a0dd39f",
+          "same_blob": false,
+          "reason": "Workspace PREFLIGHT_GATES entry absent; retain all current gates and canonical order."
+        }
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+          "parents": [
+            "a511a9fbd12aa6000378473c957f3a608e502566"
+          ],
+          "subject": "Gate workspace hygiene instead of documenting it",
+          "path_metadata": [
+            "M\t.seam/cross_index.md",
+            "D\t.seam/cross_index_archive/0001-0513.cross.md",
+            "A\t.seam/cross_index_archive/0001-0514.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tAGENTS.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tREPO_LEDGER.md",
+            "M\tpyproject.toml",
+            "A\ttests/audit/test_workspace_hygiene.py",
+            "M\ttools/git-hooks/pre-commit",
+            "A\ttools/git/verify_workspace.py",
+            "M\ttools/history/closeout.py"
+          ],
+          "historical_scripts_executed": false
+        },
+        {
+          "sha": "a511a9fbd12aa6000378473c957f3a608e502566",
+          "parents": [
+            "66fd3f93081712871ff827e756026c3e73c71790"
+          ],
+          "subject": "Assert gate parity as an invariant, not a syntactic shape",
+          "path_metadata": [
+            "M\t.seam/cross_index.md",
+            "D\t.seam/cross_index_archive/0001-0512.cross.md",
+            "A\t.seam/cross_index_archive/0001-0513.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md",
+            "M\tREPO_LEDGER.md",
+            "M\ttests/audit/test_history_closeout.py"
+          ],
+          "historical_scripts_executed": false
+        }
+      ],
+      "observed_checks": [
+        {
+          "number": 270,
+          "head": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+          "state": "OPEN",
+          "draft": true,
+          "body_sha256": "29ef6488bdb51985bcc1b48e2288e1fb4debbbf855e36ee6a8bac428887d276b",
+          "checks": [
+            {
+              "name": "pgvector-integration",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747942/job/107562135829"
+            },
+            {
+              "name": "Analyze (actions)",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977743768/job/107562126859"
+            },
+            {
+              "name": "registry-plan",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747846/job/107562134554"
+            },
+            {
+              "name": "package-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747942/job/107562135907"
+            },
+            {
+              "name": "repo-hygiene",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747942/job/107562135378"
+            },
+            {
+              "name": "chroma-real-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747942/job/107562135883"
+            },
+            {
+              "name": "locomo-quickstart-bil2",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747942/job/107562135851"
+            },
+            {
+              "name": "test-and-benchmark",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/35977747942/job/107563098415"
+            },
+            {
+              "name": "CodeQL",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/runs/107562297917"
+            }
+          ]
+        }
+      ],
+      "qualification": {
+        "tests_run_in_this_audit": false,
+        "current_functional_qualification": false,
+        "old_ci_checks_provenance_only": true,
+        "historical_test_claims_not_independently_replayed": true
+      }
+    },
+    {
+      "repository": "Seam",
+      "branch": "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+      "ref": "refs/remotes/origin/dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+      "tip": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "582bf0ca04be5eb44879a06c5589167d3ccf4bf3",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+          "date": "2026-10-08T07:23:30Z",
+          "subject": "chore(deps): bump pgvector/pgvector"
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie",
+          "headRefOid": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 282,
+          "state": "OPEN",
+          "title": "chore(deps): bump pgvector/pgvector from 0.8.6-pg18-trixie to 0.8.7-pg18-trixie",
+          "updatedAt": "2026-10-08T07:23:32Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/282"
+        }
+      ],
+      "recommendation": "INTEGRATE_TARGETED_ACTIVE_IMAGE_BUMP_WITH_COORDINATED_CI_QUALIFICATION",
+      "priority": 1,
+      "useful_missing_work": [
+        "Active docker-compose.yaml still 0.8.6; exact one-line 0.8.7 update remains useful active dependency maintenance."
+      ],
+      "already_preserved": [],
+      "blockers": [
+        "Root observed current GHA Docker Desktop socket failure before service initialization. Image/tmpfs options cannot repair daemon selection; a step inside an automatic service job is too late to probe before its service starts.",
+        "PR282 only updates compose; CI pgvector service still uses 0.8.6, so green pgvector-integration checks do not exercise new image.",
+        "Fresh extension initialization, version compatibility, persistence/restart and current retrieval parity require the actual 0.8.7 image in an isolated disposable database."
+      ],
+      "integration_slices": [
+        {
+          "order": 1,
+          "action": "Update active compose and matching current CI image together, preserving loopback/PGDATA/persistent volume behavior; combine or follow ephemeral CI-volume repair.",
+          "tests": [
+            "Actual image extension/version",
+            "Disposable restart persistence",
+            "All six existing real-pgvector files",
+            "No runtime/provider paid calls"
+          ]
+        }
+      ],
+      "commit_reviews": [
+        {
+          "sha": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+          "finding": "Only active compose image tag changes; no hidden intermediate implementation."
+        }
+      ],
+      "cleanup_condition": "Merge/rebuild minimal current-main dependency slice after actual-image checks; retire PR282 branch after preservation proof.",
+      "file_dispositions": [
+        {
+          "path": "docker-compose.yaml",
+          "status": "M",
+          "tip_blob": "7cc32a7c842135d5972f17a92b6cabd85de47f4d",
+          "main_blob": "da7af2b966d2cb2f616c1e80bba6dee731706b56",
+          "same_blob": false,
+          "reason": "Active one-line image update absent from main and no competing source behavior."
+        }
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+          "parents": [
+            "582bf0ca04be5eb44879a06c5589167d3ccf4bf3"
+          ],
+          "subject": "chore(deps): bump pgvector/pgvector",
+          "path_metadata": [
+            "M\tdocker-compose.yaml"
+          ],
+          "historical_scripts_executed": false
+        }
+      ],
+      "observed_checks": [
+        {
+          "number": 282,
+          "head": "11ed444c32ee7663391748569fa59ee2f40f3f34",
+          "state": "OPEN",
+          "draft": false,
+          "body_sha256": "a466f3b05ca96c64ec752d50e39b172b33eb6464bcd6108079b0a3ce7a0f351b",
+          "checks": [
+            {
+              "name": "pgvector-integration",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146658/job/113198315256"
+            },
+            {
+              "name": "registry-plan",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146544/job/113198313766"
+            },
+            {
+              "name": "package-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146658/job/113198315143"
+            },
+            {
+              "name": "repo-hygiene",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146658/job/113198315148"
+            },
+            {
+              "name": "chroma-real-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146658/job/113198315151"
+            },
+            {
+              "name": "locomo-quickstart-bil2",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146658/job/113198314913"
+            },
+            {
+              "name": "test-and-benchmark",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37743146658/job/113199525399"
+            },
+            {
+              "name": "CodeQL",
+              "status": "COMPLETED",
+              "conclusion": "NEUTRAL",
+              "url": "https://github.com/Canticle-AI-Research/Seam/runs/113198284575"
+            }
+          ]
+        }
+      ],
+      "qualification": {
+        "tests_run_in_this_audit": false,
+        "current_functional_qualification": false,
+        "old_ci_checks_provenance_only": true,
+        "historical_test_claims_not_independently_replayed": true
+      },
+      "integration_dependencies": [
+        "infra-daemon-probe-and-owned-container-start",
+        "coordinated-active-pgvector-image-and-ephemeral-volume-qualification"
+      ]
+    },
+    {
+      "repository": "Seam",
+      "branch": "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+      "ref": "refs/remotes/origin/dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+      "tip": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "582bf0ca04be5eb44879a06c5589167d3ccf4bf3",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+          "date": "2026-10-06T03:44:51Z",
+          "subject": "chore(deps): bump source-map-js"
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae",
+          "headRefOid": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+          "isDraft": false,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 280,
+          "state": "OPEN",
+          "title": "chore(deps): bump source-map-js from 1.2.1 to 1.2.2 in /archive/webui-vite-source in the npm_and_yarn group across 1 directory",
+          "updatedAt": "2026-10-06T03:44:56Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/280"
+        }
+      ],
+      "recommendation": "ARCHIVE_RETIRED_LOCK_UPDATE_AND_CLOSE_OBSOLETE_PR280",
+      "priority": 4,
+      "useful_missing_work": [],
+      "already_preserved": [
+        "Current docs/status/surfaces.md declares archived Vite source inactive and requires a new verified source path for a future modular browser build.",
+        "Current .github/dependabot.yml already removes npm scanning and documents standalone served dashboard; Python build copies seam_runtime/webui assets, not archived npm tree."
+      ],
+      "blockers": [
+        "PR release notes describe CSP and indexed-source-map denial-of-service fixes, but only a retired dev lock is changed; old green Python CI is not a frontend vulnerability qualification.",
+        "A future frontend resurrection must select/qualify fresh dependencies in an active source path rather than implicitly reactivating this archive."
+      ],
+      "integration_slices": [],
+      "commit_reviews": [
+        {
+          "sha": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+          "finding": "Single retired lockfile diff; no active component patch or hidden intermediate behavior."
+        }
+      ],
+      "cleanup_condition": "Record retirement/no-active-consumer evidence and keep refs/pull/280/head reachable before removing obsolete automation branch; no claim that any future frontend is secure.",
+      "file_dispositions": [
+        {
+          "path": "archive/webui-vite-source/package-lock.json",
+          "status": "M",
+          "tip_blob": "66e3d63a374cd7a499fb727f5f02f08569ca01a2",
+          "main_blob": "2f9cedd2771b6d105c54cce9e3768dbe38ab3789",
+          "same_blob": false,
+          "reason": "Exact source-map-js 1.2.1->1.2.2 version/url/integrity change only. No active build/runtime consumer; preserve retired snapshot and exact PR patch through closed pull ref."
+        }
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+          "parents": [
+            "582bf0ca04be5eb44879a06c5589167d3ccf4bf3"
+          ],
+          "subject": "chore(deps): bump source-map-js",
+          "path_metadata": [
+            "M\tarchive/webui-vite-source/package-lock.json"
+          ],
+          "historical_scripts_executed": false
+        }
+      ],
+      "observed_checks": [
+        {
+          "number": 280,
+          "head": "34869048c0413bb57dad57aa51827a8dbf3645d3",
+          "state": "OPEN",
+          "draft": false,
+          "body_sha256": "d3e5ace53547e9cdabe095b6638a57f0d79e8afa634e2adc1befee17c85f5afb",
+          "checks": [
+            {
+              "name": "pgvector-integration",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410440519/job/112097449204"
+            },
+            {
+              "name": "registry-plan",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410441250/job/112097450938"
+            },
+            {
+              "name": "package-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410440519/job/112097449247"
+            },
+            {
+              "name": "repo-hygiene",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410440519/job/112097449153"
+            },
+            {
+              "name": "chroma-real-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410440519/job/112097449124"
+            },
+            {
+              "name": "locomo-quickstart-bil2",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410440519/job/112097449017"
+            },
+            {
+              "name": "test-and-benchmark",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37410440519/job/112102441858"
+            },
+            {
+              "name": "CodeQL",
+              "status": "COMPLETED",
+              "conclusion": "NEUTRAL",
+              "url": "https://github.com/Canticle-AI-Research/Seam/runs/112097434397"
+            }
+          ]
+        }
+      ],
+      "qualification": {
+        "tests_run_in_this_audit": false,
+        "current_functional_qualification": false,
+        "old_ci_checks_provenance_only": true,
+        "historical_test_claims_not_independently_replayed": true
+      }
+    },
+    {
+      "repository": "Seam",
+      "branch": "dependabot/uv/uv-35b9e54a79",
+      "ref": "refs/remotes/origin/dependabot/uv/uv-35b9e54a79",
+      "tip": "8d77775fe6e029717115758b917c94c757ed0d4a",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "7bd47d203bc8094020e7c9537d6a9ea0b7ab50d0",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "8d77775fe6e029717115758b917c94c757ed0d4a",
+          "date": "2026-09-11T04:03:18Z",
+          "subject": "chore(deps): bump mem0ai in the uv group across 1 directory"
+        }
+      ],
+      "pull_requests": [
+        {
+          "headRefName": "dependabot/uv/uv-35b9e54a79",
+          "headRefOid": "8d77775fe6e029717115758b917c94c757ed0d4a",
+          "isDraft": true,
+          "mergeCommit": null,
+          "mergedAt": null,
+          "number": 249,
+          "state": "OPEN",
+          "title": "chore(deps): bump mem0ai from 0.1.118 to 2.0.0b2 in the uv group across 1 directory",
+          "updatedAt": "2026-10-14T06:01:32Z",
+          "url": "https://github.com/Canticle-AI-Research/Seam/pull/249"
+        }
+      ],
+      "recommendation": "REBUILD_COMPARATOR_COMPATIBILITY_SLICE_AFTER_FROZEN_PROTOCOL_DECISION",
+      "priority": 3,
+      "useful_missing_work": [
+        "Optional Mem0 package migration is active dependency work absent from main; old lock stays 0.1.118 and both extras stay <1.0.",
+        "Current adapter and stubs already expect filters/top_k 2.x search; test actual selected version to reconcile package API with the comparator implementation."
+      ],
+      "already_preserved": [
+        "benchmarks/external/locomo/adapters/mem0.py:Mem0LocomoAdapter.answer uses filters={user_id:scope} and top_k, normalizes results; test_seam_all/test_locomo_mem0_adapter.py covers stub scoping/reset/retry/no-key flows."
+      ],
+      "blockers": [
+        "MEMORY_FORMATION E1 explicitly freezes comparator package/protocol and forbids silently adopting PR249 beta.",
+        "Branch broadens >=0.1,<1 to >=0.1,<3 and locks a beta, without proving all accepted major lines compatible or adjusting Chroma<1/OpenAI<2 constraints.",
+        "Existing CI does not install bench-mem0/all-extras; green checks cannot qualify actual mem0ai 2.0.0b2 import/config/add/search/reset/cleanup or resolver behavior.",
+        "Actual provider campaign remains separately authorized/budgeted; this audit cannot spend or infer parity from stub tests."
+      ],
+      "integration_slices": [
+        {
+          "order": 1,
+          "action": "Freeze named comparator version (explicitly beta or selected stable) and protocol via formation/campaign decision; do not widen current baseline silently."
+        },
+        {
+          "order": 2,
+          "action": "On current main, isolate dependency declarations and regenerated lock; install chosen bench-mem0 extra in a scratch environment, validate actual SDK signatures/configuration and Chroma dependency compatibility with provider calls blocked."
+        },
+        {
+          "order": 3,
+          "action": "Add meaningful offline public adapter red/green for ingest/search/reset/scopes/result normalization; record actual package version and preserve all-extras/chroma conflict contract.",
+          "tests": [
+            "test_seam_all/test_locomo_mem0_adapter.py",
+            "Resolver/import actual chosen wheel",
+            "Stub/provider-blocked API smoke",
+            "No-key command refuses paid execution"
+          ]
+        }
+      ],
+      "commit_reviews": [
+        {
+          "sha": "8d77775fe6e029717115758b917c94c757ed0d4a",
+          "finding": "Only optional mem0 ranges and lock name/version/artifact hashes change. No adapter API repair or new compatibility tests in this branch."
+        }
+      ],
+      "cleanup_condition": "Replace with a qualified explicit comparator migration or document rejection of beta while preserving any accepted stable migration. Root should resolve the protocol dependency, not retain simply because PR249 is open.",
+      "file_dispositions": [
+        {
+          "path": "pyproject.toml",
+          "status": "M",
+          "tip_blob": "a506cad09a295a872908b21f42f47ead09266c80",
+          "main_blob": "e6d0208ba27dda1c994acd4fa833ebdc84f66250",
+          "same_blob": false,
+          "reason": "Useful comparator range change absent, but broad major/beta adoption needs explicit narrow compatible range and current policy preservation."
+        },
+        {
+          "path": "uv.lock",
+          "status": "M",
+          "tip_blob": "3aed4af76e7a02fb5504e1ab7ca5ee94609ae96b",
+          "main_blob": "ff8dc0d7cfaaac678c5dae202f54dddce9040bcd",
+          "same_blob": false,
+          "reason": "Useful exact package migration absent; regenerate from current main after chosen package/protocol instead of importing stale complete lock."
+        }
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "8d77775fe6e029717115758b917c94c757ed0d4a",
+          "parents": [
+            "7bd47d203bc8094020e7c9537d6a9ea0b7ab50d0"
+          ],
+          "subject": "chore(deps): bump mem0ai in the uv group across 1 directory",
+          "path_metadata": [
+            "M\tpyproject.toml",
+            "M\tuv.lock"
+          ],
+          "historical_scripts_executed": false
+        }
+      ],
+      "observed_checks": [
+        {
+          "number": 249,
+          "head": "8d77775fe6e029717115758b917c94c757ed0d4a",
+          "state": "OPEN",
+          "draft": true,
+          "body_sha256": "6cee9d6e9c86c9470fdbe79159b659b2acd1148f0e07993c6c08ea6f3c2b98d7",
+          "checks": [
+            {
+              "name": "pgvector-integration",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560748014/job/103142795997"
+            },
+            {
+              "name": "registry-plan",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560750674/job/103142796004"
+            },
+            {
+              "name": "package-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560748014/job/103142796084"
+            },
+            {
+              "name": "repo-hygiene",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560748014/job/103142796133"
+            },
+            {
+              "name": "chroma-real-smoke",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560748014/job/103142796006"
+            },
+            {
+              "name": "locomo-quickstart-bil2",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560748014/job/103142795841"
+            },
+            {
+              "name": "test-and-benchmark",
+              "status": "COMPLETED",
+              "conclusion": "SUCCESS",
+              "url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/34560748014/job/103146475430"
+            },
+            {
+              "name": "CodeQL",
+              "status": "COMPLETED",
+              "conclusion": "NEUTRAL",
+              "url": "https://github.com/Canticle-AI-Research/Seam/runs/103142771978"
+            }
+          ]
+        }
+      ],
+      "qualification": {
+        "tests_run_in_this_audit": false,
+        "current_functional_qualification": false,
+        "old_ci_checks_provenance_only": true,
+        "historical_test_claims_not_independently_replayed": true
+      }
+    },
+    {
+      "repository": "Seam",
+      "branch": "fix/pgvector-ci-volume-leak",
+      "ref": "refs/remotes/origin/fix/pgvector-ci-volume-leak",
+      "tip": "23c999e6041917e54040a79dd55ab0c6270214a8",
+      "main": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_base": "66fd3f93081712871ff827e756026c3e73c71790",
+      "unique_commit_count": 1,
+      "unique_commits": [
+        {
+          "sha": "23c999e6041917e54040a79dd55ab0c6270214a8",
+          "date": "2026-09-23T15:31:34-05:00",
+          "subject": "fix(ci): stop pgvector-integration volume leaks"
+        }
+      ],
+      "pull_requests": [],
+      "recommendation": "INTEGRATE_MINIMAL_CURRENT_CI_TMPFS_REPAIR_WITH_DISPOSABLE_LIFECYCLE_PROOF",
+      "priority": 1,
+      "useful_missing_work": [
+        "Current pgvector-integration.options lacks --mount type=tmpfs,destination=/var/lib/postgresql. This targets anonymous volumes from the image parent VOLUME for ephemeral CI data."
+      ],
+      "already_preserved": [],
+      "blockers": [
+        "Root observed current GHA Docker Desktop socket failure before service initialization. Image/tmpfs options cannot repair daemon selection; a step inside an automatic service job is too late to probe before its service starts.",
+        "Historical comment claims hundreds of volumes/~48MB; no current runner measurement was performed and no regression test is in branch.",
+        "Validate exact image Config.Volumes/PGDATA and actual service-container lifecycle; tmpfs must cover the declared parent and still permit extension/real tests, within runner memory.",
+        "This applies to disposable CI data only; do not copy tmpfs into persistent operator compose or prune existing volumes."
+      ],
+      "integration_slices": [
+        {
+          "order": 1,
+          "action": "Add only the tmpfs option to current pgvector CI, retaining all current required jobs/native/docs/license guards. Pair with actual 0.8.7 qualification from PR282.",
+          "tests": [
+            "Fresh named disposable service inspect Mounts",
+            "No anonymous named volume allocated for declared parent",
+            "Extension and six real-pgvector files",
+            "Service cleanup/repeated start bounded without host-wide prune"
+          ]
+        }
+      ],
+      "commit_reviews": [
+        {
+          "sha": "23c999e6041917e54040a79dd55ab0c6270214a8",
+          "finding": "Unique functional mount patch plus historical continuity/index append; no hidden intermediate reversion."
+        }
+      ],
+      "cleanup_condition": "After current-main CI lifecycle and retrieval checks pass, record preservation and retain old no-PR commit via archive ref/bundle if chronology needed; delete stale branch only after useful option is integrated.",
+      "file_dispositions": [
+        {
+          "path": ".github/workflows/ci.yml",
+          "status": "M",
+          "tip_blob": "1d0a3f6447b7e4a158a35dc5afdbd5ea769978f0",
+          "main_blob": "f0b56b3d48bdd65e7091632c92c1e0c965141bec",
+          "same_blob": false,
+          "reason": "Only functional branch delta is CI service tmpfs mount; absent main. Rebuild minimal option rather than old entire workflow."
+        },
+        {
+          "path": ".seam/cross_index.md",
+          "status": "M",
+          "tip_blob": "908e9cf0d563f81ffb2540154df6ba4d1c65a48d",
+          "main_blob": "517b72caa4a931f6b3fd536e8a9515edcd0d5940",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0512.cross.md",
+          "status": "R099",
+          "tip_blob": null,
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/cross_index_archive/0001-0513.cross.md",
+          "status": "R099",
+          "tip_blob": "14ae3f976a9626a81600cb0bdba17842a0a10ef7",
+          "main_blob": null,
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/streams/history/index.md",
+          "status": "M",
+          "tip_blob": "3bcbd4977ba6dd675b137ab358d4182782441532",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": ".seam/streams/history/log.md",
+          "status": "M",
+          "tip_blob": "60b21582c8b67866a96b5b3c85f573767c8bb3ad",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "HISTORY.md",
+          "status": "M",
+          "tip_blob": "60b21582c8b67866a96b5b3c85f573767c8bb3ad",
+          "main_blob": "38949dc0161f4906156ff4ab1d0f2c9054b04f24",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        },
+        {
+          "path": "HISTORY_INDEX.md",
+          "status": "M",
+          "tip_blob": "3bcbd4977ba6dd675b137ab358d4182782441532",
+          "main_blob": "6a4079b0814ccd98bd0fe2aff3fa408f179a210e",
+          "same_blob": false,
+          "reason": "Historical append/derived continuity state: metadata inspected only, never merge stale HISTORY/index/streams. Root appends new recovery chronology."
+        }
+      ],
+      "reviewed_unique_commits": [
+        {
+          "sha": "23c999e6041917e54040a79dd55ab0c6270214a8",
+          "parents": [
+            "66fd3f93081712871ff827e756026c3e73c71790"
+          ],
+          "subject": "fix(ci): stop pgvector-integration volume leaks",
+          "path_metadata": [
+            "M\t.github/workflows/ci.yml",
+            "M\t.seam/cross_index.md",
+            "D\t.seam/cross_index_archive/0001-0512.cross.md",
+            "A\t.seam/cross_index_archive/0001-0513.cross.md",
+            "M\t.seam/streams/history/index.md",
+            "M\t.seam/streams/history/log.md",
+            "M\tHISTORY.md",
+            "M\tHISTORY_INDEX.md"
+          ],
+          "historical_scripts_executed": false
+        }
+      ],
+      "observed_checks": [],
+      "qualification": {
+        "tests_run_in_this_audit": false,
+        "current_functional_qualification": false,
+        "old_ci_checks_provenance_only": true,
+        "historical_test_claims_not_independently_replayed": true
+      },
+      "integration_dependencies": [
+        "infra-daemon-probe-and-owned-container-start",
+        "coordinated-active-pgvector-image-and-ephemeral-volume-qualification"
+      ]
+    }
+  ],
+  "ordered_recovery": [
+    {
+      "order": 0,
+      "scope": "infra-daemon-probe-and-owned-container-start",
+      "branches": [
+        "fix/pgvector-ci-volume-leak",
+        "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie"
+      ],
+      "slice": "Separate from image/mount changes: explicitly probe the approved local daemon endpoint and permissions, fail nonzero before database tests if inaccessible. Repair runner provisioning/environment before automatic services, or move disposable CI service start into controlled steps following that probe. Do not mutate global Docker context or operator resources.",
+      "exit_evidence": [
+        "Actual endpoint/server-version/connectivity probe for intended executor",
+        "Wrong endpoint/permission failure stops service/test path",
+        "Owned unique container name plus bounded health wait; timeout fails closed",
+        "Cleanup names only that owned container and its disposable resources, on success and failure"
+      ]
+    },
+    {
+      "order": 1,
+      "branches": [
+        "fix/pgvector-ci-volume-leak",
+        "dependabot/docker_compose/pgvector/pgvector-0.8.7-pg18-trixie"
+      ],
+      "slice": "After approved daemon probe/start scope, apply current-main ephemeral tmpfs mount plus active compose/CI 0.8.7 image update; validate actual image Volumes/PGDATA, disposable lifecycle, restart/persistence expectations and all real-pgvector parity tests. Local managed-daemon feasibility is not proof the GitHub runner inherits the same endpoint."
+    },
+    {
+      "order": 2,
+      "branches": [
+        "claude/ci-gate-parity-and-timeouts"
+      ],
+      "slice": "Safe check-only workspace inventory with fail-closed Git handling/current contract, then full local/CI parity. First parity-test commit already preserved."
+    },
+    {
+      "order": 3,
+      "branches": [
+        "backup/local-pgvector-bootstrap"
+      ],
+      "slice": "Recover tutorial outline/dated artifact and any missing Windows convenience by delegating to tested current nondestructive bootstrap; reject force-reset scripts."
+    },
+    {
+      "order": 4,
+      "branches": [
+        "dependabot/uv/uv-35b9e54a79"
+      ],
+      "slice": "Resolve named comparator baseline/protocol before explicit actual-package migration and offline adapter checks."
+    },
+    {
+      "order": 5,
+      "branches": [
+        "dependabot/npm_and_yarn/archive/webui-vite-source/npm_and_yarn-501f592bae"
+      ],
+      "slice": "Close obsolete retired npm lock update with exact pull-ref archival; no active source integration."
+    }
+  ],
+  "cross_domain_dependencies": [
+    "Runner daemon selection/start recovery is separate from image/tmpfs patches and must precede GHA service initialization; root local socket success does not prove hosted/self-hosted workflow environment selection.",
+    "Formation/campaign owner supplies frozen Mem0 comparator protocol/version decision before PR249 migration.",
+    "Any recovered current runtime bootstrap change requires root-reviewed refreshed Suite manifest hashes and witnessed public-seam red/green.",
+    "Current local configuration/worktree ownership policy must be reconciled before workspace enforcement; cleanup cannot automatically classify unknown ignored roots as disposable."
+  ],
+  "content_free_secret_scan": {
+    "trusted_current_scanner": true,
+    "candidate_changed_bytes_only": true,
+    "findings": [],
+    "qualification_scope": "No credential files or complete HISTORY/ROADMAP read; binary PDF only changed documentation candidate. Gitlink source not fetched."
+  },
+  "limitations": [
+    "Static semantic/code review plus GitHub head/check metadata only; no untrusted historical scripts, runtime/service tests, paid calls, databases, deployments or Git/PR/CI mutations.",
+    "Historical chronology read by path/stat metadata only and must not be merged; no automatic licensing or ancestry-equivalence inference.",
+    "No-PR backup and CI leak tips require durable object archival before deletion if their historical records are retained."
+  ],
+  "root_supplied_daemon_observations": {
+    "provenance": "Root follow-up after Docker runtime/reference read; not independently executed by audit child",
+    "managed_local_socket": "working",
+    "server_api": "1.51",
+    "network_policy": "unrestricted/enforced",
+    "vpn": false,
+    "configured_secrets": false,
+    "current_GHA_failure": "Inherited Docker Desktop socket fails before service initialization",
+    "qualification_feasibility": "New disposable locally owned pgvector container feasible, without operator container/volume access",
+    "qualification_not_inferred": true
+  },
+  "missing_claims_not_in_branch": {
+    "claude/ci-gate-parity-and-timeouts": "Despite branch name, assigned commits do not add CI/job/subprocess timeouts; fail-closed bounded Git subprocess behavior would be new rebuild work, not preserved existing timeout implementation."
+  }
+}

@@ -10,6 +10,9 @@ claim against current status, active code, named tests, and history evidence.
 
 ## Active execution roadmap
 
+- [Exhaustive branch recovery](BRANCH_RECOVERY.md) — owner-directed preservation,
+  ordered integration and verified retirement of every remaining branch.
+
 - [Memory formation and temporal entity aggregation](MEMORY_FORMATION.md) —
   the detailed roadmap for what to do next: recovered requests, setup,
   temporal dependencies, parallel work streams and acceptance gates.
@@ -42,6 +45,16 @@ claim against current status, active code, named tests, and history evidence.
 - [Context Streams](CONTEXT_STREAMS.md)
 - [Trust, Security, Lineage, and Auditability](TRUST_SECURITY_AUDITABILITY.md)
 - [TUI Operator Surface](TUI_OPERATOR_SURFACE.md)
+
+## Recovered research plans
+
+These authored texts are preserved verbatim from the audited branch tips. They
+are plans and historical comparative research, not current implementation or
+validated performance claims. RAW/MIRL remain durable authority; graph, PACK
+and latent representations are derived under the current governing contracts.
+
+- [Latent CacheBridge](LATENT_CACHEBRIDGE.md) — LC0–LC8 measurement-first plan.
+- [Persistent concept state](PERSISTENT_CONCEPT_STATE.md) — PCS/C2C/DLCM plan.
 
 ## Parked tracks
 

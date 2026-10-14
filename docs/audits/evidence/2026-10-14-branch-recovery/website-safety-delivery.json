@@ -1,0 +1,374 @@
+{
+  "schema": "SEAM_RETURN_PACKET/v1",
+  "task_id": "deliver-website-release-safety",
+  "run_id": "branch-recovery-20261014",
+  "status": "DELIVERY_COMPLETE_UNCOMMITTED",
+  "finished_utc": "2026-10-14T10:00:47.088879+00:00",
+  "branch": "integrate/website-branch-recovery-20261014",
+  "base_head": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+  "changed_files": [
+    {
+      "path": "release/package_release.py",
+      "bytes": 1083,
+      "sha256": "c7315c013156715348e433a31a3384b9ac1a6f8d314f7a304afda9ee580f069c"
+    },
+    {
+      "path": "tests/test_legacy_release_retirement.py",
+      "bytes": 3420,
+      "sha256": "2787b0f4f8b3a5f40b79f25d51a65a328d795d7872e8726fb2cd795bd43fb07e"
+    },
+    {
+      "path": "tests/test_suite_readiness_copy.py",
+      "bytes": 3097,
+      "sha256": "e2e3621f281ac55f3f15fbdfc58d3d1cd12ac056279a83546f92aa3e0333a16b"
+    },
+    {
+      "path": "console.html",
+      "bytes": 52342,
+      "sha256": "c33bf261eb419180632bac65d4510f483d1be59b4d611b1c84f5ffc4ea54f47a"
+    },
+    {
+      "path": "contributions.html",
+      "bytes": 24919,
+      "sha256": "971d72d79f6928d7d84d025c331625eab33325b4ed5e8e36169c297bff7a106b"
+    },
+    {
+      "path": "tiers.js",
+      "bytes": 8182,
+      "sha256": "45a5e99b94e496399e354b3fea3dd338680a725b0b4c76bef47aac60b1eb1437"
+    },
+    {
+      "path": "tiers.html",
+      "bytes": 26129,
+      "sha256": "cd58291d313476d05f027cb1266bfad85903e2d0d0eac55b20d660ba0124dc96"
+    },
+    {
+      "path": "release/README.md",
+      "bytes": 2290,
+      "sha256": "20cdb8783963caa8da394be741d8dae031be951e786e0a670306652c1e93a8ad"
+    }
+  ],
+  "candidate_inventory_sha256": "8c5346619705b9e9109c1bd8c3596c59c7877c42c21c42164301c95c87d6b588",
+  "tracked_diff": {
+    "path": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/tracked-source.diff",
+    "sha256": "cacd96ea21e4d89a744a435b49c2d071b9c897eda483ff5f6c97acff3d65af80"
+  },
+  "behavior": {
+    "release_helper": "Standalone --help or -h prints retirement guidance and returns0. All other argument lists return2 before filesystem/network/build/mirror/upload. Only sys is imported; all former publisher functions/flags/--clobber paths removed.",
+    "copy": "Console/tiers/contributions name SEAM Suite self-hosting and describe source-candidate/registry-verification-pending state, with free personal/noncommercial scope. No stable/live-production assertion; existing download-selector destinations preserved.",
+    "cache": "tiers.js12->13 in both referencing HTML pages; styles.css/script.js unchanged.",
+    "canonical_process": "Canonical main docs/RELEASE_FLOW.md and docs/TESTPYPI.md linked in helper/releaseREADME. No replacement upload/mirror workflow or private SDK artifact inclusion."
+  },
+  "witnessed_tdd": {
+    "retirement": {
+      "initial_red_label": "retirement-red",
+      "command_fingerprinted_red_label": "retirement-red-command-evidence",
+      "green_label": "retirement-green-final",
+      "red_observation": "6 test methods,10 failing subtests; valid old operations intercepted before execution at exit97. Help+operation used to return0, now2; noargs previously lacked retirement guidance.",
+      "red_baseline": "Exact a7be463 helper mechanically copied to external baseline fixture for command-vector capture; tests same final bytes. Initial RED ran live current branch before helper replacement.",
+      "intercepted_commands": [
+        {
+          "invocation": "--version v1.3.0 --seam-root FIXTURE",
+          "blocked_argv": [
+            "git",
+            "-C",
+            "ISOLATED_FIXTURE",
+            "fetch",
+            "seam-runtime"
+          ]
+        },
+        {
+          "invocation": "--version v1.3.0 --seam-root FIXTURE --publish",
+          "blocked_argv": [
+            "python3",
+            "-m",
+            "tools.release.sync_public_mirror",
+            "--repo-root",
+            "ISOLATED_FIXTURE",
+            "--ref",
+            "main",
+            "--push"
+          ]
+        },
+        {
+          "invocation": "--version v1.3.0 --seam-root FIXTURE --publish --allow-private-source --allow-dirty --no-push-repo",
+          "blocked_argv": [
+            "git",
+            "-C",
+            "ISOLATED_FIXTURE",
+            "rev-parse",
+            "seam-runtime/main"
+          ]
+        }
+      ],
+      "safety": "Empty temporary .git fixture only. Harness blocks subprocess.run/Popen, socket, OS mutations and file writes before old CLI execution. Every fixture remains unchanged; blocked child command vectors are visible in external RED log, never executed. Green has no side-effect trap hits.",
+      "green_observation": "6 tests pass: sole help variants0, noargs/build/publish/bypasses/unknown/mixed-help/repeated-help2 with guidance."
+    },
+    "readiness": {
+      "red_label": "readiness-red",
+      "green_label": "readiness-final-review",
+      "red_observation": "4 test methods,7 failing subtests on current original HTML/exported tier/cached asset references.",
+      "green_observation": "4 pass: visible HTML name/pending/personal grant, nonlive release badges, actual exported free display data+prices/model, matching cache13."
+    }
+  },
+  "checks": [
+    {
+      "label": "retirement-red",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_legacy_release_retirement.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:56:22.751272+00:00",
+      "end_utc": "2026-10-14T09:56:23.284028+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/retirement-red.log",
+      "output_sha256": "4b97189064ef178fe0feb334344804c8de99986e52965439a3570dbf225fdd47"
+    },
+    {
+      "label": "retirement-red-command-evidence",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "/workspace/scratch/seam-branch-audit-20261014/website-delivery/baseline-cli/tests",
+        "-p",
+        "test_legacy_release_retirement.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.919267+00:00",
+      "end_utc": "2026-10-14T09:58:35.694182+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/retirement-red-command-evidence.log",
+      "output_sha256": "41e20061e3e4248c045ab06607a54388d1d27fc3b0bdf7f441f858cac7111919"
+    },
+    {
+      "label": "retirement-green-final",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_legacy_release_retirement.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.937103+00:00",
+      "end_utc": "2026-10-14T09:58:35.625238+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/retirement-green-final.log",
+      "output_sha256": "8aee09a50138b9263be2fdd018d336ba2db175a7bbe549fae7a92acfdbe48cbb"
+    },
+    {
+      "label": "readiness-red",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_readiness_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:56:29.829949+00:00",
+      "end_utc": "2026-10-14T09:56:29.949343+00:00",
+      "exit": 1,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/readiness-red.log",
+      "output_sha256": "3c7792ce9c2a942fb503b2eb070a500fca43f9249a8ea19fa1b2a5b4b3cf0932"
+    },
+    {
+      "label": "readiness-final-review",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_readiness_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:59:45.576462+00:00",
+      "end_utc": "2026-10-14T09:59:45.699251+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/readiness-final-review.log",
+      "output_sha256": "24759018e26ca4869a717d1cfca1705830d88f6e5a7f92214b9e6d23bea30216"
+    },
+    {
+      "label": "selector",
+      "command": [
+        "node",
+        "--test",
+        "tests/downloads-release.test.js"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.965886+00:00",
+      "end_utc": "2026-10-14T09:58:35.292996+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/selector.log",
+      "output_sha256": "d1b5ef2c774013b0e3abc891aed721eb865230ea6341540a16afcfe1530d09d6"
+    },
+    {
+      "label": "test_package_downloads",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_package_downloads.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:35.019111+00:00",
+      "end_utc": "2026-10-14T09:58:35.210356+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/test_package_downloads.log",
+      "output_sha256": "7f651a454b7b284efe70fac28605ab5d9c389d39a8b6c9aae1f2193f021e78e2"
+    },
+    {
+      "label": "test_suite_license_copy",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_suite_license_copy.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:35.046594+00:00",
+      "end_utc": "2026-10-14T09:58:35.469004+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/test_suite_license_copy.log",
+      "output_sha256": "5a52b22cd60bef691728ab74d418d0da1f050a9d26bfb3e40b6a1823801456ad"
+    },
+    {
+      "label": "test_subscription_economics",
+      "command": [
+        "python3",
+        "-B",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-p",
+        "test_subscription_economics.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:35.135413+00:00",
+      "end_utc": "2026-10-14T09:58:35.314208+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/test_subscription_economics.log",
+      "output_sha256": "c6b9b1f09add0403cc07e90bfdf272129b1ddfa2f8f7675ea8218862f2516371"
+    },
+    {
+      "label": "javascript-syntax",
+      "command": [
+        "node",
+        "--check",
+        "tiers.js"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:58:34.997890+00:00",
+      "end_utc": "2026-10-14T09:58:35.093416+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/javascript-syntax.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "behavior-invariants",
+      "command": [
+        "python3",
+        "/workspace/scratch/seam-branch-audit-20261014/website-delivery/check_invariants.py"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:59:27.973169+00:00",
+      "end_utc": "2026-10-14T09:59:28.098061+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/behavior-invariants.log",
+      "output_sha256": "daa7a04d828dd0b87c20d36482f1998822a9a6f0957f9338e70bcfb7eeb56b10"
+    },
+    {
+      "label": "diff-final-review",
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "cwd": "/workspace/Cantlicle",
+      "start_utc": "2026-10-14T09:59:45.573814+00:00",
+      "end_utc": "2026-10-14T09:59:45.578474+00:00",
+      "exit": 0,
+      "log": "/workspace/scratch/seam-branch-audit-20261014/website-delivery/diff-final-review.log",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "verification_totals": {
+    "new_retirement": 6,
+    "new_readiness": 4,
+    "download_selector": 18,
+    "package_downloads": 3,
+    "suite_license_copy": 4,
+    "subscription_economics": 6,
+    "all_named_functional_tests_pass": true,
+    "javascript_parse": "pass",
+    "git_diff_check": "pass"
+  },
+  "preserved_contracts": {
+    "MODEL": "All exported values identical, including selfHost free; no value/shape change.",
+    "paid_tiers": "Every field identical to base, not just prices.",
+    "plan_behavior": "Ranks, normalizePlan outputs and all feature included flags/CTA kinds preserved. Only3 free display strings changed.",
+    "account_and_subscription": "All inline scripts in changed pages byte-identical to base. Existing auth, waitlist, invoice, pricing, MVP and Vault logic untouched.",
+    "terms_locked_proposals": "terms.html, docs/subscriptions/**, briefs/style/ledger, immutable updates untouched.",
+    "licensing": "Existing personal/business/employer/client/org/internal/unpaid written-agreement paragraphs retained; SDK separate.",
+    "selector": "seam-release.js/auth.js/downloads.html/_headers untouched; all18 selector checks still pass."
+  },
+  "baseline_failures": {
+    "new_relevant_baseline": "Expected retirement/readiness RED only, fixed here.",
+    "prior_unrelated": "Audit observed notifications test baseline12 vs catalog13 assertion failure. Not rerun, edited or claimed repaired by this delivery.",
+    "historical_ci": "Historical PR email-worker failures are not current functional evidence; root owns fresh CI."
+  },
+  "remaining_blockers": {
+    "implementation": [],
+    "acceptance": [
+      "Root independent review and required protected checks before commit/PR/merge.",
+      "Owner may review changed copy/badges in a real browser; no automatic headless visual check performed.",
+      "Production stable artifact availability remains pending exact registry/release qualification; this patch truthfully displays that limitation.",
+      "Browser prototype product acceptance remains outstanding and is not claimed complete."
+    ]
+  },
+  "preview": "No preview server or browser launched. Review console.html, tiers.html and contributions.html through root-selected static server; HTML visible-copy checks executed.",
+  "no_actions": [
+    "No staging, commit, push, PR, merge, deploy or publishing operation.",
+    "No credentials, live database or paid provider calls.",
+    "No locked planning edits, price/auth/Vault/terms changes."
+  ],
+  "git_status": " M console.html\n M contributions.html\n M release/package_release.py\n M tiers.html\n M tiers.js\n?? release/README.md\n?? tests/test_legacy_release_retirement.py\n?? tests/test_suite_readiness_copy.py\n",
+  "staged_paths": "",
+  "report_evidence_dir": "/workspace/scratch/seam-branch-audit-20261014/website-delivery"
+}

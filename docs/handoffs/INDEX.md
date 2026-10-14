@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-10-14-suite-integrated-testpypi-next
+latest: 2026-10-14-branch-recovery
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-10-14-suite-integrated-testpypi-next` | [2026-10-14-suite-integrated-testpypi-next.md](2026-10-14-suite-integrated-testpypi-next.md) | `2026-10-14-suite-release-readiness` | `HISTORY#669` | `current` |
+| `2026-10-14-branch-recovery` | [2026-10-14-branch-recovery.md](2026-10-14-branch-recovery.md) | `2026-10-14-suite-integrated-testpypi-next` | `HISTORY#670` | `current` |
+| `2026-10-14-suite-integrated-testpypi-next` | [2026-10-14-suite-integrated-testpypi-next.md](2026-10-14-suite-integrated-testpypi-next.md) | `2026-10-14-suite-release-readiness` | `HISTORY#669` | `superseded` |
 | `2026-10-14-suite-release-readiness` | [2026-10-14-suite-release-readiness.md](2026-10-14-suite-release-readiness.md) | `2026-10-14-current-suite-licensing` | `HISTORY#667` | `superseded` |
 | `2026-10-14-current-suite-licensing` | [2026-10-14-current-suite-licensing.md](2026-10-14-current-suite-licensing.md) | `2026-09-30-agent-config-gates-landed-next` | `HISTORY#665` | `superseded` |
 | `2026-09-30-agent-config-gates-landed-next` | [2026-09-30-agent-config-gates-landed-next.md](2026-09-30-agent-config-gates-landed-next.md) | `2026-09-29-agent-config-required-gate-audit-next` | `HISTORY#652` | `superseded` |
