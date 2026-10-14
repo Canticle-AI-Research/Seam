@@ -2,7 +2,7 @@
 handoff_id: 2026-10-14-branch-recovery
 supersedes: 2026-10-14-suite-integrated-testpypi-next
 handoff_status: current
-history: HISTORY#670
+history: HISTORY#672
 ---
 
 # Exhaustive branch recovery
@@ -39,3 +39,7 @@ endpoint with hash readback and downloaded-install verification once access is
 usable. Production publishing, paid campaigns and production SQL are separate.
 GitHub About-setting access remains pinned owner issue #287. Broader tests retain
 documented environment/baseline failures; no full-suite green claim is made.
+
+HISTORY#672 supersedes the recovery routing record with controlled atomic
+topics; original HISTORY#670–671 remain immutable. Topic/route context packs
+can find the complete recovery and correction evidence through that chain.

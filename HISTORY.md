@@ -21991,3 +21991,21 @@ PR #303 initial CI workflow rejected before allocation: root-owned job-level env
 
 Independent closeout on exact c2260acc163e6300ae68c3a9aeddd6c88a884d81 returned NOT_QUALIFIED because root supplied two nonexistent affected-test names. Immutable request/receipt f4b967c9c4ea6362 stored without modification. Corrected ignored session-state refs to actual test_read_snapshot_consistency.py/test_vector_outbox_durability.py (42 cases independently passed). Four other affected modules passed35 cases and all continuity/wiki/diff checks passed. A new exact-state request must rerun corrected tests and gates and explicitly supersede the old verdict before protected merge. No branch cleanup, package upload or licence change follows this repair.
 ---END-ENTRY-#671---
+
+---BEGIN-ENTRY-#672---
+id: 672
+date: 2026-10-14T10:39:48Z
+agent: codex
+status: changed
+topics: audit, ci, continuity, correction, docker, docs, gates, handoff, history, pgvector, plan, provenance, reconcile, registry, retrieval, salvage, vector, verify
+commits: pending
+refs: docs/roadmap/BRANCH_RECOVERY.md,docs/audits/2026-10-14-branch-recovery.md,docs/audits/2026-10-14-branch-ci-validation-repair.md,docs/handoffs/2026-10-14-branch-recovery.md
+supersedes: 670
+tokens: 655
+---
+Correct recovery routing after PR #303 review: root mistakenly used compound route-like history topics in entries670–671, so exact atomic-topic lookup would miss the recovery after the latest window moved. This controlled-topic entry supersedes670 and preserves original append-only entries. Current handoff routes to672. No old HISTORY text is edited. Rebuild indexes/streams/cross-index/snapshot and verify topic pgvector/retrieval plus route maintenance/pgvector with latest0 return672 and its670 preservation chain. Entry671 retains the CI-context and immutable closeout correction provenance; this summary carries both facts for current lookup.
+
+All30 captured branches at source07b20a424ace842b9d3c88f836efff88906b6451/sitea7be46329cd430d38c95961edbc820dacd65b5a0 were individually audited (23source/seven site,84 distinct unique commit objects). Exact tips/per-path/intermediate evidence and twelve recovery lanes/issues291–302 are linked from docs/roadmap/BRANCH_RECOVERY.md and master263. Cache no-op reuse retains byte fingerprints/snapshots/rollback;12 new cases/94 regressions and independent review pass. Owned PG18.6/vector0.8.7 temporary fixture passes47 actual cases without skips; cleanup verified. Fresh public-v4 wheel/sdist default installs each pass eight smokes and exact109 implementation/seven legal checks. Four authored research documents preserved verbatim as plans/historical evidence, not implemented future behavior. Initial source wave remains pending merge; batching/skills/formation/reports/docs/workspace/Windows work stays tracked. No captured old branch has been deleted in this audit.
+
+Website PR34 merged1514b89be0265517306fdd4e6cdea5ffa07f61f6, legacy publisher retired, four public resources verified after only Cloudflare email-obfuscation normalization; production Pages and email-worker pass. Own fully merged recovery branch removed. Source PR303 head4566d3c77c145b0197a54ba94600e8c7808dd515 passed all three required GitHub checks and independent exact-state review (78 affected cases); qualification receipt2e5d22f40a89db73 explicitly supersedes immutable first NOT_QUALIFIED f4b967c9c4ea6362 after correcting two test refs. Initial CI rejection fixed by allowed job contexts; runtime/package bytes unchanged. Advisory remote PG job passed regression tests then failed fixture startup before real tests, unlike local47 pass; tracked in issue293, not reported green. Final GitHub checks and exact-state review must be repeated on this routing-only successor before merge. No licence decision reopened, package upload, paid provider calls or operator-resource mutation.
+---END-ENTRY-#672---

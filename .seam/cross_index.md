@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 737
+total_events: 738
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-28T05:52:28Z | history:477:cd1540ba | session-event | changed | selfhost, licensing, busl, security, verify, docker | selfhost/Dockerfile,pyproject.toml,tools/release/build_selfhost.py,tools/rele... |
 | 2026-07-28T14:55:22Z | history:478:e836d773 | session-event | done | graph, retrieval, provenance, history, handoff, verify, t... | seam_runtime/retrieval_orchestrator/adapters.py,seam_runtime/retrieval_orches... |
 | 2026-07-28T14:55:30Z | history:479:450b261e | session-event | done | graph, retrieval, rank, provenance, test, verify, handoff... | seam_runtime/retrieval_policy.py,seam_runtime/retrieval_orchestrator/merger.p... |
 | 2026-07-28T15:26:55Z | history:480:14d762d7 | session-event | changed | selfhost, security, verify, graph, docker | tools/release/verify_selfhost_artifact.py,tests/audit/test_selfhost_edition.p... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T08:26:17Z | history:669:6d13d1a9 | session-event | done | docs, status, handoff, registry, ci, worktree | PROJECT_STATUS.md,docs/handoffs/2026-10-14-suite-integrated-testpypi-next.md,... |
 | 2026-10-14T10:26:47Z | history:670:167043be | session-event | in-progress | maintenance/branches, maintenance/pgvector, runtime/retri... | docs/roadmap/BRANCH_RECOVERY.md,docs/audits/2026-10-14-branch-recovery.md,doc... |
 | 2026-10-14T10:33:45Z | history:671:4523e322 | session-event | changed | maintenance/ci, maintenance/branches, protocol/context | docs/audits/2026-10-14-branch-ci-validation-repair.md |
+| 2026-10-14T10:39:48Z | history:672:51daf87b | session-event | changed | audit, ci, continuity, correction, docker, docs, gates, h... | docs/roadmap/BRANCH_RECOVERY.md,docs/audits/2026-10-14-branch-recovery.md,doc... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0537.cross.md | 2026-04-15T00:00:00Z..2026-07-28T04:16:06Z | 537 | (multi) | (multi) |
+| 0001-0538.cross.md | 2026-04-15T00:00:00Z..2026-07-28T05:52:28Z | 538 | (multi) | (multi) |
