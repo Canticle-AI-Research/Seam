@@ -5,6 +5,19 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — Suite TestPyPI publication and downloaded installs verified.**
+[seam-suite 2.4.1rc1](https://test.pypi.org/project/seam-suite/2.4.1rc1/) is live.
+[Publisher run38562182535](https://github.com/Canticle-AI-Research/Seam/actions/runs/38562182535)
+passed on source `7b96a012784296989958e1774dbb8a0f52c3bfed` after PR #308's
+clean-checkout snapshot repair. Exact wheel/sdist filenames, sizes and SHA256
+match the preparation receipt and independent public downloads. Each downloaded
+format passed eight installed smoke cases and dependency checks. Licensing is
+finished (PR #286); publisher access is resolved. First failed attempt remains
+recorded with no upload. Next runtime recovery is bounded embedding batching
+R2/issue #292. See HISTORY#680, [release evidence](docs/audits/evidence/2026-10-14-testpypi-release/live-readback.json)
+and the [current handoff](docs/handoffs/INDEX.md). This is TestPyPI acceptance;
+production publication and broader product acceptance retain their own gates.
+
 **2026-10-14 — publisher integrated; clean-checkout snapshot repair qualified.**
 PR #307 merged at `76d42b59d9ac85e831956d0ed340da8200448bea` after independent
 exact-state qualification and required/package checks. Its first TestPyPI run

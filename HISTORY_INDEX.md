@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 679
-total_tokens: ~346575
-latest_id: 679
+total_entries: 683
+total_tokens: ~347516
+latest_id: 683
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,10 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 683 | 2026-10-14 | changed | ea43c5a211272e6c | correction,verify | 682 |
+| 682 | 2026-10-14 | changed | d993d1c769b2baba | correction,verify | 681 |
+| 681 | 2026-10-14 | changed | 6ffc01c19b46e1cf | correction,verify,registry | 680 |
+| 680 | 2026-10-14 | done | f1311dd6b39d23e2 | registry,verify,handoff,status,+ | 679 |
 | 679 | 2026-10-14 | changed | 1f45f511fecbdc46 | bugfix,ci,snapshot,registry,+ | 678 |
 | 678 | 2026-10-14 | changed | c8e740fb45f46223 | correction,security,verify | 677 |
 | 677 | 2026-10-14 | changed | 4fb8d57c11599361 | correction,verify,handoff | 676 |
@@ -761,7 +765,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=29 latest=#678, #677, #672, #654, #639
+- correction: count=32 latest=#683, #682, #681, #678, #677
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -786,7 +790,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=12 latest=#673, #672, #621, #620, #483
-- docs: count=121 latest=#675, #674, #673, #672, #670
+- docs: count=122 latest=#680, #675, #674, #673, #672
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -827,7 +831,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=136 latest=#679, #677, #676, #675, #673
+- handoff: count=137 latest=#680, #679, #677, #676, #675
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -955,7 +959,7 @@ compact: true
 - refactor: count=1 latest=#284
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
-- registry: count=14 latest=#679, #676, #673, #672, #669
+- registry: count=16 latest=#681, #680, #679, #676, #673
 - release: count=8 latest=#670, #486, #485, #484, #476
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
@@ -999,7 +1003,7 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=204 latest=#675, #669, #652, #651, #641
+- status: count=205 latest=#680, #675, #669, #652, #651
 - storage: count=38 latest=#638, #637, #626, #624, #623
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -1030,7 +1034,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=480 latest=#679, #678, #677, #676, #674
+- verify: count=484 latest=#683, #682, #681, #680, #679
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1047,7 +1051,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 80
-- done: 541
+- changed: 83
+- done: 542
 - in-progress: 36
 - planned: 22

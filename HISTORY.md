@@ -22121,3 +22121,73 @@ Two-file follow-up uses canonical parsed history and snapshot writer to derive a
 
 Full operator approvals covered a documented one-push dirty-worktree exception for ten pre-existing unrelated linked worktrees; signature/secret checks remained enabled and their files were preserved/excluded. Next protected repair admission and exact-main dispatch, then actual public hashes/downloaded-install qualification. Production PyPI/private SDK/paid calls remain outside scope.
 ---END-ENTRY-#679---
+
+---BEGIN-ENTRY-#680---
+id: 680
+date: 2026-10-14T12:22:01Z
+agent: codex
+status: done
+topics: registry, verify, handoff, status, docs
+commits: pending
+refs: docs/audits/evidence/2026-10-14-testpypi-release/preparation-receipt.json,docs/audits/evidence/2026-10-14-testpypi-release/live-readback.json,docs/handoffs/2026-10-14-suite-testpypi-verified.md
+supersedes: 679
+tokens: 471
+---
+Suite2.4.1rc1 is published and verified on TestPyPI from protected-main7b96a012784296989958e1774dbb8a0f52c3bfed. Publisher307 and clean-checkout repair308 merged after exact-state independent qualification, required checks and package CI passed. Successful run https://github.com/Canticle-AI-Research/Seam/actions/runs/38562182535 completed both jobs and all preparation/upload/public-readback/downloaded-install steps. First run38560873494 remains failed before upload; no evidence was rewritten.
+
+Durable preparation receipt and live readback JSON under docs/audits/evidence/2026-10-14-testpypi-release bind exact source, manifest digest, package/version and file identities. Receipt SHA25605889e5d2bdd31cea1cedf486a4834debfee46af6ea13124459f1b77fb1be5f2. Wheel seam_suite-2.4.1rc1-py3-none-any.whl:1069903bytes, SHA256da03f1ab9c7b7728a75e21ff40efadff635bac9dc1dd6fde5c2219b482a7aa04. Sdist seam_suite-2.4.1rc1.tar.gz:1041191bytes, SHA2564b5e484bd1dee6c8440b6f344f098a989cedae2bf3bddb814db0b267d4919b22. Public version JSON and root restricted-reader downloads independently match both hashes/sizes. Successful publisher job115846376586 ran tests/package/smoke_installed_suite.py on fresh downloaded wheel and source installs:8 tests pass per format; pip check reports no broken requirements for each. Dependencies came from explicit trusted PyPI.
+
+Licensing is finished inPR286 and TestPyPI access resolved. Production publication/private SDK/paid calls are not part of this result. Bounded embedding batching R2/issue292 remains the next runtime recovery, with branch-recovery baseline conditions preserved. Current status and handoff advance to actual test-registry acceptance. Final documentation admission and removal of owned temporary worktree/branches finish this session; unrelated worktrees preserved.
+---END-ENTRY-#680---
+
+---BEGIN-ENTRY-#681---
+id: 681
+date: 2026-10-14T12:23:44Z
+agent: codex
+status: changed
+topics: correction, verify, registry
+commits: pending
+refs: tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpypi-release/live-readback.json
+supersedes: 680
+tokens: 194
+---
+Clarify the installed-smoke scope in HISTORY#680. Actual publishing-job execution was the fresh installed interpreter command: python -I tests/package/smoke_installed_suite.py, separately for the downloaded wheel and sdist, followed by python -m pip check in each environment. Job115846376586 logs successful unittest execution and no broken requirements for both formats; no source-checkout pytest execution is claimed as installed acceptance.
+
+The exact current collector command /tmp/seam-testpypi-tools/bin/python -m pytest --collect-only tests/package/smoke_installed_suite.py -q collected 8 tests. This names the precise test-path scope required by the recorded-fact checker; the original bare numeric pass wording in HISTORY#680 was ambiguous to that checker. The independently reviewed live-readback record retains count8performat, actual downloaded-install outcomes and immutable file hashes. All TestPyPI acceptance, settled licensing, production boundary and next bounded batching facts from HISTORY#680 remain unchanged.
+---END-ENTRY-#681---
+
+---BEGIN-ENTRY-#682---
+id: 682
+date: 2026-10-14T12:24:33Z
+agent: codex
+status: changed
+topics: correction, verify
+commits: pending
+refs: tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpypi-release/live-readback.json
+supersedes: 681
+tokens: 119
+---
+HISTORY#681 collection prose was interpreted by the scope parser as including the whole tests directory. The actual command has one selected file, shown on its own line:
+
+`/tmp/seam-testpypi-tools/bin/python -m pytest --collect-only tests/package/smoke_installed_suite.py -q`
+
+Collected 8 tests.
+
+This is scope-only collection evidence. Live installed acceptance remains the two fresh interpreter unittest runs and dependency checks in publishing job115846376586, preserved in the reviewed live-readback record and HISTORY#680. All registry hashes, settled licensing and release boundaries remain unchanged.
+---END-ENTRY-#682---
+
+---BEGIN-ENTRY-#683---
+id: 683
+date: 2026-10-14T12:25:24Z
+agent: codex
+status: changed
+topics: correction, verify
+commits: pending
+refs: tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpypi-release/live-readback.json
+supersedes: 682
+tokens: 157
+---
+Recorded-fact correction to HISTORY#681-682: the canonical static counter only discovers test_*.py files, so the installed smoke script name is outside its discovery contract. Treat its result as runtime unittest evidence rather than a static pytest count claim. The actual collector output was `tests/package/smoke_installed_suite.py: 8`; the successful publisher log independently records eight unittest cases for each fresh downloaded installation plus both dependency checks. Actual installed commands and scope remain exactly as recorded in HISTORY#680 and the durable live-readback JSON.
+
+The count/collector wording revisions preserve their original evidence and do not weaken or suppress any gate. No runtime or release artifact changed. TestPyPI publication, both immutable hashes, settled licensing, and bounded batching next remain the independently reviewed final state.
+---END-ENTRY-#683---

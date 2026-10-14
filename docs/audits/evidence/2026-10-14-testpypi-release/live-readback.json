@@ -1,0 +1,203 @@
+{
+  "schema": "seam-testpypi-live-evidence/v1",
+  "package": "seam-suite",
+  "version": "2.4.1rc1",
+  "source_sha": "7b96a012784296989958e1774dbb8a0f52c3bfed",
+  "project_url": "https://test.pypi.org/project/seam-suite/2.4.1rc1/",
+  "run_id": 38562182535,
+  "run_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38562182535",
+  "run_conclusion": "success",
+  "receipt_sha256": "05889e5d2bdd31cea1cedf486a4834debfee46af6ea13124459f1b77fb1be5f2",
+  "files": [
+    {
+      "name": "seam_suite-2.4.1rc1-py3-none-any.whl",
+      "size": 1069903,
+      "sha256": "da03f1ab9c7b7728a75e21ff40efadff635bac9dc1dd6fde5c2219b482a7aa04",
+      "url": "https://test-files.pythonhosted.org/packages/dd/e5/e629c85bf512db642cc70d0e28b8ff479b41bb035a1efc31ac3e53f468b9/seam_suite-2.4.1rc1-py3-none-any.whl"
+    },
+    {
+      "name": "seam_suite-2.4.1rc1.tar.gz",
+      "size": 1041191,
+      "sha256": "4b5e484bd1dee6c8440b6f344f098a989cedae2bf3bddb814db0b267d4919b22",
+      "url": "https://test-files.pythonhosted.org/packages/36/92/dfc3cba28b10278e20c281839e23a9d3b10d9be3267dd73c5c7399cde049/seam_suite-2.4.1rc1.tar.gz"
+    }
+  ],
+  "jobs": [
+    {
+      "name": "prepare",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out the dispatched protected-main commit",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install publisher verification tools from trusted PyPI",
+          "conclusion": "success"
+        },
+        {
+          "name": "Bind dispatch to the current remote protected-main head",
+          "conclusion": "success"
+        },
+        {
+          "name": "Write runner-local current-history snapshot",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify SEAM history integrity",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify SEAM classification routing",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify SEAM handoff registry",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify SEAM temporal continuity",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify SEAM streams",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify SEAM wiki navigation",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify reviewed Suite source manifest",
+          "conclusion": "success"
+        },
+        {
+          "name": "Scan source for secrets and private session URLs",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build wheel and source distribution into an empty directory",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify exact archives and write immutable preparation receipt",
+          "conclusion": "success"
+        },
+        {
+          "name": "Smoke exact wheel with default dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Smoke exact sdist with default dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Transfer only the verified files and receipt",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Check out the dispatched protected-main commit",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "publish-and-verify",
+      "conclusion": "success",
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Check out current protected main",
+          "conclusion": "success"
+        },
+        {
+          "name": "Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install publisher verification tools from trusted PyPI",
+          "conclusion": "success"
+        },
+        {
+          "name": "Download the exact preparation artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Inspect current remote protected-main head",
+          "conclusion": "success"
+        },
+        {
+          "name": "Revalidate and upload exactly two files to TestPyPI",
+          "conclusion": "success"
+        },
+        {
+          "name": "Poll public TestPyPI metadata and download exact published bytes",
+          "conclusion": "success"
+        },
+        {
+          "name": "Smoke TestPyPI-downloaded wheel with trusted PyPI dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Smoke TestPyPI-downloaded sdist with trusted PyPI dependencies",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Set up Python",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Check out current protected main",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "downloaded_installs": {
+    "wheel": {
+      "smoke_test_count": 8,
+      "smoke_result": "PASS",
+      "dependency_check": "PASS"
+    },
+    "sdist": {
+      "smoke_test_count": 8,
+      "smoke_result": "PASS",
+      "dependency_check": "PASS"
+    }
+  },
+  "independent_root_readback": {
+    "public_metadata_and_downloaded_hashes": "PASS"
+  },
+  "first_attempt": {
+    "run_id": 38560873494,
+    "conclusion": "failure",
+    "failed_step": "Verify SEAM temporal continuity",
+    "upload_job": "skipped"
+  },
+  "publisher_pr": 307,
+  "snapshot_repair_pr": 308,
+  "licensing_finished_pr": 286
+}

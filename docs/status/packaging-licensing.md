@@ -7,6 +7,17 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
+## Verified Suite TestPyPI release
+
+[seam-suite 2.4.1rc1](https://test.pypi.org/project/seam-suite/2.4.1rc1/) is live
+from `7b96a012784296989958e1774dbb8a0f52c3bfed`; publisher run38562182535 passed.
+Exact public wheel/sdist names, sizes and SHA256 match their receipt. Each
+fresh downloaded install passed eight smoke cases and dependency checks;
+independent root public downloads matched too. Licensing is finished (PR #286)
+and publisher access is resolved. See HISTORY#680 and [live evidence](../audits/evidence/2026-10-14-testpypi-release/live-readback.json).
+Production release metadata and wider acceptance remain separate. Earlier
+sections below are dated preparation evidence.
+
 ## Integrated publisher and clean-checkout repair
 
 PR #307 merged at `76d42b59d9ac85e831956d0ed340da8200448bea`. Its first

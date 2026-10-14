@@ -2,17 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 745
+total_events: 749
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-28T23:20:55Z | history:485:f42d2568 | session-event | done | selfhost, release, pypi, packaging, busl, verify | .github/workflows/selfhost-release.yml,selfhost_pkg/pyproject.toml |
-| 2026-07-28T23:51:04Z | history:486:55291525 | session-event | changed | selfhost, pgvector, embeddings, docs, packaging, release,... | seam_runtime/selfhost.py,selfhost_pkg/pyproject.toml,selfhost_pkg/README.md,t... |
-| 2026-07-29T02:15:43Z | history:487:1d877009 | session-event | done | bugfix, bundle, ci, docs, graph, handoff, mcp, pgvector, ... | .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,docs/P... |
-| 2026-07-29T02:58:28Z | history:488:18f55355 | session-event | changed | bugfix, bundle, graph, handoff, pgvector, retrieval, secu... | PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidat... |
 | 2026-07-29T03:09:09Z | history:489:d0314671 | session-event | done | bugfix, bundle, ci, graph, handoff, pgvector, retrieval, ... | PROJECT_STATUS.md,docs/handoffs/2026-07-29-package-stability-release-candidat... |
 | 2026-07-29T03:31:27Z | history:490:387b5f03 | session-event | done | bundle, ci, graph, handoff, pgvector, retrieval, security... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-29-stable-packages-liv... |
 | 2026-07-29T04:50:58Z | history:491:e00dcf50 | session-event | changed | graph, g3, node-vectors, retrieval, mcp | docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/REASONING_GRAPH.md |
@@ -209,10 +205,14 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T11:53:56Z | history:677:4fb8d57c | session-event | changed | correction, verify, handoff | docs/handoffs/2026-10-14-testpypi-publisher-ready.md,tests/audit/test_suite_m... |
 | 2026-10-14T11:55:08Z | history:678:c8e740fb | session-event | changed | correction, security, verify | tools/release/testpypi_release.py,.github/workflows/publish-testpypi.yml |
 | 2026-10-14T12:08:34Z | history:679:1f45f511 | session-event | changed | bugfix, ci, snapshot, registry, verify, handoff | .github/workflows/publish-testpypi.yml,tests/audit/test_testpypi_release.py,d... |
+| 2026-10-14T12:22:01Z | history:680:f1311dd6 | session-event | done | registry, verify, handoff, status, docs | docs/audits/evidence/2026-10-14-testpypi-release/preparation-receipt.json,doc... |
+| 2026-10-14T12:23:44Z | history:681:6ffc01c1 | session-event | changed | correction, verify, registry | tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpy... |
+| 2026-10-14T12:24:33Z | history:682:d993d1c7 | session-event | changed | correction, verify | tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpy... |
+| 2026-10-14T12:25:24Z | history:683:ea43c5a2 | session-event | changed | correction, verify | tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpy... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0545.cross.md | 2026-04-15T00:00:00Z..2026-07-28T22:42:05Z | 545 | (multi) | (multi) |
+| 0001-0549.cross.md | 2026-04-15T00:00:00Z..2026-07-29T02:58:28Z | 549 | (multi) | (multi) |
