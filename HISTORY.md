@@ -21975,3 +21975,19 @@ Fresh branch-recovery-public-v4 wheel/sdist each passes exact109 implementation/
 
 Website safety PR34 merged1514b89be0265517306fdd4e6cdea5ffa07f61f6: retired legacy publisher refuses operations before side effects, corrects Suite names/registry-pending claims and canonical release links;41 focused checks plus independent review PASS. Production Pages and beta-email worker PASS on merge;four changed served resources match main after only Cloudflare email-obfuscation normalization. Existing auth/prices/cohort/Vault/licensing/download validation preserved. PR preview worker check failed without available diagnostic; production successor passed. Broad site/source suites retain previously recorded baseline/environment failures; no full-suite green claim. Source protected checks and exact-state closeout still required before merge. TestPyPI access remains external dependency; pinned owner About issue287 unchanged. Unresolved skills/batching/formation/reports/docs/workspace/Windows recovery tracked rather than silently discarded.
 ---END-ENTRY-#670---
+
+---BEGIN-ENTRY-#671---
+id: 671
+date: 2026-10-14T10:33:45Z
+agent: codex
+status: changed
+topics: maintenance/ci, maintenance/branches, protocol/context
+commits: pending
+refs: docs/audits/2026-10-14-branch-ci-validation-repair.md
+supersedes: none
+tokens: 297
+---
+PR #303 initial CI workflow rejected before allocation: root-owned job-level env referenced runner.temp, which GitHub does not permit there. Replaced only the fixture-state path with a unique ignored workspace-relative path using available GitHub run/attempt contexts. Witnessed context-regression RED on rejected bytes then GREEN; 19 fixture/gate cases pass. Runtime/helper/image/package/manifest inputs unchanged, so prior exact artifact and actual47-service evidence remain applicable; successor GitHub CI still required.
+
+Independent closeout on exact c2260acc163e6300ae68c3a9aeddd6c88a884d81 returned NOT_QUALIFIED because root supplied two nonexistent affected-test names. Immutable request/receipt f4b967c9c4ea6362 stored without modification. Corrected ignored session-state refs to actual test_read_snapshot_consistency.py/test_vector_outbox_durability.py (42 cases independently passed). Four other affected modules passed35 cases and all continuity/wiki/diff checks passed. A new exact-state request must rerun corrected tests and gates and explicitly supersede the old verdict before protected merge. No branch cleanup, package upload or licence change follows this repair.
+---END-ENTRY-#671---

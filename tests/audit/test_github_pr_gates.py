@@ -163,3 +163,14 @@ def test_pull_request_template_keeps_repo_management_checklist_visible() -> None
     assert "BIL-2 quickstart" in template
     assert "history/stream" in template.lower()
     assert "secrets" in template.lower()
+
+
+def test_pgvector_job_env_uses_contexts_available_before_runner_steps() -> None:
+    workflow = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    state = workflow["jobs"]["pgvector-integration"]["env"]["SEAM_PGVECTOR_FIXTURE_STATE"]
+    # GitHub rejects runner.* in jobs.<job>.env before any job can start.
+    # A workspace-relative ignored test path needs only the available GitHub IDs.
+    assert "${{ runner." not in state
+    assert state.startswith("test_seam/pgvector/ci-")
+    assert "${{ github.run_id }}" in state
+    assert "${{ github.run_attempt }}" in state

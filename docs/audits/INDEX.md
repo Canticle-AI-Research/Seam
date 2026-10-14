@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-10-14-branch-recovery
+latest: 2026-10-14-branch-ci-validation-repair
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,7 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-10-14 | [Branch CI validation repair](2026-10-14-branch-ci-validation-repair.md) | job-context validation and corrected exact-state test references | `HISTORY#671` |
 | 2026-10-14 | [Exhaustive branch recovery](2026-10-14-branch-recovery.md) | 30 exact branch tips, semantic preservation and ordered integration | `HISTORY#670` |
 | 2026-10-14 | [Suite release-candidate readiness](2026-10-14-suite-release-readiness.md) | default install, exact archives, prerelease/MCP controls and verified branch cleanup | `HISTORY#668` |
 | 2026-10-14 | [Current Suite licensing reconciliation](2026-10-14-licensing-reconciliation.md) | first-launch terms, current implementation membership and package metadata | `HISTORY#665` |

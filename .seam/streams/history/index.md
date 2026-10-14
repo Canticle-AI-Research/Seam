@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 670
-total_tokens: ~343409
-latest_id: 670
+total_entries: 671
+total_tokens: ~343706
+latest_id: 671
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 671 | 2026-10-14 | changed | 4523e32281207894 | maintenance/ci,maintenance/branches,protocol/context | none |
 | 670 | 2026-10-14 | in-progress | 167043beadaf37d9 | maintenance/branches,maintenance/pgvector,runtime/retrieval,docs,+ | none |
 | 669 | 2026-10-14 | done | 6d13d1a949559815 | docs,status,handoff,registry,+ | 668 |
 | 668 | 2026-10-14 | changed | 7bd3422aadbf590d | agent,protocol,bugfix,gates,+ | 667 |
@@ -861,7 +862,8 @@ compact: true
 - lx1: count=6 latest=#206, #197, #088, #018, #011
 - macos: count=6 latest=#664, #663, #354, #353, #352
 - maintenance: count=1 latest=#301
-- maintenance/branches: count=1 latest=#670
+- maintenance/branches: count=2 latest=#671, #670
+- maintenance/ci: count=1 latest=#671
 - maintenance/pgvector: count=1 latest=#670
 - manual: count=1 latest=#331
 - mcp: count=27 latest=#667, #642, #520, #491, #487
@@ -922,6 +924,7 @@ compact: true
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
 - protocol: count=120 latest=#668, #620, #619, #618, #617
+- protocol/context: count=1 latest=#671
 - prov: count=1 latest=#316
 - provenance: count=36 latest=#655, #654, #653, #628, #612
 - publication: count=1 latest=#533
@@ -1035,8 +1038,8 @@ compact: true
 
 ## status rollup
 
-- roots: 88
-- changed: 74
+- roots: 89
+- changed: 75
 - done: 541
 - in-progress: 33
 - planned: 22
