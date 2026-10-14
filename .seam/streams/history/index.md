@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 667
-total_tokens: ~341732
-latest_id: 667
+total_entries: 668
+total_tokens: ~342293
+latest_id: 668
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 668 | 2026-10-14 | changed | 7bd3422aadbf590d | agent,protocol,bugfix,gates,+ | 667 |
 | 667 | 2026-10-14 | changed | 57e82a9d41db831a | pyproject,installer,mcp,registry,+ | 666 |
 | 666 | 2026-10-14 | changed | 2c6dbdce2c95074a | docs,pyproject,operator,audit,+ | 665 |
 | 665 | 2026-10-14 | changed | ae2c7f43dc6736f1 | docs,pyproject,operator,mirl,+ | 664 |
@@ -685,7 +686,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=23 latest=#643, #623, #622, #620, #619
+- agent: count=24 latest=#668, #643, #623, #622, #620
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -709,7 +710,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=85 latest=#629, #628, #624, #623, #622
+- bugfix: count=86 latest=#668, #629, #628, #624, #623
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -744,7 +745,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=99 latest=#667, #666, #665, #652, #651
+- continuity: count=100 latest=#668, #667, #666, #665, #652
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -774,7 +775,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=114 latest=#667, #666, #665, #664, #663
+- docs: count=115 latest=#668, #667, #666, #665, #664
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -800,7 +801,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=5 latest=#607, #606, #510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=18 latest=#655, #654, #653, #652, #650
+- gates: count=19 latest=#668, #655, #654, #653, #652
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - ghost: count=2 latest=#609, #608
@@ -916,7 +917,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=119 latest=#620, #619, #618, #617, #616
+- protocol: count=120 latest=#668, #620, #619, #618, #617
 - prov: count=1 latest=#316
 - provenance: count=36 latest=#655, #654, #653, #628, #612
 - publication: count=1 latest=#533
@@ -1013,7 +1014,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=39 latest=#640, #623, #622, #533, #532
 - vector-adapters: count=1 latest=#359
-- verify: count=472 latest=#667, #666, #665, #664, #663
+- verify: count=473 latest=#668, #667, #666, #665, #664
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1030,7 +1031,7 @@ compact: true
 ## status rollup
 
 - roots: 87
-- changed: 73
+- changed: 74
 - done: 540
 - in-progress: 32
 - planned: 22

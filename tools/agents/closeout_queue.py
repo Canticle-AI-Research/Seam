@@ -399,10 +399,17 @@ def validate_request(
         raise CloseoutQueueError("closeout request TDD runtime classification is inconsistent")
     if not visible_runtime_paths <= tdd_runtime_paths:
         raise CloseoutQueueError("closeout request TDD omits visible runtime paths")
-    if tdd_runtime_paths != visible_runtime_paths:
+    # Keep immutable v1 requests readable under their original, stricter
+    # prefix policy. Never invent coverage or allow an executable omission:
+    # only the two exact known classification sets are accepted.
+    legacy_documentation = tdd_runtime_paths != visible_runtime_paths
+    expected_runtime_paths = set(runtime_paths(paths, include_documentation=legacy_documentation))
+    if tdd_runtime_paths != expected_runtime_paths:
         raise CloseoutQueueError("closeout request TDD runtime paths do not match changed paths")
     if cycles is not None:
-        recomputed = assess_tdd(paths, {"tdd_cycles": cycles})
+        recomputed = assess_tdd(
+            paths, {"tdd_cycles": cycles}, include_documentation=legacy_documentation,
+        )
         if truncated:
             recomputed.update(
                 {

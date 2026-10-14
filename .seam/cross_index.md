@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 733
+total_events: 734
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-27T20:12:57Z | history:473:2366f295 | session-event | done | ci, bugfix, test, verify, history | tests/audit/test_selfhost_edition.py,PR#169,run#30300943888 |
 | 2026-07-28T04:15:42Z | history:474:82fb3cc3 | session-event | changed | licensing, busl, distribution, docs | LICENSE,LICENSES/BUSL-1.1.txt,NOTICE,COMMERCIAL_LICENSE.md,README.md,CONTRIBU... |
 | 2026-07-28T04:15:54Z | history:475:f30d3857 | session-event | changed | pricing, docs, licensing | docs/pricing-tiers.md |
 | 2026-07-28T04:16:06Z | history:476:d2c2881a | session-event | changed | release, licensing, distribution-boundary, ci | public_pkg/pyproject.toml,public_pkg/README.md,public_pkg/seam.py,public_pkg/... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T05:31:23Z | history:665:ae2c7f43 | session-event | changed | docs, pyproject, operator, mirl, audit, handoff, continui... | LICENSE,NOTICE,COMMERCIAL_LICENSE.md,LICENSES/SEAM-Suite-Personal.txt,LICENSE... |
 | 2026-10-14T05:40:35Z | history:666:2c6dbdce | session-event | changed | docs, pyproject, operator, audit, continuity, verify | docs/TESTPYPI.md,docs/reference/reference_state.json,docs/audits/2026-10-14-l... |
 | 2026-10-14T07:10:45Z | history:667:57e82a9d | session-event | changed | pyproject, installer, mcp, registry, ci, doctor, docs, wo... | pyproject.toml,requirements.txt,uv.lock,seam_runtime/doctor.py,seam_runtime/d... |
+| 2026-10-14T07:57:59Z | history:668:7bd3422a | session-event | changed | agent, protocol, bugfix, gates, docs, continuity, verify | tools/agents/session_end_closeout.py,tools/agents/closeout_queue.py,tests/aud... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0533.cross.md | 2026-04-15T00:00:00Z..2026-07-27T20:02:02Z | 533 | (multi) | (multi) |
+| 0001-0534.cross.md | 2026-04-15T00:00:00Z..2026-07-27T20:12:57Z | 534 | (multi) | (multi) |

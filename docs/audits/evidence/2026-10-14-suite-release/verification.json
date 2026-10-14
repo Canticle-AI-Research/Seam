@@ -277,6 +277,73 @@
         "tests/audit/test_local_gates_match_ci.py",
         "tests/audit/test_history_closeout.py"
       ]
+    },
+    {
+      "behavior": "Real SessionEnd hook classifies plain installer/runtime/tool documentation without runtime TDD while keeping actual scripts governed.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+        "exit_code": 0,
+        "fingerprint": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+        "observed_at": "2026-10-14T07:50:06.792230+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/session_end_closeout.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+        "exit_code": 1,
+        "fingerprint": "eff68ef031763b9eb7244f5749d4dfdf4d2026923a9758a1e939a2901ed0ab3e",
+        "observed_at": "2026-10-14T07:50:05.766698+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_session_end_agent_closeout.py"
+      ]
+    },
+    {
+      "behavior": "Manifest guard is present unconditionally in local shell gates and matches canonical closeout/CI ordering.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_suite_manifest_drift.py tests/audit/test_local_gates_match_ci.py tests/audit/test_history_closeout.py -q",
+        "exit_code": 0,
+        "fingerprint": "7aab9d03d5aad3ae7953c0ac55e01a47a25a852128e93ee579eb4dadf81d7df0",
+        "observed_at": "2026-10-14T07:01:37.472767+00:00"
+      },
+      "implementation_refs": [
+        "tools/claude/preflight_protocol.sh",
+        "tools/git-hooks/pre-commit"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_suite_manifest_drift.py tests/audit/test_local_gates_match_ci.py -q",
+        "exit_code": 1,
+        "fingerprint": "0f0cff9972367ae3e806efeb5b4e6070f9bff281108801f2b130ece8e3a97587",
+        "observed_at": "2026-10-14T06:55:08.230645+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_suite_manifest_drift.py",
+        "tests/audit/test_local_gates_match_ci.py",
+        "tests/audit/test_history_closeout.py"
+      ]
+    },
+    {
+      "behavior": "Pending queue preserves stricter immutable historical documentation classification without upgrading verdicts or accepting omitted executable changes.",
+      "green": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+        "exit_code": 0,
+        "fingerprint": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+        "observed_at": "2026-10-14T07:53:38.225370+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/closeout_queue.py",
+        "tools/agents/session_end_closeout.py"
+      ],
+      "red": {
+        "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+        "exit_code": 1,
+        "fingerprint": "2083e1f7a69d02d59d9cbabab50769de8a462620f4928b4c574b636c0dac4fea",
+        "observed_at": "2026-10-14T07:53:37.239339+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_closeout_queue.py"
+      ]
     }
   ],
   "branch_deletions": {
@@ -381,5 +448,34 @@
     "actual_marker_expression": "not external",
     "exit_code": 0,
     "output_sha256": "4b29cdb8715784f92fdcc2d066b2973d3382e80e33bb8796275c624cea7bdd0e"
+  },
+  "closeout_documentation_classification": {
+    "first_request_status": "NOT_QUALIFIED",
+    "request_id": "01a138d3-3664-70c0-ae7d-02dd20f2203d-cd9dd1781fa1d26f",
+    "repair": "Plain Markdown/reStructuredText under executable prefixes is non-runtime; historical stricter requests remain immutable and readable; real code omissions stay rejected.",
+    "red": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+      "exit_code": 1,
+      "fingerprint": "eff68ef031763b9eb7244f5749d4dfdf4d2026923a9758a1e939a2901ed0ab3e",
+      "observed_at": "2026-10-14T07:50:05.766698+00:00"
+    },
+    "green": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_session_end_agent_closeout.py -k documentation -q",
+      "exit_code": 0,
+      "fingerprint": "c4b808d34f4db00b333696dec1f3a43a2887d8bfe0cb7af07a3cb98ff43a7830",
+      "observed_at": "2026-10-14T07:50:06.792230+00:00"
+    },
+    "legacy_red": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+      "exit_code": 1,
+      "fingerprint": "2083e1f7a69d02d59d9cbabab50769de8a462620f4928b4c574b636c0dac4fea",
+      "observed_at": "2026-10-14T07:53:37.239339+00:00"
+    },
+    "legacy_green": {
+      "command": "/workspace/Seam/.venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k documentation -q",
+      "exit_code": 0,
+      "fingerprint": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+      "observed_at": "2026-10-14T07:53:38.225370+00:00"
+    }
   }
 }

@@ -2,7 +2,7 @@
 
 [Report registry](INDEX.md) · [Release flow](../RELEASE_FLOW.md)
 
-Recorded by HISTORY#667, from protected-main base
+Recorded by HISTORY#667, with exact-closeout correction at HISTORY#668, from protected-main base
 `607ac3089c58bfc033d9442762c40505f0ab8d2b`. This is installation and release
 preparation for the first-launch Suite, not full operator-product acceptance.
 It carries useful remaining package/release/MCP work from PR #266 without
@@ -73,6 +73,25 @@ downloaded-install verification remain concrete next steps. Full browser
 graph/glassbox and hosted-product acceptance remain explicit known gaps in
 [surface status](../status/surfaces.md).
 
+## Exact-closeout correction
+
+The first exact-state request received an immutable NOT_QUALIFIED verdict:
+the prefix classifier treated installer README documentation as executable code,
+and queued cycle references omitted the two shell gates. The source classifier
+now excludes plain Markdown/reStructuredText while retaining real scripts and
+code as TDD-governed. Regression tests exercise the actual SessionEnd CLI and
+mixed documentation/script changes. Historical requests remain readable under
+their exact original stricter classification without rewriting or upgrading
+their verdicts; executable omissions still fail. The witnessed original shell
+gate-presence/parity cycle is recorded with its actual implementation paths.
+No package, license or reviewed archive bytes change in this correction.
+
+The extended `tests/` run completed with failures in unchanged branding browser
+exports and tokenizer-dependent cost-report tests. It is not a full-suite pass;
+these environment-dependent results are retained alongside the successful
+supported runtime and installed-package checks. Required pushed-head checks
+and a successor exact-state receipt remain mandatory.
+
 ## Branch cleanup
 
 The owner authorized removing branches no longer needed. An independent audit
@@ -106,7 +125,7 @@ assigned and pinned as issue #287.
 
 ## Evidence manifest
 
-- `docs/audits/evidence/2026-10-14-suite-release/verification.json` — SHA-256: `d3b3cabd70bb08af910d1b38c889e6b43c43f4c8ad4f47481b668ba1526858d2`
+- `docs/audits/evidence/2026-10-14-suite-release/verification.json` — SHA-256: `b6ecb435b0b30e89424585b6ea13377760117b82330767ca94aec830d8ac8d9d`
 
 This bounded record identifies exact external archive hashes, red/green
 fingerprints, scoped installed checks, branch preservation and registry

@@ -15,7 +15,7 @@
     "PROJECT_STATUS.md": "f11e8b6dcb7d9e471b6e4ef4ffa0b3866315faa1b4681849fb2fd7c7729c06d6",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "443c0daaf5507a587b027e865234790aecf54649177568ab3aa8d87f79bd3e40",
-    "REPO_LEDGER.md": "4cc04691459ab22b7877ebdbf0262865ed88998fec2ba9503d6edc8a41b1fc4d",
+    "REPO_LEDGER.md": "5df3d63c8e311936e0e050637e032beb5c45340f3bb16e2bbeb7446657ff7ec2",
     "ROADMAP.md": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "692226556cb802670921c0f7babe7d803804838a557a58eeb4338063d808d0a3",
@@ -94,7 +94,7 @@
     "docs/SYMBOL_NURSERY.md": "e909fdda23f3953843660c7213fc4d73f7df1cfe141fc8c38d4e7f5180a59c01",
     "docs/TESTPYPI.md": "a366e4826b08503ebc520f218950ceb2560ccb92f0a8c144645a5b0faa6675f7",
     "docs/adr/0001-canonical-store-lifetime-lease.md": "966618ae08229dbbd3c5d9722a1c7f3005c3ead9831b34bbb0d42c2e7e28915e",
-    "docs/audits/INDEX.md": "1b1868497886ff231d69ee12d936ec1de54fd7f4553ee27b34a31e217be32e3f",
+    "docs/audits/INDEX.md": "791347f9eadd2463faab498ebec928c0218a960e5ca8bd3ea95fa0f40b42e64b",
     "docs/engineering/01_ARCHITECTURE.md": "f215d14252000a81a6ad2815ef5a1b7892c41d48afb951952b4babf29cdb6b00",
     "docs/engineering/05_SECURITY_ARCHITECTURE.md": "566240c3bbea869238bd4ea749b10c6090c5aeb196d55a8d5655c75a61063fc3",
     "docs/engineering/06_ENGINEERING_CHANGE_SOP.md": "ecaffbf1827e6350078df33af00427cb9efef6bf743d10effb80e02eb79ae191",
@@ -250,10 +250,9 @@
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "4cc04691459ab22b7877ebdbf0262865ed88998fec2ba9503d6edc8a41b1fc4d",
+      "document_sha256": "5df3d63c8e311936e0e050637e032beb5c45340f3bb16e2bbeb7446657ff7ec2",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
-        "CLI source revisions changed; review hand-written command behavior claims",
         "hand-written content added/changed; review the authored change"
       ],
       "scope": "Explicit review of the flagged change; not a whole-page audit, licensing approval or release qualification.",
@@ -795,7 +794,7 @@
     },
     "docs/audits/INDEX.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "1b1868497886ff231d69ee12d936ec1de54fd7f4553ee27b34a31e217be32e3f",
+      "document_sha256": "791347f9eadd2463faab498ebec928c0218a960e5ca8bd3ea95fa0f40b42e64b",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

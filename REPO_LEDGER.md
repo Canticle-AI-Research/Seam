@@ -40,6 +40,10 @@ bounded task-specific reading; do not maintain a competing sequence here.
   Branch deletion requires main reachability or verified patch preservation
   and an unchanged live tip. A closed or merged PR label alone does not prove
   unique commits are disposable. See [release flow](docs/RELEASE_FLOW.md).
+  SessionEnd classification excludes plain Markdown/reStructuredText from
+  runtime TDD even under executable prefixes; actual code/scripts stay governed.
+  Immutable earlier requests retain their original stricter classification and
+  verdict, with no executable omissions admitted (HISTORY#668).
 - The local documentation safeguard candidate derives command metadata from
   the actual CLI factory and shared link definitions from
   `tools/docs/reference_config.json`. `tools.docs.sync_references --check`

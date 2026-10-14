@@ -307,11 +307,12 @@ def _changed_paths(
     return paths, truncated
 
 
-def runtime_paths(paths: list[str]) -> list[str]:
+def runtime_paths(paths: list[str], *, include_documentation: bool = False) -> list[str]:
     return [
         path
         for path in paths
-        if path == "seam.py" or any(path.startswith(prefix) for prefix in RUNTIME_PATHS[1:])
+        if (include_documentation or Path(path).suffix.lower() not in {".md", ".rst"})
+        and (path == "seam.py" or any(path.startswith(prefix) for prefix in RUNTIME_PATHS[1:]))
     ]
 
 
@@ -346,11 +347,13 @@ def _valid_cycle(cycle: object) -> bool:
     )
 
 
-def assess_tdd(paths: list[str], state: dict[str, Any] | None) -> dict[str, Any]:
+def assess_tdd(
+    paths: list[str], state: dict[str, Any] | None, *, include_documentation: bool = False,
+) -> dict[str, Any]:
     """Assess recorded red/green evidence against the changed runtime paths."""
 
     cycles = state.get("tdd_cycles", []) if state else []
-    runtime = runtime_paths(paths)
+    runtime = runtime_paths(paths, include_documentation=include_documentation)
     if not runtime:
         return {
             "status": "TDD_NOT_REQUIRED",
