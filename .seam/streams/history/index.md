@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 672
-total_tokens: ~344361
-latest_id: 672
+total_entries: 673
+total_tokens: ~345072
+latest_id: 673
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 673 | 2026-10-14 | in-progress | 55de4dc260e9d2db | audit,ci,continuity,docs,+ | none |
 | 672 | 2026-10-14 | changed | 51daf87bf25c810a | audit,ci,continuity,correction,+ | 670 |
 | 671 | 2026-10-14 | changed | 4523e32281207894 | maintenance/ci,maintenance/branches,protocol/context | none |
 | 670 | 2026-10-14 | in-progress | 167043beadaf37d9 | maintenance/branches,maintenance/pgvector,runtime/retrieval,docs,+ | none |
@@ -703,7 +704,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=141 latest=#672, #666, #665, #664, #663
+- audit: count=142 latest=#673, #672, #666, #665, #664
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -726,7 +727,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=85 latest=#672, #669, #667, #664, #663
+- ci: count=86 latest=#673, #672, #669, #667, #664
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -749,7 +750,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=101 latest=#672, #668, #667, #666, #665
+- continuity: count=102 latest=#673, #672, #668, #667, #666
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -778,8 +779,8 @@ compact: true
 - distribution: count=2 latest=#501, #474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=11 latest=#672, #621, #620, #483, #482
-- docs: count=118 latest=#672, #670, #669, #668, #667
+- docker: count=12 latest=#673, #672, #621, #620, #483
+- docs: count=119 latest=#673, #672, #670, #669, #668
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -795,7 +796,7 @@ compact: true
 - experiment: count=1 latest=#273
 - extraction: count=1 latest=#493
 - extractor: count=1 latest=#313
-- extras: count=2 latest=#656, #022
+- extras: count=3 latest=#673, #656, #022
 - fairness: count=1 latest=#333
 - fidelity: count=7 latest=#313, #311, #308, #307, #306
 - fix: count=1 latest=#411
@@ -820,11 +821,11 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=131 latest=#672, #669, #667, #665, #652
+- handoff: count=132 latest=#673, #672, #669, #667, #665
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
-- history: count=328 latest=#672, #632, #631, #630, #627
+- history: count=329 latest=#673, #672, #632, #631, #630
 - holdout: count=5 latest=#302, #152, #093, #092, #036
 - holographic: count=1 latest=#288
 - hooks: count=1 latest=#561
@@ -907,8 +908,8 @@ compact: true
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
-- pgvector: count=39 latest=#672, #660, #656, #648, #640
-- plan: count=26 latest=#672, #645, #634, #620, #511
+- pgvector: count=40 latest=#673, #672, #660, #656, #648
+- plan: count=27 latest=#673, #672, #645, #634, #620
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
 - positioning: count=1 latest=#538
@@ -927,11 +928,11 @@ compact: true
 - protocol: count=120 latest=#668, #620, #619, #618, #617
 - protocol/context: count=1 latest=#671
 - prov: count=1 latest=#316
-- provenance: count=37 latest=#672, #655, #654, #653, #628
+- provenance: count=38 latest=#673, #672, #655, #654, #653
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
-- pyproject: count=21 latest=#667, #666, #665, #642, #635
+- pyproject: count=22 latest=#673, #667, #666, #665, #642
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -941,14 +942,14 @@ compact: true
 - readme: count=25 latest=#353, #352, #347, #346, #345
 - reasoning: count=10 latest=#609, #608, #499, #498, #497
 - recall: count=2 latest=#320, #317
-- reconcile: count=9 latest=#672, #645, #626, #602, #570
+- reconcile: count=10 latest=#673, #672, #645, #626, #602
 - reconciliation: count=1 latest=#305
 - recovery: count=2 latest=#433, #271
 - redos: count=2 latest=#309, #298
 - refactor: count=1 latest=#284
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
-- registry: count=11 latest=#672, #669, #667, #582, #580
+- registry: count=12 latest=#673, #672, #669, #667, #582
 - release: count=8 latest=#670, #486, #485, #484, #476
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
@@ -965,7 +966,7 @@ compact: true
 - rule: count=1 latest=#304
 - run-record: count=2 latest=#367, #366
 - runtime/retrieval: count=1 latest=#670
-- salvage: count=2 latest=#672, #179
+- salvage: count=3 latest=#673, #672, #179
 - sbert: count=3 latest=#023, #022, #011
 - scope: count=1 latest=#318
 - scorer: count=2 latest=#325, #292
@@ -1023,7 +1024,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=474 latest=#672, #668, #667, #666, #665
+- verify: count=475 latest=#673, #672, #668, #667, #666
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1039,8 +1040,8 @@ compact: true
 
 ## status rollup
 
-- roots: 89
+- roots: 90
 - changed: 76
 - done: 541
-- in-progress: 33
+- in-progress: 34
 - planned: 22

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-branch-recovery
 supersedes: 2026-10-14-suite-integrated-testpypi-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#672
 ---
 

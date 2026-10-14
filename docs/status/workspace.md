@@ -3,11 +3,12 @@
 > Worktrees, branches, pull requests, local-only artifacts, and overlap between
 > active workstreams
 
-_Current launch reconciliation: 2026-09-06 at protected `origin/main@8834601`,
-recorded in HISTORY#634. The decision map below is the current baseline.
-Historical physical/sibling/branch registers remain dated recovery references;
-they are not evidence that those worktrees, branches, or access paths still
-exist. Re-run the refresh commands before acting._
+_Current branch reconciliation: 2026-10-14, source protected main
+`efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd`, website main
+`1514b89be0265517306fdd4e6cdea5ffa07f61f6`, HISTORY#673. Eleven original
+audited branches are retired; 19 original tips remain. New delivery branches
+below are separately owned temporary work, not forgotten original branches.
+Older physical/sibling/branch registers are historical recovery references._
 
 ## Use this before creating work
 
@@ -23,6 +24,23 @@ an exact target decision. Ignored files are listed because `git status` can
 report a worktree as clean while removal would still destroy local data.
 
 ## Current decision map
+
+| Logical item | Physical identities | Verified baseline | Next action |
+| --- | --- | --- | --- |
+| Source protected main | `origin/main`, Canticle-AI-Research/Seam | `efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd`, PR #303 exact qualified tree | Base of current follow-up; use live readback before new work |
+| Retirement/active lock closeout | `/workspace/Seam`, `maintenance/branch-recovery-closeout-20261014` | Root-owned metadata and independently qualified urllib3-only lock delta | Finish protected PR and remove merged branch |
+| Source factual/glossary/wiki recovery | `/workspace/scratch/seam-branch-audit-20261014/source-docs-worktree`, `integrate/docs-recovery-20261014` | Isolated at source `efa7962`; bounded delivery owns named docs/checker paths | Recover PRs #277→#278, integrate with current root metadata, qualify and remove worktree/branch |
+| Website operator/current-interface facts | `/workspace/Cantlicle`, `integrate/operator-doc-recovery-20261014` | Website main `1514b89`; bounded public docs/tests; no auth/pricing policy changes | Recover PRs #14/#31, review/deploy/verify served pages, remove merged branch |
+| Original unresolved branch work | 13 source/six website exact original tips | [Frozen remaining inventory](../audits/evidence/2026-10-14-branch-recovery/remaining-branches.json) | Follow [ordered recovery/retirement criteria](../roadmap/BRANCH_RECOVERY.md); retain useful work |
+| Retired historical provenance | Original PR head refs plus three signed `archive/20261014/*` tags | [Exact-tip retirement proof](../audits/2026-10-14-branch-retirement-and-lock.md) | Read only when recovering dated intent; tags are not current implementation/licence authority |
+| External qualification conditions | TestPyPI access; shared-runner PG fixture startup; GitHub About setting | No configured test publisher; runner job failed before real tests; pinned issue #287 | Keep #293/#287 and release access visible; do not claim full-suite/remote-PG qualification |
+
+The current source doc worktree is real active delivery, not safe to delete while
+dirty. Both source/site primary checkouts are active branches at this snapshot.
+No stash or unrelated operator artifacts were consumed. These observations are
+time-scoped; refresh exact live metadata before any cleanup.
+
+## Historical 2026-09-06 decision map
 
 | Logical item | Physical identities | Verified baseline | Next action |
 | --- | --- | --- | --- |

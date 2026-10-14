@@ -9,6 +9,18 @@ and dated observations are recorded in HISTORY#634 and the
 
 ## Integrated candidate and live website
 
+Branch recovery PR #303 is integrated at `efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd`.
+Fresh branch-recovery-public-v4 wheel/sdist each pass exact implementation/legal
+membership, strict Twine/private-artifact checks, default dependency resolution
+and eight installed smoke cases. Package CI passes on its final qualified head.
+The reviewed urllib3 2.7.0→2.8.0 lock update changes only the active locked install;
+all other 158 records and packaged inputs are unchanged. Fresh locked installation
+and eight smoke cases pass; dated audit requirements retain their original bytes.
+See [retirement/lock evidence](../audits/2026-10-14-branch-retirement-and-lock.md).
+Website safety PR #34 is deployed at `1514b89be0265517306fdd4e6cdea5ffa07f61f6`;
+four changed resources match reviewed main and production Pages/worker checks pass.
+The next documentation recoveries do not establish a new package publication.
+
 PR #288 merged at `6c6ecd13490c9b675a77f246573491824313343c` after exact-state
 qualification, required final-head checks and separate wheel/sdist install CI.
 The default Suite dependencies, release validation, MCP preparation and manifest
