@@ -12,7 +12,7 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "e29e9d25087da344b977db40f56c0fc8918336a2895318fbf297ca4adfd8016a",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "f11e8b6dcb7d9e471b6e4ef4ffa0b3866315faa1b4681849fb2fd7c7729c06d6",
+    "PROJECT_STATUS.md": "4c5e304632dbcabffddb8f7668f9a1ec38dfc600f60d4ed9567e0ad86eb33ab1",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "443c0daaf5507a587b027e865234790aecf54649177568ab3aa8d87f79bd3e40",
     "REPO_LEDGER.md": "5df3d63c8e311936e0e050637e032beb5c45340f3bb16e2bbeb7446657ff7ec2",
@@ -111,7 +111,7 @@
     "docs/engineering/templates/README.md": "b60e62bca4f20c51317c125f7e8f0c4f272f33e41d4daa90c7f55873e3a94d3c",
     "docs/engineering/templates/THREAT_MODEL_DELTA.md": "d98ed44d5da7d3d32fa218ae2499e93e818ab9f124d1961b19bdf2899911fb0e",
     "docs/errors.md": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
-    "docs/handoffs/INDEX.md": "48f776e7c2fcf2884458e9e24d9b47a5153300434eab5fd6ed8bb368cd183a80",
+    "docs/handoffs/INDEX.md": "73b76b356f174fd815f0aa0e76b48f675a969913467b51b63a64b2d91ccb6e32",
     "docs/howto/README.md": "1503b123eeea2cdc9b38ccca4b826cefca5fee10a9de557e116cdcc859b8e09d",
     "docs/kb/README.md": "64b5d293ac1b0c699a9cca5302a8432f5ad8c522f6186c411c391ecc2e2904d4",
     "docs/kb/eval-methodology/benchmark-traps.md": "6bfaf8c57c9387d4d35e35e51e3516cb835701dfedc157b22a0f8f3dc0afa087",
@@ -168,7 +168,7 @@
     "docs/status/deferred.md": "abfb767d4a8499c26b0b36598c82fc9ee0a8cad685d9e5e576835d8a81b444a7",
     "docs/status/index.md": "bff089aafae603c8f6e7e3b062f743bbe0c13ba86bb5278444596abb0a903c49",
     "docs/status/operations.md": "da600e32ccbc20cf97dd6a4cd94a3e41c386eebfcf72180cb8fde2a361dba417",
-    "docs/status/packaging-licensing.md": "789965e031d198462c63675d78689795362525064fd1a2cb03d6369ffb3291ef",
+    "docs/status/packaging-licensing.md": "81ab059b01bacb70592f3ded435639e059e299f22d3f5ab00d1f3d5660d7108b",
     "docs/status/protocol-continuity.md": "d840a255af743de9ca7e574695f1b0e872ab0e1e95bedf015d63849b9034fb08",
     "docs/status/retrieval.md": "bfa2812175ee69bda9a9665a9b47d132feadaaf468812b219ccc15c44c105edd",
     "docs/status/surfaces.md": "bcdd29067a4206b26d034ac00327092d3ae336c70b55f151394e4df0df60fbe5",
@@ -229,7 +229,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "f11e8b6dcb7d9e471b6e4ef4ffa0b3866315faa1b4681849fb2fd7c7729c06d6",
+      "document_sha256": "4c5e304632dbcabffddb8f7668f9a1ec38dfc600f60d4ed9567e0ad86eb33ab1",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -815,7 +815,7 @@
     },
     "docs/handoffs/INDEX.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "48f776e7c2fcf2884458e9e24d9b47a5153300434eab5fd6ed8bb368cd183a80",
+      "document_sha256": "73b76b356f174fd815f0aa0e76b48f675a969913467b51b63a64b2d91ccb6e32",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -1087,7 +1087,7 @@
     },
     "docs/status/packaging-licensing.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "789965e031d198462c63675d78689795362525064fd1a2cb03d6369ffb3291ef",
+      "document_sha256": "81ab059b01bacb70592f3ded435639e059e299f22d3f5ab00d1f3d5660d7108b",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

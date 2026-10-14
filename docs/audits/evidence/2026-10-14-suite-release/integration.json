@@ -1,0 +1,187 @@
+{
+  "suite_merge": "6c6ecd13490c9b675a77f246573491824313343c",
+  "reviewed_head": "706d62f4d3dca6293c7ef380124af21342a08633",
+  "website_merge": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+  "qualified_receipt_sha256": "1ae1ae3328bfcea26096844d365925d20a1ff306b4e99b8bae90a23920898623",
+  "live_verification": {
+    "suite_download_selector_matches_source": true,
+    "website_main_commit": "a7be46329cd430d38c95961edbc820dacd65b5a0",
+    "live_origin": "https://canticle.cc",
+    "pages": [
+      {
+        "path": "index.html",
+        "url": "https://canticle.cc/",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "39e8948fc9d39f4526941093c4701d8779f9b6ac954645b6392af483704b9e6d",
+        "live_sha256": "9b46b8607b083991ca13b80b0f09b68477123b8e5e69b0918891f5a667f71a05"
+      },
+      {
+        "path": "documentation.html",
+        "url": "https://canticle.cc/documentation.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "d7f56fb83bcc73377080896ceb3b5fb2027f9813d3230f972716b9803f05e1eb",
+        "live_sha256": "dfa8e3e9cb29dfe2352ab08644f326a64747b265e0ef7e9e831d947d123e406f"
+      },
+      {
+        "path": "downloads.html",
+        "url": "https://canticle.cc/downloads.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "60d1810235a32f04c79b900bc3ef6778a86fc7a4a226123d970341e670922384",
+        "live_sha256": "623709c6dc8ef8027f47bb5ecc3c696bfa8ac8b780397302c904aa138d38dd60"
+      },
+      {
+        "path": "terms.html",
+        "url": "https://canticle.cc/terms.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "5d94e143bcda1114613a3d9da315e10649bf8e165a2c3de63e1a5b12e9fec922",
+        "live_sha256": "b70c3dac7acf7c171678c0d9b7cdbb76249b10d54ddabebee84e0b13a1cdcbfe"
+      },
+      {
+        "path": "tiers.html",
+        "url": "https://canticle.cc/tiers.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "208f876c9d8a329645c0711d725dc5e898524251f9058cfd49906914272e1fbb",
+        "live_sha256": "2eb988a8910a78957f57feb48fe1598c65aadec003cb72a3a01031cd3da58b37"
+      },
+      {
+        "path": "console.html",
+        "url": "https://canticle.cc/console.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "1af35410eb298070136353949676df8ec20a28232f8904dedce748dfa4186861",
+        "live_sha256": "fa8b7e3c945b524caa956ee099278a0aee93052ce4771e5b4088bacb2db677eb"
+      },
+      {
+        "path": "contributions.html",
+        "url": "https://canticle.cc/contributions.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "d06bc3b5374c79f62bddeaba8fffb596782ff4a59862293ec0930588e8e673f2",
+        "live_sha256": "17dbbb4000e9f2fac4440df04c5733aa81e6e65aea79df88ca850a69fc84faf6"
+      },
+      {
+        "path": "about.html",
+        "url": "https://canticle.cc/about.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "81ce26fc137bfe9c29361e81fa9e8ff7a07396c1939d3d3ae4c7bb8e9aff4689",
+        "live_sha256": "27409e6e61a81e474680b56d12823b571099cf078333b8d56d0085d5c210a5ac"
+      },
+      {
+        "path": "SEAM Landing.dc.html",
+        "url": "https://canticle.cc/SEAM%20Landing.dc.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "ef8402b5c8a19b2ee27e1df5b278497be4620542ed791fee1c1f356130450fd3",
+        "live_sha256": "df77bf267db7a65c94eca769f7b2bb9e3d5671397246f98602be7e5d288085a9"
+      },
+      {
+        "path": "Documentation Page/SEAM Documentation.dc.html",
+        "url": "https://canticle.cc/Documentation%20Page/SEAM%20Documentation.dc.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "bf5bf661879439c231f4b4710bdc9ad4436c88d6d173f0eba84a1aae9e131d49",
+        "live_sha256": "fcc7393d93c5454c33b2b9fc4a54c19bd5ad2f7651c090382dce5700cbbdbed5"
+      },
+      {
+        "path": "Interactive block design/seam-hs1-banner-mock.html",
+        "url": "https://canticle.cc/Interactive%20block%20design/seam-hs1-banner-mock.html",
+        "visible_content_matches_reviewed_source": true,
+        "source_sha256": "d0fd018afe422fa98e5ae973f52535502bdbd0a61a9c0145290a92a56ced20e4",
+        "live_sha256": "84143744ecbcf95d82324d14ebc2782747a52ada180193ef65d2f9a8b534c4c2"
+      }
+    ],
+    "pricing_script_matches_reviewed_source": true,
+    "email_obfuscation_normalized": true
+  },
+  "prior_branch_deletions": {
+    "observed_at": "2026-10-14T06:44:51.636238+00:00",
+    "deletions": [
+      {
+        "repository": "Seam",
+        "branch": "codex/s8-r2-spec",
+        "deleted_sha": "f8c33491205da2c8916698086604ee9850ee5860",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Seam",
+        "branch": "hackerone",
+        "deleted_sha": "66fd3f93081712871ff827e756026c3e73c71790",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/canticle-mfa-rls",
+        "deleted_sha": "584be3a44f4fb1872f7376c136a32e8ea5bfb4dd",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/canticle-totp-mfa",
+        "deleted_sha": "bd077dfc9c895267306928ee9d80a57a666dcbe4",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/google-ai-pro-feed-ad",
+        "deleted_sha": "2990b6a3006a9743e488aa3a68aeaf9bc52b0050",
+        "preservation": "Single unique commit has stable patch ID identical to reachable main commit; no open PR."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/publish-free-broad-profile",
+        "deleted_sha": "4a53f6170dc210b4499ec1f489c4b133aed9a9c2",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/research-page-redesign",
+        "deleted_sha": "553ae5adb35aa3e452fe9deb069cb4a3e298b4ef",
+        "preservation": "Single unique commit has stable patch ID identical to reachable main commit; no open PR."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "agent/work-about-profile-redesign",
+        "deleted_sha": "e3b55fe4fdc3b425f8618b2a7cd50cfc0eccc1b0",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "docs/documentation-expansion-20261002",
+        "deleted_sha": "a645dead7da75a2b85b7bc1ee7c5dbc5a3df8ad6",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "docs/seam-subscription-workspace",
+        "deleted_sha": "ab77be804f28fafd577bb86382272d9329391f5b",
+        "preservation": "Exact branch tip is ancestor of main; all commits reachable."
+      },
+      {
+        "repository": "Cantlicle",
+        "branch": "fix/suite-license-copy-20261014",
+        "deleted_sha": "6d5ee50bb92ec7717a5cd68ad70fe7cb1ded49e5",
+        "preservation": "Single unique commit has stable patch ID identical to reachable main commit; no open PR."
+      }
+    ]
+  },
+  "additional_removed_remote_branches": [
+    {
+      "repo": "Seam",
+      "branch": "fix/suite-release-ready-20261014",
+      "tip": "706d62f4d3dca6293c7ef380124af21342a08633",
+      "preservation": "Merged PR288; auto-deleted by GitHub."
+    },
+    {
+      "repo": "Seam",
+      "branch": "fix/pypi-release-flow-20260917",
+      "tip": "8a120381f885cdcfc90b9157bae66ea8b452a99f",
+      "preservation": "Useful implementation preserved/strengthened, obsolete copy superseded, historical objects retained refs/pull/266/head; live-tip lease deletion."
+    },
+    {
+      "repo": "Cantlicle",
+      "branch": "fix/suite-downloads-ready-20261014",
+      "tip": "d236fadb052f336741cc8542df7529fcf4a35735",
+      "preservation": "Exact tip ancestor of main; live-tip lease deletion."
+    }
+  ],
+  "pr266_disposition_sha256": "ee1b892094f868aa3fb85bfb6bb72e0b3ee35e623792ef25ba5973ceab02af6a",
+  "publisher_upload_performed": false,
+  "remaining_external_dependency": "TestPyPI-specific publisher access",
+  "pgvector_failure": "Runner Docker daemon socket missing; failure before tests."
+}

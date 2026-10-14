@@ -1,11 +1,27 @@
 # Status Stream: Packaging Licensing
 
-> Current artifact coordinates, release constraints, and the next migration task
+> Current artifact coordinates, release constraints, and TestPyPI access
 
 Product definitions live in [SEAM products](../PRODUCTS.md). Delivery order
 lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
+
+## Integrated candidate and live website
+
+PR #288 merged at `6c6ecd13490c9b675a77f246573491824313343c` after exact-state
+qualification, required final-head checks and separate wheel/sdist install CI.
+The default Suite dependencies, release validation, MCP preparation and manifest
+drift checks are integrated. Website PR #33 is deployed and fresh served-page
+and script comparison passed. PR #266 is closed as superseded and its branch
+removed; unique unrelated work remains. See HISTORY#669 and the
+[current handoff](../handoffs/INDEX.md).
+
+TestPyPI-specific publisher access and downloaded-install verification remain
+open. No upload or production/MCP registration occurred. Stable Downloads
+waits for verified production release metadata. Local/CI installation evidence
+does not establish full product acceptance or repair the shared runner's
+unavailable PostgreSQL Docker service.
 
 ## Licensing reconciliation
 
