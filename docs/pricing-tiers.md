@@ -8,18 +8,20 @@ or **hosted**.
 Related boundary docs: [`COMMERCIAL_LICENSE.md`](../COMMERCIAL_LICENSE.md),
 [`docs/PROTECTION_MODEL.md`](PROTECTION_MODEL.md), [`NOTICE`](../NOTICE).
 
+**Current license:** Suite is proprietary under
+[the personal license](../LICENSES/SEAM-Suite-Personal.txt): free personal,
+noncommercial self-hosting; business and organizational use require a separate
+written agreement. The proposed subscription prices below do not include or
+grant a business license. Contact licensing@canticle.cc for those terms.
+
 ## The three rules the whole model obeys
 
-1. **The subscription buys convenience and hosted infrastructure — never the
-   ability to run SEAM.** Everything paid is reproducible with the open core +
-   your own infra, and we document the DIY path.
-2. **Charge for what costs *us* money (compute, storage, human time, legal
-   liability). Give away what doesn't (the software itself).** This is why the
-   price scales fairly with customer size — a solo dev consumes little and pays
-   little; an enterprise consumes a lot and pays a lot.
-3. **The core never loses a feature to create a paid tier.** Paid tiers only
-   *add*. Cancelling is a non-event: your local node keeps running, your data
-   stays yours.
+1. **License scope comes first.** Suite is free for personal, noncommercial
+   self-hosting. Business and organizational use need a separate written agreement.
+2. **Subscriptions describe proposed services.** Hosted compute, storage and
+   support prices do not grant additional software-use or redistribution rights.
+3. **Your data remains yours.** Subscription changes do not change the personal
+   license for an authorized copy; business use follows its separate agreement.
 
 ## What "unlimited" honestly means here
 
@@ -33,10 +35,9 @@ published number. No exceptions, including on the top tier.
 
 Genuinely unlimited, on every tier including Community:
 
-- **Unlimited self-hosting** — run the node on your own hardware or rented
-  infrastructure, at any scale, any number of users, including internal
-  commercial production use. This is a right granted by BUSL-1.1, not a plan
-  feature, so no subscription change can revoke it.
+- **Personal self-hosting** — no installation-count or use-based fee under
+  the personal, noncommercial grant. Business and organizational use require
+  a separate written agreement, even when you supply all compute yourself.
 - **Unlimited stored memories** — it's your disk. MIRL records are tiny.
 - **Unlimited retrieval / queries** — it's your CPU. We literally cannot meter
   your own machine, and we never meter a read on the hosted path either.
@@ -157,7 +158,7 @@ cheaper and without the greed.
 |---|---|---|---|---|---|---|
 | **Price** | $0 | ~$5/mo | ~$15/mo | ~$40/mo | ~$20/seat/mo | Custom |
 | **For** | Self-hosters | Effortless solo self-host | Power user | Heaviest managed use | Shared memory | Compliance & scale |
-| **License** | BUSL-1.1 (self-host free) | + hosted conveniences | | | | + commercial terms |
+| **License** | Proprietary personal, noncommercial self-hosting | Service proposals only; business use needs written terms | | | | Separate written terms |
 
 Yearly = 2 months free. Community is not a trial and not a lite build — it is the
 whole product.
@@ -296,18 +297,16 @@ path and the funnel doesn't quietly drift cloud-ward.
 
 This is the sorting logic behind the matrix, stated plainly for future features.
 
-**Free (Community, BUSL-1.1) — "makes SEAM *work*":**
-the entire runtime, every interface, unlimited memories/queries, BYO-key,
-lever-packs, self-improvement loop, community support, free export. The product
-is fully functional here forever. This is also the marketing engine.
+**Personal Suite — self-hosted operation:**
+The personal license covers the exact implementation manifest and permits
+personal, noncommercial operation, supported configuration, builds and use of
+your own data. It reserves business use, independent MIRL/HS/1 reuse, source
+modification, redistribution and hosted/embedded offerings. The separate paid
+SDK is excluded. There is no automatic open-source conversion.
 
-Source-available, not Apache. Self-hosting — including internal commercial
-production use at any scale — is free and always will be. The single
-restriction is that you may not resell SEAM as a competing hosted service.
-Each version becomes MPL-2.0 four years after it ships, so the promise is
-enforceable rather than a matter of trust. This is what makes the ladder below
-safe to build: the generosity is real, and the one thing it withholds is the
-one thing that would destroy the business.
+The features and service prices in this strategy draft remain proposals;
+availability requires separate product qualification. Business and organizational
+use require written terms through licensing@canticle.cc.
 
 **Combine-with-self-host (Solo/Pro/Max) — "makes *your node* effortless":**
 `seam login`, encrypted backup, cross-device sync, remote control plane,
@@ -343,13 +342,15 @@ the fair, cheap ladder that connects the two.
 ## Guardrails (the promises that keep it honest)
 
 1. The core never loses a feature to create a paid tier — paid only adds.
-2. Everything paid is reproducible with the open core + your own infra; we
-   document the DIY path.
-3. Cancel-safe: downgrading never disables your local node or holds your data.
+2. Authorized personal Suite operation has a documented self-host path.
+   Business use and paid services require their separate written terms.
+3. Subscription changes do not alter the personal grant for an authorized copy
+   or ownership of your data; business use follows its separate agreement.
 4. Your memories stay yours — hosted backup is E2E encrypted (we hold
    ciphertext), export is always free.
 5. No pay-to-use telemetry — the core never needs an account or phone-home.
-6. Benchmarks stay free and honest — the harness is in the open core, never gated.
+6. Personal benchmark results may be published under the personal license.
+   Research and benchmark materials outside its manifest remain reserved.
 7. Managed inference is never marked up opaquely — cost + a visible fee.
 8. "Unlimited" always means genuinely uncapped or a published number — no silent
    throttle, no silent model downgrade.

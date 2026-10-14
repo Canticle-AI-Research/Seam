@@ -5,6 +5,17 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — current Suite licensing reconciled for first launch.** The
+recorded owner decision from PR #266 is carried onto current main: proprietary
+Suite with free personal, noncommercial self-hosting; business and organizational
+use require a separate written agreement. The exact implementation manifest,
+notices and package license metadata cover this current candidate. Runtime
+source and historical license files are unchanged. See HISTORY#665 and
+[the licensing report](docs/audits/2026-10-14-licensing-reconciliation.md).
+Independent review and protected-PR checks govern integration; package
+publishing, website deployment and PR #266's remaining release/MCP work are
+separate. No legacy user migration or rollback path is part of this task.
+
 **2026-10-09 — launcher candidate integrated; native qualification pending.**
 The independently reviewed change preserves a nonempty `SEAM_DB_PATH` in the
 managed command shims and keeps the managed default when it is unset or empty.
@@ -98,7 +109,8 @@ Use the [surface stream](docs/status/surfaces.md) for those boundaries.
 
 GitHub currently reports the canonical repository as public. Root package
 metadata now declares the `seam-suite` 2.4.1rc1 candidate with `Private :: Do Not Upload`;
-existing license files and the PyPI prohibition are unchanged. The
+the current personal-use license is reconciled as described above, and the
+PyPI prohibition remains. The
 [packaging stream](docs/status/packaging-licensing.md) separates source visibility,
 existing releases, future artifact eligibility, and migration work. No naming
 change in these docs publishes a package or deploys a service.

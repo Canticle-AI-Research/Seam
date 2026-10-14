@@ -7,18 +7,19 @@ wording before publishing. Companion to [`docs/pricing-tiers.md`](pricing-tiers.
 
 ## 1. What these terms cover
 
-These terms govern **paid SEAM subscriptions, credits, and the Founder program**.
-They do **not** restrict the SEAM Distributed Runtime, which is licensed
-separately under the Business Source License 1.1
-([`LICENSES/BUSL-1.1.txt`](../LICENSES/BUSL-1.1.txt)) and is free to use,
-self-host, and modify — with or without a subscription. A subscription is never
-required to run SEAM.
+**Current license:** Suite is proprietary under
+[the personal license](../LICENSES/SEAM-Suite-Personal.txt): free personal,
+noncommercial self-hosting; business and organizational use require a separate
+written agreement. The proposed subscription prices below do not include or
+grant a business license. Contact licensing@canticle.cc for those terms.
 
-Source-available, not open source. Running SEAM yourself, at any scale,
-including for internal commercial production use, is free and always will be.
-The single restriction is that you may not offer SEAM to third parties as a
-paid competing hosted service. Each published version becomes MPL-2.0 four
-years after it ships.
+These draft terms describe proposed paid subscriptions, credits and the
+Founder program. Current Suite use is governed by [LICENSE](../LICENSE),
+[the personal license](../LICENSES/SEAM-Suite-Personal.txt) and its exact
+implementation manifest. Personal, noncommercial self-hosting is free;
+business use, including internal company operation and unpaid business
+evaluation, needs a separate written agreement. Subscriptions do not expand
+those rights. Suite has no automatic open-source conversion.
 
 ## 2. Plain-language definitions
 
@@ -33,9 +34,9 @@ years after it ships.
   (up to 1 KB).**
 - **BYO-key** — you supply your own model/API key, so the processing runs on your
   account. BYO-key usage is unlimited and never billed by us.
-- **Self-host** — running the SEAM Distributed Runtime on your own machine, or
-  on infrastructure you rent, for yourself or your organization. Fully unlimited
-  and free under BUSL-1.1, including for internal commercial production use.
+- **Self-host** — operating Suite on hardware or infrastructure you control.
+  Personal, noncommercial use is free under the personal license. Business and
+  organizational use require a separate written agreement.
 
 ## 3. Plans and prices
 
@@ -99,12 +100,10 @@ You choose how to pay for managed usage:
 - **Renewal.** Subscriptions renew automatically each cycle until cancelled.
 - **Cancellation.** You may cancel anytime, effective at the end of the current
   paid cycle. Cancellation is **one click** — no phone call, no retention maze.
-- **Cancel-safe guarantee.** Cancelling or downgrading **never disables your
-  self-hosted node, never deletes your data, and never revokes your ability to
-  run the Distributed Runtime.** Your right to self-host comes from BUSL-1.1,
-  not from your subscription, so cancelling cannot touch it. You lose hosted
-  conveniences (sync, remote plane,
-  managed writes), not the product or your memories.
+- **Cancel-safe guarantee.** Subscription cancellation does not delete your
+  data or change the personal-use permission for an authorized Suite copy.
+  Business use remains governed by its separate written agreement. Hosted
+  subscription conveniences may end according to their applicable terms.
 - **Data export is always free**, on any plan and after cancellation.
 - **Refunds.** Unused **prepaid credits** are refundable on request, minus credits
   already consumed **[legal: refund window + method]**. Subscription fees for the
@@ -142,7 +141,8 @@ are protected by ordinary anti-abuse rules:
 - **Founder Pass price-lock** (Section 11) overrides list-price increases for pass
   holders.
 - Managed writes are the only component whose price may track market compute
-  costs; unlimited recall, storage, and self-host/BYO remain free.
+  costs; personal self-host/BYO remains subject to the personal license, and
+  business self-hosting remains subject to its separate agreement.
 
 ## 11. Founder program
 
@@ -174,22 +174,19 @@ non-payment of other charges **[legal: this clause needs real wording]**.
 **Refunds on the Founder Pass** — refundable within a stated window if unused
 **[legal]**; after founder benefits have been applied, it is non-refundable.
 
-## 12. Source-available core and self-hosting
+## 12. Suite license and self-hosting
 
-- The SEAM Distributed Runtime is licensed under BUSL-1.1. Nothing in these
-  terms restricts your rights under that license.
-- **Self-hosting is free, at any scale, forever** — on your own hardware or on
-  infrastructure you rent, for yourself or your organization, including internal
-  commercial production use. No subscription, no user cap, no phone-home.
-- **The one restriction:** you may not offer the Distributed Runtime to third
-  parties as a paid competing hosted service. Free offerings are never
-  competitive; neither is internal use across affiliates under common control.
-- **Each version becomes MPL-2.0 four years after it ships.** The eventual
-  open-source grant is written into the license, not promised in marketing.
-- **The core never loses a feature to create a paid tier.** Paid plans only add
-  hosted conveniences and managed compute.
-- Everything paid is reproducible with the core plus your own infrastructure;
-  you are always free to self-host instead of subscribe.
+- Suite is proprietary with free personal, noncommercial self-hosting under
+  [the personal license](../LICENSES/SEAM-Suite-Personal.txt) for the exact
+  [manifest files](../LICENSES/SEAM-Suite-manifest.json).
+- Business, employment, client and organizational use, including internal
+  operation and unpaid business evaluation, require a separate written agreement.
+- Embedded MIRL/HS/1 may operate the authorized Suite; independent reuse,
+  source modification, redistribution and hosted/embedded offerings are reserved.
+- The separate paid SDK is excluded. Subscription proposals do not grant its
+  access or expand Suite rights. No automatic open-source conversion applies.
+- Your own data remains yours. Applicable third-party and independently granted
+  rights remain governed by their own terms.
 
 ## 13. Data ownership and privacy
 

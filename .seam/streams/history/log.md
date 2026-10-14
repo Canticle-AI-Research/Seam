@@ -21869,3 +21869,39 @@ Next: publish the corrected candidate head through existing SSH and witness all 
 
 No actual user database, runtime/Doctor repair, license text, package release, paid provisioning or deployment changed. Actual install/owned-fixture operations remain restricted to approved throwaway standard hosted VMs. Documentation and licensing decisions remain separate open conditions.
 ---END-ENTRY-#664---
+
+---BEGIN-ENTRY-#665---
+id: 665
+date: 2026-10-14T05:31:23Z
+agent: codex
+status: changed
+topics: docs, pyproject, operator, mirl, audit, handoff, continuity, verify
+commits: pending
+refs: LICENSE,NOTICE,COMMERCIAL_LICENSE.md,LICENSES/SEAM-Suite-Personal.txt,LICENSES/SEAM-Suite-manifest.json,pyproject.toml,README.md,CONTRIBUTING.md,SECURITY.md,docs/status/packaging-licensing.md,docs/audits/2026-10-14-licensing-reconciliation.md,docs/handoffs/2026-10-14-current-suite-licensing.md
+supersedes: 664
+tokens: 725
+---
+Carried the settled proprietary personal/noncommercial Suite decision from PR #266 head 8a120381 onto protected-main baseline e4abc1d9 in a focused licensing successor. The owner explicitly requested first-launch treatment, no legacy-user or rollback project, and consistent license claims across the repo and GitHub page. Historical BUSL/Apache files remain unchanged; the initially considered historical-text repair was excluded after that steering. Existing independently applicable and third-party rights remain intact. No runtime source, dependency, command or installation behavior changed.
+
+LICENSE section 7B, the personal grant, notices and package metadata agree: personal Suite operation is free; business/employment/client/organizational use requires a separate written agreement; embedded MIRL/HS1 operation is permitted only to run Suite; independent reuse/redistribution and the separate paid SDK are excluded. Refreshed LICENSES/SEAM-Suite-manifest.json binds exact current implementation bytes to main e4abc1d9. README prominently states the terms; contribution/security, pricing grant paragraphs, current status/product docs and active roadmap claims are reconciled. Historical design pages explicitly route to current terms. GitHub About is to be updated alongside protected integration.
+
+The dated report and docs/audits/evidence/2026-10-14-licensing/artifacts.json retain exact wheel/sdist hashes and archive observations. Both match every manifest implementation path, carry source-identical declared license documents and personal License-Expression, retain Private :: Do Not Upload and exclude the private paid seam_sdk distribution. Strict Twine and private-artifact verification passed. A clean installed wheel passed metadata/member-hash checks and external CLI help. Existing release-configuration tests and the documentation/reference plus gate-parity/closeout selection passed; dependency contract, secret scan and diff check passed. Independent bounded assurance reviewed grant precedence, membership, archives and authored consistency changes.
+
+Documentation reference acknowledgement covers only the license-metadata source revision with identical command definitions plus reviewed authored deltas, not whole-page correctness or full product/release qualification. Main history is append-only; colliding branch-local HISTORY IDs from PR #266 are not imported. Its package/release/MCP work and prior cumulative NOT_QUALIFIED/TDD_UNPROVEN condition remain separate, as do website PR #29 conflicts and acceptance. No package upload, MCP registration, release, deployment or paid call occurred. Finish focused protected-PR exact-head checks and stored independent receipt; then integrate licensing and continue separate package/TestPyPI qualification. No dirty exclusions or stashes existed in this fresh workspace; predecessor's unrelated quarantines remain untouched.
+---END-ENTRY-#665---
+
+---BEGIN-ENTRY-#666---
+id: 666
+date: 2026-10-14T05:40:35Z
+agent: codex
+status: changed
+topics: docs, pyproject, operator, audit, continuity, verify
+commits: pending
+refs: docs/TESTPYPI.md,docs/reference/reference_state.json,docs/audits/2026-10-14-licensing-reconciliation.md
+supersedes: 665
+tokens: 306
+---
+The parallel publisher-readiness review identified one stale current blocker sentence in docs/TESTPYPI.md: it still described Suite membership/notices as undecided despite the new first-launch license and exact manifest. Corrected that paragraph to cite the current licensing report and distinguish completed terms/membership from remaining publisher, product/package acceptance and exact public-upload approval. This is a documentation consistency follow-up to HISTORY#665, not a new licensing decision or a release-control change.
+
+No license, metadata, runtime, dependency, command, workflow or reviewed archive bytes changed. Independent scoped review and the documentation-reference acknowledgement cover only this authored paragraph. Run the unsuppressed continuity/reference/wiki gates and secret/diff checks, then require exact successor-head protected CI and receipt before integration. The earlier PR286 head passed its LoCoMo check while other required checks remained queued; those checks do not qualify the successor automatically. Website licensing/docs correction proceeds separately on current website main. No upload, merge, deployment, paid call or unrelated branch qualification is claimed by this entry.
+---END-ENTRY-#666---

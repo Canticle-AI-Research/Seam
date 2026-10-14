@@ -34,4 +34,9 @@ Security reports may cover runtime behavior, installers, API authentication, ben
 
 Commercial use, hosted service use, SaaS use, embedded use, redistribution, and customer deployment remain governed by `LICENSE`, `NOTICE`, and `COMMERCIAL_LICENSE.md`.
 
-Self-hosting the SEAM Distributed Runtime is free under the Business Source License 1.1 (`LICENSES/BUSL-1.1.txt`), including for internal commercial production use at any scale. Security research on it, and publication of the results, is permitted.
+Current Suite is proprietary, with free personal, noncommercial self-hosting
+under [the personal license](LICENSES/SEAM-Suite-Personal.txt). Business and
+organizational use require a separate written agreement, including internal
+deployment. Security reporting does not itself grant additional use,
+modification or redistribution rights; research outside the permitted personal
+scope needs written authorization from licensing@canticle.cc.

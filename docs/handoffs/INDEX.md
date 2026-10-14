@@ -1,6 +1,6 @@
 ---
 schema: seam-handoff-registry/v1
-latest: 2026-09-30-agent-config-gates-landed-next
+latest: 2026-10-14-current-suite-licensing
 ---
 
 # SEAM Handoff Registry
@@ -19,7 +19,8 @@ strictly later HISTORY ID with a timestamp no earlier than its predecessor.
 
 | handoff_id | path | supersedes | history | status |
 | --- | --- | --- | --- | --- |
-| `2026-09-30-agent-config-gates-landed-next` | [2026-09-30-agent-config-gates-landed-next.md](2026-09-30-agent-config-gates-landed-next.md) | `2026-09-29-agent-config-required-gate-audit-next` | `HISTORY#652` | `current` |
+| `2026-10-14-current-suite-licensing` | [2026-10-14-current-suite-licensing.md](2026-10-14-current-suite-licensing.md) | `2026-09-30-agent-config-gates-landed-next` | `HISTORY#665` | `current` |
+| `2026-09-30-agent-config-gates-landed-next` | [2026-09-30-agent-config-gates-landed-next.md](2026-09-30-agent-config-gates-landed-next.md) | `2026-09-29-agent-config-required-gate-audit-next` | `HISTORY#652` | `superseded` |
 | `2026-09-29-agent-config-required-gate-audit-next` | [2026-09-29-agent-config-required-gate-audit-next.md](2026-09-29-agent-config-required-gate-audit-next.md) | `2026-09-29-agent-config-required-gate-next` | `HISTORY#651` | `superseded` |
 | `2026-09-29-agent-config-required-gate-next` | [2026-09-29-agent-config-required-gate-next.md](2026-09-29-agent-config-required-gate-next.md) | `2026-09-14-claude-code-benchmark-next` | `HISTORY#650` | `superseded` |
 | `2026-09-14-claude-code-benchmark-next` | [2026-09-14-claude-code-benchmark-next.md](2026-09-14-claude-code-benchmark-next.md) | `2026-09-12-memory-formation-roadmap` | `HISTORY#646` | `superseded` |

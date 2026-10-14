@@ -11433,8 +11433,8 @@
   "source_revision_kind": "content-addressed Git blob plus SHA-256; no moving HEAD/timestamp",
   "sources": {
     "pyproject.toml": {
-      "git_blob_sha1": "276e33ca7618abddf31c4acb51d9441ddcff0506",
-      "sha256": "495efe03ac662996d83ce302d58a9f1a4f7d6b936312e4c72abc09e52d4a4e8a"
+      "git_blob_sha1": "5c00dd6cab7764ec02d3336b109b79439ea0211a",
+      "sha256": "dbedfdc505ae1665c29e44db28950ee8f038002fad17da2324b461d4c1147026"
     },
     "seam_runtime/benchmarks.py": {
       "git_blob_sha1": "cbbc5a1c293252ebe152b9a6f397216d02a5fb69",

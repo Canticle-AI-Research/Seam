@@ -385,8 +385,10 @@ positioning requires a separate legal, security, deployment, and controls review
 
 ### P4.2 — Paid support tier
 
-Source-available core under BUSL-1.1 (free to self-host, converts to MPL-2.0
-after four years). Paid tier for: priority support, custom MIRL type
+Proprietary Suite with free personal, noncommercial self-hosting under
+[the personal license](../../LICENSES/SEAM-Suite-Personal.txt). Business and
+organizational use require a separate written agreement; no automatic
+open-source conversion is promised. Proposed paid services: priority support, custom MIRL type
 definitions, deployment consulting, SLA on consolidation engine performance.
 
 ### P4.3 — Hosted consolidation service

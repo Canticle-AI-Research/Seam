@@ -7,6 +7,31 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
+## Licensing reconciliation
+
+The owner decision recorded on PR #266 is carried onto current main by
+HISTORY#665: Suite remains proprietary with free personal, noncommercial
+self-hosting under [the personal license](../../LICENSES/SEAM-Suite-Personal.txt)
+and [exact membership manifest](../../LICENSES/SEAM-Suite-manifest.json).
+Business, employment, client and organizational use require a separate written
+agreement through licensing@canticle.cc, including internal operation and
+unpaid business evaluation. Embedded MIRL/HS/1 operations are allowed to run
+the authorized Suite; independent reuse, modification and redistribution are
+reserved. The separate paid SDK is excluded.
+
+This is the current Suite's first-launch licensing task. Historical license
+files remain unchanged; no rollback or user-migration project is included.
+Third-party and any independently applicable rights remain intact. See
+[the reconciliation report](../audits/2026-10-14-licensing-reconciliation.md)
+for the current-source and archive verification.
+
+Licensing is a focused successor of [PR #266](https://github.com/Canticle-AI-Research/Seam/pull/266).
+Its dependency/release/MCP changes and cumulative package-qualification condition
+remain separate. `Private :: Do Not Upload`, publisher qualification, TestPyPI
+first, production authorization and operator-product acceptance remain release
+gates. An exact reviewed license manifest resolves this candidate's membership;
+it does not qualify a future changed artifact automatically.
+
 ## Current naming candidate
 
 HISTORY#642 selects `seam-suite` for self-hosted Suite, SEAM Client for the
@@ -17,7 +42,7 @@ existing names. This is a source change, not a published package.
 
 The operator requires **TestPyPI first**. Follow [the procedure](../TESTPYPI.md);
 production publication and deletion of legacy releases are excluded. TestPyPI
-access and exact Suite artifact membership remain unresolved. No private SDK
+access and release qualification remain unresolved. No private SDK
 source may be included in either public index.
 
 ## L1 preparation evidence
@@ -50,17 +75,19 @@ description "private repository" must not be used as proof of access control.
 
 The renamed root candidate declares **`seam-suite` 2.4.1rc1** and
 `Private :: Do Not Upload`. It contains the full runtime and readable MIRL/HS/1
-source. That build remains blocked from PyPI and TestPyPI pending artifact review. The rename does not remove the classifier, alter license terms, or qualify a
-public Suite artifact. Existing release workflows still enforce their SemVer
+source. That build remains blocked from PyPI and TestPyPI pending release
+qualification. Section 7B now identifies this candidate's exact personal-use
+membership; the package rename itself did not grant those rights. The private
+classifier remains. Existing release workflows still enforce their SemVer
 input contract; this PEP 440 release candidate is tested locally and does not
 pass that publication workflow.
 
 [LICENSE](../../LICENSE), [NOTICE](../../NOTICE),
 [COMMERCIAL_LICENSE.md](../../COMMERCIAL_LICENSE.md), and the named license
-texts remain controlling. `LICENSE` defines Distributed Runtime membership by
-published file version, manifest, and conspicuous notice. The new product map
-does not establish which files belong in a future distribution. Resolve that
-exact boundary in L1 before changing package contents or publication controls.
+texts remain controlling. Section 7B and the Suite manifest identify the exact
+personal-use implementation; section 7A retains the historical Distributed
+Runtime membership requirements. Refresh and review exact membership when
+package contents change. Product names and repository visibility do not do so.
 
 ## Coordinates to reconcile
 

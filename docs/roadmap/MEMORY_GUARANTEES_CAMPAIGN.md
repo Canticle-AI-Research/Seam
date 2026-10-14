@@ -378,8 +378,10 @@ existing self-host user, buying only the removal of a misconfiguration mode that
 the two-principal matrix already covers.
 
 Optionality is what keeps the settled product shape intact: the paid hosted API
-configures principals and gets a real boundary; the free BUSL self-host configures
-none and never encounters the feature.
+configures principals and gets a real boundary; an authorized personal Suite
+self-host may configure none and never encounter the feature. Current Suite
+licensing is proprietary, with business and organizational use requiring a
+separate written agreement; see [the personal license](../../LICENSES/SEAM-Suite-Personal.txt).
 
 **Reuse, do not reinvent.** `seam_runtime/lifecycle.py` already implements the
 delete substrate this stage's fourth clause requires: a `tenant_id` column,
