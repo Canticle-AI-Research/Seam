@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-09-30-agent-config-gates-landed-next
 supersedes: 2026-09-29-agent-config-required-gate-audit-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#652
 ---
 

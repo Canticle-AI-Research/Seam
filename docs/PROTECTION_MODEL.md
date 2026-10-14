@@ -6,6 +6,9 @@
 > [SEAM products](PRODUCTS.md) and [packaging status](status/packaging-licensing.md)
 > (HISTORY#634); license files remain controlling. Preserve the text below only
 > as historical design input, not as a recovery or publication runbook.
+> Current Suite is proprietary with free personal, noncommercial self-hosting
+> under [the personal license](../LICENSES/SEAM-Suite-Personal.txt); business
+> and organizational use require a written agreement.
 
 Effective 2026-07-24, the private `BlackhatShiftey/Seam` repository is
 proprietary and the legacy `BlackhatShiftey/Seam_Runtime` public mirror is

@@ -33,6 +33,12 @@ The paid SDK access boundary was clarified by the operator in HISTORY#635.
 Further paid capabilities remain unspecified. This product decision does not
 change existing license texts or establish an entitlement implementation.
 
+Current Suite licensing is specified separately by [LICENSE section 7B](../LICENSE)
+and [the personal license](../LICENSES/SEAM-Suite-Personal.txt): free personal,
+noncommercial self-hosting; business and organizational use require a written
+agreement. [The manifest](../LICENSES/SEAM-Suite-manifest.json) identifies the
+exact implementation. The paid SDK remains separate. See HISTORY#665.
+
 ## Suite graph dashboard
 
 The overview uses the requested **diamond graph in constellation view**. Each

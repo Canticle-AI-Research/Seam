@@ -1,0 +1,45 @@
+{
+  "schema": "seam-license-artifact-observation/v1",
+  "source_commit": "e4abc1d9c9b1afb415ad67e06a3e7bb6907ecee1",
+  "runtime_unchanged_from_source_commit": true,
+  "manifest_members": 109,
+  "historical_license_files_unchanged": true,
+  "artifacts": [
+    {
+      "filename": "seam_suite-2.4.1rc1-py3-none-any.whl",
+      "sha256": "6855ff0db763c44cdd7362c861646ef88bb4fc5aa905d8af2e7089ef414e01f1",
+      "implementation_members": 109,
+      "manifest_match": true,
+      "license_files": [
+        "LICENSE",
+        "NOTICE",
+        "COMMERCIAL_LICENSE.md",
+        "LICENSES/SEAM-Suite-Personal.txt",
+        "LICENSES/SEAM-Suite-manifest.json",
+        "LICENSES/BUSL-1.1.txt",
+        "LICENSES/Apache-2.0.txt"
+      ],
+      "license_expression": "LicenseRef-SEAM-Suite-Personal-1.0",
+      "private_upload_classifier": true,
+      "private_paid_sdk_present": false
+    },
+    {
+      "filename": "seam_suite-2.4.1rc1.tar.gz",
+      "sha256": "de7c97c02deb40b808d7d581afc7f94f96293757675ef0f02ff796ca4a9ab1fc",
+      "implementation_members": 109,
+      "manifest_match": true,
+      "license_files": [
+        "LICENSE",
+        "NOTICE",
+        "COMMERCIAL_LICENSE.md",
+        "LICENSES/SEAM-Suite-Personal.txt",
+        "LICENSES/SEAM-Suite-manifest.json",
+        "LICENSES/BUSL-1.1.txt",
+        "LICENSES/Apache-2.0.txt"
+      ],
+      "license_expression": "LicenseRef-SEAM-Suite-Personal-1.0",
+      "private_upload_classifier": true,
+      "private_paid_sdk_present": false
+    }
+  ]
+}

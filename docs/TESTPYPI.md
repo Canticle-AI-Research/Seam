@@ -42,6 +42,12 @@ and [PyPI private-package guidance](https://pypi.org/help/#how-can-i-publish-my-
 
 ## Verification before any test upload
 
+The current Suite personal-use membership is identified by
+[the reviewed manifest](../LICENSES/SEAM-Suite-manifest.json) and
+[license](../LICENSES/SEAM-Suite-Personal.txt). These do not authorize an upload;
+publisher access, exact artifact qualification and public-upload approval remain
+separate gates. A changed implementation requires refreshed membership review.
+
 1. Build a wheel and sdist from the reviewed source in an isolated build
    directory. Record the source commit, package name/version, and both SHA-256
    hashes. Run `python -m twine check --strict` on those exact two files.

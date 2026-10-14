@@ -1,5 +1,9 @@
 # SEAM
 
+**License: proprietary.** Free personal, noncommercial Suite self-hosting;
+business and organizational use require a written agreement.
+[Read the terms](LICENSES/SEAM-Suite-Personal.txt).
+
 Give your local AI agent persistent memory in one command.
 
 SEAM means **Surface Encoded Agent Memory**. It is a memory runtime for agents. It stores durable MIRL records in
@@ -624,42 +628,29 @@ repository.
 
 ## License
 
-**Self-hosting SEAM is free.** The SEAM Distributed Runtime, version 2.4.0 or
-later, is published under the Business Source License 1.1
-([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt)). You may run it on your own
-hardware or on infrastructure you rent, for your own or your organization's
-purposes — including internal commercial production use — at no charge, with no
-limit on scale or number of users. Non-commercial research, education, and
-publishing benchmark or evaluation results are permitted too.
+**SEAM Suite is proprietary, with free personal, noncommercial self-hosting.**
+An individual may install, build, configure, run and back up the exact Suite
+file versions identified in [the manifest](LICENSES/SEAM-Suite-manifest.json)
+under [the personal license](LICENSES/SEAM-Suite-Personal.txt).
+Embedded MIRL and HS/1 operations are allowed as needed to run that Suite.
 
-The one thing the grant withholds is offering the Distributed Runtime to third
-parties on a hosted or embedded basis as a *competitive offering*: a paid
-product or service that significantly overlaps with a paid version of SEAM.
-Free offerings are never competitive, and neither is internal use across
-affiliates under common control. Each published version converts to MPL 2.0
-four years after it is published.
+Business use requires a separate written agreement, including internal company
+use, work for an employer or client, organizational use and unpaid business
+evaluation. Contact **licensing@canticle.cc** before that use. Independent
+MIRL/HS/1 reuse, source modification, redistribution and hosted or embedded
+offerings are not granted. The separate private paid SDK remains excluded.
+The personal grant has no automatic open-source conversion.
 
-Everything below concerns material outside the Distributed Runtime.
+Exact earlier Distributed Runtime versions retain their qualifying BUSL-1.1
+rights under [LICENSE section 7A](LICENSE) and
+[the preserved BUSL terms](LICENSES/BUSL-1.1.txt), including their applicable
+change-license provisions. Exact legacy Apache materials retain Apache-2.0;
+[its text](LICENSES/Apache-2.0.txt) is preserved. Shared filenames, ancestry,
+repository visibility and a new package name do not extend an earlier grant
+to a new file version. Third-party rights remain intact.
 
-The rest of the SEAM repository and all non-public MIRL- and HS/1-related
-material are proprietary. MIRL's specification text, source code, schemas as expressed,
-documentation, examples, tests, diagrams, and other original works of
-authorship are copyrighted and reserved. HS/1's specification, container
-expression, visual designs, codecs, surface library, source, documentation,
-examples, tests, and related original works are separately named copyrighted
-and reserved materials. Repository access does not grant a right to copy,
-publish, distribute, implement, host, commercialize, train on, or use that
-material in another project.
-
-Exact versions previously published at
-<https://github.com/BlackhatShiftey/Seam_Runtime> under Apache-2.0 retain that
-license. The legacy grant is not revoked, but it does not apply automatically
-to later private versions, unpublished changes, or new MIRL or HS/1 material.
-The private-to-public mirror tooling was removed. The new Suite distribution
-boundary is a separate reviewed L1 design; it does not reactivate that mirror. The Apache text applicable to legacy
-material is preserved at
-[LICENSES/Apache-2.0.txt](LICENSES/Apache-2.0.txt).
-
-The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE), and
-[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md). Any external permission
-requires a separate written agreement from the project owner.
+The controlling terms are [LICENSE](LICENSE), [NOTICE](NOTICE),
+[COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md), and the named license texts.
+See [the licensing reconciliation](docs/audits/2026-10-14-licensing-reconciliation.md)
+for exact current membership and verification. Package publication has separate
+[release gates](docs/status/packaging-licensing.md).

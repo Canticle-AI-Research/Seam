@@ -1,23 +1,22 @@
-# Contributing to private SEAM development
+# Contributing to SEAM development
 
-SEAM, MIRL, and HS/1 development in this repository is proprietary. Access is
-limited to people expressly authorized by the project owner. Read
+SEAM, MIRL, and HS/1 development in this repository is proprietary. Contribution
+and development work require authorization from the project owner. Read
 [LICENSE](LICENSE), [NOTICE](NOTICE), and
 [COMMERCIAL_LICENSE.md](COMMERCIAL_LICENSE.md) before working with repository
 material.
 
-One subset is published: the SEAM Distributed Runtime ships under the Business
-Source License 1.1 ([`LICENSES/BUSL-1.1.txt`](LICENSES/BUSL-1.1.txt), granted by
-Section 7A of [LICENSE](LICENSE)). A file version belongs to the Distributed
-Runtime only if it has been published in that distribution *and* carries a
-conspicuous BUSL notice — a matching filename, purpose, or ancestry is not
-enough. Do not add a BUSL notice to a file that is not going out in the
-published distribution; the notice is part of what makes the grant, so
-stamping it early gives away rights the project owner has not decided to give.
+Current Suite permits free personal, noncommercial self-hosting under
+[the personal license](LICENSES/SEAM-Suite-Personal.txt) and
+[exact implementation manifest](LICENSES/SEAM-Suite-manifest.json).
+Business and organizational use require a separate written agreement.
+That operating permission does not grant source-modification, redistribution,
+independent MIRL/HS/1 reuse or contribution rights. Do not add a different
+license notice or change membership without the owner's approval.
 
 ## Authorized scope
 
-Repository access permits an authorized contributor to use and modify the
+Authorization permits a contributor to use and modify the
 material only for approved work on SEAM, within approved private systems. It
 does not permit publication, external distribution, independent use,
 model-training use, commercial use, or use in another project.
