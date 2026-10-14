@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-suite-release-readiness
 supersedes: 2026-10-14-current-suite-licensing
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#667
 ---
 

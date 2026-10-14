@@ -5,19 +5,28 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-10-14 — Suite release-candidate repair in verification.** Licensing
-PR #286 is merged at `607ac308`; the matching website terms and Docs are live
-through website PR #32. The current package candidate includes TUI/server
-dependencies by default, canonical Python prerelease validation, current MCP
-metadata, and a source/archive license-manifest drift guard. Isolated wheel
-and sdist installs passed supported CLI, TUI, HTTP and MCP checks. Independent
-review supports owner-authorized TestPyPI preparation; final rebuilt artifacts,
-protected checks and exact-state qualification still govern integration.
-TestPyPI publisher access and downloaded-install verification remain open;
-no production upload or full browser-product acceptance is claimed. Eleven
-verified obsolete remote branches were deleted without discarding unique work.
-See [release flow](docs/RELEASE_FLOW.md) and
-[packaging status](docs/status/packaging-licensing.md).
+**2026-10-14 — Suite release candidate integrated; website verified live.**
+[PR #288](https://github.com/Canticle-AI-Research/Seam/pull/288) merged at
+`6c6ecd13490c9b675a77f246573491824313343c` after independent exact-state
+qualification, all required checks, separate wheel/sdist package CI and five
+native-launcher jobs passed on its final head. Supported default CLI, TUI,
+HTTP and MCP installation flows pass; source/package license drift guards are
+active. Website [PR #33](https://github.com/BlackhatShiftey/Cantlicle/pull/33)
+is deployed and eleven public pages plus pricing/download scripts match the
+reviewed source. PR #266 is closed as superseded; fourteen obsolete remote
+branches were removed with preservation/disposition proof. Unique work remains.
+
+**Next dependency: TestPyPI publisher access**, then exact upload/hash readback
+and a fresh downloaded installation. No package upload, production release or
+live MCP registration occurred. Stable website downloads remain unavailable
+until a supported production release is verified. Full browser-product
+acceptance remains separate. Advisory PostgreSQL CI failed before tests because
+the shared runner's Docker daemon was unavailable; extended local tests retain
+unchanged browser-export timeouts and blocked encoding downloads. The full
+repository suite is not claimed green. Pinned [issue #287](https://github.com/Canticle-AI-Research/Seam/issues/287)
+remains the manual GitHub About setting reminder. See HISTORY#669,
+[the current handoff](docs/handoffs/INDEX.md), [release flow](docs/RELEASE_FLOW.md)
+and [packaging status](docs/status/packaging-licensing.md).
 
 **2026-10-14 — current Suite licensing reconciled for first launch.** The
 recorded owner decision from PR #266 is carried onto current main: proprietary

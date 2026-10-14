@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 668
-total_tokens: ~342293
-latest_id: 668
+total_entries: 669
+total_tokens: ~342579
+latest_id: 669
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 669 | 2026-10-14 | done | 6d13d1a949559815 | docs,status,handoff,registry,+ | 668 |
 | 668 | 2026-10-14 | changed | 7bd3422aadbf590d | agent,protocol,bugfix,gates,+ | 667 |
 | 667 | 2026-10-14 | changed | 57e82a9d41db831a | pyproject,installer,mcp,registry,+ | 666 |
 | 666 | 2026-10-14 | changed | 2c6dbdce2c95074a | docs,pyproject,operator,audit,+ | 665 |
@@ -722,7 +723,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=83 latest=#667, #664, #663, #655, #654
+- ci: count=84 latest=#669, #667, #664, #663, #655
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -775,7 +776,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=10 latest=#621, #620, #483, #482, #480
-- docs: count=115 latest=#668, #667, #666, #665, #664
+- docs: count=116 latest=#669, #668, #667, #666, #665
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -816,7 +817,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=129 latest=#667, #665, #652, #651, #650
+- handoff: count=130 latest=#669, #667, #665, #652, #651
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -940,7 +941,7 @@ compact: true
 - refactor: count=1 latest=#284
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
-- registry: count=9 latest=#667, #582, #580, #526, #409
+- registry: count=10 latest=#669, #667, #582, #580, #526
 - release: count=7 latest=#486, #485, #484, #476, #356
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
@@ -983,7 +984,7 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=202 latest=#652, #651, #641, #636, #634
+- status: count=203 latest=#669, #652, #651, #641, #636
 - storage: count=38 latest=#638, #637, #626, #624, #623
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -1023,7 +1024,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=12 latest=#667, #652, #604, #573, #572
+- worktree: count=13 latest=#669, #667, #652, #604, #573
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -1032,6 +1033,6 @@ compact: true
 
 - roots: 87
 - changed: 74
-- done: 540
+- done: 541
 - in-progress: 32
 - planned: 22

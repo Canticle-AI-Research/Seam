@@ -21941,3 +21941,17 @@ Exact closeout of the Suite candidate f49906 received a stored immutable NOT_QUA
 
 Independent read-only review found no blocking repair issue and verified the original request remains byte-identical/TDD_UNPROVEN. Relevant session-end/queue/drift/parity regressions pass. This is a necessary correction to the cumulative closeout condition, not a license decision or permission expansion. No reviewed package metadata, source implementation manifest, licence text or public-v3 wheel/sdist bytes change. The report/evidence are updated; source-reference acknowledgements cover only the reviewed authored delta. The extended tests/ run completed with environment-dependent failures in unchanged Chromium branding exports and tokenizer-dependent cost reporting; it is not reported as a full-suite pass. The earlier complete provisioned test_seam_all non-external runtime run and isolated archive installs remain scoped passing evidence. Required CI on firsthead f49906 has LoCoMo and Chroma success while hygiene is still pending; that observation does not qualify a successor. Require final-head checks and a validated successor exact-state receipt superseding the original non-qualified request before protected merge. TestPyPI publisher access remains unavailable and website PR33 deployment follows source integration.
 ---END-ENTRY-#668---
+
+---BEGIN-ENTRY-#669---
+id: 669
+date: 2026-10-14T08:26:17Z
+agent: codex
+status: done
+topics: docs, status, handoff, registry, ci, worktree
+commits: 6c6ecd13490c9b675a77f246573491824313343c
+refs: PROJECT_STATUS.md,docs/handoffs/2026-10-14-suite-integrated-testpypi-next.md,docs/audits/evidence/2026-10-14-suite-release/integration.json
+supersedes: 668
+tokens: 286
+---
+Recorded verified Suite PR288 integration, website PR33 production deployment and live comparison of eleven HTML pages plus pricing/download scripts. All required final-head checks, package CI and five native-launcher jobs passed; independent exact-state receipt qualified and preserved the earlier immutable failed request. Fourteen obsolete remote branches removed with ancestry/disposition/live-tip proof, including closed superseded PR266; old objects preserved via pull ref, unique PR29 planning retained. Refreshed current status and chronological handoff to TestPyPI publisher access. No implementation/package inputs or license terms changed. TestPyPI upload/downloaded installation, production/MCP publication and full operator acceptance unperformed. Advisory PostgreSQL job failed before tests on missing runner Docker socket; broader local environment failures remain recorded. Verification: fresh live comparison, protected check readback, qualified queue with no pending requests, clean integrated trees/no stashes/worktrees/browsers; unsuppressed documentation continuity follows before protected integration of this closeout.
+---END-ENTRY-#669---

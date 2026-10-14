@@ -130,3 +130,23 @@ assigned and pinned as issue #287.
 This bounded record identifies exact external archive hashes, red/green
 fingerprints, scoped installed checks, branch preservation and registry
 observations. Raw console logs and environments remain outside source.
+
+## Integration and public deployment closeout
+
+HISTORY#669 records Suite PR #288 merged at `6c6ecd13490c9b675a77f246573491824313343c`
+and website PR #33 deployed at `a7be46329cd430d38c95961edbc820dacd65b5a0`.
+All three required checks, package CI, five native-launcher jobs, registry-plan
+and CodeQL passed on reviewed head `706d62f4d3dca6293c7ef380124af21342a08633`.
+The independently qualified successor receipt supersedes the immutable first
+non-qualified request. No package inputs change in this documentation closeout.
+
+Fresh live responses match eleven reviewed HTML pages plus pricing/download
+scripts. Production Pages and email-worker checks passed. Fourteen obsolete
+remote branches were removed with preservation/disposition proof; PR #266 is
+closed and old objects remain reachable through its pull-request ref. Unique
+website planning work remains intentionally retained. TestPyPI access, upload
+and fresh downloaded installation remain open; no production release or full
+product acceptance is claimed. Advisory PostgreSQL CI failed before tests
+because the runner's Docker daemon socket was unavailable.
+
+- `docs/audits/evidence/2026-10-14-suite-release/integration.json` — SHA-256: `d6cffac52db84461925e5ecd8f846cec01bc0573ea6c1b25abf6702caa2e452e`
