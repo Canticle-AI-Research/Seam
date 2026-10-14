@@ -5,6 +5,21 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — branch audit complete; admitted recoveries merged and live.**
+All30original source/site branches inspected. Fifteen retired only after useful
+work admission or explicit preserved disposition;15useful tips remain unchanged
+(11source/fourwebsite), mapped to12tracked recovery lanes. Source PR304 merged
+ffd4e98 with independent exact-state qualification and all required/package
+checks passing. Website PR35 merged6b6ef1d; production Pages/worker builds pass
+and all8changed public pages match main. Source worktree, temporary delivery
+branches and preview server are finished. R5factual/wiki recovery is complete;
+next bounded runtime recovery is R2batching, issue292. See HISTORY#675,
+[closeout evidence](docs/audits/2026-10-14-branch-recovery-closeout.md),
+[plan](docs/roadmap/BRANCH_RECOVERY.md) and current handoff. Public-v5 install
+qualification passes; publisher access and recorded runner/security/site baseline
+conditions remain. No upload/provider calls; no full-suite green claim.
+Older headlines below are historical preparation snapshots.
+
 **2026-10-14 — factual recovery independently qualified; protected admission next.**
 Source PR277→278 useful facts/glossary/wiki work is recovered on the current
 follow-up, with 73 passing checker/wiki cases and independent successor PASS.

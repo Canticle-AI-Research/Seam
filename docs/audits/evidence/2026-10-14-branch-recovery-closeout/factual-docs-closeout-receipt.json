@@ -1,0 +1,103 @@
+{
+  "schema": "seam-agent-closeout-receipt/v1",
+  "request_id": "01a138d3-3664-70c0-ae7d-02dd20f2203d-80be16b8dd13e190",
+  "request_sha256": "e29691b1b007accccbb200b6d79fd0b2e8355b686e02db3c43ead007573778c6",
+  "session_id": "01a138d3-3664-70c0-ae7d-02dd20f2203d",
+  "completed_at": "2026-10-14T11:32:01.043823+00:00",
+  "status": "QUALIFIED",
+  "supersedes_request_ids": [],
+  "scope": {
+    "head": "b5110c84b7a2941de4cfde3b8a7dbf3c98d5997d",
+    "diff_fingerprint": "80be16b8dd13e19008f6ab3f02022834fb1165200b2ae9315f398d5a152b56b1",
+    "matches_request": true
+  },
+  "tdd": {
+    "status": "TDD_PROVEN",
+    "evidence": [
+      "Independently recomputed assess_tdd exactly equals embedded summary: four valid red-before-green cycles cover both runtime paths. All five cited unique output SHA256 hashes verified against external logs.",
+      "Public terminology/wiki CLI accepts canonical expansion followed by prose and fails closed on competing expansion or missing real-checkout verifier. RED exit 1 at 2026-10-14T10:57:49.762937+00:00 SHA256 235e188e92d75a548b24eac1eb8af8ed40f8f35f43e83b735c0856ded0ca5c73; GREEN exit 0 at 2026-10-14T11:19:21.969692+00:00 SHA256 19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca",
+      "Competing appended title words must not pass a canonical-prefix expansion check. RED exit 1 at 2026-10-14T11:06:12.963079+00:00 SHA256 b02d3d4a90364c43305cd511178654fb5a8187ddfb711bac83b712a53bd00b5c; GREEN exit 0 at 2026-10-14T11:19:21.969692+00:00 SHA256 19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca",
+      "Symlinked authority files must fail closed without reading outside the checked checkout. RED exit 1 at 2026-10-14T11:07:06.251345+00:00 SHA256 71a2c2738ab8b2c400b6f1c0d8a8e0d817cb395d9f12fad9571bbea2a098c01b; GREEN exit 0 at 2026-10-14T11:19:21.969692+00:00 SHA256 19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca",
+      "Reject arbitrary prepended expansion title words while accepting explicit ordinary sentence articles. RED exit 1 at 2026-10-14T11:19:02.266108+00:00 SHA256 e556ec52c9eef3522f1affc35dcee29547e18c6b6d0ec3ba4818b6bc8c9127e9; GREEN exit 0 at 2026-10-14T11:19:21.969692+00:00 SHA256 19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca"
+    ]
+  },
+  "checks": [
+    {
+      "requirement": "confirm current diff fingerprint matches request",
+      "command": "closeout_queue._live_scope_signature before and after all checks",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "head b5110c84b7a2941de4cfde3b8a7dbf3c98d5997d; 66 paths exact; fingerprint 80be16b8dd13e19008f6ab3f02022834fb1165200b2ae9315f398d5a152b56b1; stable before and after"
+    },
+    {
+      "requirement": "git diff --check",
+      "command": "git diff --check",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-git_diff_check.log; SHA256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855; started 2026-10-14T11:30:59.416258+00:00; ended 2026-10-14T11:30:59.419766+00:00; "
+    },
+    {
+      "requirement": "run root-supplied affected tests when available",
+      "command": "/workspace/Seam/.venv/bin/python -m pytest -q -p no:cacheprovider tests/audit/test_terminology_contract.py tests/audit/test_wiki_navigation.py",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-run_root-supplied_affected_tests_when_available.log; SHA256 19da9087d92935b2064df20f632357e22786ce3e50fd7075c1f2ef56c47433ca; started 2026-10-14T11:30:59.416668+00:00; ended 2026-10-14T11:31:01.579888+00:00; ........................................................................ [ 98%]\n.                                                                        [100%]\n"
+    },
+    {
+      "requirement": "python -m tools.history.verify_integrity",
+      "command": "/workspace/Seam/.venv/bin/python -m tools.history.verify_integrity",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-verify_integrity.log; SHA256 2ea1bebbfe0e5501ae2628474800863b69d83b40b0bf1f76d9e36639dad6cb64; started 2026-10-14T11:30:59.417205+00:00; ended 2026-10-14T11:31:02.024765+00:00; Integrity OK\n"
+    },
+    {
+      "requirement": "python -m tools.history.verify_routing",
+      "command": "/workspace/Seam/.venv/bin/python -m tools.history.verify_routing",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-verify_routing.log; SHA256 01daabfd842dbf5cb31abb5732167894cf02d2ea44c81f574961f1b7956749b9; started 2026-10-14T11:30:59.417746+00:00; ended 2026-10-14T11:31:02.016804+00:00; Routing OK\n"
+    },
+    {
+      "requirement": "python -m tools.history.verify_handoffs",
+      "command": "/workspace/Seam/.venv/bin/python -m tools.history.verify_handoffs",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-verify_handoffs.log; SHA256 b39a5048649000ec680c4c938fe40b24a879d7000d8d4a267e9607015f38267b; started 2026-10-14T11:30:59.420004+00:00; ended 2026-10-14T11:31:00.654624+00:00; Handoff registry OK\n"
+    },
+    {
+      "requirement": "python -m tools.history.verify_continuity",
+      "command": "/workspace/Seam/.venv/bin/python -m tools.history.verify_continuity",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-verify_continuity.log; SHA256 fab307204e4bd2af845e7c5fbcd6eca70eb8c9e677a7ee4286dbf05bb31783ec; started 2026-10-14T11:31:00.654824+00:00; ended 2026-10-14T11:31:11.105098+00:00; Continuity OK\n"
+    },
+    {
+      "requirement": "python -m tools.streams.verify_streams",
+      "command": "/workspace/Seam/.venv/bin/python -m tools.streams.verify_streams",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-verify_streams.log; SHA256 cdd4af1faa6e2e688a315e0822502ad88eeb8c59dbbe4762f2603e52e9f7ed44; started 2026-10-14T11:31:01.580345+00:00; ended 2026-10-14T11:31:03.201087+00:00; streams OK\n"
+    },
+    {
+      "requirement": "python -m tools.docs.verify_wiki",
+      "command": "/workspace/Seam/.venv/bin/python -m tools.docs.verify_wiki",
+      "status": "PASS",
+      "exit_code": 0,
+      "evidence": "/workspace/scratch/seam-branch-audit-20261014/factual-docs-release-verify_wiki.log; SHA256 5219d4a174acb630aab25f2c78c8351503bc81db0734aaeb95fa175453f4a527; started 2026-10-14T11:31:02.017027+00:00; ended 2026-10-14T11:31:04.499104+00:00; SEAM wiki OK: 300 active documentation pages reachable from docs/README.md\n"
+    }
+  ],
+  "continuity": {
+    "status": "PASS",
+    "evidence": [
+      "All required canonical history/routing/handoff/continuity/stream/wiki checks executed without suppression; detailed outputs and hashes in checks."
+    ]
+  },
+  "project_alignment": {
+    "status": "ALIGNED",
+    "evidence": [
+      "Source factual glossary/operator/wiki recoveries retain settled licensing and fail-closed authority boundaries; root prefix-counterexample repair independently assured. Active urllib3 lock refresh separate from historical requirements. Archive/worktree/v5 evidence verification is recorded in supplemental release evidence.",
+      "Supplement PASS: all33 final files at HEAD,109 current/wheel/sdist implementation hashes,seven exact legal documents,both v5 artifacts,13 zero-exit package commands/logs,urllib3-only lock delta/five logs,PR277 original archive bytes,absent worktree,and cryptographically verified signed primary/ancestor. /workspace/scratch/seam-branch-audit-20261014/factual-docs-release-supplement.json SHA256 4e283e647c5cc709372e785095f0aba3a5dd78db768c1f8e6d2a27ded4b9ba12"
+    ]
+  },
+  "next_action": "Root may admit this factual documentation/lock exact-state release receipt and proceed through required protected final-head checks. No registry upload qualified; TestPyPI access separately blocked."
+}

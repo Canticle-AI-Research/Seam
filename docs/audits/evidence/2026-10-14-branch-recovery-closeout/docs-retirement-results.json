@@ -1,0 +1,46 @@
+[
+  {
+    "repository": "Cantlicle",
+    "branch": "codex/current-interface-docs",
+    "tip": "9e31aa9051a3f612f6e59578d547235d8a0a49ad",
+    "main": "6b6ef1d88bd6789adee3afbe50742c2d1c52a8da",
+    "preservation_ref": "refs/tags/archive/20261014/website-current-interface-docs",
+    "reason": "Useful operator/interface facts recovered against current main via PR35. Obsolete terminology/eligibility/licensing claims rejected. Independent successor PASS,44scoped+4actualSDK cases and all8productionresources exact after only Cloudflare email normalization. Six inherited tests tracked36; preview worker failure37, production Pages+worker pass. No unaccounted useful factual delta; pull ref preserves original history. Closed pull14 head precedes the final audited acronym commit, so exact tip is preserved through a signed archive tag, not that pull ref.",
+    "verified_at": "2026-10-14T11:33:34.761297+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Cantlicle",
+    "branch": "codex/operator-doc-corrections-20261008",
+    "tip": "e8a22def96bb5d5284f7014fa9c9dbfb0f6c9807",
+    "main": "6b6ef1d88bd6789adee3afbe50742c2d1c52a8da",
+    "preservation_ref": "refs/pull/31/head",
+    "reason": "Useful operator/interface facts recovered against current main via PR35. Obsolete terminology/eligibility/licensing claims rejected. Independent successor PASS,44scoped+4actualSDK cases and all8productionresources exact after only Cloudflare email normalization. Six inherited tests tracked36; preview worker failure37, production Pages+worker pass. No unaccounted useful factual delta; pull ref preserves original history.",
+    "verified_at": "2026-10-14T11:33:42.401775+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "docs/doc-audit-20261002",
+    "tip": "8530717d800d397ba58283710b6e8f0a037aabf8",
+    "main": "ffd4e98cd28fb9054eb1669c6a2f7835538921f6",
+    "preservation_ref": "refs/pull/277/head",
+    "reason": "Useful factual/glossary/wiki work recovered on current main via independently qualified PR304.73 checker/wiki tests, all3requiredchecks and package smoke PASS;33owned hashes/signatures and exact old dated draft archived inactive. Current root ledger/status/history rebuilt rather than importing obsolete chronology. No unresolved useful delta; exact original pull refs retained.",
+    "verified_at": "2026-10-14T11:35:50.995345+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  },
+  {
+    "repository": "Seam",
+    "branch": "docs/wiki-baseline-20261003",
+    "tip": "7b76849ad55b35ae2288d65925c6150deaf5a1d4",
+    "main": "ffd4e98cd28fb9054eb1669c6a2f7835538921f6",
+    "preservation_ref": "refs/pull/278/head",
+    "reason": "Useful factual/glossary/wiki work recovered on current main via independently qualified PR304.73 checker/wiki tests, all3requiredchecks and package smoke PASS;33owned hashes/signatures and exact old dated draft archived inactive. Current root ledger/status/history rebuilt rather than importing obsolete chronology. No unresolved useful delta; exact original pull refs retained.",
+    "verified_at": "2026-10-14T11:35:57.800031+00:00",
+    "remote_absent": true,
+    "deletion_action": "exact-lease deletion"
+  }
+]

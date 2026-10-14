@@ -9,20 +9,21 @@ and dated observations are recorded in HISTORY#634 and the
 
 ## Integrated candidate and live website
 
-Branch recovery PR #303 is integrated at `efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd`.
-Fresh source-factual-docs-public-v5 wheel/sdist each pass exact implementation/legal
-membership, strict Twine/private-artifact checks, default dependency resolution
-and eight installed smoke cases. Package CI passes on its final qualified head.
-The reviewed urllib3 2.7.0→2.8.0 lock update changes only the active locked install;
-all other 158 records and packaged inputs are unchanged. Fresh locked installation
-and eight smoke cases pass; dated audit requirements retain their original bytes.
-See [retirement/lock evidence](../audits/2026-10-14-branch-retirement-and-lock.md).
-Website safety PR #34 is deployed at `1514b89be0265517306fdd4e6cdea5ffa07f61f6`;
-four changed resources match reviewed main and production Pages/worker checks pass.
-The current source factual recovery updates README metadata; fresh v5 supersedes
-v4 qualification, with all13 recorded checks passing. Runtime/legal bytes are
-unchanged. See [factual recovery evidence](../audits/2026-10-14-factual-doc-recovery.md).
-Neither documentation recovery establishes package publication.
+Source PR304 is merged at `ffd4e98cd28fb9054eb1669c6a2f7835538921f6`, exact
+qualified b5110c8 tree. All required checks and package smoke pass. Fresh
+source-factual-docs-public-v5 wheel/sdist each match109implementation hashes and
+seven legal documents; all13recorded checks and eight installed smokes per format
+pass. Updated README metadata supersedes v4 qualification; runtime/legal bytes
+remain unchanged. Narrow active urllib3 lock update2.7→2.8 independently passes
+fresh locked noneditable installation/eight smokes; historical requirements stay
+unchanged. Security-updater scope290/262 remains separate.
+
+Website PR35 is live at `6b6ef1d88bd6789adee3afbe50742c2d1c52a8da`; all8changed
+served resources match main after only Cloudflare email normalization. Production
+Pages/worker builds pass. Six inherited homepage tests and intermittent preview
+worker failure remain tracked in website36/37; email delivery is not claimed.
+See [final recovery evidence](../audits/2026-10-14-branch-recovery-closeout.md).
+No registry upload or paid provider call occurred; publisher access remains external.
 
 PR #288 merged at `6c6ecd13490c9b675a77f246573491824313343c` after exact-state
 qualification, required final-head checks and separate wheel/sdist install CI.

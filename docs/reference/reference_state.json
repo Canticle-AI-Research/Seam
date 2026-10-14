@@ -12,7 +12,7 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "3f338fdbf2ff83e00acd094962988df0fa905de33c079716ec21b2f52b284020",
+    "PROJECT_STATUS.md": "edae99d2f4e13c99df82096e091d9bfa2cf433feb8d85c2096907b9db8667091",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
     "REPO_LEDGER.md": "2f8d1a0fae21271d224ea7009f55a09a4e00431a04d0397086c1db0494d24049",
@@ -95,7 +95,7 @@
     "docs/TERMINOLOGY.md": "f88a8c1bfa8c777b1acee1860a06fa8b59a6394193a79298cf82df0b3eda1cce",
     "docs/TESTPYPI.md": "a366e4826b08503ebc520f218950ceb2560ccb92f0a8c144645a5b0faa6675f7",
     "docs/adr/0001-canonical-store-lifetime-lease.md": "966618ae08229dbbd3c5d9722a1c7f3005c3ead9831b34bbb0d42c2e7e28915e",
-    "docs/audits/INDEX.md": "cd4bc6c17f0a64583e58f2cb737011a8a9da4622fbb0b3adab597e1e1830d4cd",
+    "docs/audits/INDEX.md": "3d12fc167ec4020ae4b1c714900db9009a74d333049bace70f861182b5b8f3eb",
     "docs/engineering/01_ARCHITECTURE.md": "f215d14252000a81a6ad2815ef5a1b7892c41d48afb951952b4babf29cdb6b00",
     "docs/engineering/05_SECURITY_ARCHITECTURE.md": "566240c3bbea869238bd4ea749b10c6090c5aeb196d55a8d5655c75a61063fc3",
     "docs/engineering/06_ENGINEERING_CHANGE_SOP.md": "ecaffbf1827e6350078df33af00427cb9efef6bf743d10effb80e02eb79ae191",
@@ -112,7 +112,7 @@
     "docs/engineering/templates/README.md": "b60e62bca4f20c51317c125f7e8f0c4f272f33e41d4daa90c7f55873e3a94d3c",
     "docs/engineering/templates/THREAT_MODEL_DELTA.md": "d98ed44d5da7d3d32fa218ae2499e93e818ab9f124d1961b19bdf2899911fb0e",
     "docs/errors.md": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
-    "docs/handoffs/INDEX.md": "98217445fa9fed4e699da1690080b577f3ea6fd39578d5894ca8a4d68bca0b2b",
+    "docs/handoffs/INDEX.md": "a01f1fcc93e782837107c3b232d613a6942440baa6e1fad8320919f4aedd6a03",
     "docs/howto/README.md": "1503b123eeea2cdc9b38ccca4b826cefca5fee10a9de557e116cdcc859b8e09d",
     "docs/kb/README.md": "64b5d293ac1b0c699a9cca5302a8432f5ad8c522f6186c411c391ecc2e2904d4",
     "docs/kb/eval-methodology/benchmark-traps.md": "6bfaf8c57c9387d4d35e35e51e3516cb835701dfedc157b22a0f8f3dc0afa087",
@@ -146,7 +146,7 @@
     "docs/prompts/DEEPSEEK_WEBUI_BATCH_PROMPT.md": "64f138df5b10454a508c89c49b6f8b87000d3117bb631a6f7e13f56ed86242c4",
     "docs/prompts/README.md": "8ff994943e4bb8f69a61f55904f25af4a7869336d801a17c5abb737e1e33c4b7",
     "docs/roadmap/AGENT_COMPILER.md": "9b6a94595b86e25259781b7ce02536439d6e7cb06eafb786967fdfa9e570015c",
-    "docs/roadmap/BRANCH_RECOVERY.md": "41d599c242355a63344c7a703402664d9b7e0e208b1f77048964c2ed3b94a608",
+    "docs/roadmap/BRANCH_RECOVERY.md": "cc16d01ac1e0675c9ed82404300629e1811762209e927485dd46c3df86749469",
     "docs/roadmap/COMPETITIVE_ROADMAP.md": "97702f835c653980f68e2148b6ad01d540f42d70a6e749ed3dfeb0d6e7982809",
     "docs/roadmap/CONTEXT_STREAMS.md": "c31131712017d382206cf9578a860c5f3fe3efbc1eed9ff79e2b72397f8478eb",
     "docs/roadmap/DROPPED_PR_TRACKS.md": "5759855088b04c077c864b387ab7d1cb6828a8d182a23b779799044698de96a9",
@@ -172,11 +172,11 @@
     "docs/status/deferred.md": "abfb767d4a8499c26b0b36598c82fc9ee0a8cad685d9e5e576835d8a81b444a7",
     "docs/status/index.md": "bff089aafae603c8f6e7e3b062f743bbe0c13ba86bb5278444596abb0a903c49",
     "docs/status/operations.md": "c30f30dcb3817b208e941a46c8c1806cf8b7e101c26eeea75baf2a78dfe2847b",
-    "docs/status/packaging-licensing.md": "0cc8038f822374c288438088ff8083ffa7eab8d87f9005b0f5289a413dc240ae",
+    "docs/status/packaging-licensing.md": "1af2f1aae9fde3c8f9ddd6169042fee71068fbef140baf81fa14ee78a85a3f52",
     "docs/status/protocol-continuity.md": "d840a255af743de9ca7e574695f1b0e872ab0e1e95bedf015d63849b9034fb08",
     "docs/status/retrieval.md": "bfa2812175ee69bda9a9665a9b47d132feadaaf468812b219ccc15c44c105edd",
     "docs/status/surfaces.md": "d6e6167964794020635993f1289e6756bdcea4d555ba1e2da81abefaf06b1ae1",
-    "docs/status/workspace.md": "8bad4f1fbe7e6959dcfaf4e85a377fe5e0a5d5748af883a6743f54bad7f53e8c",
+    "docs/status/workspace.md": "9f9a7b8525e309d17f484b27f1f15bfad1a84f9129e803b91222fe9755e11e84",
     "installers/README.md": "e96624547523c0f579ac1e978be05da350bee922a9afbe1270f19431e7af95ff",
     "seam_runtime/retrieval_orchestrator/README.md": "73da05769664f7026fb60c66845168c2da9a03c0dff877b5318f7722efd6149d",
     "skills/seam-engineer/SKILL.md": "fbe0e60f01259a2dd7b1b7fa8f333124c71038a6f921e46ace27db0cd01d436b",
@@ -233,7 +233,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "3f338fdbf2ff83e00acd094962988df0fa905de33c079716ec21b2f52b284020",
+      "document_sha256": "edae99d2f4e13c99df82096e091d9bfa2cf433feb8d85c2096907b9db8667091",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -825,7 +825,7 @@
     },
     "docs/audits/INDEX.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "cd4bc6c17f0a64583e58f2cb737011a8a9da4622fbb0b3adab597e1e1830d4cd",
+      "document_sha256": "3d12fc167ec4020ae4b1c714900db9009a74d333049bace70f861182b5b8f3eb",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -856,7 +856,7 @@
     },
     "docs/handoffs/INDEX.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "98217445fa9fed4e699da1690080b577f3ea6fd39578d5894ca8a4d68bca0b2b",
+      "document_sha256": "a01f1fcc93e782837107c3b232d613a6942440baa6e1fad8320919f4aedd6a03",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -956,7 +956,7 @@
     },
     "docs/roadmap/BRANCH_RECOVERY.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "41d599c242355a63344c7a703402664d9b7e0e208b1f77048964c2ed3b94a608",
+      "document_sha256": "cc16d01ac1e0675c9ed82404300629e1811762209e927485dd46c3df86749469",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -1167,7 +1167,7 @@
     },
     "docs/status/packaging-licensing.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "0cc8038f822374c288438088ff8083ffa7eab8d87f9005b0f5289a413dc240ae",
+      "document_sha256": "1af2f1aae9fde3c8f9ddd6169042fee71068fbef140baf81fa14ee78a85a3f52",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -1187,7 +1187,7 @@
     },
     "docs/status/workspace.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "8bad4f1fbe7e6959dcfaf4e85a377fe5e0a5d5748af883a6743f54bad7f53e8c",
+      "document_sha256": "9f9a7b8525e309d17f484b27f1f15bfad1a84f9129e803b91222fe9755e11e84",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
