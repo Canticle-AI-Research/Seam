@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 744
+total_events: 745
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-28T22:42:05Z | history:484:8cef3b6f | session-event | changed | selfhost, packaging, release, pypi, naming, test, verify | selfhost_pkg/pyproject.toml,tools/release/build_selfhost_wheel.py,tools/relea... |
 | 2026-07-28T23:20:55Z | history:485:f42d2568 | session-event | done | selfhost, release, pypi, packaging, busl, verify | .github/workflows/selfhost-release.yml,selfhost_pkg/pyproject.toml |
 | 2026-07-28T23:51:04Z | history:486:55291525 | session-event | changed | selfhost, pgvector, embeddings, docs, packaging, release,... | seam_runtime/selfhost.py,selfhost_pkg/pyproject.toml,selfhost_pkg/README.md,t... |
 | 2026-07-29T02:15:43Z | history:487:1d877009 | session-event | done | bugfix, bundle, ci, docs, graph, handoff, mcp, pgvector, ... | .github/workflows/package-release.yml,PROJECT_STATUS.md,REPO_LEDGER.md,docs/P... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T11:53:04Z | history:676:a771d583 | session-event | in-progress | registry, ci, security, verify, handoff, pyproject | .github/workflows/publish-testpypi.yml,tools/release/testpypi_release.py,test... |
 | 2026-10-14T11:53:56Z | history:677:4fb8d57c | session-event | changed | correction, verify, handoff | docs/handoffs/2026-10-14-testpypi-publisher-ready.md,tests/audit/test_suite_m... |
 | 2026-10-14T11:55:08Z | history:678:c8e740fb | session-event | changed | correction, security, verify | tools/release/testpypi_release.py,.github/workflows/publish-testpypi.yml |
+| 2026-10-14T12:08:34Z | history:679:1f45f511 | session-event | changed | bugfix, ci, snapshot, registry, verify, handoff | .github/workflows/publish-testpypi.yml,tests/audit/test_testpypi_release.py,d... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0544.cross.md | 2026-04-15T00:00:00Z..2026-07-28T22:11:37Z | 544 | (multi) | (multi) |
+| 0001-0545.cross.md | 2026-04-15T00:00:00Z..2026-07-28T22:42:05Z | 545 | (multi) | (multi) |

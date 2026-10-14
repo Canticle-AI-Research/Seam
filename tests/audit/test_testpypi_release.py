@@ -437,6 +437,28 @@ def test_workflow_keeps_credentials_step_scoped_and_runs_all_guards():
         "tools.docs.verify_wiki",
     ):
         assert command in prepare_commands
+    snapshot_steps = [step for step in prepare["steps"] if step.get("name") == "Write runner-local current-history snapshot"]
+    assert len(snapshot_steps) == 1
+    snapshot_step = snapshot_steps[0]
+    snapshot_index = prepare["steps"].index(snapshot_step)
+    first_gate_index = next(
+        index
+        for index, step in enumerate(prepare["steps"])
+        if step.get("run") == "python -m tools.history.verify_integrity"
+    )
+    assert snapshot_index < first_gate_index
+    snapshot_command = snapshot_step["run"]
+    for contract in (
+        "parse_entries(read_history_bytes(HISTORY_PATH))",
+        "if not entries:",
+        "entry_ids=[entry.id for entry in entries[-4:]]",
+        'agent="testpypi-ci"',
+        "token_budget=4000",
+        "include_pack=False",
+    ):
+        assert contract in snapshot_command
+    assert snapshot_step.get("env", {}).get("PYTHONPATH") == "${{ github.workspace }}"
+    assert "rm " not in snapshot_command and "unlink" not in snapshot_command
     assert "--skip-existing" not in text and "dist/*" not in text
 
 
