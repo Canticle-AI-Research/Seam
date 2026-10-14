@@ -236,9 +236,13 @@ bounded task-specific reading; do not maintain a competing sequence here.
   operator-gated publication. Preserve their exact-head, artifact, digest,
   and publisher controls. Neither workflow's historical name proves private
   visibility. Reconcile destination visibility, artifact membership, and live
-  environment protections in L1 before dispatch. The root build has no PyPI
-  upload job. Suite's reviewed TestPyPI preparation does not dispatch either
-  GitHub workflow or authorize production publication.
+  environment protections in L1 before dispatch. The root build has no production
+  PyPI upload job. `publish-testpypi.yml` is a separate explicit main-only Suite
+  test-registry publisher using the `TEST_PYPI` Actions secret. It binds the
+  current protected-main SHA, exact wheel/sdist membership and receipt digest,
+  checks public file hashes, and tests freshly downloaded installations.
+  Test-registry authority does not authorize production or private-SDK publication.
+  See HISTORY#676 and `docs/TESTPYPI.md`.
 - EXISTING DISTRIBUTIONS. GitHub lists release `v2.4.0`, and PyPI reports
   legacy `seam-runtime` 1.3.1, `seam-self-host` 1.1.2, and `seam-client` 2.0.0
   metadata at HISTORY#634. Current installability, exact contents, ownership,

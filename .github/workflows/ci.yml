@@ -286,6 +286,9 @@ jobs:
       - name: Verify Suite manifest drift and gate regressions
         run: python -m pytest tests/audit/test_suite_manifest_drift.py -q
 
+      - name: Verify fail-closed TestPyPI publisher regressions
+        run: python -m pytest tests/audit/test_testpypi_release.py -q
+
       - name: Verify dependency source contract
         run: python -m tools.ci.verify_dependency_contract
 

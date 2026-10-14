@@ -7,6 +7,17 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
+## TestPyPI publisher qualification
+
+The operator configured `TEST_PYPI` in GitHub Actions and authorized the Suite
+TestPyPI upload. Dedicated `publish-testpypi.yml` has independent successor PASS;
+73 publisher/manifest audit cases and fresh locally built wheel/sdist installs
+qualify preparation. Each format passes eight installed smokes and dependency
+checks. Protected admission and exact-main dispatch, upload, public hash readback
+and downloaded installs remain required before claiming publication. Licensing
+is finished (PR #286). See HISTORY#676 and [TestPyPI instructions](../TESTPYPI.md).
+The dated observations below preserve earlier preparation state.
+
 ## Integrated candidate and live website
 
 Source PR304 is merged at `ffd4e98cd28fb9054eb1669c6a2f7835538921f6`, exact

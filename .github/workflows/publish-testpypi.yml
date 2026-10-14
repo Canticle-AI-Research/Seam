@@ -1,0 +1,287 @@
+name: Publish reviewed Suite candidate to TestPyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Exact distribution name; only seam-suite is accepted
+        required: true
+        type: string
+      version:
+        description: Exact canonical version already set in pyproject.toml
+        required: true
+        type: string
+      commit_sha:
+        description: Full current protected-main commit SHA to publish
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: testpypi-publisher
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      artifact_digest: ${{ steps.transfer.outputs.artifact-digest }}
+      receipt_sha256: ${{ steps.prepare.outputs.receipt_sha256 }}
+      wheel: ${{ steps.prepare.outputs.wheel }}
+      sdist: ${{ steps.prepare.outputs.sdist }}
+    steps:
+      - name: Check out the dispatched protected-main commit
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install publisher verification tools from trusted PyPI
+        env:
+          PIP_CONFIG_FILE: /dev/null
+          PIP_INDEX_URL: https://pypi.org/simple
+        run: |
+          unset PIP_EXTRA_INDEX_URL PIP_FIND_LINKS PIP_TRUSTED_HOST
+          python -m pip install --disable-pip-version-check build 'markdown-it-py>=4.0,<5.0' 'packaging>=24,<27' twine
+
+      - name: Bind dispatch to the current remote protected-main head
+        id: boundary
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          REQUESTED_PACKAGE: ${{ inputs.package }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_SHA: ${{ inputs.commit_sha }}
+          WORKFLOW_SHA: ${{ github.sha }}
+        run: |
+          head_sha="$(git rev-parse HEAD)"
+          remote_sha="$(gh api "repos/$REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          python -m tools.release.testpypi_release prepare-boundary \
+            --root "$PWD" \
+            --package "$REQUESTED_PACKAGE" \
+            --version "$REQUESTED_VERSION" \
+            --requested-sha "$REQUESTED_SHA" \
+            --workflow-sha "$WORKFLOW_SHA" \
+            --head-sha "$head_sha" \
+            --remote-sha "$remote_sha" \
+            --ref "$GITHUB_REF" \
+            --default-branch "$DEFAULT_BRANCH"
+          echo "head_sha=${head_sha}" >> "$GITHUB_OUTPUT"
+          echo "remote_sha=${remote_sha}" >> "$GITHUB_OUTPUT"
+
+      - name: Verify SEAM history integrity
+        run: python -m tools.history.verify_integrity
+
+      - name: Verify SEAM classification routing
+        run: python -m tools.history.verify_routing
+
+      - name: Verify SEAM handoff registry
+        run: python -m tools.history.verify_handoffs
+
+      - name: Verify SEAM temporal continuity
+        run: python -m tools.history.verify_continuity
+
+      - name: Verify SEAM streams
+        run: python -m tools.streams.verify_streams
+
+      - name: Verify SEAM wiki navigation
+        run: python -m tools.docs.verify_wiki
+
+      - name: Verify reviewed Suite source manifest
+        run: python -m tools.release.verify_suite_manifest
+
+      - name: Scan source for secrets and private session URLs
+        run: python -m tools.security.secret_scan --working-tree
+
+      - name: Build wheel and source distribution into an empty directory
+        env:
+          PREP_ROOT: ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          test ! -e "$PREP_ROOT"
+          mkdir -p "$PREP_ROOT/dist"
+          python -m build --wheel --sdist --outdir "$PREP_ROOT/dist"
+
+      - name: Verify exact archives and write immutable preparation receipt
+        id: prepare
+        env:
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          PREP_ROOT: ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}
+          REQUESTED_PACKAGE: ${{ inputs.package }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_SHA: ${{ inputs.commit_sha }}
+          WORKFLOW_SHA: ${{ github.sha }}
+          HEAD_SHA: ${{ steps.boundary.outputs.head_sha }}
+          REMOTE_SHA: ${{ steps.boundary.outputs.remote_sha }}
+        run: |
+          python -m tools.release.testpypi_release prepare \
+            --root "$PWD" \
+            --dist "$PREP_ROOT/dist" \
+            --receipt "$PREP_ROOT/receipt.json" \
+            --package "$REQUESTED_PACKAGE" \
+            --version "$REQUESTED_VERSION" \
+            --requested-sha "$REQUESTED_SHA" \
+            --workflow-sha "$WORKFLOW_SHA" \
+            --head-sha "$HEAD_SHA" \
+            --remote-sha "$REMOTE_SHA" \
+            --ref "$GITHUB_REF" \
+            --default-branch "$DEFAULT_BRANCH"
+
+      - name: Smoke exact wheel with default dependencies
+        env:
+          PIP_CONFIG_FILE: /dev/null
+          PIP_INDEX_URL: https://pypi.org/simple
+          PREP_ROOT: ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}
+          WHEEL: ${{ steps.prepare.outputs.wheel }}
+        run: |
+          unset PIP_EXTRA_INDEX_URL PIP_FIND_LINKS PIP_TRUSTED_HOST
+          python -m venv "$PREP_ROOT/wheel-smoke"
+          "$PREP_ROOT/wheel-smoke/bin/python" -m pip install --no-cache-dir "$PREP_ROOT/dist/$WHEEL"
+          "$PREP_ROOT/wheel-smoke/bin/python" -I tests/package/smoke_installed_suite.py
+          "$PREP_ROOT/wheel-smoke/bin/python" -m pip check
+
+      - name: Smoke exact sdist with default dependencies
+        env:
+          PIP_CONFIG_FILE: /dev/null
+          PIP_INDEX_URL: https://pypi.org/simple
+          PREP_ROOT: ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}
+          SDIST: ${{ steps.prepare.outputs.sdist }}
+        run: |
+          unset PIP_EXTRA_INDEX_URL PIP_FIND_LINKS PIP_TRUSTED_HOST
+          python -m venv "$PREP_ROOT/sdist-smoke"
+          "$PREP_ROOT/sdist-smoke/bin/python" -m pip install --no-cache-dir "$PREP_ROOT/dist/$SDIST"
+          "$PREP_ROOT/sdist-smoke/bin/python" -I tests/package/smoke_installed_suite.py
+          "$PREP_ROOT/sdist-smoke/bin/python" -m pip check
+
+      - name: Transfer only the verified files and receipt
+        id: transfer
+        uses: actions/upload-artifact@v4
+        with:
+          name: seam-testpypi-${{ github.sha }}
+          path: |
+            ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}/dist/${{ steps.prepare.outputs.wheel }}
+            ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}/dist/${{ steps.prepare.outputs.sdist }}
+            ${{ runner.temp }}/seam-testpypi-${{ github.run_id }}-${{ github.run_attempt }}/receipt.json
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-and-verify:
+    needs: prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current protected main
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install publisher verification tools from trusted PyPI
+        env:
+          PIP_CONFIG_FILE: /dev/null
+          PIP_INDEX_URL: https://pypi.org/simple
+        run: |
+          unset PIP_EXTRA_INDEX_URL PIP_FIND_LINKS PIP_TRUSTED_HOST
+          python -m pip install --disable-pip-version-check 'packaging>=24,<27' twine
+
+      - name: Download the exact preparation artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: seam-testpypi-${{ github.sha }}
+          path: ${{ runner.temp }}/seam-testpypi-download
+
+      - name: Inspect current remote protected-main head
+        id: boundary
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          remote_sha="$(gh api "repos/$REPOSITORY/git/ref/heads/main" --jq '.object.sha')"
+          echo "remote_sha=${remote_sha}" >> "$GITHUB_OUTPUT"
+
+      - name: Revalidate and upload exactly two files to TestPyPI
+        env:
+          ARTIFACT_DIGEST: ${{ needs.prepare.outputs.artifact_digest }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          GH_TOKEN: ${{ github.token }}
+          PREP_ROOT: ${{ runner.temp }}/seam-testpypi-download
+          REPOSITORY: ${{ github.repository }}
+          REQUESTED_PACKAGE: ${{ inputs.package }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_SHA: ${{ inputs.commit_sha }}
+          REMOTE_SHA: ${{ steps.boundary.outputs.remote_sha }}
+          RECEIPT_SHA256: ${{ needs.prepare.outputs.receipt_sha256 }}
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI }}
+          WORKFLOW_SHA: ${{ github.sha }}
+        run: |
+          head_sha="$(git rev-parse HEAD)"
+          python -m tools.release.testpypi_release upload \
+            --root "$PWD" \
+            --dist "$PREP_ROOT/dist" \
+            --receipt "$PREP_ROOT/receipt.json" \
+            --receipt-sha256 "$RECEIPT_SHA256" \
+            --package "$REQUESTED_PACKAGE" \
+            --version "$REQUESTED_VERSION" \
+            --requested-sha "$REQUESTED_SHA" \
+            --workflow-sha "$WORKFLOW_SHA" \
+            --head-sha "$head_sha" \
+            --remote-sha "$REMOTE_SHA" \
+            --ref "$GITHUB_REF" \
+            --default-branch "$DEFAULT_BRANCH" \
+            --artifact-digest "$ARTIFACT_DIGEST" \
+            --repository "$REPOSITORY"
+
+      - name: Poll public TestPyPI metadata and download exact published bytes
+        id: readback
+        env:
+          PREP_ROOT: ${{ runner.temp }}/seam-testpypi-download
+          READBACK_ROOT: ${{ runner.temp }}/seam-testpypi-readback
+          RECEIPT_SHA256: ${{ needs.prepare.outputs.receipt_sha256 }}
+          REQUESTED_PACKAGE: ${{ inputs.package }}
+          REQUESTED_VERSION: ${{ inputs.version }}
+          REQUESTED_SHA: ${{ inputs.commit_sha }}
+        run: |
+          python -m tools.release.testpypi_release readback \
+            --receipt "$PREP_ROOT/receipt.json" \
+            --receipt-sha256 "$RECEIPT_SHA256" \
+            --destination "$READBACK_ROOT" \
+            --package "$REQUESTED_PACKAGE" \
+            --version "$REQUESTED_VERSION" \
+            --source-sha "$REQUESTED_SHA"
+
+      - name: Smoke TestPyPI-downloaded wheel with trusted PyPI dependencies
+        env:
+          PIP_CONFIG_FILE: /dev/null
+          PIP_INDEX_URL: https://pypi.org/simple
+          READBACK_ROOT: ${{ runner.temp }}/seam-testpypi-readback
+          WHEEL: ${{ steps.readback.outputs.wheel }}
+        run: |
+          unset PIP_EXTRA_INDEX_URL PIP_FIND_LINKS PIP_TRUSTED_HOST
+          python -m venv "$RUNNER_TEMP/testpypi-wheel-smoke"
+          "$RUNNER_TEMP/testpypi-wheel-smoke/bin/python" -m pip install --no-cache-dir "$READBACK_ROOT/$WHEEL"
+          "$RUNNER_TEMP/testpypi-wheel-smoke/bin/python" -I tests/package/smoke_installed_suite.py
+          "$RUNNER_TEMP/testpypi-wheel-smoke/bin/python" -m pip check
+
+      - name: Smoke TestPyPI-downloaded sdist with trusted PyPI dependencies
+        env:
+          PIP_CONFIG_FILE: /dev/null
+          PIP_INDEX_URL: https://pypi.org/simple
+          READBACK_ROOT: ${{ runner.temp }}/seam-testpypi-readback
+          SDIST: ${{ steps.readback.outputs.sdist }}
+        run: |
+          unset PIP_EXTRA_INDEX_URL PIP_FIND_LINKS PIP_TRUSTED_HOST
+          python -m venv "$RUNNER_TEMP/testpypi-sdist-smoke"
+          "$RUNNER_TEMP/testpypi-sdist-smoke/bin/python" -m pip install --no-cache-dir "$READBACK_ROOT/$SDIST"
+          "$RUNNER_TEMP/testpypi-sdist-smoke/bin/python" -I tests/package/smoke_installed_suite.py
+          "$RUNNER_TEMP/testpypi-sdist-smoke/bin/python" -m pip check

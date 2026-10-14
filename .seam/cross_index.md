@@ -2,16 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 741
+total_events: 744
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-28T16:32:58Z | history:481:89070f00 | session-event | changed | roadmap, selfhost, packaging, mcp | ROADMAP.md |
-| 2026-07-28T17:43:24Z | history:482:e8f54f77 | session-event | changed | selfhost, licensing, busl, entitlement, security, docker | seam_runtime/selfhost.py,seam_runtime/selfhost_entitlement.py,selfhost/compos... |
-| 2026-07-28T22:11:37Z | history:483:9b437667 | session-event | done | selfhost, mcp, security, packaging, bundle, verify, test,... | seam_runtime/selfhost_mcp.py,tools/release/build_node_wheel.py,tests/audit/te... |
 | 2026-07-28T22:42:05Z | history:484:8cef3b6f | session-event | changed | selfhost, packaging, release, pypi, naming, test, verify | selfhost_pkg/pyproject.toml,tools/release/build_selfhost_wheel.py,tools/relea... |
 | 2026-07-28T23:20:55Z | history:485:f42d2568 | session-event | done | selfhost, release, pypi, packaging, busl, verify | .github/workflows/selfhost-release.yml,selfhost_pkg/pyproject.toml |
 | 2026-07-28T23:51:04Z | history:486:55291525 | session-event | changed | selfhost, pgvector, embeddings, docs, packaging, release,... | seam_runtime/selfhost.py,selfhost_pkg/pyproject.toml,selfhost_pkg/README.md,t... |
@@ -209,10 +206,13 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T11:05:02Z | history:673:55de4dc2 | session-event | in-progress | audit, ci, continuity, docs, docker, extras, handoff, his... | docs/audits/2026-10-14-branch-retirement-and-lock.md,docs/roadmap/BRANCH_RECO... |
 | 2026-10-14T11:27:09Z | history:674:3464c8ff | session-event | in-progress | audit, docs, wiki, verify, worktree | docs/audits/2026-10-14-factual-doc-recovery.md,docs/handoffs/2026-10-14-factu... |
 | 2026-10-14T11:38:18Z | history:675:920bf5a3 | session-event | changed | audit, docs, handoff, status, worktree | docs/audits/2026-10-14-branch-recovery-closeout.md,docs/handoffs/2026-10-14-b... |
+| 2026-10-14T11:53:04Z | history:676:a771d583 | session-event | in-progress | registry, ci, security, verify, handoff, pyproject | .github/workflows/publish-testpypi.yml,tools/release/testpypi_release.py,test... |
+| 2026-10-14T11:53:56Z | history:677:4fb8d57c | session-event | changed | correction, verify, handoff | docs/handoffs/2026-10-14-testpypi-publisher-ready.md,tests/audit/test_suite_m... |
+| 2026-10-14T11:55:08Z | history:678:c8e740fb | session-event | changed | correction, security, verify | tools/release/testpypi_release.py,.github/workflows/publish-testpypi.yml |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0541.cross.md | 2026-04-15T00:00:00Z..2026-07-28T15:26:55Z | 541 | (multi) | (multi) |
+| 0001-0544.cross.md | 2026-04-15T00:00:00Z..2026-07-28T22:11:37Z | 544 | (multi) | (multi) |

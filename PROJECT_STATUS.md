@@ -5,6 +5,18 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-14 — TestPyPI publisher locally qualified; protected merge and upload next.**
+The operator configured the GitHub Actions secret `TEST_PYPI` and authorized
+TestPyPI publication. A dedicated main-only publisher binds exact source,
+artifacts and receipt hashes before upload, then verifies public file hashes
+and fresh downloaded installs. Independent successor review passes. Publisher
+and manifest audit tests pass (73 cases across the two named suites); locally
+built wheel and sdist each pass eight installed smokes and dependency checks.
+No upload has occurred yet. Licensing is finished (PR #286). Branch recovery
+closeout is merged in PR #305; embedding batching R2/issue #292 remains the
+next runtime recovery. See HISTORY#676 and the [current handoff](docs/handoffs/INDEX.md).
+Older headlines below are historical snapshots.
+
 **2026-10-14 — branch audit complete; admitted recoveries merged and live.**
 All30original source/site branches inspected. Fifteen retired only after useful
 work admission or explicit preserved disposition;15useful tips remain unchanged
