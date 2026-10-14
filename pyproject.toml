@@ -13,12 +13,17 @@ license = "LicenseRef-SEAM-Suite-Personal-1.0"
 license-files = ["LICENSE", "NOTICE", "COMMERCIAL_LICENSE.md", "LICENSES/SEAM-Suite-Personal.txt", "LICENSES/SEAM-Suite-manifest.json", "LICENSES/BUSL-1.1.txt", "LICENSES/Apache-2.0.txt"]
 requires-python = ">=3.11"
 classifiers = [
-  "Private :: Do Not Upload",
+  "Development Status :: 3 - Alpha",
 ]
 keywords = ["ai", "agents", "memory", "mcp", "rag"]
 dependencies = [
   "rich>=14.2,<16",
   "tiktoken>=0.8.0,<1.0",
+  "textual>=8.0,<9.0",
+  "httpx>=0.24,<1.0",
+  "fastapi>=0.100,<1.0",
+  "uvicorn[standard]>=0.23,<1.0",
+  "python-multipart>=0.0.6,<1.0",
 ]
 
 [project.urls]
@@ -27,6 +32,7 @@ Repository = "https://github.com/Canticle-AI-Research/Seam"
 Issues = "https://github.com/Canticle-AI-Research/Seam/issues"
 
 [project.optional-dependencies]
+# Compatibility aliases: Suite includes terminal and browser interfaces by default.
 dash = ["textual>=8.0,<9.0", "httpx>=0.24,<1.0"]
 # Opt-in only. chromadb 1.0.0-1.5.9 (the whole current 1.x line) carries an
 # UNPATCHED critical advisory GHSA-f4j7-r4q5-qw2c (pre-auth code injection in the

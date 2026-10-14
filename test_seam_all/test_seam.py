@@ -2599,7 +2599,9 @@ claim c1:
         ):
             run_cli(["doctor"])
         payload = stream.getvalue()
-        self.assertEqual(_canonical_runtime_dependency_names(), ["rich", "tiktoken"])
+        self.assertEqual(_canonical_runtime_dependency_names(), [
+            "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+        ])
         self.assertIn("SEAM doctor: PASS", payload)
         self.assertIn("Compile smoke: PASS", payload)
         self.assertIn("PgVector:", payload)
@@ -2628,7 +2630,9 @@ claim c1:
             run_cli(["doctor", "--format", "json"])
         payload = json.loads(stream.getvalue())
         required = _canonical_runtime_dependency_names()
-        self.assertEqual(required, ["rich", "tiktoken"])
+        self.assertEqual(required, [
+            "rich", "tiktoken", "textual", "httpx", "fastapi", "uvicorn", "python_multipart"
+        ])
         self.assertEqual(payload["status"], "PASS")
         self.assertIn("dependencies", payload)
         self.assertIn("required_dependencies", payload)

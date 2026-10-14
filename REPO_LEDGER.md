@@ -30,6 +30,16 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Release-candidate membership and branch cleanup (2026-10-14).** The
+  owner-authorized TestPyPI-first Suite candidate receives independent exact
+  source/archive and installed-behavior review before its private-upload
+  tripwire is removed. Production publication and hosted-product acceptance
+  remain separate. `tools.release.verify_suite_manifest` checks exact source,
+  staged bytes and archives without expanding permission; manifest provenance
+  records a source base, explicit reviewed delta, and exact member hashes.
+  Branch deletion requires main reachability or verified patch preservation
+  and an unchanged live tip. A closed or merged PR label alone does not prove
+  unique commits are disposable. See [release flow](docs/RELEASE_FLOW.md).
 - The local documentation safeguard candidate derives command metadata from
   the actual CLI factory and shared link definitions from
   `tools/docs/reference_config.json`. `tools.docs.sync_references --check`
@@ -182,10 +192,11 @@ bounded task-specific reading; do not maintain a competing sequence here.
   at HISTORY#634. Existing runtime invariants and artifact boundaries still
   apply; a product decision does not silently change package contents.
 - CURRENT BUILD. The root `pyproject.toml` still defines the `seam-suite`
-  2.4.1rc1 candidate, containing the full runtime and readable MIRL/HS/1 source. Preserve
-  `Private :: Do Not Upload` and the existing artifact/secret gates until a
-  separately reviewed distribution manifest and qualification establish the
-  intended new artifacts. Candidate names and migration requirements live in
+  2.4.1rc1 candidate, containing the reviewed Suite runtime and readable
+  MIRL/HS/1 source. Independent membership/installed-package review now supports
+  the owner-authorized TestPyPI candidate and its metadata tripwire removal.
+  Preserve the exact manifest, artifact/secret gates, publisher qualification
+  and downloaded-install verification. Current release requirements live in
   `docs/status/packaging-licensing.md`; none are published by this decision.
 - RETIRED IMPLEMENTATIONS. The compiled self-host build, `public_pkg/` shim,
   and mirror tooling were removed. Do not restore them as an incidental naming
@@ -209,7 +220,8 @@ bounded task-specific reading; do not maintain a competing sequence here.
   and publisher controls. Neither workflow's historical name proves private
   visibility. Reconcile destination visibility, artifact membership, and live
   environment protections in L1 before dispatch. The root build has no PyPI
-  upload job and retains `Private :: Do Not Upload`.
+  upload job. Suite's reviewed TestPyPI preparation does not dispatch either
+  GitHub workflow or authorize production publication.
 - EXISTING DISTRIBUTIONS. GitHub lists release `v2.4.0`, and PyPI reports
   legacy `seam-runtime` 1.3.1, `seam-self-host` 1.1.2, and `seam-client` 2.0.0
   metadata at HISTORY#634. Current installability, exact contents, ownership,
@@ -874,7 +886,8 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## REST API Policy
 
-- The REST API is optional and installed with the `server` extra.
+- REST/browser server dependencies are included in the default Suite; `server`
+  remains a compatible extra alias. Starting the server is an operator choice.
 - `seam serve` and `seam-server` run the FastAPI/Uvicorn surface against the configured SQLite database.
 - Protected endpoints require `Authorization: Bearer <token>` when `SEAM_API_TOKEN` is set; leave that variable unset only for trusted local development.
 - Bearer-token-only operation authenticates one trusted deployment boundary;

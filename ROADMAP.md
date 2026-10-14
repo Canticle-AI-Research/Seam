@@ -208,7 +208,7 @@ phase: 1
 - Chat (when Track A5 lands)
 
 **SOP:**
-1. Add `textual>=0.50` as optional extra (`seam-runtime[dash]`) or promote to base if dashboard is a primary interface
+1. Historical setup used an optional dashboard extra. Current Suite includes `textual>=8.0,<9.0` by default; `seam-suite[dash]` remains a compatibility alias (HISTORY#667).
 2. Port existing panels to Textual widgets one at a time — keep snapshot fallback working at every step
 3. Wire `Input` widget at bottom; results update the relevant panel reactively
 4. Add `seam-dash` console entrypoint to `pyproject.toml`
@@ -879,7 +879,7 @@ phase: 1
 **Status:** Implemented 2026-04-27. See `HISTORY#094`.
 
 **SOP:**
-1. `seam serve` runs FastAPI/Uvicorn through the optional `server` extra.
+1. `seam serve` runs FastAPI/Uvicorn included by default in current Suite; `server` remains a compatibility extra (HISTORY#667).
 2. Endpoints: `POST /compile`, `POST /compile-dsl`, `GET /search`, `POST /context`, `POST /lossless-compress`, `POST /persist`, `GET /stats`, `GET /health`.
 3. Auth: Bearer token through `SEAM_API_TOKEN` for protected endpoints.
 4. Rate limiting: `SEAM_API_RATE_LIMIT_PER_MINUTE` or `SEAM_API_RATE_LIMIT`; `/health` is unauthenticated but still rate-limited.
@@ -1679,7 +1679,9 @@ phase: 1
 **Status:** Historical package/release milestone. Its completed marker does
 not qualify the new Suite or hosted API for launch.
 
-The root build is still `seam-runtime` 2.4.0 with `Private :: Do Not Upload`.
+That historical milestone used `seam-runtime` 2.4.0 with `Private :: Do Not Upload`.
+Current source is the independently reviewed `seam-suite` 2.4.1rc1 TestPyPI
+candidate (HISTORY#667); publishing access and registry verification remain open.
 The canonical repository is `Canticle-AI-Research/Seam`; GitHub reports it as
 public at HISTORY#634. Existing GitHub workflows retain historical "private"
 labels, which do not prove destination visibility. The old shim, mirror, and

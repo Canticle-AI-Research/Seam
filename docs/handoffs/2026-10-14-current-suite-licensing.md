@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-current-suite-licensing
 supersedes: 2026-09-30-agent-config-gates-landed-next
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#665
 ---
 

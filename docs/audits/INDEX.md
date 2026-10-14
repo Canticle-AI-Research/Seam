@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-10-14-licensing-reconciliation
+latest: 2026-10-14-suite-release-readiness
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,7 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-10-14 | [Suite release-candidate readiness](2026-10-14-suite-release-readiness.md) | default install, exact archives, prerelease/MCP controls and verified branch cleanup | `HISTORY#667` |
 | 2026-10-14 | [Current Suite licensing reconciliation](2026-10-14-licensing-reconciliation.md) | first-launch terms, current implementation membership and package metadata | `HISTORY#665` |
 | 2026-09-14 | [Claude.ai subscription benchmark transport verification](2026-09-14-claude-code-benchmarks.md) | subscription transport, bounded real smoke and failure accounting | `HISTORY#646` |
 | 2026-09-06 | [L1 packaging and SDK migration preparation](2026-09-06-l1-packaging-migration.md) | package/source/ownership map and scoped artifact evidence | `HISTORY#635` |

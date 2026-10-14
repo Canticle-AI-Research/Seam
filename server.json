@@ -1,34 +1,33 @@
 {
   "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
-  "name": "io.github.BlackhatShiftey/seam-runtime",
-  "description": "SEAM: local-first memory runtime for AI agents, with retrieval and glassbox provenance over MCP.",
+  "name": "io.github.Canticle-AI-Research/seam-suite",
+  "description": "SEAM Suite: self-hosted agent memory with local retrieval and provenance over MCP. Early access.",
   "repository": {
-    "url": "https://github.com/BlackhatShiftey/Seam_Runtime",
+    "url": "https://github.com/Canticle-AI-Research/Seam",
     "source": "github"
   },
-  "version": "1.3.1",
+  "version": "2.4.1rc1",
   "packages": [
     {
       "registryType": "pypi",
-      "registryBaseUrl": "https://pypi.org",
-      "identifier": "seam-runtime",
-      "version": "1.3.1",
+      "identifier": "seam-suite",
+      "version": "2.4.1rc1",
       "runtimeHint": "uvx",
       "runtimeArguments": [
         {
-          "type": "positional",
-          "value": "--from",
-          "isRepeated": false
+          "type": "named",
+          "name": "--default-index",
+          "value": "https://pypi.org/simple"
         },
         {
           "type": "positional",
-          "value": "seam-runtime",
-          "isRepeated": false
-        },
+          "value": "--from"
+        }
+      ],
+      "packageArguments": [
         {
           "type": "positional",
-          "value": "seam-mcp",
-          "isRepeated": false
+          "value": "seam-mcp"
         }
       ],
       "transport": {
@@ -40,12 +39,6 @@
           "description": "Path to the local SQLite memory database. Defaults to a per-user data directory if unset.",
           "isRequired": false,
           "isSecret": false
-        },
-        {
-          "name": "SEAM_PGVECTOR_DSN",
-          "description": "Optional Postgres/pgvector DSN for the vector adapter. If unset, SEAM runs on the built-in SQLite vector store.",
-          "isRequired": false,
-          "isSecret": true
         }
       ]
     }

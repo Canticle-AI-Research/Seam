@@ -56,7 +56,9 @@ macOS / Linux / WSL2:
 
 ### Symptom
 
-`seam doctor` reports a missing required dependency: `rich` or `tiktoken`.
+`seam doctor` reports a missing default Suite dependency: `rich`, `tiktoken`,
+Textual, HTTP client, FastAPI, Uvicorn, or python-multipart. Optional vector
+backends and neural embeddings remain separate availability checks.
 Chroma is optional; diagnose a missing Chroma adapter separately if you
 intentionally selected it.
 

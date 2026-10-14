@@ -27,9 +27,11 @@ for the current-source and archive verification.
 
 Licensing is a focused successor of [PR #266](https://github.com/Canticle-AI-Research/Seam/pull/266).
 Its dependency/release/MCP changes and cumulative package-qualification condition
-remain separate. `Private :: Do Not Upload`, publisher qualification, TestPyPI
-first, production authorization and operator-product acceptance remain release
-gates. An exact reviewed license manifest resolves this candidate's membership;
+remain separate. Independent source and installed-package review supports the
+owner-authorized TestPyPI candidate; its private-upload classifier is removed
+in this reviewed preparation. Publisher access, exact rebuilt-file qualification,
+TestPyPI verification, production authorization and operator-product acceptance
+remain separate gates. An exact reviewed license manifest resolves this candidate's membership;
 it does not qualify a future changed artifact automatically.
 
 ## Current naming candidate
@@ -74,13 +76,16 @@ package contents, and release visibility are separate properties; the old
 description "private repository" must not be used as proof of access control.
 
 The renamed root candidate declares **`seam-suite` 2.4.1rc1** and
-`Private :: Do Not Upload`. It contains the full runtime and readable MIRL/HS/1
-source. That build remains blocked from PyPI and TestPyPI pending release
-qualification. Section 7B now identifies this candidate's exact personal-use
-membership; the package rename itself did not grant those rights. The private
-classifier remains. Existing release workflows still enforce their SemVer
-input contract; this PEP 440 release candidate is tested locally and does not
-pass that publication workflow.
+an early-access development classifier. It contains the reviewed Suite runtime
+and readable MIRL/HS/1 source with the paid SDK excluded. Independent source and
+installed-package review precedes removal of the private-upload tripwire; the
+rebuilt files still require exact qualification and TestPyPI publisher access.
+Section 7B identifies this candidate's exact personal-use membership; the
+package rename itself did not grant those rights. Release workflows validate the exact canonical Python
+version, including this prerelease, while retaining their operator and
+artifact gates. They do not upload to a package index. The default installation
+now includes terminal and HTTP/browser dependencies; compatible `dash` and
+`server` aliases remain. See [the release flow](../RELEASE_FLOW.md).
 
 [LICENSE](../../LICENSE), [NOTICE](../../NOTICE),
 [COMMERCIAL_LICENSE.md](../../COMMERCIAL_LICENSE.md), and the named license
@@ -94,8 +99,8 @@ package contents change. Product names and repository visibility do not do so.
 | Coordinate | Baseline observation | Migration treatment |
 | --- | --- | --- |
 | PyPI `seam` | Unrelated Seam API SDK | Do not use as Canticle's distribution name |
-| PyPI `seam-runtime` | Legacy 1.3.1 metadata | Preserve legacy-version history and audit upgrade behavior; do not upload the root build here |
-| PyPI `seam-self-host` | Legacy 1.1.2 metadata; its in-tree build was retired | Inventory users and replacement path; do not recreate removed split tooling implicitly |
+| PyPI `seam-runtime` | Legacy 1.3.1 metadata | Leave existing releases intact; do not upload the Suite build here |
+| PyPI `seam-self-host` | Legacy 1.1.2 metadata; its in-tree build was retired | Leave existing releases intact; do not recreate removed split tooling |
 | PyPI `seam-client` | Public HTTP client 2.0.0 metadata | Confirm current source and owner access, then plan compatibility and any successor name |
 | `Canticle-AI-Research/Seam_SDK` | Separate repository declaring `seam-sdk` 0.1.0 with a Git-pinned runtime dependency | Verify the runtime pin, supported interfaces, duplicated SDK code, and release boundary |
 | GitHub release `v2.4.0` | Existing release in the canonical repository | Inspect exact assets and terms before treating it as a Suite migration input |
@@ -124,21 +129,20 @@ not define the new Suite architecture.
 L1 is a migration packet and reviewed candidate build, followed by explicit
 release qualification. Work through these items in order:
 
-1. **Ownership and sources:** verify PyPI owner access, source repositories,
-   current branches, existing releases, and the source of the public client.
-   Resolve unavailable legacy coordinates before promising an upgrade path.
+1. **Ownership and sources:** verify Suite's TestPyPI publisher access and
+   current source. This is first-launch Suite preparation; historical packages
+   and the separate public HTTP client are outside its migration scope.
 2. **Artifact map:** choose the Suite installation format and contents, the
    hosted deployment artifact if needed, the public HTTP client, and the local
    SDK. Record exact file/version membership, license notices, dependencies,
    entrypoints, imports, and destination for each. Hosted API access does not
    require publishing its server implementation to PyPI.
-3. **Names and compatibility:** confirm candidate registration eligibility and
-   agree versions, command/import changes, deprecation behavior, and migration
-   from existing installs. Do not delete or replace legacy releases as a rename
-   shortcut. Keep the product map and compatibility matrix aligned.
+3. **Names and compatibility:** verify candidate registration eligibility and
+   the selected version, commands, imports, and supported install environment.
+   Leave historical releases intact. Keep product definitions aligned.
 4. **Candidate qualification:** build outside the active source tree, inspect
    wheel/sdist or image contents, apply the appropriate artifact boundary
-   checks, and test clean installation and legacy upgrades in isolation.
+   checks, and test clean installation and restart persistence in isolation.
    Exercise real CLI, HTTP-client, and local-SDK calls for supported roles.
 5. **Release controls:** reconcile GitHub destination visibility and workflow
    permissions, verify the current publisher configuration, and bind uploads

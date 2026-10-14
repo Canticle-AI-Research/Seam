@@ -9,7 +9,8 @@ Output is advisory. The operator decides what to delete. Run on-demand:
 Classes the scanner reports:
 
   on-main           0 unique commits vs main; work is fully merged. Safe to delete.
-  merged-pr         backing branch of a MERGED or CLOSED PR. Safe to delete.
+  merged-pr         merged PR branch with unique commits; verify squash preservation or later work.
+  closed-pr         closed unmerged PR branch with unique commits. REVIEW before deletion.
   unique-and-stale  unique commits, no PR, last commit > N days ago. REVIEW before deletion.
   unique-and-fresh  unique commits, < N days. Active work.
   open-pr           backing branch of an OPEN or DRAFT PR. Keep.
@@ -120,11 +121,15 @@ def classify(branch: BranchInfo, stale_days: int) -> str:
 
     if branch.pr_state in ("OPEN", "DRAFT"):
         return "open-pr"
-    if branch.pr_state in ("MERGED", "CLOSED"):
-        return "merged-pr"
-
     if branch.unique_commits == 0:
         return "on-main"
+
+    # PR closure is not proof that its work landed. Even a merged PR can have
+    # commits added after merging, or require patch comparison after a squash.
+    if branch.pr_state == "MERGED":
+        return "merged-pr"
+    if branch.pr_state == "CLOSED":
+        return "closed-pr"
 
     age = datetime.now(timezone.utc) - branch.last_commit_date
     if age > timedelta(days=stale_days):
@@ -132,11 +137,12 @@ def classify(branch: BranchInfo, stale_days: int) -> str:
     return "unique-and-fresh"
 
 
-CLASS_ORDER = ("on-main", "merged-pr", "unique-and-stale", "unique-and-fresh", "open-pr", "protected")
+CLASS_ORDER = ("on-main", "merged-pr", "closed-pr", "unique-and-stale", "unique-and-fresh", "open-pr", "protected")
 
 CLASS_ACTION = {
     "on-main": "DELETE  — 0 unique commits vs main, work is fully merged",
-    "merged-pr": "DELETE  — backing branch of a merged or closed PR",
+    "merged-pr": "REVIEW  — verify unique commits are preserved; merged PR state alone is insufficient",
+    "closed-pr": "REVIEW  — closed without merge; preserve unique work until disposition is established",
     "unique-and-stale": "REVIEW  — unique commits, no open PR, stale (> {days} days)",
     "unique-and-fresh": "LEAVE   — unique commits, recent activity",
     "open-pr": "KEEP    — backing branch of an open or draft PR",

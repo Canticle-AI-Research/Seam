@@ -1,5 +1,7 @@
 # SEAM
 
+<!-- mcp-name: io.github.Canticle-AI-Research/seam-suite -->
+
 **License: proprietary.** Free personal, noncommercial Suite self-hosting;
 business and organizational use require a written agreement.
 [Read the terms](LICENSES/SEAM-Suite-Personal.txt).
@@ -59,11 +61,10 @@ terms:
 python -m pip install .
 ```
 
-Install with REST API and dashboard extras:
-
-```bash
-python -m pip install ".[server,dash]"
-```
+The default Suite includes the terminal dashboard, HTTP client, and REST/browser
+server dependencies. `[dash]` and `[server]` remain compatibility aliases;
+optional vector backends, embedding models, and benchmark providers stay opt-in.
+See [installation and release verification](docs/RELEASE_FLOW.md).
 
 Use a reviewed commit or release tag for a reproducible checkout. The
 `seam-suite` naming change merged in PR256 at commit
@@ -439,10 +440,11 @@ python -m pip install -e ".[rerank]"
 python -m pip install -e ".[all-extras]"
 ```
 
-Extras keep the base install focused:
+The default Suite includes its terminal and HTTP/browser interfaces. Extras
+preserve compatible selections and optional backend/model resources:
 
-- `dash`: Textual dashboard
-- `server`: FastAPI/Uvicorn REST API
+- `dash`: Textual dashboard compatibility alias, included by default
+- `server`: FastAPI/Uvicorn REST API compatibility alias, included by default
 - `pgvector`: PostgreSQL PgVector adapter
 - `sbert`: local sentence-transformer embeddings
 - `agent`: reserved agent bridge extra; current stdio bridge has no extra dependency
@@ -456,7 +458,8 @@ structured SSE workspace, LIVE view, and replay.
 
 ## REST API
 
-Install the server extra:
+The default Suite includes the server dependencies. This compatible source
+installation also accepts the existing server-extra alias:
 
 ```powershell
 python -m pip install -e ".[server]"
@@ -570,15 +573,14 @@ deployment, or a public artifact.
 
 The manual **Package release** GitHub Actions workflow
 ([`.github/workflows/package-release.yml`](.github/workflows/package-release.yml))
-is `workflow_dispatch`-only, serialized, and takes one input: the exact SemVer
+is `workflow_dispatch`-only, serialized, and takes one input: the exact canonical Python
 `version` already set in `pyproject.toml`. Dispatch must come from the default
 branch and the `v<version>` tag must not already exist. It has two jobs:
 
 - **`build`** — verifies the requested version matches `pyproject.toml` and
   fails otherwise, builds exactly one wheel and one sdist, runs `twine check`,
   rejects unsafe archive members or secret-shaped packaged content, smoke-tests
-  the wheel by installing it with the `[server,pgvector]` extras alongside
-  `seam-client==2.0.0`, writes `SHA256SUMS.txt`, and uploads the reviewed set as
+  default Suite in an isolated environment, writes `SHA256SUMS.txt`, and uploads the reviewed set as
   a 7-day artifact.
 - **`private-github-release`** — gated on the `private-package-release`
   environment, downloads and checksum-verifies that artifact, then creates an
@@ -612,19 +614,21 @@ through post-publication verification.
 
 **There is no PyPI path.** Neither workflow has a package-index target or
 `id-token` permission, so neither can publish to an index even by mistake.
-The package is additionally marked `Private :: Do Not Upload` in
-`pyproject.toml` as a tripwire against an accidental upload, and
+The Suite candidate is prepared for owner-authorized TestPyPI qualification;
+exact implementation and license membership are checked by
+`tools.release.verify_suite_manifest`. Separately,
 `tools/release/verify_public_safe.py` blocks secret-shaped content and private
 paths on push. These workflows can publish GitHub release assets to this
 repository; visibility follows the destination's actual settings. L1 must
 qualify artifact membership and destination before dispatch. The root package
-remains prohibited from PyPI.
+is not published by either GitHub release workflow. Production PyPI still
+requires successful TestPyPI verification and a separate release decision.
 
-The existing `seam-runtime` 1.3.1 release on PyPI and `server.json` describe the
-legacy Apache-2.0 artifact. They remain pinned to that legacy public release.
-Publishing a later PyPI version requires a clean public artifact with its own
-license, package layout, and review; it does not authorize publishing this
-repository.
+`server.json` prepares current Suite discovery metadata for
+`io.github.Canticle-AI-Research/seam-suite`. See [MCP installation and
+registration](docs/MCP_REGISTRY.md). It does not change historical releases or
+prove the current package is published. Exact artifact qualification and
+TestPyPI publishing access precede a test upload; production remains separate.
 
 ## License
 

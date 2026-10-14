@@ -90,7 +90,8 @@ This direction does not change the implementation evidence below.
   synthesize topology. The view uses `branding/kit/` colors, remains mostly
   static, and presents the final state directly under reduced motion.
 - REST API: bearer-token guard when `SEAM_API_TOKEN` is configured, bounded
-  request bodies, env-configurable, optional `server` extra. An unset token is
+  request bodies, env-configurable, included by default in Suite (`server`
+  remains a compatibility extra). An unset token is
   trusted-loopback development only; automatic token provisioning remains an
   open authentication/UX policy. Protected main's token-only mode is a trusted
   single-user gate, not tenancy. Published Track S S6 adds
@@ -121,8 +122,9 @@ This direction does not change the implementation evidence below.
 - MCP agent bridge: `seam mcp stdio` / `seam-mcp`, 19 bounded documented tools over
   MCP JSON-RPC for Gemini/Claude/Cursor-style clients. `seam-mcp --ensure-pgvector`
   can auto-start pgvector. The private handshake reports the installed runtime
-  package version; `server.json` retains its intentional legacy compatibility
-  value.
+  package version; `server.json` prepares the matching current Suite package
+  and canonical organization namespace. [Registry preparation](../MCP_REGISTRY.md)
+  remains separate from actual public package publication and registration.
 - RAG surface: `seam ingest <path> --persist`, `seam memory search|get`,
   `seam retrieve --mode mix`.
 - Linux installer modes: global (`~/.local/share/seam`) and `--dev` repo-local.

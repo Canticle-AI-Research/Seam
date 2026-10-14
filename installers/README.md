@@ -170,14 +170,15 @@ state without restarting.
 
 ## Optional Extras
 
-Base install mirrors the bounded core dependencies in `pyproject.toml` through
-`requirements.txt`: `rich` and `tiktoken`. The dependency-source contract is
+Base install mirrors the bounded Suite dependencies in `pyproject.toml` through
+`requirements.txt`: `rich`, `tiktoken`, Textual, HTTP client, and HTTP/browser
+server dependencies. `dash` and `server` remain compatibility aliases. The dependency-source contract is
 checked by `python -m tools.ci.verify_dependency_contract`.
 
 | Extra | Package installed | When you need it |
 |---|---|---|
-| `dash` | `textual>=8.0,<9.0`, `httpx>=0.24,<1.0` | Textual dashboard |
-| `server` | `fastapi`, `uvicorn`, `python-multipart` | REST API |
+| `dash` | `textual>=8.0,<9.0`, `httpx>=0.24,<1.0` | Compatibility alias; included by default |
+| `server` | `fastapi`, `uvicorn`, `python-multipart` | Compatibility alias; included by default |
 | `pgvector` | `psycopg[binary]>=3.0` | PostgreSQL PgVector backend |
 | `sbert` | `sentence-transformers>=2.0` | Local neural embeddings |
 | `chroma` | `chromadb>=1.0,<2.0` | Explicit opt-in embedded Chroma only; excluded from `all-extras` |
