@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 675
-total_tokens: ~345696
-latest_id: 675
+total_entries: 678
+total_tokens: ~346215
+latest_id: 678
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,9 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 678 | 2026-10-14 | changed | c8e740fb45f46223 | correction,security,verify | 677 |
+| 677 | 2026-10-14 | changed | 4fb8d57c11599361 | correction,verify,handoff | 676 |
+| 676 | 2026-10-14 | in-progress | a771d58323ce17b2 | registry,ci,security,verify,+ | 675 |
 | 675 | 2026-10-14 | changed | 920bf5a3ffaa02a0 | audit,docs,handoff,status,+ | 674 |
 | 674 | 2026-10-14 | in-progress | 3464c8ff3bfe6b83 | audit,docs,wiki,verify,+ | 673 |
 | 673 | 2026-10-14 | in-progress | 55de4dc260e9d2db | audit,ci,continuity,docs,+ | none |
@@ -729,7 +732,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=86 latest=#673, #672, #669, #667, #664
+- ci: count=87 latest=#676, #673, #672, #669, #667
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -757,7 +760,7 @@ compact: true
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=27 latest=#672, #654, #639, #638, #632
+- correction: count=29 latest=#678, #677, #672, #654, #639
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -823,7 +826,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=133 latest=#675, #673, #672, #669, #667
+- handoff: count=135 latest=#677, #676, #675, #673, #672
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -934,7 +937,7 @@ compact: true
 - publication: count=1 latest=#533
 - publish: count=1 latest=#410
 - pypi: count=3 latest=#485, #484, #350
-- pyproject: count=22 latest=#673, #667, #666, #665, #642
+- pyproject: count=23 latest=#676, #673, #667, #666, #665
 - qr: count=1 latest=#307
 - quality: count=23 latest=#421, #420, #419, #417, #416
 - query: count=2 latest=#319, #318
@@ -951,7 +954,7 @@ compact: true
 - refactor: count=1 latest=#284
 - reference: count=1 latest=#437
 - regex: count=1 latest=#317
-- registry: count=12 latest=#673, #672, #669, #667, #582
+- registry: count=13 latest=#676, #673, #672, #669, #667
 - release: count=8 latest=#670, #486, #485, #484, #476
 - repo-ledger: count=1 latest=#304
 - reproduce: count=1 latest=#411
@@ -975,7 +978,7 @@ compact: true
 - scripts: count=1 latest=#343
 - sdk: count=2 latest=#541, #499
 - search: count=17 latest=#612, #276, #242, #240, #181
-- security: count=115 latest=#652, #650, #649, #644, #635
+- security: count=117 latest=#678, #676, #652, #650, #649
 - self-improvement: count=9 latest=#332, #312, #302, #297, #293
 - self-probe: count=1 latest=#312
 - selfhost: count=8 latest=#486, #485, #484, #483, #482
@@ -1026,7 +1029,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=476 latest=#674, #673, #672, #668, #667
+- verify: count=479 latest=#678, #677, #676, #674, #673
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1043,7 +1046,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 77
+- changed: 79
 - done: 541
-- in-progress: 35
+- in-progress: 36
 - planned: 22

@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-14-branch-recovery-closeout
 supersedes: 2026-10-14-factual-doc-recovery
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#675
 ---
 

@@ -22,18 +22,19 @@ do not co-install older distributions that own those same paths. The candidate
 includes the server/TUI dependency set by default. `[server,dash]` remains a
 compatible extra selection rather than a prerequisite for normal operation.
 
-## Current blockers
+## Publisher boundary
 
-- The candidate's private-upload tripwire is removed after independent review
+- The candidate's private-upload tripwire was removed after independent review
   of the owner-authorized Suite membership and installed behavior. The
   [manifest guard](../tools/release/verify_suite_manifest.py) checks exact source
   and archive membership; the license terms remain unchanged. Rebuild and
-  verify the exact final files after a metadata change. Publisher access,
-  uploaded-file verification, and broader product acceptance remain separate;
-  archive scans alone do not establish them. Keep files local until the exact
-  candidate and TestPyPI publishing access qualify.
-- No authenticated TestPyPI publisher was established in this preparation
-  session. A GitHub repository connection is not TestPyPI project ownership.
+  verify the exact final files after any eligible source or metadata change.
+- `.github/workflows/publish-testpypi.yml` is the only TestPyPI publisher. It is
+  manual, main-only, and accepts the exact `seam-suite` package, canonical
+  project version, and full current protected-main commit. The repository
+  secret `TEST_PYPI` is exposed only to its upload step as a Twine token.
+  Presence of the secret does not by itself establish project ownership; the
+  first upload and public readback provide that evidence.
 - The GitHub release workflows accept canonical Python versions, including
   `2.4.1rc1`, while retaining their operator and exact-artifact controls. They
   do not upload to TestPyPI; do not dispatch them as a test-registry upload.
@@ -86,6 +87,34 @@ changed implementation requires refreshed membership review.
 8. Record test results and remaining limitations. Stop at the test registry.
    Production publication is a separate decision and cannot be inferred from
    a passing test upload, package rename, or a merged documentation PR.
+
+## Manual TestPyPI run
+
+Dispatch **Publish reviewed Suite candidate to TestPyPI** from `main` with:
+
+- `package`: `seam-suite`
+- `version`: the exact version in `pyproject.toml` (currently `2.4.1rc1`)
+- `commit_sha`: the full current `main` commit shown by GitHub
+
+The credential-free preparation job binds those inputs to checkout HEAD,
+workflow SHA, and current remote `main`; runs the six canonical continuity
+gates, Suite manifest guard, and secret scan; builds one wheel and one sdist;
+and runs Twine, archive, manifest, default-install, and `pip check` verification
+for both formats. Its receipt records source identity, artifact names, sizes,
+SHA-256 values, and the Suite manifest digest. The publication job downloads
+that immutable Actions artifact and revalidates the receipt and current remote
+`main` immediately before invoking Twine with the fixed
+`https://test.pypi.org/legacy/` endpoint and exact two paths.
+
+After upload, the workflow polls the version-specific TestPyPI JSON endpoint.
+It requires exactly the receipted filenames, byte sizes, and SHA-256 values,
+accepts downloads only from the approved TestPyPI file host over HTTPS, and
+checks the downloaded bytes before fresh wheel and sdist installs. Dependencies
+for all install smokes come only from the explicit trusted production PyPI
+dependency index; the Suite candidate itself always comes from a validated
+local file. Any partial upload, ownership conflict, stale `main`, bad redirect,
+metadata conflict, missing secret, or polling exhaustion fails the run for
+operator review. The workflow never deletes or replaces a remote release.
 
 ## Private SDK delivery
 

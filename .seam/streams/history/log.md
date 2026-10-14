@@ -22055,3 +22055,51 @@ tokens: 292
 ---
 Record admitted recovery and exact final audit state without changing runtime/package bytes. Source304 mergedffd4e98, exact independent-qualified b5110c8 tree; all3required checks/package smoke pass. Website35 merged6b6ef1d, all8served resources match after only Cloudflare email normalization; production Pages/worker pass. Original277/278 and website14/31 retired after main/live admission. Closed14predates final acronym correction, so exact tip preserved by signed archive tag; other3pullrefs exact. All30original branches accounted for:15retired/15retained (11source/fourwebsite) at unchanged audited tips. Every remaining useful slice mapped to12recovery lanes; next bounded runtime work isR2batching292. Worktree byte-proof, signature/receipt, final source checks/site evidence committed durably; source worktree/delivery aliases/previewserver finished, no stashes consumed. Fresh v5qualification remains current, no uploads/provider calls. Keep TestPyPI, PG293, security290/262, About287 and website baseline36/intermittent37 explicit; no full-suite or email delivery claim. Supersedes674current operating state; earlier snapshots/evidence remain immutable.
 ---END-ENTRY-#675---
+
+---BEGIN-ENTRY-#676---
+id: 676
+date: 2026-10-14T11:53:04Z
+agent: codex
+status: in-progress
+topics: registry, ci, security, verify, handoff, pyproject
+commits: pending
+refs: .github/workflows/publish-testpypi.yml,tools/release/testpypi_release.py,tests/audit/test_testpypi_release.py,docs/TESTPYPI.md,docs/handoffs/2026-10-14-testpypi-publisher-ready.md
+supersedes: 675
+tokens: 297
+---
+Operator configured TEST_PYPI in GitHub Actions and authorized TestPyPI-only publication. Licensing is finished (PR #286). Current-main branch-recovery closeout PR #305 is integrated; batching R2/issue #292 remains the next runtime recovery.
+
+Dedicated main-only publisher binds exact current source SHA, wheel/sdist membership, SHA256 receipt and transfer digest. Token is scoped to noninteractive TestPyPI upload; public JSON filenames/sizes/hashes, restricted downloads and fresh downloaded installs are mandatory. Initial independent review identified receipt-binding and version-endpoint-schema defects; successor review passes after fixes and final source recheck. Witnessed review RED/GREEN remains in bounded session state.
+
+Verification scope: /tmp/seam-testpypi-tools/bin/python -m pytest tests/audit/test_testpypi_release.py tests/audit/test_suite_manifest.py -q: 73 passed; publisher-only slice: 33 passed. Explicit locally built wheel/sdist pass strict Twine, exact manifest and archive safety/secret scans. Each separate clean install passes all eight tests/package/smoke_installed_suite.py cases and uv pip check. No full-suite claim. Runtime membership and license terms are unchanged.
+
+No upload yet. Next required state is protected PR admission and exact-main dispatch, then actual public hash readback and downloaded-install acceptance. Existing registry versions, production PyPI, private SDK, paid providers and unrelated worktrees remain excluded. Original stale primary checkout and its pre-existing files are preserved.
+---END-ENTRY-#676---
+
+---BEGIN-ENTRY-#677---
+id: 677
+date: 2026-10-14T11:53:56Z
+agent: codex
+status: changed
+topics: correction, verify, handoff
+commits: pending
+refs: docs/handoffs/2026-10-14-testpypi-publisher-ready.md,tests/audit/test_suite_manifest_drift.py
+supersedes: 676
+tokens: 112
+---
+HISTORY#676 names the manifest audit command incorrectly: the actual passing worker command used tests/audit/test_suite_manifest_drift.py, alongside tests/audit/test_testpypi_release.py, for 73 passing cases. The nonexistent test_suite_manifest.py path is not evidence. The current handoff now names the real suite. Initial closeout stopped at reference review pending for root continuity edits; those edits are explicitly reviewed and acknowledged before successor closeout. No upload has occurred. All publisher, protected-admission and registry acceptance conditions in HISTORY#676 remain required.
+---END-ENTRY-#677---
+
+---BEGIN-ENTRY-#678---
+id: 678
+date: 2026-10-14T11:55:08Z
+agent: codex
+status: changed
+topics: correction, security, verify
+commits: pending
+refs: tools/release/testpypi_release.py,.github/workflows/publish-testpypi.yml
+supersedes: 677
+tokens: 110
+---
+Independent continuity review clarifies HISTORY#676: the Actions transfer digest is recorded and format-checked, not independently enforced by the helper. Fail-closed artifact-byte integrity is enforced through the independently pinned receipt SHA256 and its exact wheel/sdist hashes. Current handoff/status already describe that receipt binding accurately. Review also independently collected 33 publisher and 40 manifest-drift cases; the root reran both named suites successfully after advancing to PR #305 main. All publisher authority, preparation scope and pending-publication conditions remain unchanged; no upload has occurred.
+---END-ENTRY-#678---
