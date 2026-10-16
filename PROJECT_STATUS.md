@@ -5,24 +5,32 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-10-16 — original PR backlog reconciled; completion safeguards added.**
-All eight original source/site PRs are closed without merging deferred or unsafe
-candidates. Their exact tips remain preserved and unfinished acceptance stays
-in recovery issues; website locked proposals remain in the private website
-repository. See the [disposition receipt](docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json)
-and [PR completion policy](docs/PR_LIFECYCLE.md). This infrastructure slice adds
-one-active-PR enforcement, worktree-aware hooks and exact-main merge verification.
-Independent qualification, protected admission and post-merge proof retain
-their exact evidence; candidate tests alone do not establish them. See
-HISTORY#684 and [the current handoff](docs/handoffs/INDEX.md).
+**2026-10-16 — protocol retrospective and chronology repair.**
+The [bounded two-week audit](docs/audits/2026-10-16-protocol-retrospective.md)
+verified required CI before merge and matching candidate/merge trees for15
+reviewed source PRs. It found missing timestamp-order enforcement in the
+existing merge verifier, stale current licensing/queue records and a historical
+PR305 qualification-announcement discrepancy. The repair requires aware check
+start ≤ completion ≤ qualification ≤ merge before local gates or success output.
+Historical missing evidence stays Partial; final green checks do not prove all
+prior startup/admission phases. See HISTORY#685 and the
+[current handoff](docs/handoffs/INDEX.md).
 
-The operator's product priority remains the finite current-built documentation
-and licensing review/signoff, then conditional independent SEAM Doctor.
-Licensing and the dated TestPyPI delivery below are preserved completed scopes.
-Batching, skills, reports and formation recovery remain tracked and held for
-explicit resumption. Older batching-next headlines below do not supersede that
-operator order. No production publication, deployment or paid evaluation is
-part of the PR cleanup.
+Licensing is completed through PR286/288. Suite2.4.1rc1 TestPyPI delivery and
+its downloaded-install acceptance remain completed in HISTORY#680. Finish this
+finite protocol repair through independent qualification, protected merge and
+actual exact-main verification, then the remaining current-built documentation
+review/disposition packet; independent Doctor follows signoff and its existing
+review gates. Formation, batching, skills, reports and comparator recovery stay
+held. Do not reopen licensing or add future features to the documentation scope.
+
+The original eight source/site PRs remain closed without merge, with exact tips
+preserved and unfinished acceptance in recovery issues. PR311's original
+backlog/hooks/check delivery remains preserved while chronology enforcement is
+expanded here. See the [disposition receipt](docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json)
+and [PR completion policy](docs/PR_LIFECYCLE.md). No production publication,
+deployment, provider/model execution or license change belongs to this repair.
+Older headlines below retain their dated historical state.
 
 **2026-10-14 — Suite TestPyPI publication and downloaded installs verified.**
 [seam-suite 2.4.1rc1](https://test.pypi.org/project/seam-suite/2.4.1rc1/) is live.

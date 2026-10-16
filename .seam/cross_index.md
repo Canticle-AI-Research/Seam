@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 750
+total_events: 751
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-29T03:31:27Z | history:490:387b5f03 | session-event | done | bundle, ci, graph, handoff, pgvector, retrieval, security... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-29-stable-packages-liv... |
 | 2026-07-29T04:50:58Z | history:491:e00dcf50 | session-event | changed | graph, g3, node-vectors, retrieval, mcp | docs/roadmap/GRAPH_MEMORY_MATURITY.md,docs/REASONING_GRAPH.md |
 | 2026-07-29T05:39:28Z | history:492:d051142c | session-event | changed | graph, g3, node-vectors, semantic-seeding, retrieval | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-29T06:21:50Z | history:493:3a2ced3b | session-event | changed | extraction, derived-facts, benchmarks, ollama | docs/kb/seam-internals/derived-facts-grounded-clm.md |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-14T12:24:33Z | history:682:d993d1c7 | session-event | changed | correction, verify | tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpy... |
 | 2026-10-14T12:25:24Z | history:683:ea43c5a2 | session-event | changed | correction, verify | tests/package/smoke_installed_suite.py,docs/audits/evidence/2026-10-14-testpy... |
 | 2026-10-16T13:29:46Z | history:684:51b044cc | session-event | changed | ci, git-hooks, protocol, verify, reconcile, docs, handoff... | docs/PR_LIFECYCLE.md,docs/audits/evidence/2026-10-16-pr-closeout/original-pr-... |
+| 2026-10-16T20:05:25Z | history:685:f0ecb250 | session-event | changed | audit, protocol, ci, gates, verify, docs, correction, con... | docs/audits/2026-10-16-protocol-retrospective.md,tools/ci/verify_merge.py,tes... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0550.cross.md | 2026-04-15T00:00:00Z..2026-07-29T03:09:09Z | 550 | (multi) | (multi) |
+| 0001-0551.cross.md | 2026-04-15T00:00:00Z..2026-07-29T03:31:27Z | 551 | (multi) | (multi) |

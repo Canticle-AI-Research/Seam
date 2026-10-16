@@ -133,10 +133,11 @@ not have to infer what works from directory names alone.
   `verify_private_artifacts.py` separately opens the built private wheel and
   sdist, rejects unsafe/non-regular/credential-shaped members, and applies the
   canonical content-free secret scanner before GitHub Release upload.
-- CURRENT BUILD. Root `pyproject.toml` defines `seam-suite` 2.4.1rc1 (unpublished candidate), the full
+- CURRENT BUILD. Root `pyproject.toml` defines `seam-suite` 2.4.1rc1, the full
   reviewed runtime with readable MIRL and HS/1 source and early-access metadata.
-  It is prepared for owner-authorized TestPyPI qualification; publisher access
-  and downloaded-install verification remain separate from source eligibility.
+  HISTORY#680 records its completed TestPyPI delivery and downloaded-install
+  verification. That package-channel acceptance does not establish production
+  PyPI publication, hosted deployment, or hosted-production qualification.
   Retired compiled self-host and API-only shim tooling must not be restored
   implicitly. The [product map](PRODUCTS.md) defines the Suite/API direction;
   [packaging status](status/packaging-licensing.md) owns artifact migration.

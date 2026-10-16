@@ -20,7 +20,9 @@ def _git(repo: Path, *args: str) -> str:
     ).stdout.strip()
 
 
-def _merged_repo(tmp_path: Path, *, gate_stubs: bool = False) -> tuple[Path, str, str]:
+def _merged_repo(
+    tmp_path: Path, *, gate_stubs: bool = False, gate_sentinel: Path | None = None
+) -> tuple[Path, str, str]:
     repo = tmp_path / "merged"
     repo.mkdir()
     _git(repo, "init", "-q", "-b", "main")
@@ -40,7 +42,13 @@ def _merged_repo(tmp_path: Path, *, gate_stubs: bool = False) -> tuple[Path, str
             "tools/docs/verify_wiki.py", "tools/docs/sync_references.py",
             "tools/docs/verify_audit_claims.py", "tools/release/verify_suite_manifest.py",
         ):
-            (repo / module).write_text("")
+            body = ""
+            if gate_sentinel is not None:
+                body = (
+                    "from pathlib import Path\n"
+                    f"Path({str(gate_sentinel)!r}).write_text('ran')\n"
+                )
+            (repo / module).write_text(body)
     (repo / "README.md").write_text("base\n")
     _git(repo, "add", ".")
     _git(repo, "commit", "-qm", "base")
@@ -98,7 +106,7 @@ def _qualification(tmp_path: Path, candidate: str) -> tuple[Path, Path]:
     receipt = {
         "schema": "seam-agent-closeout-receipt/v1", "request_id": request_id,
         "request_sha256": request["request_sha256"], "session_id": "merge-test",
-        "completed_at": "2026-10-16T12:05:00Z", "status": "QUALIFIED",
+        "completed_at": "2026-10-16T12:09:00Z", "status": "QUALIFIED",
         "supersedes_request_ids": [],
         "scope": {"head": candidate, "diff_fingerprint": fingerprint, "matches_request": True},
         "tdd": {"status": "TDD_NOT_REQUIRED", "evidence": ["not runtime"]},
@@ -236,12 +244,163 @@ def test_verify_merge_accepts_exact_candidate_from_valid_fork(tmp_path: Path) ->
     assert result.returncode == 0, result.stderr
 
 
+def test_verify_merge_rejects_qualification_completed_after_merge(tmp_path: Path) -> None:
+    gate_sentinel = tmp_path / "gate-ran"
+    repo, candidate, merged = _merged_repo(
+        tmp_path, gate_stubs=True, gate_sentinel=gate_sentinel
+    )
+    request, receipt = _qualification(tmp_path, candidate)
+    receipt_value = json.loads(receipt.read_text())
+    receipt_value["completed_at"] = "2026-10-16T12:11:00Z"
+    receipt.write_text(json.dumps(receipt_value))
+    (repo / "README.md").write_text("dirty merged worktree\n")
+
+    result = _run(
+        tmp_path / "run",
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged),
+        _checks(candidate),
+        qualification=(request, receipt),
+    )
+
+    assert result.returncode == 1
+    assert "qualification completed after pull request merge" in result.stderr
+    assert not gate_sentinel.exists()
+
+
 def test_verify_merge_rejects_missing_or_stale_required_check(tmp_path: Path) -> None:
     repo, candidate, merged = _merged_repo(tmp_path)
     checks = _checks(candidate)[:-1]
     result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
     assert result.returncode == 1
     assert "locomo-quickstart-bil2" in result.stderr
+
+
+def test_verify_merge_rejects_required_check_completed_before_it_started(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    checks = _checks(candidate)
+    checks[0]["completed_at"] = "2026-10-16T12:07:00Z"
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
+
+    assert result.returncode == 1
+    assert "required check completed before it started: repo-hygiene" in result.stderr
+
+
+def test_verify_merge_rejects_required_check_completed_after_qualification(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    checks = _checks(candidate)
+    checks[0]["completed_at"] = "2026-10-16T12:09:01Z"
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
+
+    assert result.returncode == 1
+    assert "required check completed after qualification: repo-hygiene" in result.stderr
+
+
+def test_verify_merge_accepts_equal_instants_fractional_seconds_and_offsets(
+    tmp_path: Path,
+) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    request, receipt = _qualification(tmp_path, candidate)
+    receipt_value = json.loads(receipt.read_text())
+    receipt_value["completed_at"] = "2026-10-16T07:09:00-05:00"
+    receipt.write_text(json.dumps(receipt_value))
+    checks = _checks(candidate)
+    for check in checks:
+        check["started_at"] = "2026-10-16T07:08:00.500000-05:00"
+        check["completed_at"] = "2026-10-16T12:09:00.000000+00:00"
+    merged_at = "2026-10-16T12:09:00.000001Z"
+
+    result = _run(
+        tmp_path / "run",
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged, merged_at=merged_at),
+        checks,
+        qualification=(request, receipt),
+    )
+
+    assert result.returncode == 0, result.stderr
+    evidence = json.loads((tmp_path / "run" / "evidence.json").read_text())
+    assert evidence["merged_at"] == merged_at
+    assert evidence["qualification"]["receipt_completed_at"] == "2026-10-16T07:09:00-05:00"
+    assert evidence["required_checks"][0]["started_at"] == "2026-10-16T07:08:00.500000-05:00"
+    assert evidence["required_checks"][0]["completed_at"] == "2026-10-16T12:09:00.000000+00:00"
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("started_at", None),
+        ("started_at", "not-a-time"),
+        ("started_at", "2026-10-16T12:08:00"),
+        ("completed_at", None),
+        ("completed_at", "not-a-time"),
+        ("completed_at", "2026-10-16T12:09:00"),
+    ],
+)
+def test_verify_merge_rejects_invalid_required_check_times_before_gates(
+    tmp_path: Path, field: str, value: str | None
+) -> None:
+    gate_sentinel = tmp_path / "gate-ran"
+    repo, candidate, merged = _merged_repo(
+        tmp_path, gate_stubs=True, gate_sentinel=gate_sentinel
+    )
+    checks = _checks(candidate)
+    checks[0][field] = value
+    evidence_path = tmp_path / "evidence.json"
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
+
+    assert result.returncode == 1
+    assert not gate_sentinel.exists()
+    assert not evidence_path.exists()
+
+
+@pytest.mark.parametrize(
+    "source,value",
+    [
+        ("qualification", None),
+        ("qualification", "not-a-time"),
+        ("qualification", "2026-10-16T12:09:00"),
+        ("merge", None),
+        ("merge", "not-a-time"),
+        ("merge", "2026-10-16T12:10:00"),
+    ],
+)
+def test_verify_merge_rejects_invalid_phase_times_before_gates(
+    tmp_path: Path, source: str, value: str | None
+) -> None:
+    gate_sentinel = tmp_path / "gate-ran"
+    repo, candidate, merged = _merged_repo(
+        tmp_path, gate_stubs=True, gate_sentinel=gate_sentinel
+    )
+    request, receipt = _qualification(tmp_path, candidate)
+    pr = _pr(candidate, merged)
+    if source == "qualification":
+        receipt_value = json.loads(receipt.read_text())
+        receipt_value["completed_at"] = value
+        receipt.write_text(json.dumps(receipt_value))
+    else:
+        pr["merged_at"] = value
+
+    result = _run(
+        tmp_path / "run",
+        repo,
+        candidate,
+        merged,
+        pr,
+        _checks(candidate),
+        qualification=(request, receipt),
+    )
+
+    assert result.returncode == 1
+    assert not gate_sentinel.exists()
+    assert not (tmp_path / "run" / "evidence.json").exists()
 
 
 def test_verify_merge_rejects_squash_or_rebase_shape(tmp_path: Path) -> None:
@@ -364,12 +523,25 @@ def test_verify_merge_rejects_a_failing_canonical_gate(tmp_path: Path) -> None:
     assert "canonical gate failed" in result.stderr
 
 
-def test_verify_merge_rejects_newer_pending_run_even_when_an_older_run_succeeded(tmp_path: Path) -> None:
+@pytest.mark.parametrize(
+    "status,conclusion,started_at,completed_at",
+    [
+        ("in_progress", None, "2026-10-16T12:10:00Z", None),
+        ("completed", "failure", "2026-10-16T12:08:30Z", "2026-10-16T12:08:45Z"),
+    ],
+)
+def test_verify_merge_rejects_newer_non_successful_run_even_when_an_older_run_succeeded(
+    tmp_path: Path,
+    status: str,
+    conclusion: str | None,
+    started_at: str,
+    completed_at: str | None,
+) -> None:
     repo, candidate, merged = _merged_repo(tmp_path)
     checks = _checks(candidate)
     checks.append({
-        "name": "repo-hygiene", "head_sha": candidate, "status": "in_progress",
-        "conclusion": None, "started_at": "2026-10-16T12:10:00Z", "completed_at": None,
+        "name": "repo-hygiene", "head_sha": candidate, "status": status,
+        "conclusion": conclusion, "started_at": started_at, "completed_at": completed_at,
         "app": {"slug": "github-actions", "id": 15368},
     })
 
@@ -377,6 +549,24 @@ def test_verify_merge_rejects_newer_pending_run_even_when_an_older_run_succeeded
 
     assert result.returncode == 1
     assert "stale or unsuccessful: repo-hygiene" in result.stderr
+
+
+def test_verify_merge_rejects_newer_success_completed_after_qualification(
+    tmp_path: Path,
+) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    checks = _checks(candidate)
+    checks.append({
+        "name": "repo-hygiene", "head_sha": candidate, "status": "completed",
+        "conclusion": "success", "started_at": "2026-10-16T12:09:01Z",
+        "completed_at": "2026-10-16T12:09:02Z",
+        "app": {"slug": "github-actions", "id": 15368},
+    })
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
+
+    assert result.returncode == 1
+    assert "required check completed after qualification: repo-hygiene" in result.stderr
 
 
 def test_verify_merge_enforces_every_live_ruleset_context(tmp_path: Path) -> None:

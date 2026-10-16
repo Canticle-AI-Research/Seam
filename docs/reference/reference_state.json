@@ -12,10 +12,10 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "190996b4df4cbec73ac6a74e073ca0466786b2e21e310af113e69ab40ccbfba7",
+    "PROJECT_STATUS.md": "45b75a506f21f2591b64eb7afe24367a95417d9c38c173753c45aa459ef89f91",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
-    "REPO_LEDGER.md": "787b26e6ee69debabf093ce7d65d610cb89e6c6663fc94053ea66b9374e7c0e7",
+    "REPO_LEDGER.md": "90b98409fc3694b2f5e5cad2064e17ac794467da5e43581d97fdfe132968c61e",
     "ROADMAP.md": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
@@ -38,7 +38,7 @@
     "docs/BENCHMARK_SOP.md": "0c219eac21b189d2af694d67588c1875f69c950b230dc1b0acebe3595cffe901",
     "docs/CLAUDE_CODE_BENCHMARKS.md": "434dbcdfcfbf447c31c55c4f5aa875f23b50595b219a0797a9849aae58a73e6d",
     "docs/CLAUDE_MEMORY.md": "a5eb16bc40a81b5e9b69f7dab5b825d7d264bae7d86f2dd8a75bce7316d3f003",
-    "docs/CODE_LAYOUT.md": "fe95bf4e5cd8aea6734a8c7e95fcfe5885194f8a46d1799949e458e947790224",
+    "docs/CODE_LAYOUT.md": "1bd48650ed76b49237e6e1e97f0eada376301c8fbeffc648276b3935b51dc77a",
     "docs/DATA_ROUTING.md": "dbe5ef759ca26b3c87ed2ea488616373a08f67b483a5f0b0d2c88d7202e44d03",
     "docs/DOCUMENTATION_MAP.md": "c1ede398175660823def990a01c511d9e529fdd784cf176d8060f320157e8d89",
     "docs/DOCUMENTATION_SAFEGUARDS.md": "b764f83e62661e993cc9f29ee7563c51a64bf8965e1efa7c312cedef226dcbdf",
@@ -52,7 +52,7 @@
     "docs/PGVECTOR_LOCAL.md": "0fcb9dbdd693f95386354216e62a31e76cd1e42efdf2200d9e1ea87fe7220bbd",
     "docs/PRODUCTS.md": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d",
     "docs/PROTECTION_MODEL.md": "f85c927b2d8fdb5d43e2133be65f57f7d3b2a05220394992aa5e70b37ef78edb",
-    "docs/PR_LIFECYCLE.md": "1aa89f437af37d117d5fd9559b449a61b491fd051e7616d47c0cd8280bc70518",
+    "docs/PR_LIFECYCLE.md": "4a381cbb0643ed2664d7d5c9dd77d57b708452c2dd8f9d8a8983fee823c97a42",
     "docs/PUBLIC_SDK_API.md": "cc79e4124a6e93304063b08da598a7e9d1f41e03fc46b67da5a4d3cdc1db4a3c",
     "docs/RAG_ARCHITECTURE.md": "7eb17b8b4d3e89c6c6813317a11757a7f67c917d749dcabd24738c5cb55304f9",
     "docs/README.md": "332ab5b127ac8f3a35481091a06c48a5b4576ee3d534a983f8a557a07f245b59",
@@ -81,7 +81,7 @@
     "docs/SOP_INDEX.md": "9365416636450044f49c7b647a2a4391fc9ead40a420cf6d36b4fb54187aeb6b",
     "docs/SOP_MODEL_INTEGRATION.md": "591a4a46cf806f69ba02176ae49d8ca5ec63aeebffa9f7d2b6ef4403a685caf5",
     "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md": "c00f053762e3a0081be8ce5cff17e7e58f872936419c2584e532a5b5b799be00",
-    "docs/SOP_SEAM_CODEX_WORKFLOW.md": "8d03fcb8e2d8c3805ded89e84856f0d18d41a0fc253945ece808be35639d8dcc",
+    "docs/SOP_SEAM_CODEX_WORKFLOW.md": "63b516fd0ebc66e5731a9e3bc4b0d819e2676a8a673d54bebe9e6cf4131a1841",
     "docs/SOP_SEAM_SELF_HOST_WHEEL.md": "3128a1faf7a39c8dec401d7bf4ac9e95de63acf75cb9570217606f5a3bd5abb5",
     "docs/SOP_TRACK_K_BIL_PHASE1_DEEPSEEK.md": "228af48c1bcd2b158c4984d8ca6a88fd054de0315579372dc689c78f30c54f89",
     "docs/SOP_TRACK_K_BIL_PHASE1_REPAIR_HANDOFF.md": "120072a6b4f9139ebc25cb32cff764f5992cb8b8ce477ba570f01d736a8f0f96",
@@ -96,7 +96,7 @@
     "docs/TERMINOLOGY.md": "f88a8c1bfa8c777b1acee1860a06fa8b59a6394193a79298cf82df0b3eda1cce",
     "docs/TESTPYPI.md": "a7623e6efb139bc0c19fbac9edbdc8afb0391754aa37d4c456dd3b3995d842ef",
     "docs/adr/0001-canonical-store-lifetime-lease.md": "966618ae08229dbbd3c5d9722a1c7f3005c3ead9831b34bbb0d42c2e7e28915e",
-    "docs/audits/INDEX.md": "3d12fc167ec4020ae4b1c714900db9009a74d333049bace70f861182b5b8f3eb",
+    "docs/audits/INDEX.md": "a82b5dcfc0bda2980c98c3c851f5f23dac85a7b86fdc821738e2c013f39ae0e1",
     "docs/engineering/01_ARCHITECTURE.md": "f215d14252000a81a6ad2815ef5a1b7892c41d48afb951952b4babf29cdb6b00",
     "docs/engineering/05_SECURITY_ARCHITECTURE.md": "566240c3bbea869238bd4ea749b10c6090c5aeb196d55a8d5655c75a61063fc3",
     "docs/engineering/06_ENGINEERING_CHANGE_SOP.md": "ecaffbf1827e6350078df33af00427cb9efef6bf743d10effb80e02eb79ae191",
@@ -113,7 +113,7 @@
     "docs/engineering/templates/README.md": "b60e62bca4f20c51317c125f7e8f0c4f272f33e41d4daa90c7f55873e3a94d3c",
     "docs/engineering/templates/THREAT_MODEL_DELTA.md": "d98ed44d5da7d3d32fa218ae2499e93e818ab9f124d1961b19bdf2899911fb0e",
     "docs/errors.md": "eb7b5a7b697df84a27f3f91d0c6adf50d5a22c1f3e571008e56eea8a37ff99bb",
-    "docs/handoffs/INDEX.md": "87b0ce0c15cc7161894c43b46a49df411c1ceed05b85aec076d0f3a65b24e39a",
+    "docs/handoffs/INDEX.md": "ca789da1a070f8374ff78c4af6dc7c768f779036e23d364e564e98fd9c2389e7",
     "docs/howto/README.md": "1503b123eeea2cdc9b38ccca4b826cefca5fee10a9de557e116cdcc859b8e09d",
     "docs/kb/README.md": "64b5d293ac1b0c699a9cca5302a8432f5ad8c522f6186c411c391ecc2e2904d4",
     "docs/kb/eval-methodology/benchmark-traps.md": "6bfaf8c57c9387d4d35e35e51e3516cb835701dfedc157b22a0f8f3dc0afa087",
@@ -234,7 +234,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "190996b4df4cbec73ac6a74e073ca0466786b2e21e310af113e69ab40ccbfba7",
+      "document_sha256": "45b75a506f21f2591b64eb7afe24367a95417d9c38c173753c45aa459ef89f91",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -254,7 +254,7 @@
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "787b26e6ee69debabf093ce7d65d610cb89e6c6663fc94053ea66b9374e7c0e7",
+      "document_sha256": "90b98409fc3694b2f5e5cad2064e17ac794467da5e43581d97fdfe132968c61e",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -395,7 +395,7 @@
     },
     "docs/CODE_LAYOUT.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "fe95bf4e5cd8aea6734a8c7e95fcfe5885194f8a46d1799949e458e947790224",
+      "document_sha256": "1bd48650ed76b49237e6e1e97f0eada376301c8fbeffc648276b3935b51dc77a",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -525,7 +525,7 @@
     },
     "docs/PR_LIFECYCLE.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "1aa89f437af37d117d5fd9559b449a61b491fd051e7616d47c0cd8280bc70518",
+      "document_sha256": "4a381cbb0643ed2664d7d5c9dd77d57b708452c2dd8f9d8a8983fee823c97a42",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -736,7 +736,7 @@
     },
     "docs/SOP_SEAM_CODEX_WORKFLOW.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "8d03fcb8e2d8c3805ded89e84856f0d18d41a0fc253945ece808be35639d8dcc",
+      "document_sha256": "63b516fd0ebc66e5731a9e3bc4b0d819e2676a8a673d54bebe9e6cf4131a1841",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -836,7 +836,7 @@
     },
     "docs/audits/INDEX.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "3d12fc167ec4020ae4b1c714900db9009a74d333049bace70f861182b5b8f3eb",
+      "document_sha256": "a82b5dcfc0bda2980c98c3c851f5f23dac85a7b86fdc821738e2c013f39ae0e1",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -867,7 +867,7 @@
     },
     "docs/handoffs/INDEX.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "87b0ce0c15cc7161894c43b46a49df411c1ceed05b85aec076d0f3a65b24e39a",
+      "document_sha256": "ca789da1a070f8374ff78c4af6dc7c768f779036e23d364e564e98fd9c2389e7",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

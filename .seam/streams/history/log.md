@@ -22247,3 +22247,54 @@ formation/batching/skills/research remain held for explicit resumption. No paid
 provider/model/service execution, production publication, deployment, new license
 decision, original branch deletion or unrelated dirty-worktree mutation.
 ---END-ENTRY-#684---
+
+---BEGIN-ENTRY-#685---
+id: 685
+date: 2026-10-16T20:05:25Z
+agent: codex
+status: changed
+topics: audit, protocol, ci, gates, verify, docs, correction, continuity
+commits: pending
+refs: docs/audits/2026-10-16-protocol-retrospective.md,tools/ci/verify_merge.py,tests/audit/test_verify_merge.py,docs/handoffs/2026-10-16-protocol-retrospective.md
+supersedes: 684
+tokens: 736
+---
+Bounded October2–16 protocol retrospective and existing merge-verifier repair.
+Independent review inspected exact-head required checks and immutable Git topology
+for source PRs279,281,283,284,285,286,288,289,303,304,305,307,308,309,311:45selected
+required checks succeeded before merge;15candidate second-parent/equal-tree mappings.
+No blanket historical startup/TDD/prewrite/receipt or full-product claim follows.
+PR305's public qualification announcement predates required CI; raw receipt/later
+successor not recovered in bounded known roots, retained as Partial evidence gap.
+PR307 first publisher continuity failure remains dated;308 repair and680 TestPyPI
+and downloaded-install acceptance remain completed. Licensing286/288 is completed,
+not next. Four stale merged PR bodies corrected/read back with exact final heads;
+tracker task/queue/baseline contradictions corrected and existing monitor prompt
+now cross-checks active records without changing cadence or execution authority.
+
+Existing tools/ci/verify_merge.py now rejects malformed/naive/missing or misordered
+check start/completion, qualification and merge times before local Git/gates/output.
+Aware UTC comparison preserves original strings, latest-run fail-closed selection,
+provenance and evidence schema. Actual first public CLI RED accepted after-merge
+qualification before implementation; three witnessed red/green cycles recorded.
+Builder and independent implementation reviewer each passed32verifier cases.
+Root affected command: .venv/bin/python -m pytest tests/audit/test_verify_merge.py
+ tests/audit/test_pr_lifecycle.py tests/audit/test_local_gates_match_ci.py
+ tests/audit/test_closeout_queue.py tests/audit/test_session_end_agent_closeout.py -q
+passed145collected cases. First mistyped test filename invocation exit4 before
+execution is retained separately, not treated as a regression or hidden.
+
+Fresh prewrite inspection covered21original worktrees/four existing queue roots;
+new administrative request c26a6917 independently QUALIFIED19:49:04Z and admitted
+before target creation/source edits, receipt cff92216. Primary35records comprise
+20qualifying+15validsuperseded, pending0 at that boundary; old products not qualified.
+Sol owned bounded code/tests/protocol pointers; root owned audit/current continuity.
+Independent implementation review PASS; integrated assurance and canonical closeout
+results accompany exact source evidence. Candidate phase remains separate from
+required hosted CI, subsequent release qualification, protected merge and actual
+resulting-main checks. No production publication, services/providers, license
+changes or original deferred feature merges. Remaining docs review follows finite
+protocol delivery; Doctor conditional, formation/batching/research held. Preserve
+all original worktrees, recovery refs and immutable receipts. See bounded audit,
+evidence manifest and current indexed handoff for exact limits and remaining exits.
+---END-ENTRY-#685---

@@ -1,0 +1,767 @@
+{
+  "schema": "seam-pr-protocol-retrospective-evidence/v1",
+  "repository": "Canticle-AI-Research/Seam",
+  "window": [
+    "2026-10-02",
+    "2026-10-16"
+  ],
+  "provenance": "Independent read-only architect captured paginated exact-head GitHub check-runs and local Git topology; root transcribed completion evidence and rechecked immutable local candidate/merge identities. No new qualification inferred.",
+  "limitations": [
+    "15 reviewed PRs; export is not a fresh independent enumeration",
+    "Stored historical qualification receipts not inspected by the reviewer",
+    "No full code/product/native/service audit; workflow success not implied",
+    "Historical startup/prewrite and TDD coverage remain Partial"
+  ],
+  "prs": [
+    {
+      "number": 279,
+      "candidate_sha": "7acbc57800f723f902624795a432678feac8b5d8",
+      "merge_sha": "582bf0ca04be5eb44879a06c5589167d3ccf4bf3",
+      "merge_first_parent": "fe528a5375f5a189c6d5338e66345e2a526b3f71",
+      "candidate_and_merge_tree_sha": "dc0544997ae01c48680f5a9513683c75de429604",
+      "merged_at": "2026-10-06T03:43:45Z",
+      "workflow_run_id": 37384701856,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-05T22:49:25Z",
+          "completed_before_merge": true,
+          "check_run_id": 112014993170,
+          "started_at": "2026-10-05T22:48:39Z",
+          "head_sha": "7acbc57800f723f902624795a432678feac8b5d8",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37384701856/job/112014993170"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-05T22:48:37Z",
+          "completed_before_merge": true,
+          "check_run_id": 112014992890,
+          "started_at": "2026-10-05T22:47:40Z",
+          "head_sha": "7acbc57800f723f902624795a432678feac8b5d8",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37384701856/job/112014992890"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-05T22:50:04Z",
+          "completed_before_merge": true,
+          "check_run_id": 112014993214,
+          "started_at": "2026-10-05T22:49:26Z",
+          "head_sha": "7acbc57800f723f902624795a432678feac8b5d8",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37384701856/job/112014993214"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/279",
+      "qualification_observation": "Body describes independent source review and canonical gates; no stored receipt identified in inspected public material."
+    },
+    {
+      "number": 281,
+      "candidate_sha": "be4cffb99b4af9d7fda3d9ac282e08b925c8b906",
+      "merge_sha": "d6e7c86e40731dd578073814b15d6a2079e2a533",
+      "merge_first_parent": "582bf0ca04be5eb44879a06c5589167d3ccf4bf3",
+      "candidate_and_merge_tree_sha": "a4c9855cd3ad406b3b0bc48db3ba6e00fcfc7b4e",
+      "merged_at": "2026-10-09T00:24:33Z",
+      "workflow_run_id": 37810666817,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-08T16:42:40Z",
+          "completed_before_merge": true,
+          "check_run_id": 113426357658,
+          "started_at": "2026-10-08T16:41:55Z",
+          "head_sha": "be4cffb99b4af9d7fda3d9ac282e08b925c8b906",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37810666817/job/113426357658"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-08T16:43:06Z",
+          "completed_before_merge": true,
+          "check_run_id": 113426357688,
+          "started_at": "2026-10-08T16:42:41Z",
+          "head_sha": "be4cffb99b4af9d7fda3d9ac282e08b925c8b906",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37810666817/job/113426357688"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-08T16:41:54Z",
+          "completed_before_merge": true,
+          "check_run_id": 113426357537,
+          "started_at": "2026-10-08T16:41:25Z",
+          "head_sha": "be4cffb99b4af9d7fda3d9ac282e08b925c8b906",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37810666817/job/113426357537"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/281",
+      "qualification_observation": "Body describes local verification and exact-head checks; no stored receipt identified."
+    },
+    {
+      "number": 283,
+      "candidate_sha": "5599a559fdbf69e0e3ccb1696cb288c0bc7425ac",
+      "merge_sha": "f7e794ea233c2597f8a2b85f4c4f5345117aa5f4",
+      "merge_first_parent": "d6e7c86e40731dd578073814b15d6a2079e2a533",
+      "candidate_and_merge_tree_sha": "2e27bf6ba7d75a46ccd122d7ad986f9fde454f6c",
+      "merged_at": "2026-10-09T00:50:33Z",
+      "workflow_run_id": 37866350784,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T00:49:42Z",
+          "completed_before_merge": true,
+          "check_run_id": 113613880256,
+          "started_at": "2026-10-09T00:48:56Z",
+          "head_sha": "5599a559fdbf69e0e3ccb1696cb288c0bc7425ac",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37866350784/job/113613880256"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T00:46:16Z",
+          "completed_before_merge": true,
+          "check_run_id": 113613879890,
+          "started_at": "2026-10-09T00:45:51Z",
+          "head_sha": "5599a559fdbf69e0e3ccb1696cb288c0bc7425ac",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37866350784/job/113613879890"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T00:45:50Z",
+          "completed_before_merge": true,
+          "check_run_id": 113613880022,
+          "started_at": "2026-10-09T00:45:08Z",
+          "head_sha": "5599a559fdbf69e0e3ccb1696cb288c0bc7425ac",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37866350784/job/113613880022"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/283",
+      "qualification_observation": "Body describes independent review and canonical gates; no stored receipt identified. Obsolete draft/stack wording corrected separately."
+    },
+    {
+      "number": 284,
+      "candidate_sha": "a4262c02fef267ab05e2f7e266b6fc8788e88b1c",
+      "merge_sha": "9a5749e90035f475155843b9063650d43f1354d7",
+      "merge_first_parent": "f7e794ea233c2597f8a2b85f4c4f5345117aa5f4",
+      "candidate_and_merge_tree_sha": "4930c52b3c970bf460d7802c9ff532453995bef8",
+      "merged_at": "2026-10-09T01:25:44Z",
+      "workflow_run_id": 37866867759,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T01:24:44Z",
+          "completed_before_merge": true,
+          "check_run_id": 113615556634,
+          "started_at": "2026-10-09T01:23:58Z",
+          "head_sha": "a4262c02fef267ab05e2f7e266b6fc8788e88b1c",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37866867759/job/113615556634"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T01:23:56Z",
+          "completed_before_merge": true,
+          "check_run_id": 113615556584,
+          "started_at": "2026-10-09T01:23:32Z",
+          "head_sha": "a4262c02fef267ab05e2f7e266b6fc8788e88b1c",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37866867759/job/113615556584"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T01:23:30Z",
+          "completed_before_merge": true,
+          "check_run_id": 113615556537,
+          "started_at": "2026-10-09T01:23:01Z",
+          "head_sha": "a4262c02fef267ab05e2f7e266b6fc8788e88b1c",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37866867759/job/113615556537"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/284",
+      "qualification_observation": "Body describes review/gates; raw receipt not identified. Earlier58938be5CI claim distinguished from finala4262c02."
+    },
+    {
+      "number": 285,
+      "candidate_sha": "992f16a5e99b14a5323cccd890d06051dc8e59b2",
+      "merge_sha": "e4abc1d9c9b1afb415ad67e06a3e7bb6907ecee1",
+      "merge_first_parent": "9a5749e90035f475155843b9063650d43f1354d7",
+      "candidate_and_merge_tree_sha": "3986cee31daaf2ff787a2e634c2134f77e1c45bf",
+      "merged_at": "2026-10-09T03:31:15Z",
+      "workflow_run_id": 37877293252,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T03:03:53Z",
+          "completed_before_merge": true,
+          "check_run_id": 113648691435,
+          "started_at": "2026-10-09T03:03:06Z",
+          "head_sha": "992f16a5e99b14a5323cccd890d06051dc8e59b2",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37877293252/job/113648691435"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T03:04:35Z",
+          "completed_before_merge": true,
+          "check_run_id": 113648691473,
+          "started_at": "2026-10-09T03:04:09Z",
+          "head_sha": "992f16a5e99b14a5323cccd890d06051dc8e59b2",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37877293252/job/113648691473"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-09T03:03:04Z",
+          "completed_before_merge": true,
+          "check_run_id": 113648691400,
+          "started_at": "2026-10-09T03:02:34Z",
+          "head_sha": "992f16a5e99b14a5323cccd890d06051dc8e59b2",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/37877293252/job/113648691400"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/285",
+      "qualification_observation": "Body describes independent reviews and five native lanes; retained receipt artifacts not inspected by reviewer."
+    },
+    {
+      "number": 286,
+      "candidate_sha": "2a1a82ca211c942769eea4ee23eb5f0f4c49f0ce",
+      "merge_sha": "607ac3089c58bfc033d9442762c40505f0ab8d2b",
+      "merge_first_parent": "e4abc1d9c9b1afb415ad67e06a3e7bb6907ecee1",
+      "candidate_and_merge_tree_sha": "94e261b1f32dd5bd61e4c6e3686c4c76d8a0726f",
+      "merged_at": "2026-10-14T06:00:26Z",
+      "workflow_run_id": 38518035124,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T05:52:33Z",
+          "completed_before_merge": true,
+          "check_run_id": 115701160865,
+          "started_at": "2026-10-14T05:48:50Z",
+          "head_sha": "2a1a82ca211c942769eea4ee23eb5f0f4c49f0ce",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38518035124/job/115701160865"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T05:59:02Z",
+          "completed_before_merge": true,
+          "check_run_id": 115701160952,
+          "started_at": "2026-10-14T05:55:43Z",
+          "head_sha": "2a1a82ca211c942769eea4ee23eb5f0f4c49f0ce",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38518035124/job/115701160952"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T05:45:34Z",
+          "completed_before_merge": true,
+          "check_run_id": 115701160608,
+          "started_at": "2026-10-14T05:42:06Z",
+          "head_sha": "2a1a82ca211c942769eea4ee23eb5f0f4c49f0ce",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38518035124/job/115701160608"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/286",
+      "qualification_observation": "Body reports stored QUALIFIED/TDD_NOT_REQUIRED on exact candidate and empty pending queue; raw receipt not inspected."
+    },
+    {
+      "number": 288,
+      "candidate_sha": "706d62f4d3dca6293c7ef380124af21342a08633",
+      "merge_sha": "6c6ecd13490c9b675a77f246573491824313343c",
+      "merge_first_parent": "607ac3089c58bfc033d9442762c40505f0ab8d2b",
+      "candidate_and_merge_tree_sha": "70e7323d3ae664836b51cf6c659eeaa124d78635",
+      "merged_at": "2026-10-14T08:21:34Z",
+      "workflow_run_id": 38532457164,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T08:17:52Z",
+          "completed_before_merge": true,
+          "check_run_id": 115747299489,
+          "started_at": "2026-10-14T08:14:06Z",
+          "head_sha": "706d62f4d3dca6293c7ef380124af21342a08633",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38532457164/job/115747299489"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T08:10:17Z",
+          "completed_before_merge": true,
+          "check_run_id": 115747299398,
+          "started_at": "2026-10-14T08:06:59Z",
+          "head_sha": "706d62f4d3dca6293c7ef380124af21342a08633",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38532457164/job/115747299398"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T08:06:57Z",
+          "completed_before_merge": true,
+          "check_run_id": 115747298982,
+          "started_at": "2026-10-14T08:03:30Z",
+          "head_sha": "706d62f4d3dca6293c7ef380124af21342a08633",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38532457164/job/115747298982"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/288",
+      "qualification_observation": "Body/readiness report retain independent review, immutable NOT_QUALIFIED predecessor and required successor; raw successor not inspected."
+    },
+    {
+      "number": 289,
+      "candidate_sha": "e3f4c5225ddddc3acd2cabb8711974f0978faa4f",
+      "merge_sha": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "merge_first_parent": "6c6ecd13490c9b675a77f246573491824313343c",
+      "candidate_and_merge_tree_sha": "23d5820f603e03a2ff1a313af040d40ab4ec885c",
+      "merged_at": "2026-10-14T09:07:56Z",
+      "workflow_run_id": 38535325161,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T08:57:03Z",
+          "completed_before_merge": true,
+          "check_run_id": 115756702090,
+          "started_at": "2026-10-14T08:53:17Z",
+          "head_sha": "e3f4c5225ddddc3acd2cabb8711974f0978faa4f",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38535325161/job/115756702090"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T08:39:23Z",
+          "completed_before_merge": true,
+          "check_run_id": 115756701999,
+          "started_at": "2026-10-14T08:36:04Z",
+          "head_sha": "e3f4c5225ddddc3acd2cabb8711974f0978faa4f",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38535325161/job/115756701999"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T09:03:40Z",
+          "completed_before_merge": true,
+          "check_run_id": 115756702449,
+          "started_at": "2026-10-14T09:00:12Z",
+          "head_sha": "e3f4c5225ddddc3acd2cabb8711974f0978faa4f",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38535325161/job/115756702449"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/289",
+      "qualification_observation": "Body reports canonical gates and exact-state closeout requirement; raw receipt not inspected."
+    },
+    {
+      "number": 303,
+      "candidate_sha": "18acce51ae4aff9420d44b31e1cc6c33aa263f5d",
+      "merge_sha": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+      "merge_first_parent": "07b20a424ace842b9d3c88f836efff88906b6451",
+      "candidate_and_merge_tree_sha": "46c52ab9ecc99ced78d6229cd00df4fd4c8bc22e",
+      "merged_at": "2026-10-14T10:46:38Z",
+      "workflow_run_id": 38551484597,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T10:45:30Z",
+          "completed_before_merge": true,
+          "check_run_id": 115810236322,
+          "started_at": "2026-10-14T10:44:40Z",
+          "head_sha": "18acce51ae4aff9420d44b31e1cc6c33aa263f5d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38551484597/job/115810236322"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T10:43:38Z",
+          "completed_before_merge": true,
+          "check_run_id": 115810236328,
+          "started_at": "2026-10-14T10:43:20Z",
+          "head_sha": "18acce51ae4aff9420d44b31e1cc6c33aa263f5d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38551484597/job/115810236328"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T10:43:19Z",
+          "completed_before_merge": true,
+          "check_run_id": 115810236217,
+          "started_at": "2026-10-14T10:42:51Z",
+          "head_sha": "18acce51ae4aff9420d44b31e1cc6c33aa263f5d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38551484597/job/115810236217"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/303",
+      "qualification_observation": "Body reports stored exact-candidate QUALIFIED; raw receipt not inspected."
+    },
+    {
+      "number": 304,
+      "candidate_sha": "b5110c84b7a2941de4cfde3b8a7dbf3c98d5997d",
+      "merge_sha": "ffd4e98cd28fb9054eb1669c6a2f7835538921f6",
+      "merge_first_parent": "efa7962efbcdcd394ee9e4d1dae4a7ac7a390cdd",
+      "candidate_and_merge_tree_sha": "2999d2b78dbe92d170f7813f76958af3e40a951f",
+      "merged_at": "2026-10-14T11:35:11Z",
+      "workflow_run_id": 38557121496,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:33:49Z",
+          "completed_before_merge": true,
+          "check_run_id": 115828902425,
+          "started_at": "2026-10-14T11:32:59Z",
+          "head_sha": "b5110c84b7a2941de4cfde3b8a7dbf3c98d5997d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38557121496/job/115828902425"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:32:43Z",
+          "completed_before_merge": true,
+          "check_run_id": 115828902306,
+          "started_at": "2026-10-14T11:32:25Z",
+          "head_sha": "b5110c84b7a2941de4cfde3b8a7dbf3c98d5997d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38557121496/job/115828902306"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:31:33Z",
+          "completed_before_merge": true,
+          "check_run_id": 115828901933,
+          "started_at": "2026-10-14T11:31:06Z",
+          "head_sha": "b5110c84b7a2941de4cfde3b8a7dbf3c98d5997d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38557121496/job/115828901933"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/304",
+      "qualification_observation": "Public11:35:01Z comment reports QUALIFIED receiptc34d477afb760f93251cf53c3a3edd1f7cd38ff8caeb659d22a3f8c58547b9af afterCI/beforemerge; raw receipt not inspected."
+    },
+    {
+      "number": 305,
+      "candidate_sha": "ad5ab751b777c53c3c99482a138786d18311959a",
+      "merge_sha": "df1c66d59f469fbe0c1dd903a88401f0ac517323",
+      "merge_first_parent": "ffd4e98cd28fb9054eb1669c6a2f7835538921f6",
+      "candidate_and_merge_tree_sha": "e52f5d4aa56d25dc938f34f9550e849a74e7db6f",
+      "merged_at": "2026-10-14T11:43:19Z",
+      "workflow_run_id": 38558206415,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:42:19Z",
+          "completed_before_merge": true,
+          "check_run_id": 115832505411,
+          "started_at": "2026-10-14T11:41:29Z",
+          "head_sha": "ad5ab751b777c53c3c99482a138786d18311959a",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38558206415/job/115832505411"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:41:28Z",
+          "completed_before_merge": true,
+          "check_run_id": 115832505222,
+          "started_at": "2026-10-14T11:41:09Z",
+          "head_sha": "ad5ab751b777c53c3c99482a138786d18311959a",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38558206415/job/115832505222"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:42:48Z",
+          "completed_before_merge": true,
+          "check_run_id": 115832505494,
+          "started_at": "2026-10-14T11:42:21Z",
+          "head_sha": "ad5ab751b777c53c3c99482a138786d18311959a",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38558206415/job/115832505494"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/305",
+      "qualification_observation": "Public11:41:24Z comment reports stored QUALIFIED before allrequiredCI; raw receipt and possible successor not recovered in bounded roots."
+    },
+    {
+      "number": 307,
+      "candidate_sha": "0fc7f70c9cd5fd07c662db8f0648f0c560b08602",
+      "merge_sha": "76d42b59d9ac85e831956d0ed340da8200448bea",
+      "merge_first_parent": "df1c66d59f469fbe0c1dd903a88401f0ac517323",
+      "candidate_and_merge_tree_sha": "14879e1889ebdee818458f98267337bcf304013b",
+      "merged_at": "2026-10-14T12:02:13Z",
+      "workflow_run_id": 38560245896,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:00:51Z",
+          "completed_before_merge": true,
+          "check_run_id": 115839246789,
+          "started_at": "2026-10-14T12:00:00Z",
+          "head_sha": "0fc7f70c9cd5fd07c662db8f0648f0c560b08602",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38560245896/job/115839246789"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:01:11Z",
+          "completed_before_merge": true,
+          "check_run_id": 115839246716,
+          "started_at": "2026-10-14T12:00:53Z",
+          "head_sha": "0fc7f70c9cd5fd07c662db8f0648f0c560b08602",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38560245896/job/115839246716"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T11:57:52Z",
+          "completed_before_merge": true,
+          "check_run_id": 115839246199,
+          "started_at": "2026-10-14T11:57:24Z",
+          "head_sha": "0fc7f70c9cd5fd07c662db8f0648f0c560b08602",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38560245896/job/115839246199"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/307",
+      "qualification_observation": "Body reports independent QUALIFIED/TDD_PROVEN; raw receipt not inspected."
+    },
+    {
+      "number": 308,
+      "candidate_sha": "7ca3699bb7c4c6457bf88684c6826f4eb39ddb03",
+      "merge_sha": "7b96a012784296989958e1774dbb8a0f52c3bfed",
+      "merge_first_parent": "76d42b59d9ac85e831956d0ed340da8200448bea",
+      "candidate_and_merge_tree_sha": "3ce4a1d0b36e01d7003587420817139f90205912",
+      "merged_at": "2026-10-14T12:13:12Z",
+      "workflow_run_id": 38561795333,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:12:55Z",
+          "completed_before_merge": true,
+          "check_run_id": 115844421227,
+          "started_at": "2026-10-14T12:12:04Z",
+          "head_sha": "7ca3699bb7c4c6457bf88684c6826f4eb39ddb03",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38561795333/job/115844421227"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:10:28Z",
+          "completed_before_merge": true,
+          "check_run_id": 115844421010,
+          "started_at": "2026-10-14T12:10:09Z",
+          "head_sha": "7ca3699bb7c4c6457bf88684c6826f4eb39ddb03",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38561795333/job/115844421010"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:10:58Z",
+          "completed_before_merge": true,
+          "check_run_id": 115844420943,
+          "started_at": "2026-10-14T12:10:29Z",
+          "head_sha": "7ca3699bb7c4c6457bf88684c6826f4eb39ddb03",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38561795333/job/115844420943"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/308",
+      "qualification_observation": "Body describes independent successor and exact-state admission; raw receipt not inspected."
+    },
+    {
+      "number": 309,
+      "candidate_sha": "2a389f7bed74dbee05343dc31c1d1a566338f0fa",
+      "merge_sha": "45786b422e45103c180ad5b22aaace107b7dfd1e",
+      "merge_first_parent": "7b96a012784296989958e1774dbb8a0f52c3bfed",
+      "candidate_and_merge_tree_sha": "01c342419184d414c6ef1e47d852fdab4235ea16",
+      "merged_at": "2026-10-14T12:30:21Z",
+      "workflow_run_id": 38563890056,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:29:42Z",
+          "completed_before_merge": true,
+          "check_run_id": 115851563250,
+          "started_at": "2026-10-14T12:28:49Z",
+          "head_sha": "2a389f7bed74dbee05343dc31c1d1a566338f0fa",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38563890056/job/115851563250"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:28:48Z",
+          "completed_before_merge": true,
+          "check_run_id": 115851562900,
+          "started_at": "2026-10-14T12:28:30Z",
+          "head_sha": "2a389f7bed74dbee05343dc31c1d1a566338f0fa",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38563890056/job/115851562900"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-14T12:28:28Z",
+          "completed_before_merge": true,
+          "check_run_id": 115851562941,
+          "started_at": "2026-10-14T12:28:00Z",
+          "head_sha": "2a389f7bed74dbee05343dc31c1d1a566338f0fa",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38563890056/job/115851562941"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/309",
+      "qualification_observation": "Body describes independent evidence review/closeout requirement; raw receipt not inspected. TestPyPI acceptance remains completed."
+    },
+    {
+      "number": 311,
+      "candidate_sha": "349b939701af3f358282794df163c07c05bb1a1d",
+      "merge_sha": "fa66a82771de298bc46f965c2cd7855cadc8f5d6",
+      "merge_first_parent": "45786b422e45103c180ad5b22aaace107b7dfd1e",
+      "candidate_and_merge_tree_sha": "64d906e26066e3fc80f6124aa73b49c2125cea95",
+      "merged_at": "2026-10-16T13:41:11Z",
+      "workflow_run_id": 38908930503,
+      "required_checks": [
+        {
+          "name": "repo-hygiene",
+          "conclusion": "success",
+          "completed_at": "2026-10-16T13:38:02Z",
+          "completed_before_merge": true,
+          "check_run_id": 116999534168,
+          "started_at": "2026-10-16T13:36:53Z",
+          "head_sha": "349b939701af3f358282794df163c07c05bb1a1d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38908930503/job/116999534168"
+        },
+        {
+          "name": "chroma-real-smoke",
+          "conclusion": "success",
+          "completed_at": "2026-10-16T13:36:20Z",
+          "completed_before_merge": true,
+          "check_run_id": 116999533830,
+          "started_at": "2026-10-16T13:36:01Z",
+          "head_sha": "349b939701af3f358282794df163c07c05bb1a1d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38908930503/job/116999533830"
+        },
+        {
+          "name": "locomo-quickstart-bil2",
+          "conclusion": "success",
+          "completed_at": "2026-10-16T13:36:52Z",
+          "completed_before_merge": true,
+          "check_run_id": 116999533994,
+          "started_at": "2026-10-16T13:36:22Z",
+          "head_sha": "349b939701af3f358282794df163c07c05bb1a1d",
+          "status": "completed",
+          "app_slug": "github-actions",
+          "details_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38908930503/job/116999533994"
+        }
+      ],
+      "url": "https://github.com/Canticle-AI-Research/Seam/pull/311",
+      "qualification_observation": "Reviewer used root-supplied qualification completion13:39:56Z; raw receipt not independently inspected. Root separately retains actualreceipt13:39:56.989549Z and exact-main evidence."
+    }
+  ],
+  "totals": {
+    "reviewed_merges": 15,
+    "successful_required_checks_before_merge": 45,
+    "candidate_second_parent_and_equal_tree": 15,
+    "required_ci_bypass_found": 0
+  },
+  "historical_gap": {
+    "pr": 305,
+    "qualification_public_claim_at": "2026-10-14T11:41:24Z",
+    "last_required_completion": "2026-10-14T11:42:48Z",
+    "merge_at": "2026-10-14T11:43:19Z",
+    "receipt_sha256_claim": "dbbe86886f8ff0e187b5c003d4d2471da557db70d1901db4c3dfb33eba1c3216",
+    "source": "https://github.com/Canticle-AI-Research/Seam/pull/305#issuecomment-6167506629",
+    "state": "Public chronology discrepancy confirmed; raw receipt/successor not found in bounded known roots. No retrospective qualification."
+  }
+}

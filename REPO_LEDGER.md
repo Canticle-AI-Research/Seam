@@ -15,10 +15,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 - `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
-- Current operator order: finish the finite current-built documentation/licensing
-  packet and applicable CI/closeout prerequisites, then independent SEAM Doctor
-  subject to its exact-source/review gates. The formation roadmap and its
-  detailed dependency graph remain preserved, but do not override that order.
+- Current operator order: the licensing packet is complete through PR #286;
+  finish the finite merge-protocol repair, then the pending documentation review,
+  followed by independent SEAM Doctor subject to its exact-source/review gates.
+  No licensing artifact change belongs to those remaining steps. The formation
+  roadmap and its detailed dependency graph remain preserved, but do not
+  override that order.
   Deferred formation, batching, skills and comparator recovery stay in their
   source-qualified issues until resumption. Plans do not establish implementation
   evidence or supersede the governing SEAM/MIRL contracts.
@@ -358,20 +360,16 @@ bounded task-specific reading; do not maintain a competing sequence here.
   boundary. All SQLite-backed legs and visibility checks for one retrieval
   request must observe one committed read snapshot; routing connections through
   a pool without that snapshot contract is insufficient. This architecture is
-  not authorization to change ranked behavior:
-  the historical July 30 provider-free comparison in HISTORY#503 recorded
-  canonical mix at 0.755616 context recall versus 0.766420 for the legacy
-  scorer, while warm median latency rose from 156.4 to 207.2 ms. That broad
-  comparison changed ranking, graph, filtering and packing together; it cannot
-  isolate a graph or fixed-RRF causal effect or stand in for a current matched
-  ablation. Preserve the
-  legacy RAW/BM25/weighted ranking semantics inside the orchestrator as the
-  versioned behavioral baseline, isolate graph attribution with a same-code
-  hybrid-versus-mix ablation, and require full-corpus non-regression before
-  promotion. Quickstart parity is insufficient. Component-level
-  representation evals may still call the pure `search_batch` scorer as a
-  named comparison track, but it is not a live runtime path. See HISTORY#502
-  and HISTORY#503.
+  not authorization to change ranked behavior. Current scoped evidence and the
+  remaining full-corpus/category non-regression promotion gate live in
+  [retrieval status](docs/status/retrieval.md). HISTORY#503 remains immutable
+  historical evidence, but its earlier premise does not override that current
+  status. Preserve the legacy RAW/BM25/weighted ranking semantics inside the
+  orchestrator as the versioned behavioral baseline until the recorded
+  promotion gate is satisfied. Quickstart parity is insufficient.
+  Component-level representation evals may still call the pure `search_batch`
+  scorer as a named comparison track, but it is not a live runtime path. See
+  HISTORY#502 and HISTORY#503.
 - SEAM's knowledge graph is a self-building, versioned SQLite projection of
   canonical MIRL, not a manually authored or browser-generated topology.
   `knowledge_nodes`, `knowledge_edges`, and `knowledge_episodes` preserve typed

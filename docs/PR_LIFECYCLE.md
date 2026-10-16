@@ -85,10 +85,17 @@ python -m tools.ci.verify_merge \
 
 The command independently checks GitHub merged state, source identity,
 required check results, stored qualification, local candidate ancestry and
-actual canonical gates on exact main. It writes a new evidence file only after
-success. Preserve a failed attempt as a failure and repair any protocol defect
-through a new reviewed delivery wave before claiming completion. A stored
-receipt or empty pending queue alone does not execute these checks.
+actual canonical gates on exact main. For each ruleset-bound check it selects
+the latest eligible run by aware start time; a later pending, failed, or
+post-qualification run cannot fall back to an older success. Before local Git
+inspection or canonical gates, it requires
+`check start <= check completion <= qualification completion <= PR merge` and
+rejects missing, malformed, timezone-naive, or reversed times. It preserves the
+source timestamp strings in successful evidence and writes that new evidence
+file only after every proof succeeds. Preserve a failed attempt as a failure
+and repair any protocol defect through a new reviewed delivery wave before
+claiming completion. A stored receipt or empty pending queue alone does not
+execute these checks.
 
 Record the verified merge receipt in the tracker or recovery issue, reconcile
 pending closeouts, and finish the session's worktree and branch. Preserve

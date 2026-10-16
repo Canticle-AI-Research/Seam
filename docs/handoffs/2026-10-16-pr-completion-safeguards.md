@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-16-pr-completion-safeguards
 supersedes: 2026-10-14-suite-testpypi-verified
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#684
 ---
 
