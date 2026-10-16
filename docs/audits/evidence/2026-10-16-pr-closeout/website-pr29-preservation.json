@@ -1,0 +1,67 @@
+{
+  "schema": "seam-pr-preservation/v1",
+  "repository": "BlackhatShiftey/Cantlicle",
+  "repository_visibility": "PRIVATE",
+  "pr": 29,
+  "source_head": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+  "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+  "preservation_kind": "same-private-repository exact commit tag; original branch and pull ref retained",
+  "raw_proposal_contents_exported_to_public_repo": false,
+  "state": "historical-proposals-not-product-acceptance",
+  "files": [
+    {
+      "source_path": "docs/subscriptions/README.md",
+      "source_sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "git_blob_sha": "3fe4424b12e135a402130a4a05026532c08cdf0c",
+      "sha256": "8304916813fb754f4382b4f6a51c9a3368e78c510aaf13c08d5a6c7c7c14e548",
+      "bytes": 5019,
+      "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+      "verified_at_archive_ref": true
+    },
+    {
+      "source_path": "docs/subscriptions/01-product-and-service-model.md",
+      "source_sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "git_blob_sha": "75523d801a7f32ecba60e17ff078d8a6773c016e",
+      "sha256": "8f39b19c1e535e1f015cc7eb80f18be708a28a08f6957e20adf73f7e2919737d",
+      "bytes": 3727,
+      "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+      "verified_at_archive_ref": true
+    },
+    {
+      "source_path": "docs/subscriptions/02-plans-metering-and-storage.md",
+      "source_sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "git_blob_sha": "fb8abdd6065deca38f1d7b7f7500072d68564039",
+      "sha256": "c1c93c93b5f03e9d88f964c6d3bb4ff28d5c9dfefe6361df5a28b010735c43ac",
+      "bytes": 5168,
+      "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+      "verified_at_archive_ref": true
+    },
+    {
+      "source_path": "docs/subscriptions/04-competition-and-migration.md",
+      "source_sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "git_blob_sha": "3df75febed609c0ea9be1b2be28d93499ef1def4",
+      "sha256": "5edae46982a06ca8a221ddccba8fc6e95b1c389abdf9ec2c7e7fdb2fb447e46f",
+      "bytes": 4535,
+      "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+      "verified_at_archive_ref": true
+    },
+    {
+      "source_path": "docs/subscriptions/05-subscription-terms-draft.md",
+      "source_sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "git_blob_sha": "716c4acfcf1d3ad75a7f37380202e29da3c80a66",
+      "sha256": "3426e8ec16a3c89b19c2c39b5a4ce4559c5efcd4470891c8bce4e65ee3612841",
+      "bytes": 12481,
+      "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+      "verified_at_archive_ref": true
+    },
+    {
+      "source_path": "docs/subscriptions/06-launch-and-growth-plan.md",
+      "source_sha": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9",
+      "git_blob_sha": "b6133790b9fc9491af19b0a0122caf48c6017454",
+      "sha256": "c4b849350e630b1b856ad273e1edba4e4a2f17c683a69e4a3f168e86df0a2134",
+      "bytes": 4486,
+      "preservation_ref": "refs/tags/archive/20261016/pr29-preserved",
+      "verified_at_archive_ref": true
+    }
+  ]
+}

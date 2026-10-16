@@ -2,13 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import re
 import subprocess
-import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+from tools.ci.pr_lifecycle import LifecycleError, _authenticate, _open_prs
 
 PROTECTED_BRANCH_PREFIXES = (
     "origin/main",
@@ -36,12 +36,17 @@ def collect_worktrees() -> list[dict[str, Any]]:
     forbids leaving one and why it has to be reported here rather than inferred
     from refs.
     """
-    completed = subprocess.run(
-        ["git", "worktree", "list", "--porcelain"],
-        capture_output=True, text=True, check=False,
-    )
+    try:
+        completed = subprocess.run(
+            ["git", "worktree", "list", "--porcelain"],
+            capture_output=True, text=True, check=False, timeout=30,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RuntimeError("git worktree list timed out") from exc
     if completed.returncode != 0:
-        return []
+        raise RuntimeError(
+            f"git worktree list failed: {completed.stderr.strip() or completed.returncode}"
+        )
 
     worktrees: list[dict[str, Any]] = []
     first = True
@@ -53,10 +58,18 @@ def collect_worktrees() -> list[dict[str, Any]]:
         elif line.startswith("branch "):
             branch = line.split(" ", 1)[1].strip().replace("refs/heads/", "")
         elif not line.strip() and path:
-            status = subprocess.run(
-                ["git", "-C", path, "status", "--porcelain"],
-                capture_output=True, text=True, check=False,
-            )
+            try:
+                status = subprocess.run(
+                    ["git", "-C", path, "status", "--porcelain"],
+                    capture_output=True, text=True, check=False, timeout=30,
+                )
+            except subprocess.TimeoutExpired as exc:
+                raise RuntimeError(f"git status timed out for worktree {path}") from exc
+            if status.returncode != 0:
+                raise RuntimeError(
+                    f"git status failed for worktree {path}: "
+                    f"{status.stderr.strip() or status.returncode}"
+                )
             dirty = [ln for ln in status.stdout.splitlines() if ln.strip()]
             worktrees.append({
                 "path": _safe_text(path),
@@ -175,26 +188,20 @@ def render_markdown(report: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
-def fetch_open_prs(repo: str, token: str) -> list[dict[str, Any]]:
-    url = f"https://api.github.com/repos/{repo}/pulls?state=open&per_page=100"
-    prs: list[dict[str, Any]] = []
-    while url:
-        request = urllib.request.Request(
-            url,
-            headers={
-                "Accept": "application/vnd.github+json",
-                "Authorization": f"Bearer {token}",
-                "X-GitHub-Api-Version": "2022-11-28",
-            },
-        )
-        with urllib.request.urlopen(request, timeout=30) as response:
-            prs.extend(json.loads(response.read().decode("utf-8")))
-            url = _next_link(response.headers.get("Link", ""))
-    return prs
+def authenticate_github_cli() -> None:
+    """Require an authenticated first-party GitHub CLI session."""
+
+    _authenticate()
+
+
+def fetch_open_prs(repo: str) -> list[dict[str, Any]]:
+    """Fetch every open PR through gh's complete pagination transport."""
+
+    return _open_prs(repo)
 
 
 def list_remote_branches() -> list[dict[str, Any]]:
-    subprocess.run(["git", "fetch", "--prune", "--all"], check=True)
+    subprocess.run(["git", "fetch", "--prune", "--all"], check=True, timeout=30)
     completed = subprocess.run(
         [
             "git",
@@ -205,41 +212,20 @@ def list_remote_branches() -> list[dict[str, Any]]:
         check=True,
         capture_output=True,
         text=True,
+        timeout=30,
     )
     branches = []
     for line in completed.stdout.splitlines():
         parts = line.split("\t")
         if len(parts) != 3:
-            continue
+            raise RuntimeError("git returned malformed remote branch inventory")
         branches.append({"name": parts[0], "sha": parts[1], "committed_at": parts[2]})
     return branches
 
 
-def resolve_github_token() -> str:
-    """Resolve a GitHub API token without printing or persisting it.
-
-    CI provides GITHUB_TOKEN/GH_TOKEN as environment variables. Local operator
-    shells often only have `gh auth login`, which stores the token in the OS
-    keyring. In that case, ask gh for the token and keep it process-local.
-    """
-    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-    if token:
-        return token
-    try:
-        completed = subprocess.run(
-            ["gh", "auth", "token"],
-            check=True,
-            capture_output=True,
-            text=True,
-        )
-    except (FileNotFoundError, subprocess.CalledProcessError):
-        return ""
-    return completed.stdout.strip()
-
-
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Build a SEAM GitHub maintenance report")
-    parser.add_argument("--repo", default=os.environ.get("GITHUB_REPOSITORY", "BlackhatShiftey/Seam"))
+    parser.add_argument("--repo", default="Canticle-AI-Research/Seam")
     parser.add_argument("--stale-days", type=int, default=7)
     parser.add_argument("--output", default="github-maintenance-report.md")
     parser.add_argument("--json-output", default="github-maintenance-report.json")
@@ -250,17 +236,22 @@ def main(argv: list[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
-    token = resolve_github_token()
-    if not token:
-        raise SystemExit(
-            "GITHUB_TOKEN, GH_TOKEN, or a logged-in GitHub CLI is required to fetch pull requests"
+    try:
+        authenticate_github_cli()
+        report = build_report(
+            prs=fetch_open_prs(args.repo),
+            branches=list_remote_branches(),
+            worktrees=collect_worktrees(),
+            stale_days=args.stale_days,
         )
-    report = build_report(
-        prs=fetch_open_prs(args.repo, token),
-        branches=list_remote_branches(),
-        worktrees=collect_worktrees(),
-        stale_days=args.stale_days,
-    )
+    except (
+        LifecycleError,
+        RuntimeError,
+        subprocess.CalledProcessError,
+        subprocess.TimeoutExpired,
+    ) as exc:
+        print(f"repository maintenance FAILED: {exc}")
+        return 2
     Path(args.output).write_text(render_markdown(report), encoding="utf-8")
     Path(args.json_output).write_text(json.dumps(report, indent=2, sort_keys=True), encoding="utf-8")
     print(render_markdown(report))
@@ -327,16 +318,6 @@ def _format_time(value: datetime) -> str:
 
 def _age_days(now: datetime, then: datetime) -> int:
     return max(0, int((now - then).total_seconds() // 86400))
-
-
-def _next_link(link_header: str) -> str:
-    for part in link_header.split(","):
-        section = part.strip()
-        if 'rel="next"' not in section:
-            continue
-        if section.startswith("<") and ">" in section:
-            return section[1:section.index(">")]
-    return ""
 
 
 if __name__ == "__main__":

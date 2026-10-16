@@ -735,3 +735,56 @@ def test_pending_rejects_symlinked_populated_receipt_directory(
 
     with pytest.raises(closeout_queue.CloseoutQueueError, match="receipt directory"):
         closeout_queue.pending(state_root)
+
+
+def test_relative_state_root_queues_an_absolute_receipt_path(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    queued = _queued_request(sample_repo, Path("state"))
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+
+    assert Path(request["receipt_path"]).is_absolute()
+    assert [item["request_id"] for item in closeout_queue.pending(tmp_path / "state")["requests"]] == [
+        request["request_id"]
+    ]
+
+
+def _repo_local_request(sample_repo: Path, receipt_path: str) -> tuple[Path, dict[str, object]]:
+    (sample_repo / ".git" / "info" / "exclude").write_text(".seam/\n", encoding="utf-8")
+    state_root = sample_repo / ".seam" / "orchestration" / "session-end"
+    queued = _queued_request(sample_repo, state_root)
+    request_path = Path(str(queued["request_path"]))
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    request["receipt_path"] = receipt_path.format(request_id=request["request_id"])
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    request_path.write_text(json.dumps(request), encoding="utf-8")
+    return state_root, request
+
+
+def test_pending_accepts_legacy_repo_relative_receipt_path(sample_repo: Path) -> None:
+    state_root, request = _repo_local_request(
+        sample_repo, ".seam/orchestration/session-end/receipts/{request_id}.json"
+    )
+
+    result = closeout_queue.pending(state_root)
+
+    assert [item["request_id"] for item in result["requests"]] == [request["request_id"]]
+
+
+@pytest.mark.parametrize(
+    "receipt_path",
+    [
+        "receipts/{request_id}.json",
+        ".seam/orchestration/session-end/../session-end/receipts/{request_id}.json",
+        "../outside/receipts/{request_id}.json",
+        ".seam/orchestration/session-end/receipts/other.json",
+    ],
+)
+def test_relative_receipt_path_must_name_the_exact_canonical_receipt(
+    sample_repo: Path, receipt_path: str
+) -> None:
+    state_root, request = _repo_local_request(sample_repo, receipt_path)
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="receipt_path"):
+        closeout_queue.validate_request(request, state_root=state_root)

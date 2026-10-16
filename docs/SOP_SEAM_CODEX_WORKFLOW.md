@@ -168,6 +168,12 @@ recorded authority. Open or update the protected-branch PR with scope,
 verification, risks, and exclusions. Record one candidate SHA and require the
 repository's current required CI checks on that exact head.
 
+Apply the [PR completion policy](PR_LIFECYCLE.md): one active PR, including
+drafts and stacked candidates. Deferred work belongs in a source-pinned recovery
+issue with its PR closed. Only a protected-main, exact-head, owned and expiring
+blocker exception can retain additional active work. Run the lifecycle CLI
+before pushing and again before merging; an API or Git failure is a failure.
+
 If the branch changes, a check is rerun on another SHA, or CI exposes a defect,
 return to a new delivery wave and repeat assurance and closeout on the successor
 state.
@@ -208,6 +214,9 @@ head. Merge through the protected PR path. Keep release and deployment as
 separate operator-authority gates after merge; a merged implementation is not
 evidence that either occurred.
 
+Use an ordinary merge commit while `tools.ci.verify_merge` supports only that
+mapping. The operator's push-and-merge request includes finishing phase 12.
+
 **Complete when:** GitHub records the PR as merged, protected `origin/main`
 contains the qualified candidate, and the merge commit or resulting main SHA
 is recorded without promoting it to released, deployed, or benchmark-qualified.
@@ -220,6 +229,12 @@ Fetch protected main after merge and verify the resulting exact main SHA,
 candidate ancestry, PR state, and applicable post-merge checks. Reconcile the
 closeout queue again. Update the resume pointer to the next unresolved
 initiative or to an explicit clean-stop state.
+
+Run `python -m tools.ci.verify_merge` with the qualified candidate, actual merge
+SHA, original stored request/receipt and a clean isolated exact-main checkout.
+Retain its machine-readable evidence only after actual gates complete. If
+protocol was not followed, record the failure and repair its enforcement with
+a regression test in a new delivery wave before reporting the merge complete.
 
 Reconcile the working branch, worktree, and stashes. Remove a clean merged
 branch or worktree only when that cleanup is authorized and recoverability is

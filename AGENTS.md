@@ -105,6 +105,25 @@ Before stopping a session that has touched runtime code:
 
 ## GitHub PR Workflow
 
+- An operator request to push and merge means complete the protected merge and
+  verify the resulting main state. A push, draft PR, green preparation check,
+  closed PR, or local qualification is not a completed merge. Report any
+  remaining blocker explicitly rather than ending with an ambiguous open PR.
+- Keep at most one active PR per repository, including drafts and stacked PRs.
+  Deferred work belongs in an open recovery issue with its exact preserved
+  source and resumption acceptance; close its inactive PR without deleting
+  useful branches. A genuinely blocked PR needs an exact-head, owned, expiring
+  exception admitted through protected-main lifecycle policy. Labels and PR
+  descriptions cannot grant their own exceptions.
+- Run the same lifecycle policy before pushing and immediately before merging;
+  required CI also enforces it. Missing GitHub access, incomplete responses, Git
+  failures, or invalid exception evidence are failures, not an empty backlog.
+- After each merge, independently verify GitHub's merged state, the expected
+  candidate and base, required exact-head checks, qualified closeout evidence,
+  candidate ancestry, and canonical gates on isolated exact resulting main.
+  Preserve a machine-readable receipt. If verification exposes a protocol gap,
+  repair the enforcing hook, rule, or check with a failing regression before
+  claiming the delivery complete. Do not merge unrelated work to reduce a count.
 - `main` is the source-of-truth branch and is protected by the GitHub ruleset
   `Protect main (PR + hygiene gates)`. Do not direct-push to `main`. Use a
   branch and PR for repo changes unless the operator explicitly authorizes a

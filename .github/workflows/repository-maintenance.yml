@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  issues: read
   pull-requests: read
 
 jobs:
@@ -24,10 +25,16 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Build maintenance report
+      - name: Enforce PR lifecycle policy
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: python -m tools.ci.github_maintenance_report --output github-maintenance-report.md --json-output github-maintenance-report.json --strict
+        run: python -m tools.ci.pr_lifecycle --repo "${GITHUB_REPOSITORY}"
+
+      - name: Build maintenance report
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m tools.ci.github_maintenance_report --repo "${GITHUB_REPOSITORY}" --output github-maintenance-report.md --json-output github-maintenance-report.json --strict
 
       # Uploaded even when the gate fails -- the report is how you find out
       # which branch or worktree tripped it.

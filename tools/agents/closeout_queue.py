@@ -172,6 +172,17 @@ def _expected_receipt_path(state_root: Path, request_id: str) -> Path:
     return state_root.resolve() / "receipts" / f"{request_id}.json"
 
 
+def _receipt_path_matches(value: str, *, expected: Path, repo_root: str) -> bool:
+    # SessionEnd run with a relative --state-root wrote a repo-relative path.
+    # Accept only that exact legacy form; it must land on the canonical receipt.
+    candidate = Path(value)
+    if candidate.is_absolute():
+        return candidate == expected
+    if ".." in candidate.parts:
+        return False
+    return (Path(repo_root) / candidate).resolve() == expected
+
+
 def _receipt_attempt_root(state_root: Path) -> Path:
     return state_root.resolve() / "receipt-attempts"
 
@@ -454,7 +465,9 @@ def validate_request(
         raise CloseoutQueueError("closeout request weakens or reorders required checks")
     receipt_path = value.get("receipt_path")
     expected = _expected_receipt_path(state_root, request_id)
-    if not isinstance(receipt_path, str) or Path(receipt_path) != expected:
+    if not isinstance(receipt_path, str) or not _receipt_path_matches(
+        receipt_path, expected=expected, repo_root=repo["root"]
+    ):
         raise CloseoutQueueError("closeout request receipt_path escapes or mismatches state root")
     if value.get("request_schema") != "tools/agents/schemas/closeout-request.schema.json":
         raise CloseoutQueueError("closeout request schema pointer is invalid")
