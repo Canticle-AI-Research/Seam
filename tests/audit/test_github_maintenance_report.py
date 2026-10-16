@@ -1,6 +1,15 @@
+import subprocess
 from datetime import datetime, timezone
 
-from tools.ci.github_maintenance_report import build_report, render_markdown, resolve_github_token
+import pytest
+
+from tools.ci.github_maintenance_report import (
+    build_report,
+    collect_worktrees,
+    list_remote_branches,
+    main,
+    render_markdown,
+)
 
 
 def test_maintenance_report_flags_stale_prs_and_unowned_branches() -> None:
@@ -142,60 +151,46 @@ def test_maintenance_report_redacts_session_links_from_rendered_fields() -> None
     assert "<redacted-session-url>" in markdown
 
 
-def test_resolve_github_token_prefers_github_token_env(monkeypatch) -> None:
-    monkeypatch.setenv("GITHUB_TOKEN", "env-token")
-    monkeypatch.setenv("GH_TOKEN", "gh-env-token")
+def test_collect_worktrees_fails_closed_when_git_enumeration_fails(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "tools.ci.github_maintenance_report.subprocess.run",
+        lambda *_args, **_kwargs: subprocess.CompletedProcess([], 128, "", "not a repo"),
+    )
 
-    def fail_run(*_args, **_kwargs):
-        raise AssertionError("gh auth token should not run when env token exists")
-
-    monkeypatch.setattr("tools.ci.github_maintenance_report.subprocess.run", fail_run)
-
-    assert resolve_github_token() == "env-token"
+    with pytest.raises(RuntimeError, match="worktree list"):
+        collect_worktrees()
 
 
-def test_resolve_github_token_uses_gh_token_env(monkeypatch) -> None:
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    monkeypatch.setenv("GH_TOKEN", "gh-env-token")
+def test_main_defaults_to_canonical_repository_and_uses_gh_cli(monkeypatch, tmp_path) -> None:
+    seen = []
+    monkeypatch.setattr("tools.ci.github_maintenance_report.authenticate_github_cli", lambda: seen.append("auth"))
+    monkeypatch.setattr(
+        "tools.ci.github_maintenance_report.fetch_open_prs",
+        lambda repo: seen.append(repo) or [],
+    )
+    monkeypatch.setattr("tools.ci.github_maintenance_report.list_remote_branches", lambda: [])
+    monkeypatch.setattr("tools.ci.github_maintenance_report.collect_worktrees", lambda: [])
 
-    def fail_run(*_args, **_kwargs):
-        raise AssertionError("gh auth token should not run when GH_TOKEN exists")
+    result = main([
+        "--output", str(tmp_path / "report.md"),
+        "--json-output", str(tmp_path / "report.json"),
+    ])
 
-    monkeypatch.setattr("tools.ci.github_maintenance_report.subprocess.run", fail_run)
-
-    assert resolve_github_token() == "gh-env-token"
-
-
-def test_resolve_github_token_falls_back_to_gh_auth_token(monkeypatch) -> None:
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    monkeypatch.delenv("GH_TOKEN", raising=False)
-    calls = []
-
-    class Completed:
-        stdout = "keyring-token\n"
-
-    def fake_run(args, **kwargs):
-        calls.append((args, kwargs))
-        return Completed()
-
-    monkeypatch.setattr("tools.ci.github_maintenance_report.subprocess.run", fake_run)
-
-    assert resolve_github_token() == "keyring-token"
-    assert calls == [
-        (
-            ["gh", "auth", "token"],
-            {"check": True, "capture_output": True, "text": True},
-        )
-    ]
+    assert result == 0
+    assert seen == ["auth", "Canticle-AI-Research/Seam"]
 
 
-def test_resolve_github_token_returns_empty_when_gh_auth_unavailable(monkeypatch) -> None:
-    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
-    monkeypatch.delenv("GH_TOKEN", raising=False)
+def test_remote_branch_inventory_fails_closed_on_malformed_git_output(monkeypatch) -> None:
+    results = iter(
+        [
+            subprocess.CompletedProcess([], 0, "", ""),
+            subprocess.CompletedProcess([], 0, "origin/broken only-two-fields\n", ""),
+        ]
+    )
+    monkeypatch.setattr(
+        "tools.ci.github_maintenance_report.subprocess.run",
+        lambda *_args, **_kwargs: next(results),
+    )
 
-    def fake_run(*_args, **_kwargs):
-        raise FileNotFoundError("gh not installed")
-
-    monkeypatch.setattr("tools.ci.github_maintenance_report.subprocess.run", fake_run)
-
-    assert resolve_github_token() == ""
+    with pytest.raises(RuntimeError, match="malformed remote branch"):
+        list_remote_branches()

@@ -32,13 +32,24 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[2]
 PREFLIGHT_HOOK = REPO_ROOT / "tools" / "claude" / "preflight_protocol.sh"
 COMMIT_HOOK = REPO_ROOT / "tools" / "git-hooks" / "pre-commit"
+PUSH_HOOK = REPO_ROOT / "tools" / "git-hooks" / "pre-push"
 CI_YML = REPO_ROOT / ".github" / "workflows" / "ci.yml"
+MAINTENANCE_YML = REPO_ROOT / ".github" / "workflows" / "repository-maintenance.yml"
 
 SUPPRESSION_FLAG = "--no-recorded-fact-audit"
 WIKI_GATE_MODULE = "tools.docs.verify_wiki"
 WIKI_STAGED_FLAG = "--staged"
 REFERENCE_GATE_MODULE = "tools.docs.sync_references"
 AGENT_CONFIG_MODULE = "tools.git.verify_agent_config"
+PR_LIFECYCLE_MODULE = "tools.ci.pr_lifecycle"
+LIFECYCLE_REGRESSION_TESTS = (
+    "tests/audit/test_pr_lifecycle.py",
+    "tests/audit/test_verify_merge.py",
+    "tests/audit/test_git_hook_install.py",
+    "tests/audit/test_github_maintenance_report.py",
+    "tests/audit/test_closeout_queue.py",
+    "tests/audit/test_session_end_agent_closeout.py",
+)
 REQUIRED_GATE_MODULES = {
     AGENT_CONFIG_MODULE,
     "tools.history.verify_handoffs",
@@ -249,6 +260,106 @@ def test_commit_hook_keeps_agent_config_staged_early_and_aborting():
 def test_required_repo_hygiene_enforces_agent_config_unconditionally():
     workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
     _required_ci_agent_config_step(workflow)
+
+
+def _assert_required_lifecycle_step(workflow: dict) -> None:
+    steps = [
+        step for step in workflow["jobs"]["repo-hygiene"]["steps"]
+        if PR_LIFECYCLE_MODULE in str(step.get("run", ""))
+    ]
+    assert len(steps) == 1, "repo-hygiene must contain exactly one lifecycle gate"
+    step = steps[0]
+    assert "if" not in step, "PR lifecycle gate must be unconditional"
+    assert not step.get("continue-on-error", False), "PR lifecycle gate must fail repo-hygiene"
+    assert step["run"] == f'python -m {PR_LIFECYCLE_MODULE} --repo "${{GITHUB_REPOSITORY}}"'
+
+
+def test_required_repo_hygiene_enforces_pr_lifecycle_unconditionally():
+    _assert_required_lifecycle_step(yaml.safe_load(CI_YML.read_text(encoding="utf-8")))
+
+
+def _assert_required_lifecycle_regressions(workflow: dict) -> None:
+    steps = workflow["jobs"]["repo-hygiene"]["steps"]
+    matches = [
+        step for step in steps
+        if all(path in str(step.get("run", "")) for path in LIFECYCLE_REGRESSION_TESTS)
+    ]
+    assert len(matches) == 1, "repo-hygiene must run the complete lifecycle regression slice"
+    step = matches[0]
+    assert "if" not in step
+    assert not step.get("continue-on-error", False)
+    assert step["run"] == "python -m pytest " + " ".join(LIFECYCLE_REGRESSION_TESTS) + " -q"
+
+
+def test_required_repo_hygiene_runs_lifecycle_regressions_unconditionally():
+    _assert_required_lifecycle_regressions(
+        yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    )
+
+
+def test_lifecycle_regression_parity_rejects_removed_or_advisory_step():
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    step = next(
+        candidate for candidate in workflow["jobs"]["repo-hygiene"]["steps"]
+        if all(
+            path in str(candidate.get("run", ""))
+            for path in LIFECYCLE_REGRESSION_TESTS
+        )
+    )
+    step["continue-on-error"] = True
+    with pytest.raises(AssertionError):
+        _assert_required_lifecycle_regressions(workflow)
+
+
+def test_scheduled_maintenance_enforces_pr_lifecycle_before_reporting():
+    workflow = yaml.safe_load(MAINTENANCE_YML.read_text(encoding="utf-8"))
+    steps = workflow["jobs"]["maintenance-report"]["steps"]
+    lifecycle = [
+        (index, step) for index, step in enumerate(steps)
+        if PR_LIFECYCLE_MODULE in str(step.get("run", ""))
+    ]
+
+    assert len(lifecycle) == 1, "scheduled maintenance must contain one lifecycle gate"
+    index, step = lifecycle[0]
+    assert "if" not in step
+    assert not step.get("continue-on-error", False)
+    assert step["run"] == f'python -m {PR_LIFECYCLE_MODULE} --repo "${{GITHUB_REPOSITORY}}"'
+    report_index = next(
+        item for item, candidate in enumerate(steps)
+        if "tools.ci.github_maintenance_report" in str(candidate.get("run", ""))
+    )
+    assert index < report_index
+    assert steps[report_index].get("if") == "always()"
+
+
+def test_pre_push_enforces_the_same_public_lifecycle_cli():
+    lines = [
+        line.strip() for line in PUSH_HOOK.read_text(encoding="utf-8").splitlines()
+        if PR_LIFECYCLE_MODULE in line and not line.lstrip().startswith("#")
+    ]
+    assert lines == [
+        '"$PYTHON_BIN" -m tools.ci.pr_lifecycle --repo "$LIFECYCLE_REPO" || exit 1'
+    ]
+
+
+def test_lifecycle_parity_detection_rejects_removed_or_advisory_gate():
+    workflow = yaml.safe_load(CI_YML.read_text(encoding="utf-8"))
+    step = next(
+        step for step in workflow["jobs"]["repo-hygiene"]["steps"]
+        if PR_LIFECYCLE_MODULE in str(step.get("run", ""))
+    )
+    step["continue-on-error"] = True
+    with pytest.raises(AssertionError, match="fail repo-hygiene"):
+        _assert_required_lifecycle_step(workflow)
+
+    mutated = PUSH_HOOK.read_text(encoding="utf-8").replace(
+        '"$PYTHON_BIN" -m tools.ci.pr_lifecycle --repo "$LIFECYCLE_REPO" || exit 1\n', ""
+    )
+    assert all(
+        PR_LIFECYCLE_MODULE not in line
+        for line in mutated.splitlines()
+        if not line.lstrip().startswith("#")
+    )
 
 
 @pytest.mark.parametrize("script", LOCAL_GATE_SCRIPTS, ids=lambda p: p.name)

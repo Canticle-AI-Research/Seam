@@ -642,6 +642,7 @@ def handle_session_end(
         raise SessionEndError("SessionEnd supports durable queueing, not nested model dispatch")
     deadline = time.monotonic() + HOOK_BUDGET_SECONDS
     repo_root = repo_root.resolve(strict=True)
+    state_root = state_root.resolve()
     cwd_value = event.get("cwd")
     if not isinstance(cwd_value, str) or not cwd_value:
         raise SessionEndError("cwd is required")

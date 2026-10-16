@@ -1,0 +1,415 @@
+from __future__ import annotations
+
+import json
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+import pytest
+
+from tools.agents import closeout_queue, session_end_closeout
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+REQUIRED_CHECKS = ("repo-hygiene", "chroma-real-smoke", "locomo-quickstart-bil2")
+
+
+def _git(repo: Path, *args: str) -> str:
+    return subprocess.run(
+        ["git", *args], cwd=repo, check=True, capture_output=True, text=True
+    ).stdout.strip()
+
+
+def _merged_repo(tmp_path: Path, *, gate_stubs: bool = False) -> tuple[Path, str, str]:
+    repo = tmp_path / "merged"
+    repo.mkdir()
+    _git(repo, "init", "-q", "-b", "main")
+    _git(repo, "config", "user.email", "tests@example.invalid")
+    _git(repo, "config", "user.name", "SEAM tests")
+    if gate_stubs:
+        for package in (
+            "tools", "tools/git", "tools/history", "tools/streams", "tools/docs", "tools/release"
+        ):
+            directory = repo / package
+            directory.mkdir(parents=True, exist_ok=True)
+            (directory / "__init__.py").write_text("")
+        for module in (
+            "tools/git/verify_agent_config.py", "tools/history/verify_integrity.py",
+            "tools/history/verify_routing.py", "tools/history/verify_handoffs.py",
+            "tools/history/verify_continuity.py", "tools/streams/verify_streams.py",
+            "tools/docs/verify_wiki.py", "tools/docs/sync_references.py",
+            "tools/docs/verify_audit_claims.py", "tools/release/verify_suite_manifest.py",
+        ):
+            (repo / module).write_text("")
+    (repo / "README.md").write_text("base\n")
+    _git(repo, "add", ".")
+    _git(repo, "commit", "-qm", "base")
+    _git(repo, "checkout", "-qb", "candidate")
+    (repo / "README.md").write_text("candidate\n")
+    _git(repo, "commit", "-qam", "candidate")
+    candidate = _git(repo, "rev-parse", "HEAD")
+    _git(repo, "checkout", "-q", "main")
+    _git(repo, "merge", "--no-ff", "-qm", "merge candidate", candidate)
+    return repo, candidate, _git(repo, "rev-parse", "HEAD")
+
+
+def _qualification(tmp_path: Path, candidate: str) -> tuple[Path, Path]:
+    state = tmp_path / "state"
+    request_id = "merge-test-" + "d" * 16
+    fingerprint = "d" * 64
+    receipt_path = state.resolve() / "receipts" / f"{request_id}.json"
+    request = {
+        "schema": "seam-agent-closeout-request/v1",
+        "request_id": request_id,
+        "request_sha256": "0" * 64,
+        "session_id": "merge-test",
+        "created_at": "2026-10-16T12:00:00Z",
+        "trigger": "SessionEnd",
+        "repo": {
+            "root": str((tmp_path / "integration").resolve()),
+            "cwd": str((tmp_path / "integration").resolve()),
+            "branch": "candidate",
+            "head": candidate,
+            "base_sha": "b" * 40,
+            "origin_main": "b" * 40,
+            "worktree": str((tmp_path / "integration").resolve()),
+            "diff_fingerprint": fingerprint,
+            "changed_paths": ["README.md"],
+            "changed_paths_truncated": False,
+        },
+        "change_class": "non_runtime",
+        "context": {
+            "source": "root_session_state", "available": True, "objective": "merge candidate",
+            "plan": [], "constraints": [], "affected_tests": [],
+        },
+        "tdd_evidence": {
+            "status": "TDD_NOT_REQUIRED", "runtime_paths": [], "covered_runtime_paths": [],
+            "missing_runtime_paths": [], "cycle_count": 0, "cycles": [],
+        },
+        "authority": {
+            "mode": "verify_only", "allowed_writes": [], "forbidden_actions": ["merge"],
+        },
+        "required_checks": list(session_end_closeout.REQUIRED_CLOSEOUT_CHECKS),
+        "receipt_path": str(receipt_path),
+        "request_schema": "tools/agents/schemas/closeout-request.schema.json",
+        "receipt_schema": "tools/agents/schemas/closeout-receipt.schema.json",
+    }
+    request["request_sha256"] = closeout_queue._request_hash(request)
+    receipt = {
+        "schema": "seam-agent-closeout-receipt/v1", "request_id": request_id,
+        "request_sha256": request["request_sha256"], "session_id": "merge-test",
+        "completed_at": "2026-10-16T12:05:00Z", "status": "QUALIFIED",
+        "supersedes_request_ids": [],
+        "scope": {"head": candidate, "diff_fingerprint": fingerprint, "matches_request": True},
+        "tdd": {"status": "TDD_NOT_REQUIRED", "evidence": ["not runtime"]},
+        "checks": [
+            {"requirement": requirement, "command": requirement, "status": "PASS", "exit_code": 0,
+             "evidence": "passed"}
+            for requirement in session_end_closeout.REQUIRED_CLOSEOUT_CHECKS
+        ],
+        "continuity": {"status": "PASS", "evidence": ["passed"]},
+        "project_alignment": {"status": "ALIGNED", "evidence": ["aligned"]},
+        "next_action": "verify merge",
+    }
+    request_path = state / "requests" / f"{request_id}.json"
+    request_path.parent.mkdir(parents=True)
+    receipt_path.parent.mkdir(parents=True)
+    request_path.write_text(json.dumps(request))
+    receipt_path.write_text(json.dumps(receipt))
+    return request_path, receipt_path
+
+
+def _fake_gh(
+    tmp_path: Path,
+    *,
+    pr: dict,
+    main: str,
+    checks: list[dict],
+    ruleset_checks: tuple[str, ...] = REQUIRED_CHECKS,
+) -> dict[str, str]:
+    responses = {
+        "auth status --hostname github.com": {},
+        "api --method GET repos/acme/widget/pulls/7": pr,
+        "api --method GET repos/acme/widget/git/ref/heads/main": {"object": {"sha": main}},
+        "api --method GET repos/acme/widget/rules/branches/main?per_page=100 --paginate": {
+            "pages": [[{
+                "type": "required_status_checks", "ruleset_id": 44,
+                "parameters": {"required_status_checks": [
+                    {"context": name, "integration_id": None} for name in ruleset_checks
+                ]},
+            }]]
+        },
+        (
+            f"api --method GET repos/acme/widget/commits/{pr['head']['sha']}"
+            "/check-runs?per_page=100 --paginate"
+        ): {"pages": [{"check_runs": checks}]},
+    }
+    bin_dir = tmp_path / "bin"
+    bin_dir.mkdir(parents=True)
+    gh = bin_dir / "gh"
+    gh.write_text(
+        """#!/usr/bin/env python3
+import json, os, sys
+data = json.loads(os.environ['FAKE_GH_RESPONSES'])
+key = ' '.join(sys.argv[1:])
+if key not in data:
+    print('unexpected gh invocation: ' + key, file=sys.stderr); raise SystemExit(97)
+item = data[key]
+if isinstance(item, dict) and 'pages' in item:
+    for page in item['pages']: print(json.dumps(page))
+else: print(json.dumps(item))
+"""
+    )
+    gh.chmod(0o755)
+    env = os.environ.copy()
+    env["PATH"] = f"{bin_dir}:{env['PATH']}"
+    env["FAKE_GH_RESPONSES"] = json.dumps(responses)
+    return env
+
+
+def _run(
+    tmp_path: Path,
+    repo: Path,
+    candidate: str,
+    merged: str,
+    pr: dict,
+    checks: list[dict],
+    *,
+    qualification: tuple[Path, Path] | None = None,
+    ruleset_checks: tuple[str, ...] = REQUIRED_CHECKS,
+):
+    request, receipt = qualification or _qualification(tmp_path, candidate)
+    return subprocess.run(
+        [
+            sys.executable, "-m", "tools.ci.verify_merge", "--repo", "acme/widget", "--pr", "7",
+            "--expected-candidate", candidate, "--expected-main", merged, "--worktree", str(repo),
+            "--request", str(request), "--receipt", str(receipt),
+            "--evidence", str(tmp_path / "evidence.json"),
+        ],
+        cwd=REPO_ROOT,
+        env=_fake_gh(
+            tmp_path, pr=pr, main=merged, checks=checks, ruleset_checks=ruleset_checks
+        ),
+        capture_output=True, text=True, timeout=30,
+    )
+
+
+def _pr(candidate: str, merge_sha: str, *, head_repo: str = "acme/widget", **updates) -> dict:
+    value = {
+        "number": 7, "state": "closed", "merged": True, "merged_at": "2026-10-16T12:10:00Z",
+        "merge_commit_sha": merge_sha,
+        "head": {"sha": candidate, "repo": {"full_name": head_repo}},
+        "base": {"ref": "main", "repo": {"full_name": "acme/widget"}},
+    }
+    value.update(updates)
+    return value
+
+
+def _checks(candidate: str) -> list[dict]:
+    return [
+        {"name": name, "head_sha": candidate, "status": "completed", "conclusion": "success",
+         "started_at": "2026-10-16T12:08:00Z", "completed_at": "2026-10-16T12:09:00Z",
+         "app": {"slug": "github-actions", "id": 15368}}
+        for name in REQUIRED_CHECKS
+    ]
+
+
+def test_verify_merge_rejects_closed_unmerged_and_wrong_identity(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged, merged=False, merged_at=None), _checks(candidate))
+    assert result.returncode == 1
+    assert "not merged" in result.stderr
+
+
+def test_verify_merge_accepts_exact_candidate_from_valid_fork(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+
+    result = _run(
+        tmp_path,
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged, head_repo="contributor/widget"),
+        _checks(candidate),
+    )
+
+    assert result.returncode == 0, result.stderr
+
+
+def test_verify_merge_rejects_missing_or_stale_required_check(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+    checks = _checks(candidate)[:-1]
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
+    assert result.returncode == 1
+    assert "locomo-quickstart-bil2" in result.stderr
+
+
+def test_verify_merge_rejects_squash_or_rebase_shape(tmp_path: Path) -> None:
+    repo, candidate, _merge = _merged_repo(tmp_path)
+    _git(repo, "reset", "--hard", candidate)
+    result = _run(tmp_path, repo, candidate, candidate, _pr(candidate, candidate), _checks(candidate))
+    assert result.returncode == 1
+    assert "ordinary merge commit" in result.stderr
+
+
+def test_verify_merge_rejects_invalid_stored_qualification(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+    request, receipt = _qualification(tmp_path, candidate)
+    value = json.loads(receipt.read_text())
+    value["status"] = "INDETERMINATE"
+    receipt.write_text(json.dumps(value))
+    result = subprocess.run(
+        [sys.executable, "-m", "tools.ci.verify_merge", "--repo", "acme/widget", "--pr", "7",
+         "--expected-candidate", candidate, "--expected-main", merged, "--worktree", str(repo),
+         "--request", str(request), "--receipt", str(receipt), "--evidence", str(tmp_path / "out.json")],
+        cwd=REPO_ROOT, capture_output=True, text=True, timeout=30,
+    )
+    assert result.returncode == 1
+    assert "qualification" in result.stderr
+
+
+def test_verify_merge_rejects_qualification_outside_canonical_queue(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    request, receipt = _qualification(tmp_path, candidate)
+    request_value = json.loads(request.read_text())
+    receipt_value = json.loads(receipt.read_text())
+    forged_request = tmp_path / "forged-request.json"
+    forged_receipt = (
+        tmp_path / "forged-state" / "receipts" / f"{request_value['request_id']}.json"
+    )
+    forged_receipt.parent.mkdir(parents=True)
+    request_value["receipt_path"] = str(forged_receipt)
+    request_value["request_sha256"] = closeout_queue._request_hash(request_value)
+    receipt_value["request_sha256"] = request_value["request_sha256"]
+    forged_request.write_text(json.dumps(request_value))
+    forged_receipt.write_text(json.dumps(receipt_value))
+
+    result = _run(
+        tmp_path / "run",
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged),
+        _checks(candidate),
+        qualification=(forged_request, forged_receipt),
+    )
+
+    assert result.returncode == 1
+    assert "queued" in result.stderr or "queue" in result.stderr
+
+
+def test_verify_merge_accepts_content_addressed_qualified_retry(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    request_path, canonical = _qualification(tmp_path, candidate)
+    request = json.loads(request_path.read_text())
+    qualified = json.loads(canonical.read_text())
+    failed = json.loads(canonical.read_text())
+    failed["status"] = "NOT_QUALIFIED"
+    failed["checks"][0]["status"] = "FAIL"
+    failed["checks"][0]["exit_code"] = 1
+    failed["next_action"] = "retry"
+    canonical.write_text(json.dumps(failed))
+    encoded = closeout_queue._canonical_record(qualified)
+    attempt = closeout_queue._receipt_attempt_path(
+        canonical.parent.parent, request["request_id"], encoded
+    )
+    attempt.parent.mkdir()
+    attempt.write_bytes(encoded)
+
+    result = _run(
+        tmp_path / "run",
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged),
+        _checks(candidate),
+        qualification=(request_path, attempt),
+    )
+
+    assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize(
+    "updates,message",
+    [
+        ({"head": {"sha": "9" * 40, "repo": {"full_name": "acme/widget"}}}, "head does not match"),
+        ({"base": {"ref": "release", "repo": {"full_name": "acme/widget"}}}, "base is not protected main"),
+    ],
+)
+def test_verify_merge_rejects_wrong_live_pr_head_or_base(tmp_path: Path, updates, message) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged, **updates), _checks(candidate))
+
+    assert result.returncode == 1
+    assert message in result.stderr
+
+
+def test_verify_merge_rejects_merge_that_does_not_have_candidate_as_second_parent(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+    first_parent = _git(repo, "rev-parse", f"{merged}^1")
+
+    result = _run(tmp_path, repo, first_parent, merged, _pr(first_parent, merged), _checks(first_parent))
+
+    assert result.returncode == 1
+    assert "second parent" in result.stderr
+
+
+def test_verify_merge_rejects_a_failing_canonical_gate(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), _checks(candidate))
+
+    assert result.returncode == 1
+    assert "canonical gate failed" in result.stderr
+
+
+def test_verify_merge_rejects_newer_pending_run_even_when_an_older_run_succeeded(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path)
+    checks = _checks(candidate)
+    checks.append({
+        "name": "repo-hygiene", "head_sha": candidate, "status": "in_progress",
+        "conclusion": None, "started_at": "2026-10-16T12:10:00Z", "completed_at": None,
+        "app": {"slug": "github-actions", "id": 15368},
+    })
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), checks)
+
+    assert result.returncode == 1
+    assert "stale or unsuccessful: repo-hygiene" in result.stderr
+
+
+def test_verify_merge_enforces_every_live_ruleset_context(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+    live_contexts = (*REQUIRED_CHECKS, "new-required-check")
+
+    result = _run(
+        tmp_path,
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged),
+        _checks(candidate),
+        ruleset_checks=live_contexts,
+    )
+
+    assert result.returncode == 1
+    assert "new-required-check" in result.stderr
+
+
+def test_verify_merge_writes_exact_identity_and_gate_evidence_after_all_proofs_pass(tmp_path: Path) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, gate_stubs=True)
+
+    result = _run(tmp_path, repo, candidate, merged, _pr(candidate, merged), _checks(candidate))
+
+    assert result.returncode == 0, result.stderr
+    evidence = json.loads((tmp_path / "evidence.json").read_text())
+    assert evidence["expected_candidate"] == candidate
+    assert evidence["result_main"] == merged
+    assert evidence["merge"]["second_parent"] == candidate
+    assert [item["name"] for item in evidence["required_checks"]] == list(REQUIRED_CHECKS)
+    assert evidence["required_checks"][0]["app_slug"] == "github-actions"
+    assert evidence["required_checks"][0]["ruleset_id"] == 44
+    assert evidence["required_checks"][0]["ruleset_integration_id"] is None
+    assert len(evidence["canonical_gates"]) == 11
+    assert all(item["exit_code"] == 0 for item in evidence["canonical_gates"])

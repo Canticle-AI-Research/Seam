@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# SEAM_HOOK_PROTOCOL: 1
 # SEAM canonical pre-commit hook.
 #
 # Runs for every commit on every machine that has installed this hook (see

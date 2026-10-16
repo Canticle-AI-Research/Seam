@@ -5,6 +5,25 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-16 — original PR backlog reconciled; completion safeguards added.**
+All eight original source/site PRs are closed without merging deferred or unsafe
+candidates. Their exact tips remain preserved and unfinished acceptance stays
+in recovery issues; website locked proposals remain in the private website
+repository. See the [disposition receipt](docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json)
+and [PR completion policy](docs/PR_LIFECYCLE.md). This infrastructure slice adds
+one-active-PR enforcement, worktree-aware hooks and exact-main merge verification.
+Independent qualification, protected admission and post-merge proof retain
+their exact evidence; candidate tests alone do not establish them. See
+HISTORY#684 and [the current handoff](docs/handoffs/INDEX.md).
+
+The operator's product priority remains the finite current-built documentation
+and licensing review/signoff, then conditional independent SEAM Doctor.
+Licensing and the dated TestPyPI delivery below are preserved completed scopes.
+Batching, skills, reports and formation recovery remain tracked and held for
+explicit resumption. Older batching-next headlines below do not supersede that
+operator order. No production publication, deployment or paid evaluation is
+part of the PR cleanup.
+
 **2026-10-14 — Suite TestPyPI publication and downloaded installs verified.**
 [seam-suite 2.4.1rc1](https://test.pypi.org/project/seam-suite/2.4.1rc1/) is live.
 [Publisher run38562182535](https://github.com/Canticle-AI-Research/Seam/actions/runs/38562182535)

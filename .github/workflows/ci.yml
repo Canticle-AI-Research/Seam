@@ -240,6 +240,14 @@ jobs:
         # existing Markdown validator. No provider/backend extras are required.
         run: python -m pip install -e ".[lint]" pytest
 
+      - name: Enforce protected-main pull request lifecycle
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python -m tools.ci.pr_lifecycle --repo "${GITHUB_REPOSITORY}"
+
+      - name: Verify lifecycle, merge, hook, maintenance, and closeout regressions
+        run: python -m pytest tests/audit/test_pr_lifecycle.py tests/audit/test_verify_merge.py tests/audit/test_git_hook_install.py tests/audit/test_github_maintenance_report.py tests/audit/test_closeout_queue.py tests/audit/test_session_end_agent_closeout.py -q
+
       - name: Lint (correctness + import order)
         # `[tool.ruff.lint]` in pyproject.toml selects E4/E7/E9/F/I only --
         # correctness and import ordering, deliberately not style. The rule set

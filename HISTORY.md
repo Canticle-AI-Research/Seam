@@ -22191,3 +22191,59 @@ Recorded-fact correction to HISTORY#681-682: the canonical static counter only d
 
 The count/collector wording revisions preserve their original evidence and do not weaken or suppress any gate. No runtime or release artifact changed. TestPyPI publication, both immutable hashes, settled licensing, and bounded batching next remain the independently reviewed final state.
 ---END-ENTRY-#683---
+
+---BEGIN-ENTRY-#684---
+id: 684
+date: 2026-10-16T13:29:46Z
+agent: codex
+status: changed
+topics: ci, git-hooks, protocol, verify, reconcile, docs, handoff, history, worktree
+commits: pending
+refs: docs/PR_LIFECYCLE.md,docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json,docs/handoffs/2026-10-16-pr-completion-safeguards.md,tools/ci/pr_lifecycle.py,tools/ci/verify_merge.py
+supersedes: 683
+tokens: 769
+---
+Reconciled the eight remaining original PRs through exact source preservation,
+independent disposition review and live GitHub closure readback. None was safe
+for direct integration. Source PRs272/271/270/269/264/249/230 and private website
+PR29 are closed without merge; original branch and pull refs remain intact.
+Deferred acceptance remains in issues292/294/297/298/299/301/302. Website R1
+issue291 is complete for existing corrections and locked-proposal preservation.
+The six unique proposals are preserved in their private owning repository at
+refs/tags/archive/20261016/pr29-preserved, exact13a40ea1b44a6e11f3c56daf9f3077324ee08bc9.
+Public audit metadata contains hashes/refs only, never private proposal text.
+
+Adds one-ordinary-active-PR enforcement through authenticated gh, independently
+resolved protected-main policy, exact-head owned expiring blocker exceptions,
+required repo-hygiene, canonical pre-push and scheduled maintenance. Dormant
+exceptions grant no exemption; close-preserve/admit-policy/reopen permits safe
+exception admission without a cap deadlock. Incomplete API/Git state fails.
+Replaces primary-bound hook symlinks with backed-up atomic common-directory
+dispatchers resolving the invoking checkout and rejecting incompatible source.
+Adds exact protected-main merge verification: real merged state, candidate/base,
+all live required checks, admitted queue qualification, ordinary-merge ancestry
+and actual unsuppressed canonical gates in a clean isolated exact-main checkout.
+
+Recovers only the bounded legacy relative-receipt compatibility from15a66de:
+exact canonical legacy paths accepted, traversal/mismatch rejected, new roots
+normalized. Original queue records are unchanged. Independent administrative
+review qualified three newer primary requests against retained HEAD8530717d,
+diff625dcee840446105 and279paths; all four existing queues now validate empty
+using this candidate helper. This does not qualify prior product implementation.
+
+Verification performed during preparation: witnessed public-CLI and real-Git
+red/green cycles; bounded lifecycle/verifier/hook/queue and security regressions;
+whole-repository Ruff, content-free secret/session scan and working-tree wiki.
+Independent Standards/Spec reviews exposed admission/check/hook/API gaps, routed
+through new delivery regressions. Final exact-state release qualification,
+required pushed-head CI, protected merge and post-merge evidence remain distinct
+mandatory completion boundaries; no whole-suite/product/installed/live claim.
+The owning session evidence retains actual commands and red/green fingerprints.
+
+Reconciles AGENTS, ledger, workflow, current status and handoff routing to the
+operator's finite current-built docs/licensing review, then conditional
+independent Doctor. Prior licensing and TestPyPI delivery evidence is preserved;
+formation/batching/skills/research remain held for explicit resumption. No paid
+provider/model/service execution, production publication, deployment, new license
+decision, original branch deletion or unrelated dirty-worktree mutation.
+---END-ENTRY-#684---

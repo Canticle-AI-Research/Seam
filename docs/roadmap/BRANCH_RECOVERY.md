@@ -2,6 +2,18 @@
 
 Status: active; audit complete, integration and retirement incomplete.
 
+October 16 reconciliation: all eight remaining original source/site PRs are
+closed without merging unsafe or deferred candidates. Exact branch/pull refs,
+recovery issues and the private website preservation tag are recorded in
+[the disposition receipt](../audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json).
+R1 preservation is complete in issue291; locked future website proposals remain
+planned in issue302. The dated workstream order below describes recovery
+dependencies, not current operator priority. Finish the finite current-built
+docs/licensing review first, then conditional independent Doctor work; formation
+and broader recoveries remain held for explicit resumption. Licensing PR286 and
+TestPyPI publication were subsequently verified in HISTORY#680; the older access
+blocker below is historical. No new publication is authorized by this plan.
+
 The owner requires every branch to be inspected for missing useful work before deletion. This plan covers all 30 remaining branches at the captured exact tips, including 84 distinct unique commit objects. A closed PR or unique commit count is not a disposition. Detailed per-file, symbol and intermediate-commit evidence is retained in the [audit](../audits/2026-10-14-branch-recovery.md).
 
 Use current main as the integration base. Rebuild useful slices with witnessed tests; never merge stale chronology, obsolete licensing or rejected UI wholesale. Keep unresolved branch tips until useful work is admitted or durably preserved with a tracked completion condition.

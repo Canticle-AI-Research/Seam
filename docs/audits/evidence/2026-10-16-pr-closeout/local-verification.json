@@ -1,0 +1,357 @@
+{
+  "schema": "seam-pr-cleanup-local-verification/v1",
+  "scope": "Uncommitted safeguard candidate against main45786; no protected merge or live product acceptance implied",
+  "verified_at": "2026-10-16T13:31:57.799082+00:00",
+  "base_sha": "45786b422e45103c180ad5b22aaace107b7dfd1e",
+  "reviews": {
+    "standards": "PASS after all concrete findings repaired and frozen final delta reviewed",
+    "spec": "PASS after fork/stacked/public-CLI delta; bounded independent source review"
+  },
+  "reviewed_source_sha256": {
+    "tools/ci/github_maintenance_report.py": "7d917fa6eef37446f6ee36306947ea44bb6a35d81b6335543d4239d3666574cb",
+    "tools/ci/verify_merge.py": "da02236509ab8095c0d6df3325d35576e736afa60a17f1a86f2aa93700b29c83",
+    "tools/ci/pr_lifecycle.py": "05480413dde1cf8f8fd12a653b19953306c72a0ada71dd1199138419e177c6f2",
+    ".github/pr-lifecycle-policy.json": "2a3ba8d5c9be0163c866371b937d93062d9f940a00af6692ed3050449ec514ba",
+    ".github/workflows/ci.yml": "a71e8a07b4a56ffb5d9dbdd4a612682b55e2c2c87ae8a62a2fb4955a84dbc34b",
+    ".github/workflows/repository-maintenance.yml": "6189258da8e8776d6399522c8fd98d2b0953bea920e8b625f7bf5bb39e368d42",
+    "tools/git-hooks/install.sh": "0ccbeba81eff9f52ebc2eb8f25fe29938086a5c01512b29935357927a142edf2",
+    "tools/git-hooks/pre-commit": "cb36a09d1b0ccbe95d94b5980ad70d8d7ccbdad4c2138f5f00846f941bb51a06",
+    "tools/git-hooks/pre-push": "e0b9e3fdd8a5ac14c81d67b4837eb726469f1e2ad8084efd1c0b9276fc3bd430",
+    "tests/audit/test_github_maintenance_report.py": "2ab2c96117d145bdfbe22503bbb85a85b72337719267fb16d504649c40a44e1c",
+    "tests/audit/test_pr_lifecycle.py": "59ae4dded8788ca181947bb5b4504f83c4ca792fffc114e2ecc0005b5ee9ccaa",
+    "tests/audit/test_verify_merge.py": "391350b476d99032126d7f2432e7570007695f934051f97cd362ebc2f1162181",
+    "tests/audit/test_git_hook_install.py": "ea26398c62cbb7d2c6dedd9d4d0361c12ea359cc390f0ded51bdb1bf31d0cbdc",
+    "tests/audit/test_local_gates_match_ci.py": "36cd6eb25962c80e26186a9f6a546052c69d17a553e6e8b1d2f5998e22e98305",
+    "tools/agents/closeout_queue.py": "1576718401de9c5c685fdb1aab2223df4bb0ac7fa2720e0c1cdcfa989829cc17",
+    "tools/agents/session_end_closeout.py": "99e45a00b9f64d619f2f5774fd211b287d15d5710060ef36bc594d3d86413d06",
+    "tests/audit/test_closeout_queue.py": "d9aff31a8afbf682d4420521d7372d12fa54acee3239d6aa1eff8866674f5a83",
+    "AGENTS.md": "fe0f1c33e3bc49ffb0b140b2a383ca16313c4e5263cc2ece0420ea139233e0a4",
+    "REPO_LEDGER.md": "787b26e6ee69debabf093ce7d65d610cb89e6c6663fc94053ea66b9374e7c0e7",
+    "PROJECT_STATUS.md": "190996b4df4cbec73ac6a74e073ca0466786b2e21e310af113e69ab40ccbfba7",
+    "docs/PR_LIFECYCLE.md": "1aa89f437af37d117d5fd9559b449a61b491fd051e7616d47c0cd8280bc70518",
+    "docs/README.md": "a9f5e5f18c826db433b9772f9b207b4d94f0cf10b1dd8f0228fe15e715512549",
+    "docs/SOP_SEAM_CODEX_WORKFLOW.md": "8d03fcb8e2d8c3805ded89e84856f0d18d41a0fc253945ece808be35639d8dcc",
+    "docs/roadmap/BRANCH_RECOVERY.md": "4c9d9f15ee9c6347dffbeae80d4278f235d281a3535156e1c6c130862ed8579c",
+    "docs/handoffs/INDEX.md": "87b0ce0c15cc7161894c43b46a49df411c1ceed05b85aec076d0f3a65b24e39a",
+    "docs/handoffs/2026-10-14-suite-testpypi-verified.md": "e814e5d8299f6a4ba374ed3db186ef665953413e7f974662351414ec23248c90",
+    "docs/handoffs/2026-10-16-pr-completion-safeguards.md": "608180a3bdd2598c651a9499ca4e294034d202f0709d3182bddc1d5013dc61f3",
+    "docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json": "c6cd4e49f1a098c7fb4a56ece59605656b8c55d0e2389163076ebe58aa10cd28",
+    "docs/audits/evidence/2026-10-16-pr-closeout/website-pr29-preservation.json": "af9ad42ddc2081e99ea15dca17694bb1f84ee2fffbf506f75633a964d8b063db"
+  },
+  "tdd": {
+    "cycles": [
+      {
+        "behavior": "Protected-main lifecycle counts drafts and paginated open PRs, authenticates first, binds protected-main policy, and fails closed.",
+        "green": {
+          "at": "2026-10-16T08:01:27-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py -q",
+          "exit": 0,
+          "sha256": "c86da0f7c6035eec02cacda04cf822c8c099690beebc26d9e29ceea59df013bf"
+        },
+        "implementationrefs": [
+          "tools/ci/pr_lifecycle.py",
+          ".github/pr-lifecycle-policy.json"
+        ],
+        "red": {
+          "at": "2026-10-16T08:00:40-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py -q",
+          "exit": 1,
+          "sha256": "6dd1cf2493113c2fa473f80d1f486ca5d01982145740f5b286f15791c1bef453"
+        },
+        "testrefs": [
+          "tests/audit/test_pr_lifecycle.py"
+        ]
+      },
+      {
+        "behavior": "Maintenance reporting uses authenticated bounded gh transport and fails closed on malformed Git state.",
+        "green": {
+          "at": "2026-10-16T08:03:02-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_github_maintenance_report.py -q",
+          "exit": 0,
+          "sha256": "45e9c7ba7664040f1e34237c814b6048f60227ac2e74e279b306bf9f0c2790b2"
+        },
+        "implementationrefs": [
+          "tools/ci/github_maintenance_report.py"
+        ],
+        "red": {
+          "at": "2026-10-16T08:02:22-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_github_maintenance_report.py -q",
+          "exit": 1,
+          "sha256": "f45792196528990b7fb80c59de298bbc5de633542c7eb7f0439ac79b31e3cd57"
+        },
+        "testrefs": [
+          "tests/audit/test_github_maintenance_report.py"
+        ]
+      },
+      {
+        "behavior": "Merge verification binds qualification, PR/head/base/main identities, required checks, ordinary merge ancestry, local gates, and write-once evidence.",
+        "green": {
+          "at": "2026-10-16T08:05:58-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py -q",
+          "exit": 0,
+          "sha256": "7d06e7b2ea34f7cf6a2bf14f9859e122c5cdcdb70d3a712192f66fd2611b3e20"
+        },
+        "implementationrefs": [
+          "tools/ci/verify_merge.py"
+        ],
+        "red": {
+          "at": "2026-10-16T08:04:54-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py -q",
+          "exit": 1,
+          "sha256": "3dfd509a8a6cd72b8ae9b7a199996247ca32217a694b53bf03b8ad0f8e8c367b"
+        },
+        "testrefs": [
+          "tests/audit/test_verify_merge.py"
+        ]
+      },
+      {
+        "behavior": "Permanent common-dir hook dispatchers survive worktree removal, preserve invocation semantics, and refuse unknown hooks.",
+        "green": {
+          "at": "2026-10-16T08:08:54-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_git_hook_install.py -q",
+          "exit": 0,
+          "sha256": "31d847e5ea604f73f0590e09b9a1d05a10b6261f219e842fb6d3eee7df2e1e1e"
+        },
+        "implementationrefs": [
+          "tools/git-hooks/install.sh",
+          "tools/git-hooks/pre-commit",
+          "tools/git-hooks/pre-push"
+        ],
+        "red": {
+          "at": "2026-10-16T08:07:07-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_git_hook_install.py -q",
+          "exit": 1,
+          "sha256": "2821a393e78718385e8c71aa394cacdd1231edcee31ae2c0821349e4e39edf16"
+        },
+        "testrefs": [
+          "tests/audit/test_git_hook_install.py"
+        ]
+      },
+      {
+        "behavior": "Required CI and pre-push expose the same lifecycle gate and parity checks detect suppression or removal.",
+        "green": {
+          "at": "2026-10-16T08:09:50-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_local_gates_match_ci.py -q",
+          "exit": 0,
+          "sha256": "71a60ceddf08284622508fc8c0bf3d95e5f269d79aafb70eb58668a6be40c150"
+        },
+        "implementationrefs": [
+          ".github/workflows/ci.yml",
+          "tools/git-hooks/pre-push"
+        ],
+        "red": {
+          "at": "2026-10-16T08:09:29-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_local_gates_match_ci.py -q",
+          "exit": 1,
+          "sha256": "4adbc238f81bb00d64e3fdcd2b097035a8b98e85360ad1ac23f2156634291cad"
+        },
+        "testrefs": [
+          "tests/audit/test_local_gates_match_ci.py"
+        ]
+      },
+      {
+        "behavior": "Legacy exact repo-relative receipt paths remain readable while new relative state roots emit absolute paths and traversal fails closed.",
+        "green": {
+          "at": "2026-10-16T08:20:47-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k 'relative_state_root or legacy_repo_relative or relative_receipt_path' -q",
+          "exit": 0,
+          "sha256": "c713c2fea6f5cae6cde8ce99e1a04783f54cc697912f748fa64e7df895fc6237"
+        },
+        "implementationrefs": [
+          "tools/agents/closeout_queue.py",
+          "tools/agents/session_end_closeout.py"
+        ],
+        "red": {
+          "at": "2026-10-16T08:20:39-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_closeout_queue.py -k 'relative_state_root or legacy_repo_relative or relative_receipt_path' -q",
+          "exit": 1,
+          "sha256": "735cbf326758c2e501c4626c4c257a1059af308d29aab14b633ed0581e7b6449"
+        },
+        "testrefs": [
+          "tests/audit/test_closeout_queue.py"
+        ]
+      },
+      {
+        "behavior": "Scheduled maintenance runs lifecycle policy before reporting, preserves the report on failure, and pre-push rejects a repository override mismatch.",
+        "green": {
+          "at": "2026-10-16T08:21:51-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_local_gates_match_ci.py::test_scheduled_maintenance_enforces_pr_lifecycle_before_reporting tests/audit/test_git_hook_install.py::test_pre_push_refuses_lifecycle_repo_override_that_mismatches_remote -q",
+          "exit": 0,
+          "sha256": "35ba478a9bec0e9612b8c8a9a1654cda2b9a11ac73882ee8757659b5cef89702"
+        },
+        "implementationrefs": [
+          ".github/workflows/repository-maintenance.yml",
+          "tools/git-hooks/pre-push"
+        ],
+        "red": {
+          "at": "2026-10-16T08:21:32-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_local_gates_match_ci.py::test_scheduled_maintenance_enforces_pr_lifecycle_before_reporting tests/audit/test_git_hook_install.py::test_pre_push_refuses_lifecycle_repo_override_that_mismatches_remote -q",
+          "exit": 1,
+          "sha256": "dd2769495032417bef8b1bb0530858306b7340d715b923743300d97509eb0498"
+        },
+        "testrefs": [
+          "tests/audit/test_local_gates_match_ci.py",
+          "tests/audit/test_git_hook_install.py"
+        ]
+      },
+      {
+        "behavior": "Merge qualification requires canonical queued request and content-addressed stored receipt provenance, supports qualified retries, and enforces every live ruleset context; installer refuses suffix-only external symlinks and lifecycle rejects incomplete inventory or cap expansion.",
+        "green": {
+          "at": "2026-10-16T08:25:09-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py::test_lifecycle_rejects_incomplete_live_pr_records tests/audit/test_pr_lifecycle.py::test_lifecycle_rejects_policy_that_expands_the_cap tests/audit/test_git_hook_install.py::test_install_refuses_external_symlink_with_canonical_suffix tests/audit/test_verify_merge.py::test_verify_merge_rejects_qualification_outside_canonical_queue tests/audit/test_verify_merge.py::test_verify_merge_accepts_content_addressed_qualified_retry tests/audit/test_verify_merge.py::test_verify_merge_enforces_every_live_ruleset_context tests/audit/test_local_gates_match_ci.py::test_scheduled_maintenance_enforces_pr_lifecycle_before_reporting -q",
+          "exit": 0,
+          "sha256": "75823b39a7fe3d51c7151fc497dc5b15bc16898c29c70f581f51772ccef4796b"
+        },
+        "implementationrefs": [
+          "tools/ci/verify_merge.py",
+          "tools/git-hooks/install.sh",
+          "tools/ci/pr_lifecycle.py",
+          ".github/workflows/repository-maintenance.yml"
+        ],
+        "red": {
+          "at": "2026-10-16T08:24:41-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py::test_verify_merge_rejects_qualification_outside_canonical_queue -q",
+          "exit": 1,
+          "sha256": "e8020d8110f429a1d21e2ff2bdef9d8a5221dcf949dc535f097f27a20a38aa51"
+        },
+        "testrefs": [
+          "tests/audit/test_verify_merge.py",
+          "tests/audit/test_git_hook_install.py",
+          "tests/audit/test_pr_lifecycle.py",
+          "tests/audit/test_local_gates_match_ci.py"
+        ]
+      },
+      {
+        "behavior": "Dormant protected exceptions admit their policy PR without exemption, while reopened exceptions require exact head, live blocker, and unexpired admission.",
+        "green": {
+          "at": "2026-10-16T08:26:11-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py -q",
+          "exit": 0,
+          "sha256": "0e9cf0145e3e0c328a71ab21e0a4acbc1ed555cab413295a82daecba11ec216e"
+        },
+        "implementationrefs": [
+          "tools/ci/pr_lifecycle.py"
+        ],
+        "red": {
+          "at": "2026-10-16T08:25:55-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py -k 'admits_policy_change or dormant or reopened_exception' -q",
+          "exit": 1,
+          "sha256": "3ff3017eb67a5a9cf20d8add6890faee8e08c2426440362b172d8219288dc019"
+        },
+        "testrefs": [
+          "tests/audit/test_pr_lifecycle.py"
+        ]
+      },
+      {
+        "behavior": "Required repo-hygiene runs the complete lifecycle, merge, hook, maintenance, closeout, and SessionEnd regression slice without advisory suppression.",
+        "green": {
+          "at": "2026-10-16T08:27:30-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_local_gates_match_ci.py::test_required_repo_hygiene_runs_lifecycle_regressions_unconditionally tests/audit/test_local_gates_match_ci.py::test_lifecycle_regression_parity_rejects_removed_or_advisory_step -q",
+          "exit": 0,
+          "sha256": "f6d1a0a7c2658549e3cc9fc472dfaaafcefe4e0c38efb64981f85ad5a686f702"
+        },
+        "implementationrefs": [
+          ".github/workflows/ci.yml"
+        ],
+        "red": {
+          "at": "2026-10-16T08:27:10-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_local_gates_match_ci.py::test_required_repo_hygiene_runs_lifecycle_regressions_unconditionally -q",
+          "exit": 1,
+          "sha256": "e6c288ae384ff2960efe8f536f2ff8aeee4978ff6f9bc282852f0ef621cfd7eb"
+        },
+        "testrefs": [
+          "tests/audit/test_local_gates_match_ci.py"
+        ]
+      },
+      {
+        "behavior": "Fork and stacked open PRs have valid identities and count toward the lifecycle cap.",
+        "green": {
+          "at": "2026-10-16T08:28:21-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py -q",
+          "exit": 0,
+          "sha256": "e1b769275d17ed7446f733dc825cc2047f33f804761c6ee8d6f439d679d9c96d"
+        },
+        "implementationrefs": [
+          "tools/ci/pr_lifecycle.py"
+        ],
+        "red": {
+          "at": "2026-10-16T08:28:12-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py -k 'fork or stacked' -q",
+          "exit": 1,
+          "sha256": "b04b8cbab88122e7ed583e69c5c1e1b25ecfa7aa42b89b03852128334bb90f9b"
+        },
+        "testrefs": [
+          "tests/audit/test_pr_lifecycle.py"
+        ]
+      },
+      {
+        "behavior": "Merge verification accepts an exact candidate from a syntactically valid fork while retaining exact protected-main base binding.",
+        "green": {
+          "at": "2026-10-16T08:29:30-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py -q",
+          "exit": 0,
+          "sha256": "9f2cb134e3768419adc3839ea4abf9253aa0c3c4c09d12b80d36eea25d696f4d"
+        },
+        "implementationrefs": [
+          "tools/ci/verify_merge.py"
+        ],
+        "red": {
+          "at": "2026-10-16T08:29:23-05:00",
+          "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py::test_verify_merge_accepts_exact_candidate_from_valid_fork -q",
+          "exit": 1,
+          "sha256": "286e6890a18c84473e2e803a9d0cb5ae46d5546d9ffc68364a3bbe623c8144cc"
+        },
+        "testrefs": [
+          "tests/audit/test_verify_merge.py"
+        ]
+      }
+    ],
+    "final_required_ci_slice": {
+      "at": "2026-10-16T08:29:45-05:00",
+      "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py tests/audit/test_verify_merge.py tests/audit/test_git_hook_install.py tests/audit/test_github_maintenance_report.py tests/audit/test_closeout_queue.py tests/audit/test_session_end_agent_closeout.py -q",
+      "exit": 0,
+      "sha256": "5ed66e67db68ee35c72f86d0d42bf6adeb4570af2b8d95eb75e7bda43ac6dbea"
+    },
+    "version": "seam-tdd-evidence/v1"
+  },
+  "root_checks": [
+    {
+      "command": ".venv/bin/python -m pytest tests/audit/test_pr_lifecycle.py tests/audit/test_verify_merge.py tests/audit/test_git_hook_install.py tests/audit/test_github_maintenance_report.py tests/audit/test_local_gates_match_ci.py tests/audit/test_closeout_queue.py tests/audit/test_session_end_agent_closeout.py tests/audit/test_secret_scan.py tests/audit/test_repo_hygiene_gate.py tests/audit/test_history_closeout.py tools/docs/test_sync_references.py -q",
+      "exit": 0,
+      "output_sha256": "3116fdd4b4bfa436e047b00d191af910003202f0641973709741230b402b2523"
+    },
+    {
+      "command": ".venv/bin/ruff check .",
+      "exit": 0
+    },
+    {
+      "command": "bash -n tools/git-hooks/install.sh tools/git-hooks/pre-commit tools/git-hooks/pre-push",
+      "exit": 0
+    },
+    {
+      "command": ".venv/bin/python -m tools.security.secret_scan --working-tree",
+      "exit": 0
+    },
+    {
+      "command": ".venv/bin/python -m tools.history.closeout --agent codex --status changed --supersedes 683 (HISTORY684 preparation)",
+      "exit": 0,
+      "output_sha256": "1d71097fe53f48c7afbfcdb0df11fa37ed08c8c41767402343926e8edb90eb86"
+    }
+  ],
+  "existing_queue_scope": {
+    "registered_worktrees": 22,
+    "existing_state_roots": 4,
+    "all_pending_empty": true,
+    "primary_requests": 34,
+    "primary_dispositive_qualified": 19,
+    "primary_validly_superseded": 15,
+    "note": "Administrative preservation receipts do not qualify this new candidate or old product work."
+  },
+  "remaining_delivery_gates": [
+    "exact pushed-head required CI",
+    "independently stored exact-candidate QUALIFIED receipt",
+    "protected merge",
+    "isolated exact-main verify_merge evidence",
+    "finish created worktrees/branch"
+  ]
+}

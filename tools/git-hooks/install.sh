@@ -1,92 +1,144 @@
 #!/usr/bin/env bash
-# Install the SEAM canonical git hooks into .git/hooks/.
-#
-# Tries a symlink first (so updates to tools/git-hooks/<hook> are picked
-# up automatically). Falls back to a copy on filesystems that do not support
-# symlinks (exFAT, FAT32, some Windows configurations). The copy embeds a
-# CANONICAL_SHA marker so subsequent runs can detect drift and warn that
-# `bash tools/git-hooks/install.sh` should be re-run.
-#
-# Pass --force to overwrite existing hooks (backed up to
-# .git/hooks/<hook>.bak.<timestamp>).
+# Install worktree-safe SEAM hook dispatchers in the repository common Git dir.
 
 set -u
 
-REPO_ROOT="$(git rev-parse --show-toplevel)"
-cd "$REPO_ROOT" || exit 1
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "[SEAM hooks] cannot resolve repository root" >&2
+  exit 1
+}
+COMMON_RAW=$(git rev-parse --git-common-dir 2>/dev/null) || {
+  echo "[SEAM hooks] cannot resolve common Git directory" >&2
+  exit 1
+}
+case "$COMMON_RAW" in
+  /*) COMMON_DIR=$COMMON_RAW ;;
+  *) COMMON_DIR=$(cd "$REPO_ROOT/$COMMON_RAW" 2>/dev/null && pwd -P) || {
+       echo "[SEAM hooks] common Git directory is unavailable" >&2
+       exit 1
+     } ;;
+esac
 
-HOOKS=(pre-commit pre-push)
+CUSTOM_HOOKS=$(git config --get core.hooksPath 2>/dev/null || true)
+if [ -n "$CUSTOM_HOOKS" ]; then
+  echo "[SEAM hooks] refusing custom core.hooksPath: $CUSTOM_HOOKS" >&2
+  exit 1
+fi
 
-FORCE=0
+REPLACE=0
 for arg in "$@"; do
   case "$arg" in
-    --force|-f) FORCE=1 ;;
+    --replace|--force|-f) REPLACE=1 ;;
+    *) echo "[SEAM hooks] unsupported argument: $arg" >&2; exit 2 ;;
   esac
 done
 
-install_hook() {
-  local hook_name="$1"
-  local src_rel="tools/git-hooks/$hook_name"
-  local src="$REPO_ROOT/$src_rel"
-  local dest="$REPO_ROOT/.git/hooks/$hook_name"
+HOOK_DIR="$COMMON_DIR/hooks"
+mkdir -p "$HOOK_DIR" || exit 1
 
-  if [ ! -f "$src" ]; then
-    echo "Missing $src" >&2
+write_dispatcher() {
+  local output=$1
+  local hook_name=$2
+  local source_sha=$3
+  {
+    echo '#!/usr/bin/env bash'
+    echo '# SEAM_HOOK_DISPATCHER: 1'
+    echo 'set -u'
+    printf 'HOOK_NAME=%q\n' "$hook_name"
+    printf 'EXPECTED_SHA=%q\n' "$source_sha"
+    cat <<'DISPATCH'
+REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || {
+  echo "[SEAM hook dispatcher] cannot resolve invoking checkout" >&2
+  exit 1
+}
+SOURCE="$REPO_ROOT/tools/git-hooks/$HOOK_NAME"
+if [ ! -f "$SOURCE" ] || ! grep -qx '# SEAM_HOOK_PROTOCOL: 1' "$SOURCE"; then
+  echo "[SEAM hook dispatcher] canonical source is absent, stale or unsupported: $SOURCE" >&2
+  exit 1
+fi
+ACTUAL_SHA=$(sha256sum "$SOURCE" | awk '{print $1}') || exit 1
+if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+  echo "[SEAM hook dispatcher] canonical source is stale or unsupported; rerun tools/git-hooks/install.sh" >&2
+  exit 1
+fi
+exec bash "$SOURCE" "$@"
+DISPATCH
+  } >"$output" || return 1
+  chmod 0755 "$output"
+}
+
+install_hook() {
+  local hook_name=$1
+  local source_path="$REPO_ROOT/tools/git-hooks/$hook_name"
+  local destination="$HOOK_DIR/$hook_name"
+  local source_sha temporary recognized stamp old_sha expected_old backup link_target resolved_target
+
+  if [ ! -f "$source_path" ]; then
+    echo "[SEAM hooks] missing canonical source: $source_path" >&2
+    return 1
+  fi
+  if ! grep -qx '# SEAM_HOOK_PROTOCOL: 1' "$source_path"; then
+    echo "[SEAM hooks] unsupported canonical source protocol: $source_path" >&2
+    return 1
+  fi
+  source_sha=$(sha256sum "$source_path" | awk '{print $1}') || return 1
+  temporary=$(mktemp "$HOOK_DIR/.${hook_name}.tmp.XXXXXX") || return 1
+  if ! write_dispatcher "$temporary" "$hook_name" "$source_sha"; then
+    rm -f "$temporary"
     return 1
   fi
 
-  chmod +x "$src"
-
-  local src_sha
-  src_sha="$(sha256sum "$src" | awk '{print $1}')"
-
-  # Already a symlink pointing at the canonical hook?
-  if [ -L "$dest" ] && [ "$(readlink "$dest")" = "../../$src_rel" ]; then
-    echo "[SEAM hooks] Already installed (symlink): $dest"
+  if [ -f "$destination" ] && [ ! -L "$destination" ] && cmp -s "$temporary" "$destination"; then
+    rm -f "$temporary"
+    echo "[SEAM hooks] already installed: $destination"
     return 0
   fi
 
-  # Already a copy with matching marker?
-  if [ -f "$dest" ] && grep -q "^# CANONICAL_SHA: $src_sha\$" "$dest" 2>/dev/null; then
-    echo "[SEAM hooks] Already installed (copy, sha matches): $dest"
-    return 0
-  fi
-
-  # Need to overwrite — back up if anything exists.
-  if [ -e "$dest" ] || [ -L "$dest" ]; then
-    if [ "$FORCE" -ne 1 ]; then
-      echo "[SEAM hooks] $dest already exists and does not match canonical." >&2
-      echo "[SEAM hooks] Rerun with --force to replace (the existing file will be backed up)." >&2
-      return 1
+  recognized=0
+  if [ -L "$destination" ]; then
+    link_target=$(readlink "$destination")
+    if [ "$link_target" = "../../tools/git-hooks/$hook_name" ]; then
+      resolved_target=$(readlink -f "$destination" 2>/dev/null || true)
+      if [ "$resolved_target" = "$(readlink -f "$source_path")" ]; then
+        recognized=1
+      fi
     fi
-    local stamp
-    stamp="$(date +%Y%m%d-%H%M%S)"
-    mv "$dest" "$dest.bak.$stamp"
-    echo "[SEAM hooks] Backed up existing hook to $dest.bak.$stamp"
+  elif [ -f "$destination" ]; then
+    old_sha=$(sed -n 's/^EXPECTED_SHA=\([0-9a-f]\{64\}\)$/\1/p' "$destination")
+    if [ -n "$old_sha" ]; then
+      expected_old=$(mktemp "$HOOK_DIR/.${hook_name}.expected.XXXXXX") || {
+        rm -f "$temporary"
+        return 1
+      }
+      if write_dispatcher "$expected_old" "$hook_name" "$old_sha" \
+        && cmp -s "$expected_old" "$destination"; then
+        recognized=1
+      fi
+      rm -f "$expected_old"
+    fi
   fi
-
-  # Try symlink first.
-  if ln -s "../../$src_rel" "$dest" 2>/dev/null; then
-    echo "[SEAM hooks] Installed (symlink): $dest -> ../../$src_rel"
-    return 0
+  if { [ -e "$destination" ] || [ -L "$destination" ]; } && [ "$recognized" -ne 1 ] && [ "$REPLACE" -ne 1 ]; then
+    rm -f "$temporary"
+    echo "[SEAM hooks] unknown existing hook refused: $destination (use --replace to back it up)" >&2
+    return 1
   fi
-
-  # Fall back to copy with embedded canonical sha marker.
-  {
-    head -n 1 "$src"
-    echo "# CANONICAL_SHA: $src_sha"
-    echo "# Installed by tools/git-hooks/install.sh (copy mode; symlink unsupported by filesystem)."
-    echo "# Re-run that installer after pulling updates if the source hash changes."
-    tail -n +2 "$src"
-  } > "$dest"
-  chmod +x "$dest"
-  echo "[SEAM hooks] Installed (copy): $dest"
-  echo "[SEAM hooks] Source: $src_rel  sha256=$src_sha"
+  if [ -e "$destination" ] || [ -L "$destination" ]; then
+    stamp=$(date +%Y%m%d-%H%M%S)-$$
+    backup="$destination.bak.$stamp"
+    cp -a -- "$destination" "$backup" || {
+      rm -f "$temporary"
+      return 1
+    }
+    echo "[SEAM hooks] backed up existing hook: $backup"
+  fi
+  mv -f "$temporary" "$destination" || {
+    rm -f "$temporary"
+    return 1
+  }
+  echo "[SEAM hooks] installed common-dir dispatcher: $destination"
 }
 
 STATUS=0
-for hook in "${HOOKS[@]}"; do
-  install_hook "$hook" || STATUS=1
-done
-
+install_hook pre-commit || STATUS=1
+install_hook pre-push || STATUS=1
 exit "$STATUS"

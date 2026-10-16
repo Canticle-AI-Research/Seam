@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-10-14
+Last updated: 2026-10-16
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -15,7 +15,13 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 - `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
-- Active execution direction: root `ROADMAP.md` registers `roadmap:track:MemoryFormation`; `docs/roadmap/MEMORY_FORMATION.md` is its detailed specification, request register, dependency graph and current ready set (HISTORY#645). When the operator asks what is next, consult that specification and the current handoff, verify live completion evidence, and choose the earliest unblocked slice. Preserve the opening formation priorities; BIL-3, provider setup and report routing can proceed in independent scopes. Plans do not supersede the governing SEAM/MIRL contracts or establish implementation evidence.
+- Current operator order: finish the finite current-built documentation/licensing
+  packet and applicable CI/closeout prerequisites, then independent SEAM Doctor
+  subject to its exact-source/review gates. The formation roadmap and its
+  detailed dependency graph remain preserved, but do not override that order.
+  Deferred formation, batching, skills and comparator recovery stay in their
+  source-qualified issues until resumption. Plans do not establish implementation
+  evidence or supersede the governing SEAM/MIRL contracts.
 - `MIRL`: Machine Intermediate Representation Language; canonical memory IR
 - Naming and representation glossary: [SEAM terminology](docs/TERMINOLOGY.md).
 - Benchmark funding correction (HISTORY#646): use the explicit `claude-code`
@@ -31,6 +37,17 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **PR lifecycle and merge completion (2026-10-16).** The operator requires
+  stale proposals to be preserved and closed, concrete blockers to remain
+  tracked, and approved ready work to reach a verified protected merge.
+  Drafts count toward the one-active-PR limit. Exceptions must be exact-head,
+  owned, expiring and backed by an open blocker issue in protected-main policy;
+  candidate labels or prose cannot self-exempt. Git/API failures cannot become
+  clean reports. Merge completion requires independent GitHub identity/check
+  evidence, stored exact-state qualification and actual canonical checks on
+  isolated resulting main. Local hooks must dispatch from the invoking worktree
+  and reject stale unsupported hook sources. Source CI enforcement does not
+  imply website CI credentials or deployment authorization.
 - **Exhaustive branch recovery (2026-10-14).** The owner requires every
   remaining source and website branch inspected for useful missing work before
   retirement. Exact-tip, per-path and intermediate-commit dispositions and
