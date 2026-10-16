@@ -26,6 +26,12 @@ the registered current handoff, and pending SessionEnd closeout requests. Use
 the repository CLI and GitHub CLI; treat branch-local, merged, released,
 deployed, and benchmark-qualified as different states.
 
+Capture a contemporaneous pre-write inventory of every standard closeout
+request/receipt location and the validator admission result for each discovered
+record. A later empty queue or stored receipt does not reconstruct that earlier
+boundary. If the inventory or admission evidence is missing, record that gap
+plainly instead of upgrading current state into historical proof.
+
 Preserve unrelated work as named exclusions. Dispatch every pending closeout
 request to the release wave described in the orchestration SOP. A verdict
 other than `QUALIFIED` remains an open condition: make its concrete repair or
@@ -180,7 +186,8 @@ state.
 
 **Complete when:** local HEAD, remote branch head, PR head, reviewed candidate,
 and verification evidence name the same SHA, and every required exact-head CI
-check is successful.
+check is successful. This phase proves the candidate and required CI state; it
+does not prove that release qualification was stored or that a merge occurred.
 
 ## 10. Store exact-state release qualification
 
@@ -203,7 +210,9 @@ validated pending-request queue is empty. No merge proceeds on a merely clean
 review or an unstored receipt. Because receipt admission is a point-in-time
 boundary rather than an editor lock, the root must recheck the candidate
 fingerprint immediately before merge; any later mutation returns to a new
-exact-state request.
+exact-state request. Required exact-head CI must have completed no later than
+the qualification completion. This phase proves stored qualification for that
+candidate; it does not prove a later protected merge.
 
 ## 11. Merge through protected main
 
@@ -219,7 +228,11 @@ mapping. The operator's push-and-merge request includes finishing phase 12.
 
 **Complete when:** GitHub records the PR as merged, protected `origin/main`
 contains the qualified candidate, and the merge commit or resulting main SHA
-is recorded without promoting it to released, deployed, or benchmark-qualified.
+is recorded. Every selected required check must have started and completed in
+order no later than qualification completion, and qualification must have
+completed no later than the recorded merge. This phase records the protected merge without
+promoting it to exact-main verification, release, deployment, or benchmark
+qualification.
 
 ## 12. Verify exact main and leave a durable resume
 
@@ -235,6 +248,11 @@ SHA, original stored request/receipt and a clean isolated exact-main checkout.
 Retain its machine-readable evidence only after actual gates complete. If
 protocol was not followed, record the failure and repair its enforcement with
 a regression test in a new delivery wave before reporting the merge complete.
+The verifier rejects missing, malformed, timezone-naive, or reversed phase
+times and requires `check start <= check completion <= qualification completion
+<= PR merge` before local merge inspection or canonical gates. This final
+evidence proves the verified exact-main boundary only; publication, deployment,
+installation, and product acceptance require their own evidence.
 
 Reconcile the working branch, worktree, and stashes. Remove a clean merged
 branch or worktree only when that cleanup is authorized and recoverability is

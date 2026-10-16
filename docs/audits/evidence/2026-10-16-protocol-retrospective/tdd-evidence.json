@@ -1,0 +1,48 @@
+{
+  "schema": "seam-tdd-evidence/v1",
+  "source": "Sol builder captured actual CLI runs; root inspected first RED before allowing implementation and reviewed retained logs",
+  "cycles": [
+    {
+      "behavior": "qualification completed after merge",
+      "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py::test_verify_merge_rejects_qualification_completed_after_merge -q",
+      "red": {
+        "observed_at": "2026-10-16T19:52:59Z",
+        "exit": 1,
+        "log_sha256": "40bf950a111a1dd11989b72642b18b18b1f58a2723e388974368d05cbd1934ae"
+      },
+      "green": {
+        "observed_at": "2026-10-16T19:56:21Z",
+        "exit": 0,
+        "log_sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      }
+    },
+    {
+      "behavior": "check completed before it started",
+      "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py::test_verify_merge_rejects_required_check_completed_before_it_started -q",
+      "red": {
+        "observed_at": "2026-10-16T19:56:30Z",
+        "exit": 1,
+        "log_sha256": "f61c7f96b430bec591a410733b155f696b5d8ac1dda6a463aeebbdfb50813db0"
+      },
+      "green": {
+        "observed_at": "2026-10-16T19:56:45Z",
+        "exit": 0,
+        "log_sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      }
+    },
+    {
+      "behavior": "check completed after qualification",
+      "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py::test_verify_merge_rejects_required_check_completed_after_qualification -q",
+      "red": {
+        "observed_at": "2026-10-16T19:56:58Z",
+        "exit": 1,
+        "log_sha256": "b7d91c2b4652e022d7b8098964ee550b9db691e8490d29c0a45fd06fc99a84b6"
+      },
+      "green": {
+        "observed_at": "2026-10-16T19:57:07Z",
+        "exit": 0,
+        "log_sha256": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d"
+      }
+    }
+  ]
+}

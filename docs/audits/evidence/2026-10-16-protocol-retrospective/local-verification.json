@@ -1,0 +1,40 @@
+{
+  "schema": "seam-protocol-repair-verification/v1",
+  "recorded_at": "2026-10-16T20:03:57.412554+00:00",
+  "candidate_phase": "working tree; not pushed, qualified or merged",
+  "builder_focused": {
+    "tests": 32,
+    "exit": 0,
+    "log_sha256": "5cba8a0d336f6301764b9e7cb54d2168880bd1238a4afa7c45b0666fad715409"
+  },
+  "root_affected_slice": {
+    "command": ".venv/bin/python -m pytest tests/audit/test_verify_merge.py tests/audit/test_pr_lifecycle.py tests/audit/test_local_gates_match_ci.py tests/audit/test_closeout_queue.py tests/audit/test_session_end_agent_closeout.py -q",
+    "exit": 0,
+    "collected_per_module": {
+      "test_verify_merge": 32,
+      "test_pr_lifecycle": 14,
+      "test_local_gates_match_ci": 36,
+      "test_closeout_queue": 39,
+      "test_session_end_agent_closeout": 24
+    },
+    "total": 145
+  },
+  "failed_invocation_preserved": {
+    "exit": 4,
+    "reason": "Root initially typed nonexistent tests/audit/test_session_end_closeout.py; pytest stopped before test execution. Correct filename discovered with rg and corrected invocation passed. Root session state already named actual file."
+  },
+  "independent_implementation_review": {
+    "result": "PASS",
+    "executed_tests": 32,
+    "exit": 0,
+    "limits": "Six owned paths; no hosted CI, exact release qualification or actual merge proof"
+  },
+  "reviewed_sha256": {
+    "tools/ci/verify_merge.py": "2c7a0d4b55fe3f8704dd0c70441bd8d6400fa072f1ee51bbb69020b7fdc5703a",
+    "tests/audit/test_verify_merge.py": "14a29d33e46f6ba7eede5c37254e442a8a4a9a02b774a2c3003923568ee99b0d",
+    "docs/SOP_SEAM_CODEX_WORKFLOW.md": "63b516fd0ebc66e5731a9e3bc4b0d819e2676a8a673d54bebe9e6cf4131a1841",
+    "docs/PR_LIFECYCLE.md": "4a381cbb0643ed2664d7d5c9dd77d57b708452c2dd8f9d8a8983fee823c97a42",
+    "REPO_LEDGER.md": "90b98409fc3694b2f5e5cad2064e17ac794467da5e43581d97fdfe132968c61e",
+    "docs/CODE_LAYOUT.md": "1bd48650ed76b49237e6e1e97f0eada376301c8fbeffc648276b3935b51dc77a"
+  }
+}

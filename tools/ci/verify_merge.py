@@ -10,7 +10,7 @@ import re
 import subprocess
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -52,6 +52,19 @@ CANONICAL_GATES = (
 
 class VerifyMergeError(RuntimeError):
     """The merged state does not satisfy the exact proof contract."""
+
+
+def _timestamp(value: Any, label: str, *, identity: str | None = None) -> datetime:
+    suffix = f": {identity}" if identity is not None else ""
+    if not isinstance(value, str):
+        raise VerifyMergeError(f"{label} is malformed{suffix}")
+    try:
+        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise VerifyMergeError(f"{label} is malformed{suffix}") from exc
+    if parsed.tzinfo is None:
+        raise VerifyMergeError(f"{label} lacks timezone{suffix}")
+    return parsed.astimezone(timezone.utc)
 
 
 def _run(
@@ -202,15 +215,7 @@ def _rule_identities(
 
 def _run_started_at(run: dict, identity: str) -> datetime:
     value = run.get("started_at")
-    if not isinstance(value, str):
-        raise VerifyMergeError(f"required check start is malformed: {identity}")
-    try:
-        parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError as exc:
-        raise VerifyMergeError(f"required check start is malformed: {identity}") from exc
-    if parsed.tzinfo is None:
-        raise VerifyMergeError(f"required check start lacks timezone: {identity}")
-    return parsed
+    return _timestamp(value, "required check start", identity=identity)
 
 
 def _required_checks(
@@ -247,10 +252,12 @@ def _required_checks(
             or not isinstance(completed_at, str)
         ):
             raise VerifyMergeError(f"required check is stale or unsuccessful: {identity}")
-        try:
-            datetime.fromisoformat(completed_at.replace("Z", "+00:00"))
-        except ValueError as exc:
-            raise VerifyMergeError(f"required check completion is malformed: {identity}") from exc
+        started = _run_started_at(latest, identity)
+        completed = _timestamp(
+            completed_at, "required check completion", identity=identity
+        )
+        if completed < started:
+            raise VerifyMergeError(f"required check completed before it started: {identity}")
         evidence.append({
             "name": identity, "head_sha": candidate, "conclusion": "success",
             "started_at": latest["started_at"], "completed_at": completed_at,
@@ -324,6 +331,19 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
         raise VerifyMergeError("merged-main verification requires an isolated worktree")
     pr, runs, rules = _github_state(args.repo, args.pr, args.expected_candidate, args.expected_main)
     checks = _required_checks(runs, rules, args.expected_candidate, tuple(args.required_check))
+    qualification_completed = _timestamp(
+        qualification["receipt_completed_at"], "qualification completion"
+    )
+    merged_at = _timestamp(pr["merged_at"], "pull request merge")
+    for check in checks:
+        if _timestamp(
+            check["completed_at"], "required check completion", identity=check["name"]
+        ) > qualification_completed:
+            raise VerifyMergeError(
+                f"required check completed after qualification: {check['name']}"
+            )
+    if qualification_completed > merged_at:
+        raise VerifyMergeError("qualification completed after pull request merge")
     merge = _local_merge(args.worktree.resolve(), args.expected_candidate, args.expected_main)
     gates = _canonical_gates(args.worktree.resolve())
     result = {
