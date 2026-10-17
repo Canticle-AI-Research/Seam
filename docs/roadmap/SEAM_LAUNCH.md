@@ -4,9 +4,10 @@
 
 **Direction:** retained product acceptance backlog. Current owner order comes
 from [project status](../../PROJECT_STATUS.md) and the
-[current handoff](../handoffs/INDEX.md): finish the finite current-built
-documentation/disposition review, then consider independent Doctor work under
-its existing gates. Formation, product expansion, score work and all L0-L6
+[current handoff](../handoffs/INDEX.md): PR #313 completed the finite current-built
+documentation/disposition review. Resolve its successor protocol-completion
+repair before independent Doctor review under its existing gates.
+Formation, product expansion, score work and all L0-L6
 launch slices are held until explicitly resumed. The
 [memory-formation roadmap](MEMORY_FORMATION.md) still governs formation's
 internal dependencies when that work resumes.
@@ -69,9 +70,10 @@ installs (HISTORY#680). Those results satisfy the named TestPyPI checkpoint for
 that exact candidate; they do not authorize production publication or establish
 the remaining product acceptance exits.
 
-The active work is the bounded current-built documentation/disposition review,
-followed only conditionally by independent Doctor work. Product work remains
-held. When launch work is explicitly resumed, follow
+PR #313 delivered the bounded documentation/disposition review. Resolve the
+successor protocol-completion repair through the [current handoff](../handoffs/INDEX.md)
+and [delivery plan](../delivery/current.json) before independent Doctor review.
+Product work remains held. When launch work is explicitly resumed, follow
 [the packaging checkpoint](../status/packaging-licensing.md#current-checkpoint-and-remaining-exits),
 preserve existing users' install and upgrade paths, and requalify any artifact
 whose bytes change. Private SDK compatibility/delivery, production release

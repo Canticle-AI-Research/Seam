@@ -1,7 +1,7 @@
 ---
 handoff_id: 2026-10-17-current-built-documentation
 supersedes: 2026-10-16-protocol-retrospective
-handoff_status: current
+handoff_status: superseded
 history: HISTORY#686
 ---
 

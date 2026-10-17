@@ -16,10 +16,18 @@ from typing import Any
 
 from tools.agents.closeout_queue import (
     CloseoutQueueError,
-    _load_json,
+    _canonical_record,
+    _load_json_record,
     _load_queued_request,
     _receipt_is_dispositive,
     _stored_receipts,
+)
+from tools.agents.delivery_status import (
+    DeliveryStatusError,
+    build_completion,
+    git_common_dir,
+    load_plan,
+    publish_completion,
 )
 from tools.ci.pr_lifecycle import (
     REPOSITORY,
@@ -92,7 +100,7 @@ def _git(cwd: Path, *args: str) -> str:
 
 def _qualification(request_path: Path, receipt_path: Path, candidate: str) -> dict[str, Any]:
     try:
-        supplied = _load_json(request_path)
+        supplied, request_blob = _load_json_record(request_path)
         request_id = supplied.get("request_id")
         if not isinstance(request_id, str):
             raise VerifyMergeError("qualification request has no queue identity")
@@ -110,6 +118,9 @@ def _qualification(request_path: Path, receipt_path: Path, candidate: str) -> di
         if len(selected) != 1:
             raise VerifyMergeError("qualification receipt is not an exact stored queue record")
         validated = selected[0]
+        reread_receipt, receipt_blob = _load_json_record(receipt_path)
+        if reread_receipt != validated:
+            raise VerifyMergeError("qualification receipt changed while being validated")
     except (CloseoutQueueError, OSError) as exc:
         raise VerifyMergeError(f"stored qualification is invalid: {exc}") from exc
     if not _receipt_is_dispositive(request, validated):
@@ -121,6 +132,11 @@ def _qualification(request_path: Path, receipt_path: Path, candidate: str) -> di
         "request_sha256": request["request_sha256"],
         "receipt_completed_at": validated["completed_at"],
         "_integration_worktree": request["repo"]["worktree"],
+        "_state_root": state_root,
+        "_request": request,
+        "_request_blob": request_blob,
+        "_receipt": validated,
+        "_receipt_blob": receipt_blob,
     }
 
 
@@ -325,8 +341,32 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
     for label, value in (("expected candidate", args.expected_candidate), ("expected main", args.expected_main)):
         if not SHA.fullmatch(value):
             raise VerifyMergeError(f"{label} must be a full lowercase commit SHA")
+    plan_context: tuple[dict[str, Any], bytes] | None = None
+    if args.plan is not None:
+        worktree = args.worktree.resolve()
+        expected_plan = worktree / "docs" / "delivery" / "current.json"
+        if args.plan.resolve() != expected_plan:
+            raise VerifyMergeError("delivery plan must be docs/delivery/current.json in exact main")
+        try:
+            plan_context = load_plan(args.plan)
+        except DeliveryStatusError as exc:
+            raise VerifyMergeError(str(exc)) from exc
+        if plan_context[0]["repository"] != args.repo:
+            raise VerifyMergeError("delivery plan repository does not match requested repository")
+        tracked = _run(
+            ("git", "show", f"{args.expected_main}:docs/delivery/current.json"),
+            worktree,
+        ).stdout.encode("utf-8")
+        if tracked != plan_context[1]:
+            raise VerifyMergeError("delivery plan is not the exact plan blob on expected main")
+
     qualification = _qualification(args.request, args.receipt, args.expected_candidate)
     integration_worktree = Path(qualification.pop("_integration_worktree")).resolve()
+    qualification_state_root = qualification.pop("_state_root")
+    request = qualification.pop("_request")
+    request_blob = qualification.pop("_request_blob")
+    receipt = qualification.pop("_receipt")
+    receipt_blob = qualification.pop("_receipt_blob")
     if args.worktree.resolve() == integration_worktree:
         raise VerifyMergeError("merged-main verification requires an isolated worktree")
     pr, runs, rules = _github_state(args.repo, args.pr, args.expected_candidate, args.expected_main)
@@ -361,6 +401,41 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
         "canonical_gates": gates,
     }
     _write_once(args.evidence, result)
+    if plan_context is not None:
+        # Gates may execute arbitrary repository code. Recheck exact main and the
+        # tracked plan before publishing the durable completion boundary.
+        if _git(args.worktree.resolve(), "rev-parse", "HEAD") != args.expected_main:
+            raise VerifyMergeError("verification worktree HEAD changed while gates ran")
+        if _run(
+            ("git", "diff", "--quiet", "HEAD", "--"),
+            args.worktree.resolve(),
+            check=False,
+        ).returncode:
+            raise VerifyMergeError("tracked verification state changed while gates ran")
+        try:
+            current_plan, current_plan_blob = load_plan(args.plan)
+        except DeliveryStatusError as exc:
+            raise VerifyMergeError(str(exc)) from exc
+        if (current_plan, current_plan_blob) != plan_context:
+            raise VerifyMergeError("delivery plan changed while merge verification ran")
+        proof_blob = _canonical_record(result)
+        try:
+            common_dir = git_common_dir(args.worktree.resolve())
+            completion = build_completion(
+                common_dir=common_dir,
+                qualification_state_root=qualification_state_root,
+                plan=current_plan,
+                plan_blob=current_plan_blob,
+                request=request,
+                request_blob=request_blob,
+                receipt=receipt,
+                receipt_blob=receipt_blob,
+                proof=result,
+                proof_blob=proof_blob,
+            )
+            publish_completion(common_dir, completion)
+        except DeliveryStatusError as exc:
+            raise VerifyMergeError(str(exc)) from exc
     return result
 
 
@@ -374,6 +449,11 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--request", type=Path, required=True)
     parser.add_argument("--receipt", type=Path, required=True)
     parser.add_argument("--evidence", type=Path, required=True)
+    parser.add_argument(
+        "--plan",
+        type=Path,
+        help="exact tracked docs/delivery/current.json to complete durably",
+    )
     parser.add_argument("--required-check", action="append", default=list(DEFAULT_REQUIRED_CHECKS))
     return parser
 

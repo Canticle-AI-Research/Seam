@@ -9,9 +9,10 @@ import json
 import os
 import re
 import stat
+import subprocess
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,7 @@ from tools.agents.session_end_closeout import (
     runtime_paths,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
 MAX_RECORD_BYTES = 1024 * 1024
 REQUEST_FIELDS = {
     "schema",
@@ -91,6 +93,22 @@ RECEIPT_FIELDS = {
 SAFE_ID = re.compile(r"^[A-Za-z0-9._-]{1,200}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 COMMIT = re.compile(r"^[0-9a-f]{40,64}$")
+ADMISSION_FIELDS = {
+    "schema",
+    "kind",
+    "repository_common_dir",
+    "registered_roots",
+    "observed_roots",
+    "pending_request_ids",
+    "record_sha256s",
+    "admitted_at",
+}
+ROOT_REGISTRATION_FIELDS = {
+    "schema",
+    "kind",
+    "repository_common_dir",
+    "registered_root",
+}
 
 
 class CloseoutQueueError(RuntimeError):
@@ -109,7 +127,7 @@ def _timestamp(value: object, *, label: str) -> datetime:
     return parsed
 
 
-def _load_json(path: Path) -> dict[str, Any]:
+def _load_json_record(path: Path) -> tuple[dict[str, Any], bytes]:
     descriptor: int | None = None
     try:
         if path.is_symlink():
@@ -157,7 +175,11 @@ def _load_json(path: Path) -> dict[str, Any]:
             os.close(descriptor)
     if not isinstance(value, dict):
         raise CloseoutQueueError(f"closeout record must be an object: {path.name}")
-    return value
+    return value, encoded
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    return _load_json_record(path)[0]
 
 
 def _request_hash(value: dict[str, Any]) -> str:
@@ -916,6 +938,24 @@ def store_receipt(
     if any(_receipt_is_dispositive(request, existing) for _, existing in stored):
         raise CloseoutQueueError("conflicting qualified closeout receipt already exists")
 
+    if receipt["status"] == "QUALIFIED":
+        from tools.agents import assurance
+
+        try:
+            result = assurance.check_request(request, state_root=state_root)
+            if result["status"] == "NOT_APPLICABLE":
+                result = assurance.check_session(
+                    Path(request["repo"]["root"]), request["session_id"]
+                )
+        except assurance.AssuranceError as exc:
+            raise CloseoutQueueError(str(exc)) from exc
+        if result["status"] == "NOT_APPLICABLE" and assurance.enforcement_active(
+            Path(request["repo"]["root"])
+        ):
+            raise CloseoutQueueError("qualified closeout session is not registered")
+        if result["status"] not in {"PASS", "NOT_APPLICABLE"}:
+            raise CloseoutQueueError("qualified closeout lacks accepted assurance")
+
     canonical = _expected_receipt_path(state_root, request["request_id"])
     if not stored:
         _ensure_state_directory(canonical.parent, label="receipt")
@@ -985,16 +1025,295 @@ def pending(state_root: Path = DEFAULT_STATE_ROOT) -> dict[str, Any]:
     return {"profile": "seam_release_orchestrator", "requests": pending_requests}
 
 
+def _git_inventory_text(repo_root: Path, *arguments: str) -> str:
+    result = subprocess.run(
+        ["git", *arguments],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode:
+        raise CloseoutQueueError("closeout admission cannot inspect Git worktrees")
+    return result.stdout.strip()
+
+
+def _common_dir(repo_root: Path) -> Path:
+    value = _git_inventory_text(
+        repo_root, "rev-parse", "--path-format=absolute", "--git-common-dir"
+    )
+    path = Path(value)
+    if not path.is_absolute():
+        path = repo_root / path
+    path = path.resolve(strict=True)
+    if path.is_symlink() or not path.is_dir():
+        raise CloseoutQueueError("closeout admission Git common directory is unsafe")
+    return path
+
+
+def _admission_path(common_dir: Path) -> Path:
+    return common_dir / "seam-orchestration" / "queue-admission.json"
+
+
+def _load_admission(path: Path, common_dir: Path) -> dict[str, Any] | None:
+    if not os.path.lexists(path):
+        return None
+    value = _load_json(path)
+    if (
+        set(value) != ADMISSION_FIELDS
+        or value.get("schema") != "seam-queue-admission/v1"
+        or value.get("kind") != "inventory"
+    ):
+        raise CloseoutQueueError("closeout admission record does not match its contract")
+    if value.get("repository_common_dir") != str(common_dir):
+        raise CloseoutQueueError("closeout admission record has the wrong repository")
+    for field in (
+        "registered_roots",
+        "observed_roots",
+        "pending_request_ids",
+        "record_sha256s",
+    ):
+        items = value.get(field)
+        maximum_length = 3000 if field == "record_sha256s" else 1000
+        if (
+            not isinstance(items, list)
+            or len(items) > 512
+            or any(
+                not isinstance(item, str)
+                or not item
+                or len(item) > maximum_length
+                for item in items
+            )
+            or items != sorted(set(items))
+        ):
+            raise CloseoutQueueError(f"closeout admission {field} is invalid")
+    _timestamp(value.get("admitted_at"), label="admission admitted_at")
+    return value
+
+
+def _write_admission(path: Path, value: dict[str, Any]) -> None:
+    encoded = _canonical_record(value)
+    _ensure_state_directory(path.parent, label="admission")
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(encoded)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _worktree_roots(repo_root: Path) -> list[Path]:
+    roots = []
+    for line in _git_inventory_text(repo_root, "worktree", "list", "--porcelain").splitlines():
+        if line.startswith("worktree "):
+            roots.append(Path(line.removeprefix("worktree ")))
+    if not roots:
+        raise CloseoutQueueError("closeout admission found no Git worktrees")
+    return roots
+
+
+def _registration_root(common_dir: Path) -> Path:
+    return common_dir / "seam-orchestration" / "retained-roots"
+
+
+def _registration_path(common_dir: Path, registered_root: Path) -> Path:
+    digest = hashlib.sha256(str(registered_root).encode("utf-8")).hexdigest()
+    return _registration_root(common_dir) / f"{digest}.json"
+
+
+def _load_registered_roots(common_dir: Path) -> list[Path]:
+    root = _registration_root(common_dir)
+    if not os.path.lexists(root):
+        return []
+    if root.is_symlink() or not root.is_dir() or root.resolve() != root:
+        raise CloseoutQueueError("closeout retained-root registry is unsafe")
+    registered: list[Path] = []
+    for path in sorted(root.glob("*.json"), key=lambda item: item.name):
+        value = _load_json(path)
+        if (
+            set(value) != ROOT_REGISTRATION_FIELDS
+            or value.get("schema") != "seam-queue-admission/v1"
+            or value.get("kind") != "retained-root"
+            or value.get("repository_common_dir") != str(common_dir)
+        ):
+            raise CloseoutQueueError("closeout retained-root binding is invalid")
+        raw_root = value.get("registered_root")
+        if not isinstance(raw_root, str) or not raw_root or len(raw_root) > 1000:
+            raise CloseoutQueueError("closeout retained-root path is invalid")
+        registered_root = Path(raw_root)
+        if not registered_root.is_absolute() or ".." in registered_root.parts:
+            raise CloseoutQueueError("closeout retained-root path is unsafe")
+        if path != _registration_path(common_dir, registered_root):
+            raise CloseoutQueueError("closeout retained-root binding name is invalid")
+        registered.append(registered_root)
+    return registered
+
+
+def _store_root_registration(common_dir: Path, registered_root: Path) -> None:
+    value = {
+        "schema": "seam-queue-admission/v1",
+        "kind": "retained-root",
+        "repository_common_dir": str(common_dir),
+        "registered_root": str(registered_root),
+    }
+    encoded = _canonical_record(value)
+    path = _registration_path(common_dir, registered_root)
+    _ensure_state_directory(path.parent, label="retained-root registry")
+    if _publish_record_once(path, encoded):
+        return
+    existing = _load_json(path)
+    if _canonical_record(existing) != encoded:
+        raise CloseoutQueueError("conflicting retained-root binding exists")
+
+
+def _queue_record_sha256s(root: Path) -> tuple[list[str], list[str]]:
+    state_root = root / ".seam" / "orchestration" / "session-end"
+    requests = _load_queued_requests(state_root)
+    queue = pending(state_root)
+    pending_ids = {request["request_id"] for request in queue["requests"]}
+    hashes: list[str] = []
+    for request in requests:
+        hosted_elsewhere = (
+            request["repo"]["root"] != str(root)
+            or request["repo"]["worktree"] != str(root)
+        )
+        if hosted_elsewhere and request["request_id"] in pending_ids:
+            raise CloseoutQueueError("retained closeout request ownership is inconsistent")
+        request_path = _request_root(state_root) / f"{request['request_id']}.json"
+        reread_request, request_bytes = _load_json_record(request_path)
+        if reread_request != request:
+            raise CloseoutQueueError("closeout request changed during admission")
+        request_digest = hashlib.sha256(request_bytes).hexdigest()
+        hashes.append(f"{root}|request|{request['request_id']}|{request_digest}")
+        stored_receipts = _stored_receipts(request, state_root=state_root)
+        if hosted_elsewhere and not stored_receipts:
+            raise CloseoutQueueError(
+                "historical hosted request lacks a canonical stored receipt"
+            )
+        for path, receipt in stored_receipts:
+            reread_receipt, receipt_bytes = _load_json_record(path)
+            if reread_receipt != receipt:
+                raise CloseoutQueueError("closeout receipt changed during admission")
+            receipt_digest = hashlib.sha256(receipt_bytes).hexdigest()
+            hashes.append(
+                f"{root}|receipt|{request['request_id']}|{path.name}|{receipt_digest}"
+            )
+    return sorted(pending_ids), sorted(hashes)
+
+
+def _validate_queue_path(root: Path) -> None:
+    current = root
+    for component in (".seam", "orchestration", "session-end"):
+        current = current / component
+        if not os.path.lexists(current):
+            return
+        if current.is_symlink() or not current.is_dir():
+            raise CloseoutQueueError(
+                f"closeout admission queue path must be a real directory: {current}"
+            )
+
+
+def _admission_inventory(
+    repo_root: Path, common_dir: Path, registered_roots: list[Path]
+) -> tuple[list[str], list[str], list[str]]:
+    roots = sorted({str(path) for path in [*_worktree_roots(repo_root), *registered_roots]})
+    request_ids: list[str] = []
+    record_sha256s: list[str] = []
+    registered_values = {str(path) for path in registered_roots}
+    for raw_root in roots:
+        path = Path(raw_root)
+        if not os.path.lexists(path) or path.is_symlink() or not path.is_dir():
+            raise CloseoutQueueError(f"closeout admission registered root is missing: {raw_root}")
+        resolved = path.resolve(strict=True)
+        git_metadata = resolved / ".git"
+        if os.path.lexists(git_metadata):
+            if _git_inventory_text(resolved, "rev-parse", "--show-toplevel") != str(resolved):
+                raise CloseoutQueueError(f"closeout admission root is not a Git worktree: {raw_root}")
+            if _common_dir(resolved) != common_dir:
+                raise CloseoutQueueError(f"closeout admission root belongs to another repository: {raw_root}")
+        elif str(resolved) not in registered_values:
+            raise CloseoutQueueError(
+                f"closeout admission non-Git root lacks retained ownership: {raw_root}"
+            )
+        _validate_queue_path(resolved)
+        pending_ids, hashes = _queue_record_sha256s(resolved)
+        if not os.path.lexists(git_metadata) and not hashes:
+            raise CloseoutQueueError(
+                f"closeout admission retained root has no immutable queue evidence: {raw_root}"
+            )
+        request_ids.extend(pending_ids)
+        record_sha256s.extend(hashes)
+    return roots, sorted(request_ids), sorted(record_sha256s)
+
+
+def admit(
+    repo_root: Path,
+    *,
+    register_roots: list[Path] | None = None,
+) -> dict[str, Any]:
+    """Admit a stable, complete, empty closeout inventory before new writes."""
+
+    repo_root = repo_root.resolve(strict=True)
+    common_dir = _common_dir(repo_root)
+    record_path = _admission_path(common_dir)
+    previous = _load_admission(record_path, common_dir)
+    registered = _load_registered_roots(common_dir)
+    registered.extend(
+        Path(value) for value in (previous or {}).get("registered_roots", [])
+    )
+    for path in register_roots or []:
+        registered.append(path.resolve(strict=True))
+    registered = [Path(value) for value in sorted({str(path) for path in registered})]
+    first = _admission_inventory(repo_root, common_dir, registered)
+    second = _admission_inventory(repo_root, common_dir, registered)
+    if first != second:
+        raise CloseoutQueueError("closeout admission inventory changed while reading")
+    observed_roots, request_ids, record_sha256s = second
+    if request_ids:
+        raise CloseoutQueueError(
+            "closeout admission has unresolved requests: " + ", ".join(request_ids)
+        )
+    for path in registered:
+        _store_root_registration(common_dir, path)
+    record = {
+        "schema": "seam-queue-admission/v1",
+        "kind": "inventory",
+        "repository_common_dir": str(common_dir),
+        "registered_roots": [str(path) for path in registered],
+        "observed_roots": observed_roots,
+        "pending_request_ids": [],
+        "record_sha256s": record_sha256s,
+        "admitted_at": datetime.now(timezone.utc).isoformat(),
+    }
+    _write_admission(record_path, record)
+    return record
+
+
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Validate and process SEAM root closeout queue records."
     )
     parser.add_argument("--state-root", type=Path, default=DEFAULT_STATE_ROOT)
+    parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("pending", help="Print validated pending requests.")
     store = commands.add_parser("store", help="Validate and atomically store a receipt.")
     store.add_argument("--request", type=Path, required=True)
     store.add_argument("--receipt", type=Path, required=True)
+    admission = commands.add_parser(
+        "admit", help="Admit a stable empty inventory across all retained roots."
+    )
+    admission.add_argument("--register-root", type=Path, action="append", default=[])
     return parser
 
 
@@ -1005,6 +1324,8 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "pending":
             result = pending(args.state_root)
+        elif args.command == "admit":
+            result = admit(args.repo_root, register_roots=args.register_root)
         else:
             request = _load_json(args.request)
             receipt = _load_json(args.receipt)

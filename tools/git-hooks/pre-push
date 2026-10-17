@@ -43,6 +43,8 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     continue
   fi
   HAS_PUSH_UPDATES=1
+  "$PYTHON_BIN" -m tools.agents.assurance \
+    --repo-root "$REPO_ROOT" check-push --head "$LOCAL_SHA" || exit 1
   SCAN_BASE=$REMOTE_SHA
   SCAN_BASE=${SCAN_BASE:-$ZERO_SHA}
   "$PYTHON_BIN" -m tools.security.secret_scan \

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import base64
+import hashlib
 import json
 import os
 import subprocess
@@ -21,7 +23,11 @@ def _git(repo: Path, *args: str) -> str:
 
 
 def _merged_repo(
-    tmp_path: Path, *, gate_stubs: bool = False, gate_sentinel: Path | None = None
+    tmp_path: Path,
+    *,
+    gate_stubs: bool = False,
+    gate_sentinel: Path | None = None,
+    delivery_plan: bool = False,
 ) -> tuple[Path, str, str]:
     repo = tmp_path / "merged"
     repo.mkdir()
@@ -50,6 +56,15 @@ def _merged_repo(
                 )
             (repo / module).write_text(body)
     (repo / "README.md").write_text("base\n")
+    if delivery_plan:
+        plan = repo / "docs" / "delivery" / "current.json"
+        plan.parent.mkdir(parents=True)
+        plan.write_text(json.dumps({
+            "schema": "seam-delivery-plan/v1",
+            "delivery_id": "delivery-red-green",
+            "repository": "acme/widget",
+            "next_action_after_verified": "Continue with the next bounded repair.",
+        }) + "\n")
     _git(repo, "add", ".")
     _git(repo, "commit", "-qm", "base")
     _git(repo, "checkout", "-qb", "candidate")
@@ -185,15 +200,19 @@ def _run(
     *,
     qualification: tuple[Path, Path] | None = None,
     ruleset_checks: tuple[str, ...] = REQUIRED_CHECKS,
+    plan: Path | None = None,
 ):
     request, receipt = qualification or _qualification(tmp_path, candidate)
+    command = [
+        sys.executable, "-m", "tools.ci.verify_merge", "--repo", "acme/widget", "--pr", "7",
+        "--expected-candidate", candidate, "--expected-main", merged, "--worktree", str(repo),
+        "--request", str(request), "--receipt", str(receipt),
+        "--evidence", str(tmp_path / "evidence.json"),
+    ]
+    if plan is not None:
+        command.extend(("--plan", str(plan)))
     return subprocess.run(
-        [
-            sys.executable, "-m", "tools.ci.verify_merge", "--repo", "acme/widget", "--pr", "7",
-            "--expected-candidate", candidate, "--expected-main", merged, "--worktree", str(repo),
-            "--request", str(request), "--receipt", str(receipt),
-            "--evidence", str(tmp_path / "evidence.json"),
-        ],
+        command,
         cwd=REPO_ROOT,
         env=_fake_gh(
             tmp_path, pr=pr, main=merged, checks=checks, ruleset_checks=ruleset_checks
@@ -603,3 +622,209 @@ def test_verify_merge_writes_exact_identity_and_gate_evidence_after_all_proofs_p
     assert evidence["required_checks"][0]["ruleset_integration_id"] is None
     assert len(evidence["canonical_gates"]) == 11
     assert all(item["exit_code"] == 0 for item in evidence["canonical_gates"])
+
+
+def test_planned_delivery_completion_survives_verification_worktree_removal(
+    tmp_path: Path,
+) -> None:
+    repo, candidate, merged = _merged_repo(
+        tmp_path, gate_stubs=True, delivery_plan=True
+    )
+    verification = tmp_path / "exact-main-verification"
+    _git(repo, "worktree", "add", "--detach", str(verification), merged)
+
+    result = _run(
+        tmp_path / "run",
+        verification,
+        candidate,
+        merged,
+        _pr(candidate, merged),
+        _checks(candidate),
+        plan=verification / "docs" / "delivery" / "current.json",
+    )
+
+    assert result.returncode == 0, result.stderr
+    common_dir = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    completion = (
+        common_dir
+        / "seam-orchestration"
+        / "delivery-completions"
+        / "delivery-red-green.json"
+    )
+    record = json.loads(completion.read_text())
+    assert record["schema"] == "seam-delivery-completion/v1"
+    assert record["plan"]["delivery_id"] == "delivery-red-green"
+    assert record["proof"]["result_main"] == merged
+    assert record["request"]["repo"]["head"] == candidate
+    assert record["receipt"]["status"] == "QUALIFIED"
+
+    # Canonical Python gates leave disposable __pycache__ files in this minimal
+    # fixture repository, so remove the temporary linked worktree explicitly.
+    _git(repo, "worktree", "remove", "--force", str(verification))
+    status = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "tools.agents.delivery_status",
+            "--repo-root",
+            str(repo),
+            "--plan",
+            str(repo / "docs" / "delivery" / "current.json"),
+            "--json",
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert status.returncode == 0, status.stderr
+    assert json.loads(status.stdout)["status"] == "VERIFIED"
+
+    first_parent = _git(repo, "rev-parse", f"{merged}^1")
+    _git(repo, "reset", "--hard", first_parent)
+    wrong_ancestry = subprocess.run(
+        status.args,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert wrong_ancestry.returncode != 0
+    assert "ancestry" in json.loads(wrong_ancestry.stdout)["reason"]
+    _git(repo, "reset", "--hard", merged)
+
+    original_plan = (repo / "docs" / "delivery" / "current.json").read_text()
+    successor_plan = json.loads(original_plan)
+    successor_plan["delivery_id"] = "delivery-successor"
+    (repo / "docs" / "delivery" / "current.json").write_text(
+        json.dumps(successor_plan) + "\n"
+    )
+    _git(repo, "add", "docs/delivery/current.json")
+    _git(repo, "commit", "-qm", "advance delivery plan")
+    (repo / "docs" / "delivery" / "current.json").write_text(original_plan)
+    restored_old_plan = subprocess.run(
+        status.args,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert restored_old_plan.returncode != 0
+    assert "HEAD" in json.loads(restored_old_plan.stdout)["reason"]
+    _git(repo, "reset", "--hard", merged)
+
+    changed_plan = json.loads(original_plan)
+    changed_plan["next_action_after_verified"] = "A different next action."
+    (repo / "docs" / "delivery" / "current.json").write_text(json.dumps(changed_plan) + "\n")
+    mismatched_plan = subprocess.run(
+        status.args,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert mismatched_plan.returncode != 0
+    assert "plan" in json.loads(mismatched_plan.stdout)["reason"]
+    (repo / "docs" / "delivery" / "current.json").write_text(original_plan)
+
+    original_record = json.loads(completion.read_text())
+
+    def status_for_forged_record(mutator) -> subprocess.CompletedProcess[str]:
+        forged = json.loads(json.dumps(original_record))
+        mutator(forged)
+        for artifact in ("request", "receipt", "proof"):
+            blob = (
+                json.dumps(forged[artifact], indent=2, sort_keys=True) + "\n"
+            ).encode()
+            forged[f"{artifact}_blob_base64"] = base64.b64encode(blob).decode()
+            forged[f"{artifact}_blob_sha256"] = hashlib.sha256(blob).hexdigest()
+        completion.write_text(json.dumps(forged))
+        return subprocess.run(
+            status.args,
+            cwd=REPO_ROOT,
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+
+    one_required_check = status_for_forged_record(
+        lambda forged: forged["proof"].__setitem__(
+            "required_checks", forged["proof"]["required_checks"][:1]
+        )
+    )
+    assert one_required_check.returncode != 0
+    assert "required checks" in json.loads(one_required_check.stdout)["reason"]
+
+    fake_gate_command = status_for_forged_record(
+        lambda forged: forged["proof"]["canonical_gates"][0].__setitem__(
+            "command", ["true"]
+        )
+    )
+    assert fake_gate_command.returncode != 0
+    assert "canonical gates" in json.loads(fake_gate_command.stdout)["reason"]
+
+    impossible_ci_time = status_for_forged_record(
+        lambda forged: forged["proof"]["required_checks"][0].update({
+            "started_at": "2099-01-01T00:00:00Z",
+            "completed_at": "2099-01-01T00:01:00Z",
+        })
+    )
+    assert impossible_ci_time.returncode != 0
+    assert "time" in json.loads(impossible_ci_time.stdout)["reason"]
+
+    def forge_qualification_candidate(forged: dict) -> None:
+        other_candidate = "0" * 40
+        forged["request"]["repo"]["head"] = other_candidate
+        forged["request"]["request_sha256"] = closeout_queue._request_hash(
+            forged["request"]
+        )
+        forged["receipt"]["request_sha256"] = forged["request"]["request_sha256"]
+        forged["receipt"]["scope"]["head"] = other_candidate
+        forged["proof"]["qualification"]["request_sha256"] = forged["request"][
+            "request_sha256"
+        ]
+
+    wrong_qualified_candidate = status_for_forged_record(
+        forge_qualification_candidate
+    )
+    assert wrong_qualified_candidate.returncode != 0
+    assert "candidate" in json.loads(wrong_qualified_candidate.stdout)["reason"]
+
+    record = json.loads(json.dumps(original_record))
+    record["proof"]["status"] = "FAIL"
+    completion.write_text(json.dumps(record))
+    tampered = subprocess.run(
+        status.args,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        timeout=30,
+    )
+    assert tampered.returncode != 0
+    assert "proof" in json.loads(tampered.stdout)["reason"]
+
+
+def test_planned_delivery_never_completes_when_a_canonical_gate_fails(
+    tmp_path: Path,
+) -> None:
+    repo, candidate, merged = _merged_repo(tmp_path, delivery_plan=True)
+
+    result = _run(
+        tmp_path / "run",
+        repo,
+        candidate,
+        merged,
+        _pr(candidate, merged),
+        _checks(candidate),
+        plan=repo / "docs" / "delivery" / "current.json",
+    )
+
+    assert result.returncode == 1
+    common_dir = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    completion = (
+        common_dir
+        / "seam-orchestration"
+        / "delivery-completions"
+        / "delivery-red-green.json"
+    )
+    assert not completion.exists()

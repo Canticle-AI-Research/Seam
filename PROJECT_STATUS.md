@@ -5,6 +5,36 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-10-17 — PR #313 documentation delivery verified; protocol completion
+repair tracked separately.** PR #313 merged as
+`79c40b55f8aea7a6615bdccf4b331b41dd46a362` after required checks and stored
+independent qualification; its actual resulting-main verification passed.
+The subsequent audit found stale resume pointers, early session-state writes,
+unreconciled unexpected compaction, and a final edit after assurance. Those
+process failures remain historical facts; successful delivery does not erase them.
+
+Use the [current handoff](docs/handoffs/INDEX.md) and
+[delivery plan](docs/delivery/current.json) to resolve the repair's completion.
+Run `python -m tools.agents.delivery_status`: only verified completion evidence
+advances to the plan's next action. Missing evidence means finish or reproduce
+verification, not repeat the already delivered PR #313 documentation task.
+Independent Doctor is the conditional next review. Licensing and the exact
+Suite 2.4.1rc1 TestPyPI acceptance remain complete; deferred features and
+production publication remain held. See HISTORY#687 and the
+[completion audit](docs/audits/2026-10-17-protocol-completion.md).
+
+**Repair checkpoint is in progress, not delivered.** An actual automatic
+compaction during this repair was recorded with its existing checkpoint and
+prior `COMPACT_AT_MILESTONE` action. The guardian requires handoff and blocks
+this session's assurance and qualification. A genuine successor must first
+reconcile inherited scope and pending recovery records; normal initialization
+does not yet implement that transition. Preserve base
+`79c40b55f8aea7a6615bdccf4b331b41dd46a362`. No repair push, merge, or resulting-main
+acceptance is claimed.
+
+The dated headlines below preserve earlier checkpoints, including their
+then-pending actions; they do not override this current route.
+
 **2026-10-16 — protocol repair delivered; finite current-built documentation
 review active.** PR #312's candidate `0cab587` received required CI and independent
 qualification before protected merge as `6498e293259572181c268b40ae2503fa67131c99`;

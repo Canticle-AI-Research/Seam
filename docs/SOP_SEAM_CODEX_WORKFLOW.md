@@ -32,6 +32,12 @@ record. A later empty queue or stored receipt does not reconstruct that earlier
 boundary. If the inventory or admission evidence is missing, record that gap
 plainly instead of upgrading current state into historical proof.
 
+Run `python -m tools.agents.closeout_queue --repo-root "$PWD" admit`, adding
+each receipt-only retained root with `--register-root`. It requires two
+identical validated byte inventories and persists ownership in the Git common
+directory. `session_state init` repeats admission before it creates or replaces
+state and registers the session's immutable base SHA.
+
 Preserve unrelated work as named exclusions. Dispatch every pending closeout
 request to the release wave described in the orchestration SOP. A verdict
 other than `QUALIFIED` remains an open condition: make its concrete repair or
@@ -138,6 +144,13 @@ Give assurance the integrated diff, governing-contract digest, claimed
 acceptance evidence, tests, and exclusions using the orchestration SOP. The
 assurance wave is read-only and cannot repair its own findings.
 
+Commit the final candidate and require a clean worktree before admitting the
+review report with `tools.agents.assurance accept`. The report names the
+independent reviewer and binds the registered base, exact HEAD, changed paths,
+content fingerprint, and continuity evidence. The pre-push hook checks that
+accepted state against each actual outgoing SHA from Git-common state, so
+clearing an environment session ID cannot bypass it.
+
 Route every actionable finding to a **new delivery wave**, then reintegrate and
 run independent assurance again on the changed exact state. Do not convert a
 review report into qualification by assertion.
@@ -204,6 +217,15 @@ through the tracked validator and atomic receipt store. A repair follows a new
 delivery wave and produces a new exact-state request; prior verdicts remain
 immutable evidence.
 
+After assurance enforcement is initialized, a newly stored `QUALIFIED` receipt
+must match the active registered session's accepted assurance and must have no
+planned or orphan unexpected-compaction recovery.
+
+If enforcement begins with an immutable request already pending, use the
+request-bound `assurance accept-request` path in the orchestration SOP. It
+avoids a new-session admission deadlock while remaining limited to the
+validated request and report byte hashes.
+
 **Complete when:** a validated stored `QUALIFIED` receipt matches the current
 candidate exactly, explicitly supersedes applicable older requests, and the
 validated pending-request queue is empty. No merge proceeds on a merely clean
@@ -248,6 +270,11 @@ SHA, original stored request/receipt and a clean isolated exact-main checkout.
 Retain its machine-readable evidence only after actual gates complete. If
 protocol was not followed, record the failure and repair its enforcement with
 a regression test in a new delivery wave before reporting the merge complete.
+Supply exact-main `docs/delivery/current.json` with `--plan`. After all gates
+pass, the verifier copies and hashes the plan, proof, request, and receipt into
+Git-common durable completion state. Confirm it after removing the verification
+worktree with `python -m tools.agents.delivery_status --repo-root <checkout>
+--json`. A fresh clone remains `UNVERIFIED` until it obtains fresh proof.
 The verifier rejects missing, malformed, timezone-naive, or reversed phase
 times and requires `check start <= check completion <= qualification completion
 <= PR merge` before local merge inspection or canonical gates. This final

@@ -1,0 +1,100 @@
+{
+  "checks": [
+    {
+      "command": "validate_request plus repeated _live_scope_signature on the candidate worktree",
+      "evidence": "Embedded request hash 1d7b8a6fc3b49c9fd5e80b23d695f1d2f4db3325f06decf78802565444b4a550 validated. Repeated signatures matched HEAD 1d42c3a4307a98268b29e363c4c28d09fdeaad3d, the exact 18-path list and fingerprint cce650f44a6eb36e7da1227cad991fc6ac13d14edd514c01403c9881c4f3a0f8.",
+      "exit_code": 0,
+      "requirement": "confirm current diff fingerprint matches request",
+      "status": "PASS"
+    },
+    {
+      "command": "git diff 6498e293259572181c268b40ae2503fa67131c99 HEAD --check",
+      "evidence": "Exit 0 with no output; the committed 18-path diff was also reviewed by exact name/status and bounded per-file diffs.",
+      "exit_code": 0,
+      "requirement": "git diff --check",
+      "status": "PASS"
+    },
+    {
+      "command": "No command: request context.affected_tests is empty",
+      "evidence": "Conditional requirement passed for this documentation-only non_runtime request; no tests were invented.",
+      "exit_code": 0,
+      "requirement": "run root-supplied affected tests when available",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m tools.history.verify_integrity",
+      "evidence": "Integrity OK.",
+      "exit_code": 0,
+      "requirement": "python -m tools.history.verify_integrity",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m tools.history.verify_routing",
+      "evidence": "Routing OK.",
+      "exit_code": 0,
+      "requirement": "python -m tools.history.verify_routing",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m tools.history.verify_handoffs",
+      "evidence": "Handoff registry OK.",
+      "exit_code": 0,
+      "requirement": "python -m tools.history.verify_handoffs",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m tools.history.verify_continuity",
+      "evidence": "Continuity OK.",
+      "exit_code": 0,
+      "requirement": "python -m tools.history.verify_continuity",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m tools.streams.verify_streams",
+      "evidence": "streams OK.",
+      "exit_code": 0,
+      "requirement": "python -m tools.streams.verify_streams",
+      "status": "PASS"
+    },
+    {
+      "command": "python3 -m tools.docs.verify_wiki",
+      "evidence": "SEAM wiki OK: 311 active documentation pages reachable from docs/README.md.",
+      "exit_code": 0,
+      "requirement": "python -m tools.docs.verify_wiki",
+      "status": "PASS"
+    }
+  ],
+  "completed_at": "2026-10-17T03:20:44.488885Z",
+  "continuity": {
+    "evidence": [
+      "All six canonical request gates passed unsuppressed. Reference sync, suite manifest, agent configuration and changed-audit claim gates also passed; HISTORY#686, one current handoff and derived stream/cross-index state are internally consistent.",
+      "Exact-head required CI completed successfully before qualification: chroma-real-smoke 03:16:40Z, locomo-quickstart-bil2 03:17:24Z and repo-hygiene 03:18:40Z on candidate 1d42c3a."
+    ],
+    "status": "PASS"
+  },
+  "next_action": "Root should atomically store this receipt, protected-merge PR #313, then verify the actual resulting main and exact-main gates before reporting delivery.",
+  "project_alignment": {
+    "evidence": [
+      "The complete 18-path committed documentation diff aligns current status, preservation, TestPyPI and protocol evidence while retaining PR #305 as Partial, holding future work and limiting website claims to bounded source/HTTP comparisons. Independent Astra content review reports PASS with no findings; all seven cited evidence hashes match.",
+      "Qualification is limited to this documentation candidate. Advisory pgvector-integration failed because the approved local Docker daemon was unavailable before any service or tests started, and test-and-benchmark was skipped; issue #293 remains open, so no broad-suite, runtime, product, rendered-site, publication or provider acceptance is claimed."
+    ],
+    "status": "ALIGNED"
+  },
+  "request_id": "01a147c6-b661-7630-9b10-20e05f96bbd9-cce650f44a6eb36e",
+  "request_sha256": "1d7b8a6fc3b49c9fd5e80b23d695f1d2f4db3325f06decf78802565444b4a550",
+  "schema": "seam-agent-closeout-receipt/v1",
+  "scope": {
+    "diff_fingerprint": "cce650f44a6eb36e7da1227cad991fc6ac13d14edd514c01403c9881c4f3a0f8",
+    "head": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d",
+    "matches_request": true
+  },
+  "session_id": "01a147c6-b661-7630-9b10-20e05f96bbd9",
+  "status": "QUALIFIED",
+  "supersedes_request_ids": [],
+  "tdd": {
+    "evidence": [
+      "The immutable request classifies all 18 committed paths as non_runtime, with zero runtime paths, zero affected tests and zero TDD cycles."
+    ],
+    "status": "TDD_NOT_REQUIRED"
+  }
+}

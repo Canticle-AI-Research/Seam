@@ -22318,3 +22318,63 @@ All existing local queue roots were inspected; four newly observed retained-stat
 
 This entry records the candidate before final independent assurance, canonical gate completion, pushed-head CI, release qualification, protected merge and actual resulting-main verification; those remain required delivery steps. No whole-wiki semantic acceptance, fresh package installation, production publication, service/provider execution or new product acceptance is claimed. Doctor is only the conditional next review after documentation signoff; all other recovery and launch work remains held.
 ---END-ENTRY-#686---
+
+---BEGIN-ENTRY-#687---
+id: 687
+date: 2026-10-17T04:17:16Z
+agent: codex
+status: in-progress
+topics: protocol, continuity, audit, verify, handoff, worktree, test
+commits: pending
+refs: docs/audits/2026-10-17-protocol-completion.md,docs/handoffs/2026-10-17-protocol-completion.md,docs/delivery/current.json,tools/agents/assurance.py,tools/agents/delivery_status.py
+supersedes: 686
+tokens: 810
+---
+PR313 restart audit repair is a local in-progress checkpoint, not delivered.
+PR313 itself remains verified at main79c40b55. The bounded completion audit
+rechecked licensing PR286/288, exact Suite2.4.1rc1 public artifacts and dated
+installed acceptance, prior protocol/docs merges, original closed-unmerged
+PR dispositions, private proposal preservation, and About state. PR249 now
+has no remote Dependabot branch; its exact pull ref remains. Issue301 received
+an appended correction. PR305 historical evidence remains Partial.
+
+Implemented admission over linked and registered retained queues with stable
+validated byte inventories; preserved canonical qualified relocated history.
+Implemented honest unexpected-compaction recovery, final committed-source
+assurance including actual outgoing SHA and sibling worktrees, immutable
+report bindings, and durable conditional completion with semantic proof and
+current-plan validation. Code paths: tools/agents/session_state.py,
+tools/agents/closeout_queue.py, tools/agents/context_guardian.py,
+tools/agents/assurance.py, tools/agents/delivery_status.py,
+tools/ci/verify_merge.py, tools/git-hooks/pre-push, .github/workflows/ci.yml.
+Affected tests and exact source hashes are in the checkpoint-verification
+artifact linked from the audit report. Current status, ledger, code layout,
+SOPs, delivery plan, audit/handoff registries and branch/launch/packaging
+pointers were reconciled. All unrelated original worktrees remain excluded.
+
+Verification: final nine-module pytest command recorded in checkpoint-
+verification.json passed194, failed0, skipped0. Final tests/audit collection
+with external tests deselected succeeded. The broader audit run exited1
+with46failed nodes; missing local embedding/tokenizer/server dependencies
+appear in errors. Exact nodes/log hash retained, no baseline comparison or
+full-suite success claimed. Independent Astra CLI/Git negative probes passed
+bounded checkpoint review after multiple repair cycles. Fixture gate stubs
+are explicitly distinct from actual canonical continuity checks. Corrected
+one reconstructed TDD test-module reference by excluding that cycle and
+recording the separately witnessed review regression; raw logs preserved.
+
+Actual automatic compaction occurred during this repair. Event
+automatic-20261017-repair-review preserves the checkpoint, previous
+COMPACT_AT_MILESTONE at74.677percent, and first compaction. HANDOFF_REQUIRED
+blocks this session's assurance, qualification and push. Do not clear/reset
+or relabel it. Genuine-successor initialization and predecessor-request
+reconciliation remain unimplemented; preserve original base79c40b55, original
+recovery/queue artifacts, unpushed branch and durable external bundle.
+No undefined constants/helpers or test-import mismatches were found by the
+final collection; unresolved work is the explicit successor interface,
+broad environment/test failures, final committed assurance and hosted
+CI/qualification/protected merge/exact-main proof. First successor action:
+read current handoff and external recovery manifest, reconcile the blocked
+predecessor before normal session init or any publication. No production,
+paid providers, service/network changes or deferred feature acceptance.
+---END-ENTRY-#687---

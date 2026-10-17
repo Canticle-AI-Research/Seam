@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from tools.agents import closeout_queue, session_end_closeout
+from tools.agents import assurance, closeout_queue, context_guardian, session_end_closeout
 
 
 def _git(repo: Path, *args: str) -> str:
@@ -38,6 +38,166 @@ def _queued_request(sample_repo: Path, state_root: Path) -> dict[str, object]:
         repo_root=sample_repo,
         state_root=state_root,
         dispatch=False,
+    )
+
+
+def test_admit_cli_blocks_retained_pending_queue_and_missing_registered_root(
+    sample_repo: Path, tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    retained = tmp_path / "retained"
+    _git(sample_repo, "worktree", "add", "-qb", "retained-test", str(retained))
+    retained_state = retained / ".seam" / "orchestration" / "session-end"
+    (retained / "README.md").write_text("retained change\n", encoding="utf-8")
+    queued = session_end_closeout.handle_session_end(
+        {"session_id": "retained-queue", "cwd": str(retained)},
+        repo_root=retained,
+        state_root=retained_state,
+        dispatch=False,
+    )
+
+    command = [
+        "--repo-root",
+        str(sample_repo),
+        "admit",
+        "--register-root",
+        str(retained),
+    ]
+    assert closeout_queue.main(command) == 2
+    assert queued["request_id"] in capsys.readouterr().err
+
+    Path(str(queued["request_path"])).unlink()
+    assert closeout_queue.main(command) == 0
+    admitted = json.loads(capsys.readouterr().out)
+    assert admitted["schema"] == "seam-queue-admission/v1"
+    assert admitted["registered_roots"] == [str(retained.resolve())]
+
+    common_dir = Path(
+        _git(sample_repo, "rev-parse", "--path-format=absolute", "--git-common-dir")
+    )
+    (common_dir / "seam-orchestration" / "queue-admission.json").unlink()
+    _git(sample_repo, "worktree", "remove", "--force", str(retained))
+    assert closeout_queue.main(["--repo-root", str(sample_repo), "admit"]) == 2
+    assert "registered root is missing" in capsys.readouterr().err
+
+
+def test_admit_accepts_registered_receipt_only_root_after_worktree_metadata_is_removed(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    (sample_repo / ".gitignore").write_text(".seam/\n", encoding="utf-8")
+    _git(sample_repo, "add", ".gitignore")
+    _git(sample_repo, "commit", "-qm", "ignore local orchestration")
+    retained = tmp_path / "receipt-only"
+    _git(sample_repo, "worktree", "add", "-qb", "receipt-only", str(retained))
+    state_root = retained / ".seam" / "orchestration" / "session-end"
+    (retained / "README.md").write_text("receipt-only change\n", encoding="utf-8")
+    queued = session_end_closeout.handle_session_end(
+        {"session_id": "receipt-only", "cwd": str(retained)},
+        repo_root=retained,
+        state_root=state_root,
+        dispatch=False,
+    )
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    closeout_queue.store_receipt(
+        request, _qualified_receipt(request), state_root=state_root
+    )
+    (retained / ".git").unlink()
+
+    admitted = closeout_queue.admit(sample_repo, register_roots=[retained])
+
+    assert admitted["pending_request_ids"] == []
+    assert admitted["registered_roots"] == [str(retained.resolve())]
+    assert admitted["record_sha256s"]
+
+
+def test_admit_detects_validated_receipt_mutation_between_inventory_reads(
+    sample_repo: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    (sample_repo / ".gitignore").write_text(".seam/\n", encoding="utf-8")
+    _git(sample_repo, "add", ".gitignore")
+    _git(sample_repo, "commit", "-qm", "ignore local orchestration")
+    state_root = sample_repo / ".seam" / "orchestration" / "session-end"
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    stored = closeout_queue.store_receipt(
+        request, _qualified_receipt(request), state_root=state_root
+    )
+    receipt_path = Path(stored["receipt_path"])
+    original_inventory = closeout_queue._admission_inventory
+    calls = 0
+
+    def mutate_after_first(*args, **kwargs):  # type: ignore[no-untyped-def]
+        nonlocal calls
+        result = original_inventory(*args, **kwargs)
+        calls += 1
+        if calls == 1:
+            receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+            receipt["next_action"] = "A different valid next action."
+            receipt_path.write_text(json.dumps(receipt), encoding="utf-8")
+        return result
+
+    monkeypatch.setattr(closeout_queue, "_admission_inventory", mutate_after_first)
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="changed while reading"):
+        closeout_queue.admit(sample_repo)
+
+
+def test_admit_rejects_symlinked_standard_queue_root(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    external = tmp_path / "unrelated-empty-queue"
+    external.mkdir()
+    orchestration = sample_repo / ".seam" / "orchestration"
+    orchestration.mkdir(parents=True)
+    (orchestration / "session-end").symlink_to(external, target_is_directory=True)
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="queue path.*real directory"):
+        closeout_queue.admit(sample_repo)
+
+
+def test_admit_accepts_dispositive_request_canonically_hosted_by_primary_queue(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    (sample_repo / ".gitignore").write_text(".seam/\n", encoding="utf-8")
+    _git(sample_repo, "add", ".gitignore")
+    _git(sample_repo, "commit", "-qm", "ignore local orchestration")
+    retained = tmp_path / "historical-worktree"
+    _git(sample_repo, "worktree", "add", "-qb", "historical-hosted", str(retained))
+    (retained / "README.md").write_text("historical change\n", encoding="utf-8")
+    primary_queue = sample_repo / ".seam" / "orchestration" / "session-end"
+    queued = session_end_closeout.handle_session_end(
+        {"session_id": "historical-hosted", "cwd": str(retained)},
+        repo_root=retained,
+        state_root=primary_queue,
+        dispatch=False,
+    )
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+
+    with pytest.raises(
+        closeout_queue.CloseoutQueueError, match="ownership is inconsistent"
+    ):
+        closeout_queue.admit(sample_repo)
+
+    nonqualified = _qualified_receipt(request)
+    nonqualified["status"] = "NOT_QUALIFIED"
+    checks = nonqualified["checks"]
+    assert isinstance(checks, list) and isinstance(checks[0], dict)
+    checks[0]["status"] = "FAIL"
+    checks[0]["exit_code"] = 1
+    closeout_queue.store_receipt(request, nonqualified, state_root=primary_queue)
+    with pytest.raises(
+        closeout_queue.CloseoutQueueError, match="ownership is inconsistent"
+    ):
+        closeout_queue.admit(sample_repo)
+
+    closeout_queue.store_receipt(
+        request, _qualified_receipt(request), state_root=primary_queue
+    )
+    admitted = closeout_queue.admit(sample_repo)
+
+    assert admitted["pending_request_ids"] == []
+    assert any(
+        f"|request|{request['request_id']}|" in item
+        for item in admitted["record_sha256s"]
     )
 
 
@@ -260,6 +420,155 @@ def test_root_stores_a_qualified_receipt_atomically_and_idempotently(
     conflicting = {**receipt, "next_action": "Different content."}
     with pytest.raises(closeout_queue.CloseoutQueueError, match="conflicting"):
         closeout_queue.store_receipt(request, conflicting, state_root=state_root)
+
+
+def test_new_registered_qualified_receipt_requires_current_assurance_and_guardian(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    sessions = state_root / "sessions"
+    sessions.mkdir(parents=True)
+    (sessions / "queue-test.json").write_text(
+        json.dumps(
+            {
+                "schema": "seam-agent-session-state/v1",
+                "session_id": "queue-test",
+                "base_sha": _git(sample_repo, "rev-parse", "HEAD"),
+                "objective": "Require exact-state assurance before qualification.",
+                "plan": [],
+                "constraints": [],
+                "affected_tests": [],
+                "tdd_cycles": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (sample_repo / "README.md").write_text("changed\n", encoding="utf-8")
+    _git(sample_repo, "commit", "-qam", "candidate")
+    queued = session_end_closeout.handle_session_end(
+        {"session_id": "queue-test", "cwd": str(sample_repo)},
+        repo_root=sample_repo,
+        state_root=state_root,
+        dispatch=False,
+    )
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+    receipt = _qualified_receipt(request)
+    session_id = str(request["session_id"])
+    repo = request["repo"]
+    assert isinstance(repo, dict)
+    assurance.register(sample_repo, session_id, str(repo["base_sha"]))
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="accepted assurance"):
+        closeout_queue.store_receipt(request, receipt, state_root=state_root)
+
+    report = {
+        "schema": "seam-independent-assurance/v1",
+        "repository": "Canticle-AI-Research/Seam",
+        "session_id": session_id,
+        "base_sha": repo["base_sha"],
+        "head": repo["head"],
+        "changed_paths": repo["changed_paths"],
+        "content_sha256": repo["diff_fingerprint"],
+        "reviewed_at": "2026-10-17T05:00:00Z",
+        "reviewer": "independent-reviewer",
+        "status": "PASS",
+        "continuity_included": True,
+        "summary": ["Reviewed exact closeout scope and continuity."],
+    }
+    report_path = tmp_path / "assurance.json"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+    assert assurance.accept(sample_repo, session_id, report_path)["status"] == "ACCEPTED"
+    context_guardian.recover_unexpected_compaction(
+        session_id=session_id,
+        event_id="unexpected-after-review",
+        summary=["Automatic compaction occurred after assurance."],
+        next_step="Create a successor session before qualification.",
+        state_root=sample_repo / ".seam" / "orchestration" / "context",
+        handoff_root=sample_repo / ".context-handoffs",
+    )
+
+    with pytest.raises(
+        closeout_queue.CloseoutQueueError, match="unexpected compaction recovery"
+    ):
+        closeout_queue.store_receipt(request, receipt, state_root=state_root)
+
+
+def test_assurance_cutover_rejects_new_qualified_request_without_registration(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    base = _git(sample_repo, "rev-parse", "HEAD")
+    assurance.register(sample_repo, "different-session", base)
+    queued = _queued_request(sample_repo, state_root)
+    request = json.loads(Path(str(queued["request_path"])).read_text(encoding="utf-8"))
+
+    with pytest.raises(closeout_queue.CloseoutQueueError, match="not registered"):
+        closeout_queue.store_receipt(
+            request, _qualified_receipt(request), state_root=state_root
+        )
+
+
+def test_request_bound_assurance_admits_pre_enforcement_queued_request(
+    sample_repo: Path, tmp_path: Path
+) -> None:
+    state_root = tmp_path / "state"
+    base = _git(sample_repo, "rev-parse", "HEAD")
+    sessions = state_root / "sessions"
+    sessions.mkdir(parents=True)
+    (sessions / "queue-test.json").write_text(
+        json.dumps(
+            {
+                "schema": "seam-agent-session-state/v1",
+                "session_id": "queue-test",
+                "base_sha": base,
+                "objective": "Close an immutable pre-enforcement request.",
+                "plan": [],
+                "constraints": [],
+                "affected_tests": [],
+                "tdd_cycles": [],
+            }
+        ),
+        encoding="utf-8",
+    )
+    (sample_repo / "README.md").write_text("candidate\n", encoding="utf-8")
+    _git(sample_repo, "commit", "-qam", "candidate")
+    queued = session_end_closeout.handle_session_end(
+        {"session_id": "queue-test", "cwd": str(sample_repo)},
+        repo_root=sample_repo,
+        state_root=state_root,
+        dispatch=False,
+    )
+    request_path = Path(str(queued["request_path"]))
+    request = json.loads(request_path.read_text(encoding="utf-8"))
+    repo = request["repo"]
+    assert isinstance(repo, dict)
+    assurance.register(sample_repo, "different-session", base)
+    report = {
+        "schema": "seam-independent-assurance/v1",
+        "repository": "Canticle-AI-Research/Seam",
+        "session_id": "queue-test",
+        "base_sha": repo["base_sha"],
+        "head": repo["head"],
+        "changed_paths": repo["changed_paths"],
+        "content_sha256": repo["diff_fingerprint"],
+        "reviewed_at": "2026-10-17T05:00:00Z",
+        "reviewer": "independent-reviewer",
+        "status": "PASS",
+        "continuity_included": True,
+        "summary": ["Reviewed the immutable queued request."],
+    }
+    report_path = tmp_path / "request-assurance.json"
+    report_path.write_text(json.dumps(report), encoding="utf-8")
+
+    accepted = assurance.accept_request(
+        sample_repo, request_path, report_path, state_root
+    )
+    stored = closeout_queue.store_receipt(
+        request, _qualified_receipt(request), state_root=state_root
+    )
+
+    assert accepted["status"] == "ACCEPTED"
+    assert stored["status"] == "STORED"
 
 
 @pytest.mark.parametrize("drift", ["content", "head"])

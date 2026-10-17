@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-10-16
+Last updated: 2026-10-17
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -16,9 +16,11 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
 - Current operator order: licensing is complete through PR #286 and PR #288,
-  and merge-protocol repair is delivered through PR #312. Finish the finite
-  current-built documentation/disposition review, then independent SEAM Doctor
-  subject to documentation signoff and its exact-source/review gates.
+  and merge chronology repair is delivered through PR #312. PR #313 completed
+  the finite current-built documentation/disposition review. The successor
+  protocol-completion repair has a conditional delivery route in
+  `docs/delivery/current.json`: resolve its verified completion before advancing
+  to independent SEAM Doctor and its exact-source/review gates.
   Website scope is limited to SEAM documentation, licensing consistency and
   existing download destinations; broader website work is not a prerequisite.
   No licensing artifact change belongs to those remaining steps. The formation
@@ -42,6 +44,17 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Evidence-backed protocol completion (2026-10-17).** Session initialization
+  requires reconciled linked and registered retained queues. Removed-worktree
+  receipt storage remains part of admission. Unexpected compaction is a new
+  recovery event, never retroactive checkpoint evidence. Independent assurance
+  covers the final committed candidate and continuity; later edits invalidate
+  it. Registered-session publication and new qualification require matching
+  assurance. A tracked delivery plan supplies the conditional next action;
+  validated completion evidence survives in the Git common directory after
+  worktree cleanup. Missing evidence means unverified, not complete. See
+  `docs/SOP_SEAM_CODEX_WORKFLOW.md` and HISTORY#687. These checks do not prove
+  unreported client events or independently authenticate reviewer identity.
 - **PR lifecycle and merge completion (2026-10-16).** The operator requires
   stale proposals to be preserved and closed, concrete blockers to remain
   tracked, and approved ready work to reach a verified protected merge.

@@ -13,6 +13,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from tools.agents import assurance
+from tools.agents.closeout_queue import CloseoutQueueError
+from tools.agents.closeout_queue import admit as admit_closeout_queue
 from tools.agents.session_end_closeout import SessionEndError, validate_session_state
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -129,18 +132,25 @@ def _run(args: argparse.Namespace) -> Path:
     state_root = args.state_root.resolve()
     path = state_root / f"{session_id}.json"
     if args.command == "init":
+        admit_closeout_queue(repo_root)
+        base_sha = _head(repo_root)
         if path.exists() and not args.replace:
             raise SessionStateError("session state already exists; use --replace deliberately")
         state = {
             "schema": "seam-agent-session-state/v1",
             "session_id": session_id,
-            "base_sha": _head(repo_root),
+            "base_sha": base_sha,
             "objective": _check_text(args.objective),
             "plan": [_check_text(value) for value in args.plan],
             "constraints": [_check_text(value) for value in args.constraint],
             "affected_tests": [_check_text(value) for value in args.affected_test],
             "tdd_cycles": [],
         }
+        try:
+            validate_session_state(state, expected_session_id=session_id)
+        except SessionEndError as exc:
+            raise SessionStateError(str(exc)) from exc
+        assurance.register(repo_root, session_id, base_sha)
     else:
         state = _load(path, session_id)
         if args.red_exit == 0:
@@ -175,7 +185,14 @@ def _run(args: argparse.Namespace) -> Path:
 def main(argv: list[str] | None = None) -> int:
     try:
         path = _run(_parser().parse_args(argv))
-    except (OSError, ValueError, json.JSONDecodeError, SessionStateError) as exc:
+    except (
+        OSError,
+        ValueError,
+        json.JSONDecodeError,
+        CloseoutQueueError,
+        assurance.AssuranceError,
+        SessionStateError,
+    ) as exc:
         print(f"SEAM session state failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
     print(path)

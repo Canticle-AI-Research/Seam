@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 752
+total_events: 753
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-29T05:39:28Z | history:492:d051142c | session-event | changed | graph, g3, node-vectors, semantic-seeding, retrieval | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
 | 2026-07-29T06:21:50Z | history:493:3a2ced3b | session-event | changed | extraction, derived-facts, benchmarks, ollama | docs/kb/seam-internals/derived-facts-grounded-clm.md |
 | 2026-07-29T08:07:06Z | history:494:638f4a69 | session-event | done | graph, retrieval, rank, provenance, verify, benchmark, me... | seam_runtime/reasoning_patterns.py, seam_runtime/reasoning_graph.py, seam_run... |
 | 2026-07-29T09:34:17Z | history:495:6171d8cd | session-event | done | graph, reasoning, provenance, storage, mirl, audit, verif... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-16T13:29:46Z | history:684:51b044cc | session-event | changed | ci, git-hooks, protocol, verify, reconcile, docs, handoff... | docs/PR_LIFECYCLE.md,docs/audits/evidence/2026-10-16-pr-closeout/original-pr-... |
 | 2026-10-16T20:05:25Z | history:685:f0ecb250 | session-event | changed | audit, protocol, ci, gates, verify, docs, correction, con... | docs/audits/2026-10-16-protocol-retrospective.md,tools/ci/verify_merge.py,tes... |
 | 2026-10-17T03:11:20Z | history:686:e954c431 | session-event | changed | docs, continuity, verify, handoff, status | PROJECT_STATUS.md,REPO_LEDGER.md,docs/audits/2026-10-16-current-built-documen... |
+| 2026-10-17T04:17:16Z | history:687:48ed8e30 | session-event | in-progress | protocol, continuity, audit, verify, handoff, worktree, test | docs/audits/2026-10-17-protocol-completion.md,docs/handoffs/2026-10-17-protoc... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0552.cross.md | 2026-04-15T00:00:00Z..2026-07-29T04:50:58Z | 552 | (multi) | (multi) |
+| 0001-0553.cross.md | 2026-04-15T00:00:00Z..2026-07-29T05:39:28Z | 553 | (multi) | (multi) |

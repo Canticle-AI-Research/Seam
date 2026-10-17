@@ -184,6 +184,24 @@ It must match `seam-agent-session-state/v1`. Keep the objective, base SHA,
 current plan, constraints, affected tests, and witnessed TDD cycles. Do not
 copy prompts, transcript text, hidden reasoning, credentials, or private URLs.
 
+Before initialization, admit a stable empty closeout inventory across the
+primary checkout, linked worktrees, and explicitly retained roots:
+
+```bash
+python -m tools.agents.closeout_queue --repo-root "$PWD" admit \
+  --register-root /absolute/path/to/retained-root
+```
+
+Admission validates and hashes the actual request, receipt, and attempt bytes
+twice. Immutable Git-common bindings retain ownership of receipt-only roots
+after worktree metadata is removed. Missing roots, symlinked queue paths,
+malformed records, pending requests, or a changed second read fail closed.
+`session_state init` repeats admission before writing state.
+Canonical queue hosts may retain dispositive historical records whose embedded
+source-worktree path no longer matches the host; the unchanged request and
+stored receipt must still pass the queue validators. A pending foreign-source
+record remains an ownership error.
+
 Initialize it with the tracked helper (repeat `--plan`, `--constraint`, and
 `--affected-test` as needed):
 
@@ -236,6 +254,41 @@ Guardian state and checkpoints live under ignored
 `.context-handoffs/`. Artifacts are atomically written with mode `0600`, are
 bounded to 256 KiB, and reject secret-shaped, private-link, multiline, unsafe
 identity, symlinked-state, and invalid lifecycle content.
+
+If compaction occurred outside the planned path, run
+`recover-unexpected-compaction` with a stable `--event-id`, at least one
+`--summary`, and one `--next-step`. The immutable event is crash-resumable and
+preserves the prior action and usage without inventing a checkpoint. Even an
+event orphaned before handoff or state publication forces `HANDOFF_REQUIRED`
+and blocks assurance and qualification.
+
+## Exact-state assurance
+
+`session_state init` registers the session and immutable base SHA in the Git
+common directory. After the final candidate is committed and the worktree is
+clean, admit the independent report:
+
+```bash
+python -m tools.agents.assurance --repo-root "$PWD" accept \
+  --session-id "$CODEX_SESSION_ID" --report /absolute/path/to/report.json
+```
+
+The `seam-independent-assurance/v1` report binds repository, reviewer,
+session, registered base, candidate HEAD, sorted changed paths, content
+fingerprint, aware review time, PASS status, continuity inclusion, and bounded
+summary. Acceptance rereads the scope twice and never overwrites prior
+evidence. The pre-push hook checks each actual outgoing SHA from the persistent
+worktree binding without using `CODEX_SESSION_ID`. Dirty bytes, another commit,
+or unexpected-compaction evidence fail closed. Once assurance enforcement is
+initialized, each new `QUALIFIED` receipt requires the matching current report;
+existing stored legacy receipts remain readable and idempotent.
+
+When enforcement begins while an older request is already queued, use
+`assurance accept-request` with that exact queued request, its state root, and
+the independent report. This administrative path hashes the unchanged request
+bytes and report bytes and binds their repository, session, base, HEAD, paths,
+reviewer, and fingerprint. It grants assurance only to that request and does
+not bypass queue admission for new work.
 
 ## SessionEnd hook
 

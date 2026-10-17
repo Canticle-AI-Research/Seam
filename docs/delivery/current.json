@@ -1,0 +1,6 @@
+{
+  "schema": "seam-delivery-plan/v1",
+  "delivery_id": "protocol-completion-20261017",
+  "repository": "Canticle-AI-Research/Seam",
+  "next_action_after_verified": "Review independent SEAM Doctor against its exact-source and independent-review gates; keep all other recovery and production work held."
+}

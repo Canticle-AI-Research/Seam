@@ -177,6 +177,148 @@ def test_cli_observes_usage_and_records_a_compaction(
     assert recorded["compactions_completed"] == 1
 
 
+def test_cli_recovers_unexpected_compaction_once_without_fabricating_checkpoint(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    state_root = tmp_path / "state"
+    handoff_root = tmp_path / "handoffs"
+    common = [
+        "--session-id",
+        "session-unexpected",
+        "--state-root",
+        str(state_root),
+        "--handoff-root",
+        str(handoff_root),
+    ]
+    assert context_guardian.main(
+        [
+            *common,
+            "observe",
+            "--used-tokens",
+            "44",
+            "--context-limit",
+            "100",
+            "--summary",
+            "Work was below the planned checkpoint threshold.",
+            "--next-step",
+            "Continue the bounded implementation.",
+        ]
+    ) == 0
+    capsys.readouterr()
+
+    recovery = [
+        *common,
+        "recover-unexpected-compaction",
+        "--event-id",
+        "automatic-compaction-1",
+        "--summary",
+        "Automatic compaction occurred without a prior checkpoint.",
+        "--next-step",
+        "Hand off before assurance or qualification.",
+    ]
+    assert context_guardian.main(recovery) == 0
+    first = json.loads(capsys.readouterr().out)
+    assert first["action"] == "HANDOFF_REQUIRED"
+    assert first["compactions_completed"] == 1
+    assert first["missing_checkpoint"] is True
+    assert first["previous_last_action"] == "CONTINUE"
+    assert first["previous_highest_usage_percent"] == 44.0
+    assert not (state_root / "checkpoints" / "session-unexpected.json").exists()
+    assert Path(first["handoff_path"]).is_file()
+
+    assert context_guardian.main(recovery) == 0
+    second = json.loads(capsys.readouterr().out)
+    assert second == first
+    state = json.loads(
+        (state_root / "session-unexpected.json").read_text(encoding="utf-8")
+    )
+    assert state["compactions_completed"] == 1
+
+
+def test_unexpected_compaction_retry_preserves_first_event_after_partial_write(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state_root = tmp_path / "state"
+    handoff_root = tmp_path / "handoffs"
+    original_atomic_write = context_guardian._atomic_write
+    failed = False
+
+    def fail_first_handoff(path: Path, encoded: bytes) -> None:
+        nonlocal failed
+        if path.suffix == ".md" and not failed:
+            failed = True
+            raise OSError("simulated handoff write failure")
+        original_atomic_write(path, encoded)
+
+    monkeypatch.setattr(context_guardian, "_atomic_write", fail_first_handoff)
+    arguments = {
+        "session_id": "session-partial-recovery",
+        "event_id": "automatic-compaction-1",
+        "summary": ["Automatic compaction interrupted the live session."],
+        "next_step": "Resume only through a durable successor handoff.",
+        "state_root": state_root,
+        "handoff_root": handoff_root,
+    }
+    with pytest.raises(OSError, match="simulated handoff"):
+        context_guardian.recover_unexpected_compaction(**arguments)
+    recovery_path = (
+        state_root
+        / "recoveries"
+        / "session-partial-recovery"
+        / "automatic-compaction-1.json"
+    )
+    first_event = recovery_path.read_bytes()
+
+    result = context_guardian.recover_unexpected_compaction(**arguments)
+
+    assert result["action"] == "HANDOFF_REQUIRED"
+    assert recovery_path.read_bytes() == first_event
+    assert Path(result["handoff_path"]).is_file()
+
+
+def test_orphan_recovery_event_forces_handoff_before_normal_observation(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    state_root = tmp_path / "state"
+    handoff_root = tmp_path / "handoffs"
+    original_atomic_write = context_guardian._atomic_write
+
+    def fail_handoff(path: Path, encoded: bytes) -> None:
+        if path.suffix == ".md":
+            raise OSError("simulated crash after immutable event")
+        original_atomic_write(path, encoded)
+
+    monkeypatch.setattr(context_guardian, "_atomic_write", fail_handoff)
+    with pytest.raises(OSError, match="simulated crash"):
+        context_guardian.recover_unexpected_compaction(
+            session_id="session-orphan",
+            event_id="automatic-compaction-1",
+            summary=["Automatic compaction interrupted the live session."],
+            next_step="Complete the recovery handoff.",
+            state_root=state_root,
+            handoff_root=handoff_root,
+        )
+    monkeypatch.setattr(context_guardian, "_atomic_write", original_atomic_write)
+
+    assert context_guardian.has_unresolved_recovery(
+        "session-orphan", state_root=state_root
+    )
+    result = context_guardian.observe(
+        session_id="session-orphan",
+        used_tokens=44,
+        context_limit=100,
+        at_coherent_milestone=False,
+        summary=["Normal work must not continue past the orphan event."],
+        next_step="Complete the recovery handoff.",
+        state_root=state_root,
+        handoff_root=handoff_root,
+    )
+
+    assert result["action"] == "HANDOFF_REQUIRED"
+    assert Path(result["handoff_path"]).is_file()
+    assert result["recovery_path"].endswith("automatic-compaction-1.json")
+
+
 def test_observe_rejects_symlinked_guardian_state(tmp_path: Path) -> None:
     state_root = tmp_path / "context"
     arguments = {

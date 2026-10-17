@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 686
-total_tokens: ~349703
-latest_id: 686
+total_entries: 687
+total_tokens: ~350513
+latest_id: 687
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 687 | 2026-10-17 | in-progress | 48ed8e307167ec5e | protocol,continuity,audit,verify,+ | 686 |
 | 686 | 2026-10-17 | changed | e954c431cd7f3c02 | docs,continuity,verify,handoff,+ | 685 |
 | 685 | 2026-10-16 | changed | f0ecb250567edc19 | audit,protocol,ci,gates,+ | 684 |
 | 684 | 2026-10-16 | changed | 51b044cc1623374b | ci,git-hooks,protocol,verify,+ | 683 |
@@ -717,7 +718,7 @@ compact: true
 - archive: count=1 latest=#326
 - artifacts: count=1 latest=#406
 - atomicity: count=16 latest=#654, #623, #622, #621, #620
-- audit: count=145 latest=#685, #675, #674, #673, #672
+- audit: count=146 latest=#687, #685, #675, #674, #673
 - baseline: count=1 latest=#303
 - beam: count=5 latest=#446, #445, #441, #440, #223
 - benchmark: count=208 latest=#646, #645, #571, #553, #547
@@ -763,7 +764,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=104 latest=#686, #685, #673, #672, #668
+- continuity: count=105 latest=#687, #686, #685, #673, #672
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -834,7 +835,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=139 latest=#686, #684, #680, #679, #677
+- handoff: count=140 latest=#687, #686, #684, #680, #679
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -938,7 +939,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=122 latest=#685, #684, #668, #620, #619
+- protocol: count=123 latest=#687, #685, #684, #668, #620
 - protocol/context: count=1 latest=#671
 - prov: count=1 latest=#316
 - provenance: count=38 latest=#673, #672, #655, #654, #653
@@ -1019,7 +1020,7 @@ compact: true
 - templates: count=1 latest=#331
 - temporal: count=5 latest=#628, #627, #626, #441, #400
 - tenancy: count=2 latest=#538, #535
-- test: count=132 latest=#642, #638, #637, #632, #631
+- test: count=133 latest=#687, #642, #638, #637, #632
 - test-artifacts: count=1 latest=#506
 - tests: count=86 latest=#652, #650, #649, #648, #647
 - textual: count=19 latest=#554, #543, #108, #106, #063
@@ -1037,7 +1038,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=487 latest=#686, #685, #684, #683, #682
+- verify: count=488 latest=#687, #686, #685, #684, #683
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1046,7 +1047,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=16 latest=#684, #675, #674, #669, #667
+- worktree: count=17 latest=#687, #684, #675, #674, #669
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -1056,5 +1057,5 @@ compact: true
 - roots: 90
 - changed: 86
 - done: 542
-- in-progress: 36
+- in-progress: 37
 - planned: 22

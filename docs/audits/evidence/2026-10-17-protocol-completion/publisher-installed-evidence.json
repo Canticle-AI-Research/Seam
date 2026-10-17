@@ -1,0 +1,26 @@
+{
+  "run_id": 38562182535,
+  "logs": [
+    {
+      "log": "0_publish-and-verify.txt",
+      "sha256": "80b2e9406be23f64b67c9c526ef3f8f45aaa06b0ffef79b24bb4fe7ccd726bdf",
+      "lines": [
+        "2026-10-14T12:15:34.4257744Z Ran 8 tests in 6.096s",
+        "2026-10-14T12:15:34.8640509Z No broken requirements found.",
+        "2026-10-14T12:15:54.0560167Z Ran 8 tests in 6.019s",
+        "2026-10-14T12:15:54.5043511Z No broken requirements found."
+      ]
+    },
+    {
+      "log": "1_prepare.txt",
+      "sha256": "729f8630a9813e8197c984adc5e7d47c6154f3ae1c158dd21a5a0e5211f02a86",
+      "lines": [
+        "2026-10-14T12:14:26.9476513Z Ran 8 tests in 7.233s",
+        "2026-10-14T12:14:27.4766431Z No broken requirements found.",
+        "2026-10-14T12:14:47.1800866Z Ran 8 tests in 6.756s",
+        "2026-10-14T12:14:47.6935418Z No broken requirements found."
+      ]
+    }
+  ],
+  "scope": "Historical downloaded-install run readback"
+}

@@ -1,0 +1,170 @@
+{
+  "canonical_gates": [
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0,
+      "name": "diff-hygiene",
+      "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.git.verify_agent_config"
+      ],
+      "exit_code": 0,
+      "name": "agent-config",
+      "output_sha256": "66f5b871b406ca332ebe18d7bab747e3b928d5f8ab1815d697986a4754cb60fe"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.history.verify_integrity"
+      ],
+      "exit_code": 0,
+      "name": "history-integrity",
+      "output_sha256": "2ea1bebbfe0e5501ae2628474800863b69d83b40b0bf1f76d9e36639dad6cb64"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.history.verify_routing"
+      ],
+      "exit_code": 0,
+      "name": "history-routing",
+      "output_sha256": "01daabfd842dbf5cb31abb5732167894cf02d2ea44c81f574961f1b7956749b9"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.history.verify_handoffs"
+      ],
+      "exit_code": 0,
+      "name": "handoffs",
+      "output_sha256": "b39a5048649000ec680c4c938fe40b24a879d7000d8d4a267e9607015f38267b"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.history.verify_continuity"
+      ],
+      "exit_code": 0,
+      "name": "continuity",
+      "output_sha256": "fab307204e4bd2af845e7c5fbcd6eca70eb8c9e677a7ee4286dbf05bb31783ec"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.streams.verify_streams"
+      ],
+      "exit_code": 0,
+      "name": "streams",
+      "output_sha256": "cdd4af1faa6e2e688a315e0822502ad88eeb8c59dbbe4762f2603e52e9f7ed44"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.docs.verify_wiki"
+      ],
+      "exit_code": 0,
+      "name": "wiki",
+      "output_sha256": "a4d7fe592dd697b9a4134e3d88e7f6bd113677192bb4136355a1c2f5f4a58497"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.docs.sync_references",
+        "--check"
+      ],
+      "exit_code": 0,
+      "name": "doc-references",
+      "output_sha256": "3ef8a7ef6632f01140c6b7cba8ea4d4607a080af7bd1a8aafd101af2c9b0325b"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.release.verify_suite_manifest"
+      ],
+      "exit_code": 0,
+      "name": "suite-manifest",
+      "output_sha256": "97ac0f3c17543eeee3512e7dbe26671fdb0c976760520e9830cfcfb6ba65a20b"
+    },
+    {
+      "command": [
+        "/usr/bin/python3",
+        "-m",
+        "tools.docs.verify_audit_claims",
+        "--changed-since",
+        "HEAD^1"
+      ],
+      "exit_code": 0,
+      "name": "audit-claims",
+      "output_sha256": "050fa46c5f75d64f33026aa7ad5e8e57b0f68777ff50e4369ace95abbfdb253a"
+    }
+  ],
+  "expected_candidate": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d",
+  "merge": {
+    "commit": "79c40b55f8aea7a6615bdccf4b331b41dd46a362",
+    "first_parent": "6498e293259572181c268b40ae2503fa67131c99",
+    "second_parent": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d"
+  },
+  "merge_method": "merge_commit",
+  "merged_at": "2026-10-17T03:21:30Z",
+  "pull_request": 313,
+  "qualification": {
+    "receipt_completed_at": "2026-10-17T03:20:44.488885Z",
+    "request_id": "01a147c6-b661-7630-9b10-20e05f96bbd9-cce650f44a6eb36e",
+    "request_sha256": "1d7b8a6fc3b49c9fd5e80b23d695f1d2f4db3325f06decf78802565444b4a550"
+  },
+  "repository": "Canticle-AI-Research/Seam",
+  "required_checks": [
+    {
+      "app_id": 15368,
+      "app_slug": "github-actions",
+      "completed_at": "2026-10-17T03:18:40Z",
+      "conclusion": "success",
+      "head_sha": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d",
+      "name": "repo-hygiene",
+      "ruleset_id": 15143368,
+      "ruleset_integration_id": null,
+      "started_at": "2026-10-17T03:17:38Z"
+    },
+    {
+      "app_id": 15368,
+      "app_slug": "github-actions",
+      "completed_at": "2026-10-17T03:16:40Z",
+      "conclusion": "success",
+      "head_sha": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d",
+      "name": "chroma-real-smoke",
+      "ruleset_id": 15143368,
+      "ruleset_integration_id": null,
+      "started_at": "2026-10-17T03:16:22Z"
+    },
+    {
+      "app_id": 15368,
+      "app_slug": "github-actions",
+      "completed_at": "2026-10-17T03:17:24Z",
+      "conclusion": "success",
+      "head_sha": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d",
+      "name": "locomo-quickstart-bil2",
+      "ruleset_id": 15143368,
+      "ruleset_integration_id": null,
+      "started_at": "2026-10-17T03:16:41Z"
+    }
+  ],
+  "result_main": "79c40b55f8aea7a6615bdccf4b331b41dd46a362",
+  "status": "PASS",
+  "version": "seam-merge-verification/1"
+}
