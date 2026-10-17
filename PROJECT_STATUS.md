@@ -5,29 +5,30 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
-**2026-10-16 — protocol retrospective and chronology repair.**
-The [bounded two-week audit](docs/audits/2026-10-16-protocol-retrospective.md)
-verified required CI before merge and matching candidate/merge trees for15
-reviewed source PRs. It found missing timestamp-order enforcement in the
-existing merge verifier, stale current licensing/queue records and a historical
-PR305 qualification-announcement discrepancy. The repair requires aware check
-start ≤ completion ≤ qualification ≤ merge before local gates or success output.
-Historical missing evidence stays Partial; final green checks do not prove all
-prior startup/admission phases. See HISTORY#685 and the
-[current handoff](docs/handoffs/INDEX.md).
+**2026-10-16 — protocol repair delivered; finite current-built documentation
+review active.** PR #312's candidate `0cab587` received required CI and independent
+qualification before protected merge as `6498e293259572181c268b40ae2503fa67131c99`;
+all 11 actual exact-main gates passed. The repair enforces aware check start ≤
+completion ≤ qualification ≤ merge before local gates or success output. The
+historical PR #305 qualification-announcement evidence gap remains Partial; later
+green checks do not prove missing prior phases. See HISTORY#685, the
+[bounded retrospective](docs/audits/2026-10-16-protocol-retrospective.md), and
+the [current handoff](docs/handoffs/INDEX.md).
 
-Licensing is completed through PR286/288. Suite2.4.1rc1 TestPyPI delivery and
-its downloaded-install acceptance remain completed in HISTORY#680. Finish this
-finite protocol repair through independent qualification, protected merge and
-actual exact-main verification, then the remaining current-built documentation
-review/disposition packet; independent Doctor follows signoff and its existing
-review gates. Formation, batching, skills, reports and comparator recovery stay
-held. Do not reopen licensing or add future features to the documentation scope.
+The current owner task is the remaining finite current-built documentation and
+disposition review. Its bounded source and mechanical closeout belongs in the
+[documentation closeout report](docs/audits/2026-10-16-current-built-documentation-closeout.md);
+it does not establish whole-wiki semantic acceptance or readiness of unbuilt
+features. Licensing is complete through PR #286 and PR #288, and Suite 2.4.1rc1 TestPyPI
+delivery plus downloaded-install acceptance is complete in HISTORY#680.
+Independent Doctor work follows only after this review's signoff and its own
+existing gates. Formation, batching, skills, reports, comparator recovery and
+other research remain held; they cannot extend this finish line.
 
 The original eight source/site PRs remain closed without merge, with exact tips
-preserved and unfinished acceptance in recovery issues. PR311's original
-backlog/hooks/check delivery remains preserved while chronology enforcement is
-expanded here. See the [disposition receipt](docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json)
+preserved and unfinished acceptance in recovery issues. PR #311's original
+backlog/hooks/check delivery remains preserved, and PR #312's chronology
+enforcement is delivered on main. See the [disposition receipt](docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json)
 and [PR completion policy](docs/PR_LIFECYCLE.md). No production publication,
 deployment, provider/model execution or license change belongs to this repair.
 Older headlines below retain their dated historical state.

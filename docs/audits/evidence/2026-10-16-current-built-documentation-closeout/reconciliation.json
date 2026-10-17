@@ -1,0 +1,262 @@
+{
+  "schema": "seam-documentation-reconciliation/v1",
+  "observed_at": "2026-10-17T03:04:08.078725+00:00",
+  "source_base": "6498e293259572181c268b40ae2503fa67131c99",
+  "scope": "Four inherited current-facing documentation files and source-pinned disposition review; website limited to SEAM docs/licensing/download routing. No whole-wiki semantic audit or fresh runtime/install qualification.",
+  "github_about": {
+    "description": "SEAM \u2014 Surface Encoded Agent Memory. Proprietary Suite; free personal, noncommercial self-hosting. Business and organizational use require a written license.",
+    "issue": 287,
+    "state": "closed",
+    "closed_at": "2026-10-17T03:03:30Z"
+  },
+  "protocol_delivery": {
+    "checked_at": "2026-10-16T20:15:45.278917+00:00",
+    "candidate": "0cab587fe76ee910d9ad141ca71a297621e2d0b4",
+    "main": "6498e293259572181c268b40ae2503fa67131c99",
+    "merged_at": "2026-10-16T20:14:53Z",
+    "qualification_completed_at": "2026-10-16T20:13:28.836783Z",
+    "qualification_sha256": "19c2ab47cb470c621dec8aec90721dc915fd847282a1d5dd7f5d56ba2fa24b14",
+    "merge_evidence_sha256": "7017b45fe552d2dfe0cac85ed28b255a10accb7408d6fdc1ce011a6b7381b362",
+    "canonical_gates": [
+      {
+        "name": "diff-hygiene",
+        "exit": 0
+      },
+      {
+        "name": "agent-config",
+        "exit": 0
+      },
+      {
+        "name": "history-integrity",
+        "exit": 0
+      },
+      {
+        "name": "history-routing",
+        "exit": 0
+      },
+      {
+        "name": "handoffs",
+        "exit": 0
+      },
+      {
+        "name": "continuity",
+        "exit": 0
+      },
+      {
+        "name": "streams",
+        "exit": 0
+      },
+      {
+        "name": "wiki",
+        "exit": 0
+      },
+      {
+        "name": "doc-references",
+        "exit": 0
+      },
+      {
+        "name": "suite-manifest",
+        "exit": 0
+      },
+      {
+        "name": "audit-claims",
+        "exit": 0
+      }
+    ],
+    "required_checks": [
+      {
+        "app_id": 15368,
+        "app_slug": "github-actions",
+        "completed_at": "2026-10-16T20:09:52Z",
+        "conclusion": "success",
+        "head_sha": "0cab587fe76ee910d9ad141ca71a297621e2d0b4",
+        "name": "repo-hygiene",
+        "ruleset_id": 15143368,
+        "ruleset_integration_id": null,
+        "started_at": "2026-10-16T20:08:36Z"
+      },
+      {
+        "app_id": 15368,
+        "app_slug": "github-actions",
+        "completed_at": "2026-10-16T20:08:14Z",
+        "conclusion": "success",
+        "head_sha": "0cab587fe76ee910d9ad141ca71a297621e2d0b4",
+        "name": "chroma-real-smoke",
+        "ruleset_id": 15143368,
+        "ruleset_integration_id": null,
+        "started_at": "2026-10-16T20:07:54Z"
+      },
+      {
+        "app_id": 15368,
+        "app_slug": "github-actions",
+        "completed_at": "2026-10-16T20:07:52Z",
+        "conclusion": "success",
+        "head_sha": "0cab587fe76ee910d9ad141ca71a297621e2d0b4",
+        "name": "locomo-quickstart-bil2",
+        "ruleset_id": 15143368,
+        "ruleset_integration_id": null,
+        "started_at": "2026-10-16T20:07:23Z"
+      }
+    ],
+    "status": "PASS",
+    "preserved_original_worktree_statuses": 21,
+    "historical_gap": "PR305 qualification raw/successor evidence Partial; no retroactive qualification",
+    "advisory": "Issue293 approved Docker daemon unavailable; pgvector no service/tests started; advisory matrix skipped"
+  },
+  "protocol_merge_evidence_sha256": "7017b45fe552d2dfe0cac85ed28b255a10accb7408d6fdc1ce011a6b7381b362",
+  "source_fingerprints": [
+    {
+      "path": "LICENSE",
+      "sha256": "f21e4760c6dcc6342664bea03a0d5d8bcc1b9b8b91355a3e13f6fc6b996a8d00"
+    },
+    {
+      "path": "LICENSES/SEAM-Suite-Personal.txt",
+      "sha256": "f843172ff6955370cd7f308445a4a7fc47927ba2968058b208d09192f66c821d"
+    },
+    {
+      "path": "NOTICE",
+      "sha256": "5f45aa742007c65edfa010caf7b63ad64d35f34ea08913809ecfb9703232d278"
+    },
+    {
+      "path": "COMMERCIAL_LICENSE.md",
+      "sha256": "b0b8ffbb2298e7df18b45da195aa8a5666c9bfc062f4b698c53dceae01fe781b"
+    },
+    {
+      "path": "README.md",
+      "sha256": "71fb0bd274560f6c9e5e5e5c0015fdb40c0090dd309d0a86f15d2719b315536e"
+    },
+    {
+      "path": "docs/PRODUCTS.md",
+      "sha256": "1ebfe3840f333c359d88eac4e9649a4727845b3593eddaa59750aa645d33644d"
+    },
+    {
+      "path": "docs/RELEASE_FLOW.md",
+      "sha256": "7776afc7e74531c210310cf1e2f5ae00e2526a4cf669b4f5454e65ae0f18ddaf"
+    },
+    {
+      "path": "docs/TESTPYPI.md",
+      "sha256": "a7623e6efb139bc0c19fbac9edbdc8afb0391754aa37d4c456dd3b3995d842ef"
+    },
+    {
+      "path": "docs/audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json",
+      "sha256": "c6cd4e49f1a098c7fb4a56ece59605656b8c55d0e2389163076ebe58aa10cd28"
+    },
+    {
+      "path": "docs/audits/evidence/2026-10-14-testpypi-release/live-readback.json",
+      "sha256": "921bca681b1c548eb60f29ac9d4f1e09904987c21dfd13bc038387c9b66f9529"
+    }
+  ],
+  "website": {
+    "repo": "BlackhatShiftey/Cantlicle",
+    "main": "6b6ef1d88bd6789adee3afbe50742c2d1c52a8da",
+    "files": [
+      {
+        "path": "downloads.html",
+        "source_sha256": "a488e0dc66f3ae29a439b6fc78135066fa77cc23e0195e2d4d7cbb1decb55720",
+        "live_sha256": "c9327634a9f3c711756c30f7e6850dacc2ff99c2fc2a14e0ee05bc31fc727be9",
+        "http_status": 200,
+        "byte_equal": false,
+        "scope": "read-only fetched source and HTTP bytes; no rendered UI or signed-in interaction qualification",
+        "normalized_equal": true,
+        "normalization": "Decode Cloudflare email links/text; remove its email decoder, challenge-platform injection and Insights beacon; normalize resulting extra closing-body blank line only."
+      },
+      {
+        "path": "documentation.html",
+        "source_sha256": "30c6ed218b885eb5a030c0a5ad70775d86cdf8e9a60e2c734c0b18fad9a82000",
+        "live_sha256": "ce8d3781c2a16feb6d868b20b70fabbf730df3baf3cc1191e8e4bd4d6ed707fa",
+        "http_status": 200,
+        "byte_equal": false,
+        "scope": "read-only fetched source and HTTP bytes; no rendered UI or signed-in interaction qualification",
+        "normalized_equal": true,
+        "normalization": "Decode Cloudflare email links/text; remove its email decoder, challenge-platform injection and Insights beacon; normalize resulting extra closing-body blank line only."
+      },
+      {
+        "path": "seam-release.js",
+        "source_sha256": "c9c96d5add890f5637ea4eaa28c0451214009c23cee08a1b3d1bb4af944cdffe",
+        "live_sha256": "c9c96d5add890f5637ea4eaa28c0451214009c23cee08a1b3d1bb4af944cdffe",
+        "http_status": 200,
+        "byte_equal": true,
+        "scope": "read-only fetched source and HTTP bytes; no rendered UI or signed-in interaction qualification"
+      }
+    ],
+    "production_pypi_http_status": 404,
+    "download_policy": "Existing stable buttons use validated production PyPI metadata. TestPyPI candidates are separate. No routing or deployment change in this source documentation slice."
+  },
+  "testpypi_readback": {
+    "name": "seam-suite",
+    "version": "2.4.1rc1",
+    "files": [
+      {
+        "filename": "seam_suite-2.4.1rc1-py3-none-any.whl",
+        "sha256": "da03f1ab9c7b7728a75e21ff40efadff635bac9dc1dd6fde5c2219b482a7aa04"
+      },
+      {
+        "filename": "seam_suite-2.4.1rc1.tar.gz",
+        "sha256": "4b5e484bd1dee6c8440b6f344f098a989cedae2bf3bddb814db0b267d4919b22"
+      }
+    ],
+    "scope": "Fresh public metadata matches historical artifact hashes; downloaded-install acceptance remains the dated HISTORY680 evidence."
+  },
+  "limitations": [
+    "PR305 historical qualification remains Partial",
+    "Future Doctor requires review signoff and its own gates",
+    "Future product and research recovery lanes remain held",
+    "No private website proposal contents copied"
+  ],
+  "recovery_issue_readback": [
+    {
+      "closedAt": "2026-10-16T13:10:06Z",
+      "number": 291,
+      "state": "CLOSED",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/291"
+    },
+    {
+      "closedAt": null,
+      "number": 292,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/292"
+    },
+    {
+      "closedAt": null,
+      "number": 293,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/293"
+    },
+    {
+      "closedAt": null,
+      "number": 294,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/294"
+    },
+    {
+      "closedAt": null,
+      "number": 297,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/297"
+    },
+    {
+      "closedAt": null,
+      "number": 298,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/298"
+    },
+    {
+      "closedAt": null,
+      "number": 299,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/299"
+    },
+    {
+      "closedAt": null,
+      "number": 301,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/301"
+    },
+    {
+      "closedAt": null,
+      "number": 302,
+      "state": "OPEN",
+      "url": "https://github.com/Canticle-AI-Research/Seam/issues/302"
+    }
+  ]
+}

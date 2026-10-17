@@ -15,9 +15,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 - `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
-- Current operator order: the licensing packet is complete through PR #286;
-  finish the finite merge-protocol repair, then the pending documentation review,
-  followed by independent SEAM Doctor subject to its exact-source/review gates.
+- Current operator order: licensing is complete through PR #286 and PR #288,
+  and merge-protocol repair is delivered through PR #312. Finish the finite
+  current-built documentation/disposition review, then independent SEAM Doctor
+  subject to documentation signoff and its exact-source/review gates.
+  Website scope is limited to SEAM documentation, licensing consistency and
+  existing download destinations; broader website work is not a prerequisite.
   No licensing artifact change belongs to those remaining steps. The formation
   roadmap and its detailed dependency graph remain preserved, but do not
   override that order.

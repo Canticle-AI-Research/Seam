@@ -22298,3 +22298,23 @@ protocol delivery; Doctor conditional, formation/batching/research held. Preserv
 all original worktrees, recovery refs and immutable receipts. See bounded audit,
 evidence manifest and current indexed handoff for exact limits and remaining exits.
 ---END-ENTRY-#685---
+
+---BEGIN-ENTRY-#686---
+id: 686
+date: 2026-10-17T03:11:20Z
+agent: codex
+status: changed
+topics: docs, continuity, verify, handoff, status
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,docs/audits/2026-10-16-current-built-documentation-closeout.md,docs/handoffs/2026-10-17-current-built-documentation.md
+supersedes: 685
+tokens: 682
+---
+Resumed the interrupted finite current-built documentation/disposition review on source main 6498e293259572181c268b40ae2503fa67131c99. PROJECT_STATUS.md, docs/status/packaging-licensing.md, docs/roadmap/BRANCH_RECOVERY.md and docs/roadmap/SEAM_LAUNCH.md now distinguish completed licensing PR286/288, exact TestPyPI HISTORY680 acceptance, delivered protocol PR312, preserved original PR dispositions, and held future work. Registered the bounded report and current handoff; retained historical dates and the PR305 Partial evidence gap. REPO_LEDGER.md records the existing operator scope: website work is limited to SEAM docs, licensing and download destinations.
+
+Fresh October17 UTC readbacks found the GitHub About wording correct, then closed reminder issue287; issue291 remains closed and issues292/293/294/297/298/299/301/302 remain open. Public TestPyPI metadata matches the existing exact wheel/sdist hashes; production PyPI metadata returns404. Website downloads/documentation HTTP200 content matches pinned site main after explicitly enumerated Cloudflare transformations; seam-release.js is byte-identical. This is a bounded source/HTTP comparison, not rendered or signed-in website qualification. Raw hashes and exact boundaries are in docs/audits/evidence/2026-10-16-current-built-documentation-closeout/reconciliation.json and the report manifest.
+
+All existing local queue roots were inspected; four newly observed retained-state requests were independently qualified and stored before authorizing tracked documentation edits. They cover administrative admission of the primary checkout's retained nonruntime diff, not old product qualification. Other worktrees and unrelated local configuration remain untouched. Sol completed the scoped prose changes; root reviewed the source evidence and corrected manifest/date boundaries. git diff --check and the focused evidence-manifest validation passed. Managed reference state was refreshed and only its seven changed current-facing documents explicitly acknowledged after review. Initial acknowledgement including dated documents was rejected as nonpending, then corrected without bypass. No runtime code changed and no new runtime tests were required or executed.
+
+This entry records the candidate before final independent assurance, canonical gate completion, pushed-head CI, release qualification, protected merge and actual resulting-main verification; those remain required delivery steps. No whole-wiki semantic acceptance, fresh package installation, production publication, service/provider execution or new product acceptance is claimed. Doctor is only the conditional next review after documentation signoff; all other recovery and launch work remains held.
+---END-ENTRY-#686---
