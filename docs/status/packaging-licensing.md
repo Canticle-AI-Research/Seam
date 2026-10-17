@@ -7,6 +7,26 @@ lives in [the launch plan](../roadmap/SEAM_LAUNCH.md). Reconciliation commands
 and dated observations are recorded in HISTORY#634 and the
 [current handoff](../handoffs/INDEX.md).
 
+## Current checkpoint and remaining exits
+
+Licensing is complete through PR #286 and PR #288. Suite 2.4.1rc1 is delivered to
+TestPyPI, and its exact public wheel/sdist hashes plus fresh downloaded installs
+are accepted in HISTORY#680. The current owner task is the finite current-built
+documentation/disposition review; packaging expansion is held.
+
+PR #312's chronology enforcement is delivered on protected main at
+`6498e293259572181c268b40ae2503fa67131c99`. The historical PR #305
+qualification-announcement gap remains Partial. After documentation signoff,
+Doctor work is only conditional on its existing exact-source and independent
+review gates; it is not a packaging exit or current accepted implementation.
+
+The next release/product exits remain separate: requalify exact artifacts after
+any byte change; reconcile production release metadata, compatibility and
+install/upgrade instructions; obtain explicit production publication
+authorization; finish private SDK compatibility and paid-delivery work; and
+satisfy the applicable operator-surface and L4-L6 acceptance contracts. The
+TestPyPI result does not prove those exits or authorize production publication.
+
 ## Verified Suite TestPyPI release
 
 [seam-suite 2.4.1rc1](https://test.pypi.org/project/seam-suite/2.4.1rc1/) is live
@@ -20,22 +40,31 @@ sections below are dated preparation evidence.
 
 ## Integrated publisher and clean-checkout repair
 
+This is dated pre-publication evidence preserved from HISTORY#679. Its stated
+next steps were subsequently completed by the verified release above.
+
 PR #307 merged at `76d42b59d9ac85e831956d0ed340da8200448bea`. Its first
 TestPyPI dispatch failed strict snapshot freshness before upload; publisher job
 was skipped. The follow-up derives a fresh runner-local snapshot from checked-out
 history before unchanged unsuppressed gates. Independent review, 33 publisher
-cases and all six gates in a fresh clone pass. Protected repair admission and
-new exact-main dispatch remain required. See HISTORY#679 and current handoff.
+cases and all six gates in a fresh clone pass. At this checkpoint, protected
+repair admission and a new exact-main dispatch remained required; HISTORY#680
+records their completed successor. See HISTORY#679 and current handoff.
 
 ## TestPyPI publisher qualification
+
+This is dated preparation evidence preserved from HISTORY#676. The upload,
+public readback and downloaded-install steps described as pending here were
+subsequently completed for Suite 2.4.1rc1 in HISTORY#680.
 
 The operator configured `TEST_PYPI` in GitHub Actions and authorized the Suite
 TestPyPI upload. Dedicated `publish-testpypi.yml` has independent successor PASS;
 73 publisher/manifest audit cases and fresh locally built wheel/sdist installs
 qualify preparation. Each format passes eight installed smokes and dependency
-checks. Protected admission and exact-main dispatch, upload, public hash readback
-and downloaded installs remain required before claiming publication. Licensing
-is finished (PR #286). See HISTORY#676 and [TestPyPI instructions](../TESTPYPI.md).
+checks. At this checkpoint, protected admission and exact-main dispatch, upload,
+public hash readback and downloaded installs remained required before claiming
+publication; HISTORY#680 records their completion. Licensing is finished
+(PR #286). See HISTORY#676 and [TestPyPI instructions](../TESTPYPI.md).
 The dated observations below preserve earlier preparation state.
 
 ## Integrated candidate and live website
@@ -54,7 +83,8 @@ served resources match main after only Cloudflare email normalization. Productio
 Pages/worker builds pass. Six inherited homepage tests and intermittent preview
 worker failure remain tracked in website36/37; email delivery is not claimed.
 See [final recovery evidence](../audits/2026-10-14-branch-recovery-closeout.md).
-No registry upload or paid provider call occurred; publisher access remains external.
+At this dated recovery checkpoint, no registry upload or paid provider call had
+occurred and publisher access was still external.
 
 PR #288 merged at `6c6ecd13490c9b675a77f246573491824313343c` after exact-state
 qualification, required final-head checks and separate wheel/sdist install CI.
@@ -64,11 +94,12 @@ and script comparison passed. PR #266 is closed as superseded and its branch
 removed; unique unrelated work remains. See HISTORY#669 and the
 [current handoff](../handoffs/INDEX.md).
 
-TestPyPI-specific publisher access and downloaded-install verification remain
-open. No upload or production/MCP registration occurred. Stable Downloads
-waits for verified production release metadata. Local/CI installation evidence
-does not establish full product acceptance or repair the shared runner's
-unavailable PostgreSQL Docker service.
+At this dated PR #288 checkpoint, TestPyPI-specific publisher access and
+downloaded-install verification remained open. No upload or production/MCP
+registration had occurred. The later TestPyPI completion is recorded above;
+stable Downloads still waits for verified production release metadata.
+Local/CI installation evidence does not establish full product acceptance or
+repair the shared runner's unavailable PostgreSQL Docker service.
 
 ## Licensing reconciliation
 
@@ -92,9 +123,12 @@ Licensing is a focused successor of [PR #266](https://github.com/Canticle-AI-Res
 Its dependency/release/MCP changes and cumulative package-qualification condition
 remain separate. Independent source and installed-package review supports the
 owner-authorized TestPyPI candidate; its private-upload classifier is removed
-in this reviewed preparation. Publisher access, exact rebuilt-file qualification,
-TestPyPI verification, production authorization and operator-product acceptance
-remain separate gates. An exact reviewed license manifest resolves this candidate's membership;
+in this reviewed preparation. At that preparation stage, publisher access,
+exact rebuilt-file qualification, TestPyPI verification, production authorization
+and operator-product acceptance were separate gates. Publisher access and
+TestPyPI verification are now complete for the exact Suite 2.4.1rc1 artifacts;
+production authorization and operator-product acceptance remain separate. An
+exact reviewed license manifest resolves this candidate's membership;
 it does not qualify a future changed artifact automatically.
 
 ## Current naming candidate
@@ -103,11 +137,13 @@ HISTORY#642 selects `seam-suite` for self-hosted Suite, SEAM Client for the
 paid API plus its WebUI, and `seam-sdk` for private paid delivery. Existing
 `seam-client` remains the Python HTTP client, not a dashboard distribution.
 The root candidate is `seam-suite` 2.4.1rc1; imports and commands retain their
-existing names. This is a source change, not a published package.
+existing names. That exact candidate is published on TestPyPI, not production
+PyPI.
 
 The operator requires **TestPyPI first**. Follow [the procedure](../TESTPYPI.md);
 production publication and deletion of legacy releases are excluded. TestPyPI
-access and release qualification remain unresolved. No private SDK
+qualification is complete for the exact 2.4.1rc1 artifacts; changed artifacts
+require fresh qualification. No private SDK
 source may be included in either public index.
 
 ## L1 preparation evidence
@@ -129,7 +165,8 @@ and one synthetic legacy-runtime data upgrade passed. These scoped results do
 not qualify a new package name, full SDK parity, arbitrary upgrades, release
 rights, or hosted service. Ownership/source recovery, exact Suite membership,
 a fresh successor version, paid delivery, and compiled self-host migration
-remain explicit blockers in the packet. R2/S8 is now complete through PR #254; operator-product acceptance remains next.
+remain explicit blockers in the packet. R2/S8 is now complete through PR #254;
+operator-product acceptance remains a future product exit.
 
 ## Current boundary
 
@@ -141,14 +178,17 @@ description "private repository" must not be used as proof of access control.
 The renamed root candidate declares **`seam-suite` 2.4.1rc1** and
 an early-access development classifier. It contains the reviewed Suite runtime
 and readable MIRL/HS/1 source with the paid SDK excluded. Independent source and
-installed-package review precedes removal of the private-upload tripwire; the
-rebuilt files still require exact qualification and TestPyPI publisher access.
+installed-package review preceded removal of the private-upload tripwire. The
+exact Suite 2.4.1rc1 artifacts have completed TestPyPI qualification; rebuilt or
+changed files require a new exact qualification.
 Section 7B identifies this candidate's exact personal-use membership; the
-package rename itself did not grant those rights. Release workflows validate the exact canonical Python
-version, including this prerelease, while retaining their operator and
-artifact gates. They do not upload to a package index. The default installation
-now includes terminal and HTTP/browser dependencies; compatible `dash` and
-`server` aliases remain. See [the release flow](../RELEASE_FLOW.md).
+package rename itself did not grant those rights. The general package preparation
+and private-release workflows validate the exact canonical Python version,
+including this prerelease, while retaining their operator and artifact gates;
+the dedicated TestPyPI workflow supplied the completed test-index release. The
+default installation now includes terminal and HTTP/browser dependencies;
+compatible `dash` and `server` aliases remain. See
+[the release flow](../RELEASE_FLOW.md).
 
 [LICENSE](../../LICENSE), [NOTICE](../../NOTICE),
 [COMMERCIAL_LICENSE.md](../../COMMERCIAL_LICENSE.md), and the named license
@@ -187,10 +227,15 @@ reserved-material, and artifact scanners. The retired mirror, compiled
 self-host build, and API-only shim are historical implementations; they do
 not define the new Suite architecture.
 
-## Next packaging task
+## Historical L1 preparation sequence
 
-L1 is a migration packet and reviewed candidate build, followed by explicit
-release qualification. Work through these items in order:
+### Next packaging task
+
+The list below records the preparation sequence that governed L1. Publisher
+access and the TestPyPI portions of candidate qualification and release controls
+were subsequently completed for Suite 2.4.1rc1. The remaining conditions still
+apply to changed artifacts and any production release; use the current checkpoint
+above for owner priority.
 
 1. **Ownership and sources:** verify Suite's TestPyPI publisher access and
    current source. This is first-launch Suite preparation; historical packages

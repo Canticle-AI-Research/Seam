@@ -2,13 +2,20 @@
 
 [Back to SEAM roadmaps](README.md)
 
-**Direction:** retained product acceptance backlog. The active
-[memory-formation roadmap](MEMORY_FORMATION.md) supersedes the previous
-surface-first score-campaign order and owns what to do next.
+**Direction:** retained product acceptance backlog. Current owner order comes
+from [project status](../../PROJECT_STATUS.md) and the
+[current handoff](../handoffs/INDEX.md): finish the finite current-built
+documentation/disposition review, then consider independent Doctor work under
+its existing gates. Formation, product expansion, score work and all L0-L6
+launch slices are held until explicitly resumed. The
+[memory-formation roadmap](MEMORY_FORMATION.md) still governs formation's
+internal dependencies when that work resumes.
+PR #312's chronology enforcement is delivered on protected main; the historical
+PR #305 evidence gap remains Partial and is not repaired by later green checks.
 **Decision record:** HISTORY#634; naming/TestPyPI HISTORY#642; priority HISTORY#645.
 **Product definitions:** [SEAM products](../PRODUCTS.md).
-**Current implementation state:** [project status](../../PROJECT_STATUS.md)
-and the [current handoff](../handoffs/INDEX.md).
+**Current implementation state:** the pointers above are authoritative; this
+document supplies acceptance contracts and does not set the active task.
 
 This is a bounded launch backlog. Acceptance conditions describe future work;
 they are not test results. The root roadmap marker `roadmap:track:Launch`
@@ -55,22 +62,31 @@ a test upload does not authorize production publication or prove launch readines
 The [L1 candidate packet](../audits/2026-09-06-l1-packaging-migration.md)
 contains source/ownership mapping, exact artifact inventories, installed
 compatibility evidence, and explicit release blockers (HISTORY#635). It records
-the operator clarification that SDK access is private and paid.
+the operator clarification that SDK access is private and paid. Licensing was
+completed through PR #286 and PR #288. Suite 2.4.1rc1 was subsequently delivered to
+TestPyPI and accepted through exact public hash readback plus fresh downloaded
+installs (HISTORY#680). Those results satisfy the named TestPyPI checkpoint for
+that exact candidate; they do not authorize production publication or establish
+the remaining product acceptance exits.
 
-Follow [the packaging checklist](../status/packaging-licensing.md#next-packaging-task).
-Its output is a reviewable artifact/source map and migration proposal. Verify
-legacy package ownership, repository locations, and release access using the
-CLI before changing coordinates. Preserve existing users' install and upgrade
-paths. No rename alone proves distribution eligibility.
+The active work is the bounded current-built documentation/disposition review,
+followed only conditionally by independent Doctor work. Product work remains
+held. When launch work is explicitly resumed, follow
+[the packaging checkpoint](../status/packaging-licensing.md#current-checkpoint-and-remaining-exits),
+preserve existing users' install and upgrade paths, and requalify any artifact
+whose bytes change. Private SDK compatibility/delivery, production release
+metadata and authorization, operator-surface acceptance, and L4-L6 service,
+benchmark and launch evidence remain separate exits.
 
 R2 and the S8 completion conditions are protected at `main@2f9a96b9`
 (PR #254), with exact-main checks recorded at HISTORY#641 and evidence in
 [the gate matrix](../../tests/docs/s8-completion.md). L3 operator acceptance
-remains the product acceptance lane after the active formation work.
-When that lane resumes, select one real Suite/API/WebUI workflow,
+remains the next product acceptance lane after its dependencies and an explicit
+resumption. When that lane resumes, select one real Suite/API/WebUI workflow,
 inspect its current implementation, and record public-seam acceptance before
-editing. L1 delivery blockers remain explicit; evaluation sequencing follows
-the active memory-formation roadmap. [Track S](TRACK_S_S8_S10_PRODUCTION_CORE.md)
+editing. Remaining L1 delivery blockers stay explicit; formation evaluation
+sequencing follows the memory-formation roadmap when resumed.
+[Track S](TRACK_S_S8_S10_PRODUCTION_CORE.md)
 continues to own core qualification and Promotion.
 
 ## Operator workflow acceptance
