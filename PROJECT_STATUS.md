@@ -5,6 +5,20 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Exact-candidate assurance blocked by disappeared worktrees.**
+Independent review of committed candidate `0fc2cec` confirms the source,
+original-base TDD, full non-external audit and continuity evidence, but the
+successor inventory gate fails: eleven roots present at activation are now
+absent. Repeated real-filesystem inspection finds twelve roots against the
+immutable twenty-three-root binding; no original queue record is missing.
+The cause and authorized disposition of those removals are unknown. Preserve
+all bindings and evidence; do not rewrite inventory or create placeholder roots.
+HISTORY#695 and external `finalization-20261017/ASSURANCE_BLOCKED.md` record the
+exact blocker. Operator removal/restoration context is requested. No assurance
+PASS, release qualification, push, PR, merge or resulting-main verification.
+GitHub main remains `79c40b55` and the refreshed open-PR list is empty.
+
+
 **Genuine successor activated; full non-external audit passed (local candidate).**
 The original repair branch is restored with every retained evidence hash intact.
 Both primary administrative tails have independently reviewed admission-only
