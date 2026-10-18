@@ -11,12 +11,13 @@ and dated observations are recorded in HISTORY#634 and the
 
 Licensing is complete through PR #286 and PR #288. Suite 2.4.1rc1 is delivered to
 TestPyPI, and its exact public wheel/sdist hashes plus fresh downloaded installs
-are accepted in HISTORY#680. The current owner task is the finite current-built
-documentation/disposition review; packaging expansion is held.
+are accepted in HISTORY#680. PR #313 completed the finite current-built
+documentation/disposition review. The [current handoff](../handoffs/INDEX.md)
+resolves its successor protocol-completion repair; packaging expansion is held.
 
 PR #312's chronology enforcement is delivered on protected main at
 `6498e293259572181c268b40ae2503fa67131c99`. The historical PR #305
-qualification-announcement gap remains Partial. After documentation signoff,
+qualification-announcement gap remains Partial. After verified protocol repair,
 Doctor work is only conditional on its existing exact-source and independent
 review gates; it is not a packaging exit or current accepted implementation.
 

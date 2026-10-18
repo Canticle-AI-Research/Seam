@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-17T03:52:22.499073+00:00",
+  "files": [
+    {
+      "filename": "seam_suite-2.4.1rc1-py3-none-any.whl",
+      "sha256": "da03f1ab9c7b7728a75e21ff40efadff635bac9dc1dd6fde5c2219b482a7aa04",
+      "size": 1069903,
+      "matches_dated_acceptance": true
+    },
+    {
+      "filename": "seam_suite-2.4.1rc1.tar.gz",
+      "sha256": "4b5e484bd1dee6c8440b6f344f098a989cedae2bf3bddb814db0b267d4919b22",
+      "size": 1041191,
+      "matches_dated_acceptance": true
+    }
+  ],
+  "scope": "Public bytes compared to accepted historical artifacts; historical installed-run result independently re-read from GitHub"
+}

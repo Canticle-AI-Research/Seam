@@ -1,0 +1,211 @@
+{
+  "base_sha": "79c40b55f8aea7a6615bdccf4b331b41dd46a362",
+  "broad_audit": {
+    "boundary": "Failed during the repair interval. Reported errors include missing sentence_transformers, huggingface_hub, tiktoken, textual and uvicorn. No baseline comparison or full-suite acceptance claimed.",
+    "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit -m 'not external' -q",
+    "exit_code": 1,
+    "failed_nodes": [
+      "tests/audit/test_abstain_threshold.py::test_abstain_threshold_zero_unchanged",
+      "tests/audit/test_abstain_threshold.py::test_abstain_threshold_one_emits_unknown",
+      "tests/audit/test_benchmark_reproducibility.py::test_bil2_result_hash_deterministic",
+      "tests/audit/test_chroma_optional.py::test_real_doctor_runtime_passes_with_chromadb_import_blocked",
+      "tests/audit/test_claude_code_benchmark.py::test_seam_answer_uses_subscription_transport",
+      "tests/audit/test_claude_code_benchmark.py::test_runner_preserves_subscription_accounting_without_context_flag",
+      "tests/audit/test_claude_code_benchmark.py::test_runner_subscription_judge_failure_is_nonzero_with_preserved_report",
+      "tests/audit/test_claude_code_benchmark.py::test_runner_preserves_known_usage_when_judge_verdict_is_invalid[--judge-judge]",
+      "tests/audit/test_claude_code_benchmark.py::test_runner_preserves_known_usage_when_judge_verdict_is_invalid[--judge-cross-judge_cross]",
+      "tests/audit/test_cost_report.py::test_report_counts_only_clean_cases_and_prices_them",
+      "tests/audit/test_cost_report.py::test_unpriced_model_yields_none_not_fabrication",
+      "tests/audit/test_cost_report.py::test_report_rejects_missing_or_non_list_evaluations[None]",
+      "tests/audit/test_cost_report.py::test_report_rejects_missing_or_non_list_evaluations[evaluations1]",
+      "tests/audit/test_cost_report.py::test_report_rejects_missing_or_non_list_evaluations[invalid]",
+      "tests/audit/test_cross_encoder_rerank.py::test_cross_encoder_rerank_returns_scores_in_order",
+      "tests/audit/test_cross_encoder_rerank.py::test_cross_encoder_rerank_custom_model",
+      "tests/audit/test_cross_encoder_rerank.py::test_cross_encoder_rerank_reuses_model_instance",
+      "tests/audit/test_cross_encoder_rerank.py::test_adapter_rerank_reorders_candidates",
+      "tests/audit/test_cross_encoder_rerank.py::test_adapter_rerank_off_does_not_reorder",
+      "tests/audit/test_judged_scorer.py::test_judged_scorer_scores_and_restores_flags",
+      "tests/audit/test_judged_scorer.py::test_context_budget_applied_to_adapter_during_pass_and_restored",
+      "tests/audit/test_judged_scorer.py::test_context_budget_none_leaves_adapter_budget_unchanged",
+      "tests/audit/test_judged_scorer.py::test_empty_answer_scores_zero_without_judge_call",
+      "tests/audit/test_judged_scorer.py::test_judge_transient_failure_retried_then_hard_failure_raises",
+      "tests/audit/test_judged_scorer.py::test_judge_rate_limit_absorbed_by_provider_backoff",
+      "tests/audit/test_locomo_adapter_evidence_text.py::test_locomo_adapter_returns_plain_evidence_text",
+      "tests/audit/test_locomo_adapter_evidence_text.py::test_locomo_adapter_respects_context_budget",
+      "tests/audit/test_locomo_adapter_evidence_text.py::test_locomo_adapter_empty_scope_returns_empty_context",
+      "tests/audit/test_locomo_adapter_evidence_text.py::test_locomo_adapter_keep_db_skips_reingest_on_second_reset",
+      "tests/audit/test_locomo_decomposer.py::test_decomposer_off_is_unchanged",
+      "tests/audit/test_locomo_decomposer.py::test_decomposer_on_searches_per_sub_question",
+      "tests/audit/test_locomo_recall_scorer.py::test_locomo_recall_scorer_mechanism_and_flag_restore",
+      "tests/audit/test_locomo_recall_scorer.py::test_locomo_recall_scorer_runs_under_candidate_flags",
+      "tests/audit/test_locomo_recall_scorer.py::test_pooled_scorer_spans_multiple_conversations",
+      "tests/audit/test_locomo_result_durability.py::TestQuickstartArchives::test_quickstart_writes_durable_copy_without_output",
+      "tests/audit/test_locomo_turn_discriminator.py::test_two_turns_both_retrievable",
+      "tests/audit/test_seam_mem0_server.py::test_add_search_delete_round_trip",
+      "tests/audit/test_seam_mem0_server.py::test_user_scopes_are_isolated",
+      "tests/audit/test_seam_mem0_server.py::test_grounded_clm_policy_serves_readable_fact_with_raw_provenance",
+      "tests/audit/test_seam_mem0_server.py::test_sentence_grounded_policy_serves_paraphrase_after_exact_source",
+      "tests/audit/test_seam_mem0_server.py::test_grounded_clm_policy_never_crosses_user_namespace",
+      "tests/audit/test_seam_mem0_server.py::test_grounded_clm_policy_requires_live_assertable_provenance_chain[SPAN]",
+      "tests/audit/test_seam_mem0_server.py::test_grounded_clm_policy_requires_live_assertable_provenance_chain[RAW]",
+      "tests/audit/test_seam_mem0_server.py::test_count_context_policy_env_reaches_real_facade",
+      "tests/audit/test_seam_mem0_server.py::test_asgi_routes_match_mem0_oss_contract",
+      "tests/audit/test_server_bind_safety.py::test_real_uvicorn_factory_refuses_unsafe_remote_launch"
+    ],
+    "log_sha256": "f9129e9233d7e1f75bab06d75930e028fd95a67a4e9f582bc809ff5024cb11ff"
+  },
+  "evidence_correction": {
+    "control4_evidence_sha256": "c2494aa91dc0bcdd69e5392fb4c2900d2b33b72c4fb1423687b3fe71001805e2",
+    "correction": "The reconstructed control4 command and test reference used the wrong module. That cycle was excluded from root state; the separate witnessed review cycle uses test_verify_merge.py. Original raw red and green logs remain unchanged. Some timestamps derive from log mtimes, not separately instrumented clocks.",
+    "superseded_builder_manifest_sha256": "81ea407188877ab127d2c9c8aa5d1b5e7402e4e97feed2282b8a7aecddce4196"
+  },
+  "fixture_boundary": "Delivery tests use actual Git and CLI orchestration with network and ten Python gate implementations stubbed; actual canonical repository checks are separate.",
+  "focused": {
+    "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_agent_session_state.py tests/audit/test_context_guardian.py tests/audit/test_closeout_queue.py tests/audit/test_assurance.py tests/audit/test_verify_merge.py tests/audit/test_delivery_status.py tests/audit/test_session_end_agent_closeout.py tests/audit/test_git_hook_install.py tests/audit/test_local_gates_match_ci.py -o addopts='' -q --junitxml=/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/logs/final-frozen-focused.xml",
+    "exit_code": 0,
+    "failed": 0,
+    "junit_sha256": "64f59e48869ade94bda3e49f7585ecd2d3a755cd89911a3971fb58035cbc1dc8",
+    "log_sha256": "518c166051f53f296c5e152dfde677058b8eef6e435bac85131a511f124ae704",
+    "passed": 194,
+    "skipped": 0
+  },
+  "independent_review": {
+    "boundary": "Bounded independent Git/CLI negative probes for admission, compaction, assurance and delivery; not publication assurance.",
+    "result": "CHECKPOINT_REVIEW_PASS",
+    "reviewer": "workflow_astra_architect /root/review_docs"
+  },
+  "observed_at": "2026-10-17T04:16:39.662823+00:00",
+  "open_conditions": [
+    "Actual automatic compaction requires a genuine successor; original event and base must be retained.",
+    "Successor initialization and same-worktree nonqualified-request reconciliation are not implemented.",
+    "No push, hosted CI, qualified receipt, merge, or exact-main completion exists for this repair.",
+    "Broad audit failed; no full-suite pass."
+  ],
+  "schema": "seam-protocol-checkpoint-verification/v1",
+  "source_sha256": {
+    ".github/workflows/ci.yml": "6a264146f71b346fc9a8c23fbff04e2eb9e28de479bd7bbb61f284325082c3b4",
+    "tools/agents/assurance.py": "2a1ed4e819631fdfe0fad5847e55fa849ce00a1c4535eed375361cad21b58a07",
+    "tools/agents/closeout_queue.py": "8780751119ab78444be8ca435bffc86a0cbe7641117be3aea3126f4a1c42aa31",
+    "tools/agents/context_guardian.py": "e751c36de91eed13b98d8021a2201d9f88811fb7773f1b5622b5fab1808429a4",
+    "tools/agents/delivery_status.py": "5a27d0105a54f0a9312d5d2a0bbac9231a957d7db95395fc90ec3eb5eff36f33",
+    "tools/agents/session_state.py": "bbe980bc7fa5f067de748cb32967e26c298c3da00bb5b0d07d786957010fcb9b",
+    "tools/ci/verify_merge.py": "a98d9ee032740deaf5c578d277aa609dbea7f53ef26de80be3523021270a1a8d",
+    "tools/git-hooks/pre-push": "d1406a3ecd41c279c541ef66d5f821e72f10733fc0c4963f5fca96454cc7fde6"
+  },
+  "status": "IN_PROGRESS_NOT_QUALIFIED",
+  "tdd_cycles": [
+    {
+      "behavior": "closeout admission before session initialization; timestamps derived from witnessed log mtimes",
+      "green": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_closeout_queue.py::test_admit_cli_blocks_retained_pending_queue_and_missing_registered_root tests/audit/test_agent_session_state.py::test_init_fails_before_state_write_when_closeout_queue_is_unresolved -q",
+        "exit_code": 0,
+        "fingerprint": "cf426ab35f3b06fccef8290fde5325d90af130a79da1d1752031518df77c4236",
+        "observed_at": "2026-10-17T03:56:28.264627+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/closeout_queue.py",
+        "tools/agents/session_state.py"
+      ],
+      "red": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_closeout_queue.py::test_admit_cli_blocks_retained_pending_queue_and_missing_registered_root tests/audit/test_agent_session_state.py::test_init_fails_before_state_write_when_closeout_queue_is_unresolved -q",
+        "exit_code": 1,
+        "fingerprint": "ae973491c28fad78fe1b0089e541bbb72de86831cb0abe8b127b4f351d665c61",
+        "observed_at": "2026-10-17T03:55:54.501369+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_closeout_queue.py::test_admit_cli_blocks_retained_pending_queue_and_missing_registered_root",
+        "tests/audit/test_agent_session_state.py::test_init_fails_before_state_write_when_closeout_queue_is_unresolved"
+      ]
+    },
+    {
+      "behavior": "unexpected compaction recovery remains visible after partial publication; timestamps derived from witnessed log mtimes",
+      "green": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_context_guardian.py::test_orphan_recovery_event_forces_handoff_before_normal_observation tests/audit/test_context_guardian.py::test_unexpected_compaction_retry_preserves_first_event_after_partial_write -q",
+        "exit_code": 0,
+        "fingerprint": "99db33d5c94c6f7da021687c7391181685cc33299c5435b1c861e2db3be3ec87",
+        "observed_at": "2026-10-17T04:02:44.418039+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/context_guardian.py"
+      ],
+      "red": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_context_guardian.py::test_orphan_recovery_event_forces_handoff_before_normal_observation -q",
+        "exit_code": 1,
+        "fingerprint": "91e01516815cbb0908690435616e73c5659862f19e89667dcb5431f5e0baf8e4",
+        "observed_at": "2026-10-17T04:02:33.455292+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_context_guardian.py::test_orphan_recovery_event_forces_handoff_before_normal_observation"
+      ]
+    },
+    {
+      "behavior": "exact committed-state assurance binds base reviewer recovery and outgoing SHA; timestamps derived from witnessed log mtimes",
+      "green": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_assurance.py tests/audit/test_closeout_queue.py::test_new_registered_qualified_receipt_requires_current_assurance_and_guardian tests/audit/test_closeout_queue.py::test_assurance_cutover_rejects_new_qualified_request_without_registration -q",
+        "exit_code": 0,
+        "fingerprint": "7040371af15613c02e821ec0eecc1d1330f691ace4cef93a41bfa358822c4103",
+        "observed_at": "2026-10-17T04:06:39.683648+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/assurance.py",
+        "tools/agents/session_state.py",
+        "tools/agents/closeout_queue.py",
+        "tools/git-hooks/pre-push"
+      ],
+      "red": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_assurance.py tests/audit/test_closeout_queue.py::test_new_registered_qualified_receipt_requires_current_assurance_and_guardian tests/audit/test_closeout_queue.py::test_assurance_cutover_rejects_new_qualified_request_without_registration -q",
+        "exit_code": 1,
+        "fingerprint": "d089194633255a4eaab80a40d6f34075ba6f615c5e6fc3889d0e4c583a7eaa0a",
+        "observed_at": "2026-10-17T04:05:52.480724+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_assurance.py",
+        "tests/audit/test_closeout_queue.py::test_new_registered_qualified_receipt_requires_current_assurance_and_guardian",
+        "tests/audit/test_closeout_queue.py::test_assurance_cutover_rejects_new_qualified_request_without_registration"
+      ]
+    },
+    {
+      "behavior": "A current delivery is verified only when HEAD retains the exact plan and durable proof semantics and chronology remain valid after the verification worktree is removed.",
+      "green": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_agent_session_state.py tests/audit/test_context_guardian.py tests/audit/test_closeout_queue.py tests/audit/test_verify_merge.py tests/audit/test_session_end_agent_closeout.py tests/audit/test_delivery_status.py -q",
+        "exit_code": 0,
+        "fingerprint": "b7896d9b4a101628389f0b52a74c33a7d4da182ecf98034c6606fbe489b91a17",
+        "observed_at": "2026-10-16T23:11:53-05:00"
+      },
+      "implementation_refs": [
+        "tools/agents/delivery_status.py",
+        "tools/ci/verify_merge.py"
+      ],
+      "red": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_verify_merge.py::test_planned_delivery_completion_survives_verification_worktree_removal -q",
+        "exit_code": 1,
+        "fingerprint": "234c462c5a4471ef6a32956efa8db55a64db80ddbfa95710a69585663808e82a",
+        "observed_at": "2026-10-16T23:10:42-05:00"
+      },
+      "test_refs": [
+        "tests/audit/test_verify_merge.py::test_planned_delivery_completion_survives_verification_worktree_removal"
+      ]
+    },
+    {
+      "behavior": "canonical relocated historical queue admission; observed timestamps derive from log mtimes",
+      "green": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_closeout_queue.py::test_admit_accepts_dispositive_request_canonically_hosted_by_primary_queue -q",
+        "exit_code": 0,
+        "fingerprint": "423b1d0e014eb1eab96f4420f7b344c2615be505dd574b756ac884826ca74f2d",
+        "observed_at": "2026-10-17T04:14:47.896637+00:00"
+      },
+      "implementation_refs": [
+        "tools/agents/closeout_queue.py"
+      ],
+      "red": {
+        "command": "/home/terrabyte/Documents/Projects/SEAM-Protocol-Completion-20261017/venv/bin/python -m pytest tests/audit/test_closeout_queue.py::test_admit_accepts_dispositive_request_canonically_hosted_by_primary_queue -q",
+        "exit_code": 1,
+        "fingerprint": "f3d17763a1f898334a5bd715a5ec375793522c8ca5e10d401e4be6481e479513",
+        "observed_at": "2026-10-17T04:12:52.172233+00:00"
+      },
+      "test_refs": [
+        "tests/audit/test_closeout_queue.py::test_admit_accepts_dispositive_request_canonically_hosted_by_primary_queue"
+      ]
+    }
+  ]
+}

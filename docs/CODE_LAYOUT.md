@@ -84,7 +84,10 @@ not have to infer what works from directory names alone.
   queues bounded closeout verification and requires operator hook trust.
 - `tools/agents/` - context/session/receipt schemas and the non-mutating
   SessionEnd request producer. Local requests, receipts, and root session state
-  stay ignored under `.seam/orchestration/`.
+  stay ignored under `.seam/orchestration/`. Admission, independent assurance,
+  and delivery-completion helpers retain cross-worktree bindings and evidence
+  in the Git common directory. `docs/delivery/current.json` supplies the tracked
+  completion plan; the recovery handoff records unresolved successor support.
 - `tools/history/` - canonical history, index, integrity, handoff-registry, and snapshot tools.
 - `docs/README.md` - single canonical human-facing SEAM Wiki home; it routes to
   existing authorities without duplicating their volatile facts.

@@ -64,7 +64,7 @@ packet rather than the parent conversation or repository startup set.
 
 | Role | Owns | May write | Cannot own |
 | --- | --- | --- | --- |
-| Root | objective, operator dialogue, context spine, decomposition, integration, final judgment | integration worktree, local session state, continuity and PR artifacts | independent acceptance of its own claims |
+| Root | objective, operator dialogue, context spine, decomposition, integration, final judgment | integration checkout, local session state, continuity and PR artifacts | independent acceptance of its own claims |
 | Context | supplied-contract reconciliation, dependency map, scoped unknowns | no | implementation or broad discovery |
 | Delivery | one approved vertical slice, disjoint specialist ownership, red/green evidence | packet-owned paths | architecture, staging, history, or publication |
 | Assurance | independent spec/test/security review of an integrated slice | no | silent repairs or qualification by assertion |
@@ -150,9 +150,10 @@ repo-wide scan.
 
 ## Execution pipeline
 
-1. **Root frame.** Reconcile live Git/worktree state, load canonical startup
-   sources once, record the objective and acceptance criteria, and identify
-   user-owned exclusions.
+1. **Root frame.** Reconcile live Git/worktree state and the primary-root shared
+   cleanup ledger, load canonical startup sources once, record the objective
+   and acceptance criteria, and identify user-owned exclusions. Apply the
+   `AGENTS.md` Workspace Lifecycle startup checkpoint before new writes.
 2. **Context wave.** Use `seam_context_orchestrator` only for a bounded contract,
    dependency, or unknown-resolution question. Root supplies the relevant
    extracts.
@@ -184,6 +185,24 @@ It must match `seam-agent-session-state/v1`. Keep the objective, base SHA,
 current plan, constraints, affected tests, and witnessed TDD cycles. Do not
 copy prompts, transcript text, hidden reasoning, credentials, or private URLs.
 
+Before initialization, admit a stable empty closeout inventory across the
+primary checkout, linked worktrees, and explicitly retained roots:
+
+```bash
+python -m tools.agents.closeout_queue --repo-root "$PWD" admit \
+  --register-root /absolute/path/to/retained-root
+```
+
+Admission validates and hashes the actual request, receipt, and attempt bytes
+twice. Immutable Git-common bindings retain ownership of receipt-only roots
+after worktree metadata is removed. Missing roots, symlinked queue paths,
+malformed records, pending requests, or a changed second read fail closed.
+`session_state init` repeats admission before writing state.
+Canonical queue hosts may retain dispositive historical records whose embedded
+source-worktree path no longer matches the host; the unchanged request and
+stored receipt must still pass the queue validators. A pending foreign-source
+record remains an ownership error.
+
 Initialize it with the tracked helper (repeat `--plan`, `--constraint`, and
 `--affected-test` as needed):
 
@@ -208,6 +227,44 @@ Each TDD cycle records one public behavior and:
 
 Passing tests do not prove TDD. A runtime path without a complete recorded
 cycle is `TDD_UNPROVEN`.
+
+After an unexpected compaction, resume through `session_state successor`
+instead of replacing the predecessor registration. A successor may itself be
+the predecessor of another generation. The command walks the immutable
+registration-to-transition chain, rejects cycles or lineage drift, and retains
+the original base, every inherited witnessed cycle, and every still
+non-qualified ancestor request obligation. It permits only those verified
+obligations and later requests from the same repository-bound lineage; an
+unrelated pending request fails admission. Only after these deterministic
+checks does it publish the immutable activation intent, session state, and
+assurance activation. Each transition binds the canonical recovery, handoff,
+request, non-qualified receipt, retained-root inventory, and any explicitly
+named administrative dispositions. An external unfinished
+bootstrap is supplied with `--external-recovery`; its strict binding retains
+the guardian state, handoff, recovery event, evidence manifest, truthful
+checkpoint state, compaction count, and `INHERITED_UNQUALIFIED` status.
+`result_status=RETAINED` requires exactly one manifest-discovered result and
+its exact binding; `NOT_RETAINED` forbids both and means only that no result is
+present in the independently pinned frozen inventory. It makes no claim about
+historical existence or reconstructed output. `missing_checkpoint=false`
+requires the exact checkpoint binding; `true` forbids one. Every manifest
+member is hash- and size-checked before the guardian, canonical event, rendered
+handoff, optional checkpoint, and any retained seven-field result are
+semantically cross-bound. External evidence never contributes inherited TDD
+or qualification.
+
+The stored request HEAD remains an immutable hash-bound ancestry anchor. A
+later activation may descend from it only when every committed tail path is
+non-runtime under the canonical runtime-path classifier. A non-ancestor head,
+runtime tail, root or branch drift, incomplete request scope, or lost inherited
+cycle fails before transition, state, or registration publication.
+Deterministic retries preserve valid successor-appended cycles.
+Final assurance still requires a clean exact outgoing SHA,
+complete TDD coverage for every runtime path since the original base, unchanged
+inherited evidence, and the same retained-root inventory. A successor's later
+qualified receipt must explicitly supersede its predecessor request. Exact
+assurance and the bound repair inventory may therefore precede push and hosted
+CI; qualification follows required exact-head CI and precedes merge.
 
 ## Context guardian
 
@@ -236,6 +293,41 @@ Guardian state and checkpoints live under ignored
 `.context-handoffs/`. Artifacts are atomically written with mode `0600`, are
 bounded to 256 KiB, and reject secret-shaped, private-link, multiline, unsafe
 identity, symlinked-state, and invalid lifecycle content.
+
+If compaction occurred outside the planned path, run
+`recover-unexpected-compaction` with a stable `--event-id`, at least one
+`--summary`, and one `--next-step`. The immutable event is crash-resumable and
+preserves the prior action and usage without inventing a checkpoint. Even an
+event orphaned before handoff or state publication forces `HANDOFF_REQUIRED`
+and blocks assurance and qualification.
+
+## Exact-state assurance
+
+`session_state init` registers the session and immutable base SHA in the Git
+common directory. After the final candidate is committed and the worktree is
+clean, admit the independent report:
+
+```bash
+python -m tools.agents.assurance --repo-root "$PWD" accept \
+  --session-id "$CODEX_SESSION_ID" --report /absolute/path/to/report.json
+```
+
+The `seam-independent-assurance/v1` report binds repository, reviewer,
+session, registered base, candidate HEAD, sorted changed paths, content
+fingerprint, aware review time, PASS status, continuity inclusion, and bounded
+summary. Acceptance rereads the scope twice and never overwrites prior
+evidence. The pre-push hook checks each actual outgoing SHA from the persistent
+worktree binding without using `CODEX_SESSION_ID`. Dirty bytes, another commit,
+or unexpected-compaction evidence fail closed. Once assurance enforcement is
+initialized, each new `QUALIFIED` receipt requires the matching current report;
+existing stored legacy receipts remain readable and idempotent.
+
+When enforcement begins while an older request is already queued, use
+`assurance accept-request` with that exact queued request, its state root, and
+the independent report. This administrative path hashes the unchanged request
+bytes and report bytes and binds their repository, session, base, HEAD, paths,
+reviewer, and fingerprint. It grants assurance only to that request and does
+not bypass queue admission for new work.
 
 ## SessionEnd hook
 
@@ -305,6 +397,26 @@ and verified during reads. Once any validated receipt is
 pending queue. The queue never launches a model, runs a check, or repairs the
 worktree.
 
+A repeated unchanged non-runtime tail may be removed from admission only by
+`closeout_queue reconcile-duplicate --review <review.json>`. The required
+`seam-closeout-administrative-review/v1` artifact is independently authored
+and strictly binds the Git common directory, queue root, both requests, both
+canonical receipts, their byte hashes, an aware review time, `PASS`, fixed
+reason `UNCHANGED_NONRUNTIME_TAIL_ASSURANCE_BOUNDARY`, authority
+`admission_only`, no unresolved findings, and immutable producer/reviewer
+session provenance. The producer must be the named independent reviewer and
+must differ from both request sessions. Validation never depends on the
+current caller identity. The CLI derives blocker eligibility from typed receipt
+status and checks, never continuity or next-action prose. The immutable disposition
+retains the review bytes and hash and remains visible with the original
+BLOCKED receipt. It can satisfy only a narrowly named queue-admission repair;
+it cannot satisfy assurance, qualification, supersession, publication, or
+merge authority.
+
+A successor's own later request is exempt from its activation inventory only
+when its session, repository root, branch, and original base all match the
+transition. A same-session request from another retained root remains pending.
+
 Receipt meaning:
 
 - `QUALIFIED`: exact scope matches; TDD is proven or not required; every
@@ -322,8 +434,20 @@ next action and remain pending evidence for the root.
 
 ## Collision and safety rules
 
-- One writable owner per path and wave. Use separate worktrees for concurrent
-  implementation branches.
+- One writable owner per path and wave. Reuse a suitable checkout by default;
+  read-only agents do not need worktrees. Use one additional worktree only for
+  actual concurrent branch writes, under the root-assigned lowercase canonical
+  path in `AGENTS.md` Workspace Lifecycle. A repository-required clean
+  exact-commit verification may use the distinct root-assigned
+  `<task-slug>-verify` worktree only when no existing checkout can be reused
+  safely; it has identical ledger and cleanup duties. Agent identity alone
+  never creates a checkout.
+- The root owns worktree identity, cleanup conditions, and the shared cleanup
+  ledger. Child agents report changed paths and unique artifacts; they do not
+  create case variants, sibling repository copies, or private worktree roots.
+- A root wave does not finish until its task-owned workspaces pass the mandatory
+  cleanup checkpoint or are retained with a concrete owner, reason, and review
+  date. Qualification and immutable closeout evidence remain unchanged.
 - Specialists inherit only their child packet, not the full conversation.
 - Root stages explicit paths; never `git add -A`.
 - No agent repairs, expands scope, invokes paid providers, pushes, merges, or

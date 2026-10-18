@@ -9,13 +9,22 @@ recovery issues and the private website preservation tag are recorded in
 [the disposition receipt](../audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json).
 R1 preservation is complete in issue #291; locked future website proposals remain
 planned in issue #302. The dated workstream order below describes recovery
-dependencies, not current operator priority. Finish the finite current-built
-documentation/disposition review first, then conditional independent Doctor
-work; formation and broader recoveries remain held for explicit resumption.
+dependencies, not current operator priority. PR #313 completed the finite
+documentation/disposition review. Resolve the successor protocol-completion
+repair through the [current handoff](../handoffs/INDEX.md), then conditional
+independent Doctor work; broader recoveries remain held for explicit resumption.
 Licensing PR #286 and PR #288 and TestPyPI publication were subsequently
 verified in HISTORY#680. PR #312's chronology enforcement is delivered on
 protected main; the historical PR #305 gap remains Partial. The older access
 blocker below is historical. No new publication is authorized by this plan.
+
+October 17 preservation readback: PR #249's original Dependabot branch no longer
+exists remotely. Its exact commit `8d77775fe6e029717115758b917c94c757ed0d4a`
+remains at `refs/pull/249/head`; issue #301 remains open. The other original
+source branch and pull refs, and the private website preservation tag, still
+match their recorded tips. Preserve the dated receipt as its original observation;
+use this correction and the [completion audit](../audits/2026-10-17-protocol-completion.md)
+for current ref availability. No deferred feature is completed by preservation.
 
 The owner requires every branch to be inspected for missing useful work before deletion. This plan covers all 30 remaining branches at the captured exact tips, including 84 distinct unique commit objects. A closed PR or unique commit count is not a disposition. Detailed per-file, symbol and intermediate-commit evidence is retained in the [audit](../audits/2026-10-14-branch-recovery.md).
 
@@ -139,7 +148,9 @@ Before each deletion: verify exact remote tip, current main preservation evidenc
   15 then remained (11 source and four website) at exact unchanged audited tips.
   On October 16,
   the last seven open original source PRs and website PR #29 were closed without
-  merge; their exact refs/branches are preserved and future exits remain tracked.
+  merge; their exact source remains preserved through recorded pull/archive refs
+  and future exits remain tracked. PR #249's original branch is now absent as
+  documented by the October 17 correction above.
   No unresolved useful work was discarded. See the
   [closeout evidence](../audits/2026-10-14-branch-recovery-closeout.md) and
   [disposition receipt](../audits/evidence/2026-10-16-pr-closeout/original-pr-dispositions.json).
@@ -162,8 +173,9 @@ Before each deletion: verify exact remote tip, current main preservation evidenc
 - R5 facts/glossary/wiki: complete in PR304, mergedffd4e98;73targeted cases, independent successor and stored exact-state review pass, all3required checks/package smoke pass. Original277/278 retired only after main admission. Old draft preserved inactive exact-byte; source worktree finished safely.
 - R10 preservation: four exact-byte authored plans/reports admitted303; originating branches retired. Future LC0/PCS0 measurement/implementation remains planned, not demonstrated.
 - Active lock: urllib3-only2.7→2.8 admitted304, fresh locked installation/eight smokes and independent review pass. Historical evidence unchanged; security-updater scope remains290/262.
-- Other useful slices remain unintegrated and their exact refs/branches are
-  retained until their named acceptance conditions hold. Public-v5 qualification
+- Other useful slices remain unintegrated with exact source preserved through
+  recorded pull/archive refs and remaining branches, including the PR #249
+  branch exception above. Public-v5 qualification
   passes; Suite 2.4.1rc1 TestPyPI delivery and downloaded-install acceptance are
   complete in HISTORY#680. Production publication remains separate, and broad
   suites are not wholly green.

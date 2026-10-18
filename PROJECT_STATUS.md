@@ -5,6 +5,153 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Reviewed retention repair committed; protected delivery in progress.**
+The genuine successor completed canonical admission with the original base and
+all 21 witnessed TDD cycles preserved. Normal signed commit `5c8a11c` contains
+the reviewed retention repair and HISTORY#699 continuity; the installed hook
+was refreshed normally. See HISTORY#700. The corrected recovery source is
+Primary `.git/seam-consolidation-20261017/successor-2-durable-handoff-recovered.md`;
+current durable delivery evidence is `successor-3-handoff.md` in that directory.
+Independent exact-commit assurance, hosted checks, qualified supersession,
+protected merge and actual resulting-main verification remain required.
+Earlier headlines below are historical boundaries.
+
+**Retention gate repair reviewed and audit passed; genuine successor required.**
+Normal push exposed a conflict between retained-worktree policy and the hook's
+blanket dirty-worktree rejection. The narrow repair validates exact, unexpired
+shared-ledger retention records and fails closed on Git errors and ambiguous
+JSON. Independent source review passed. Current cut-off audit evidence records
+3694 passed, 65 external tests deselected, zero failures or skips; see HISTORY#699
+and Primary `.git/seam-consolidation-20261017/successor-2-cutoff-audit.json`.
+Actual automatic compaction is recorded with the existing checkpoint and
+`HANDOFF_REQUIRED`. All 21 witnessed cycles and ancestor obligations remain.
+HEAD is `f47b7a76dedef3efb6bcf606fb5f581163c3d4cd`; the retention repair is
+uncommitted. No push, hosted CI, qualified supersession, merge or resulting-main
+acceptance occurred. Resume from the unique `successor-2-result.md` in that same
+evidence directory. Earlier headlines are preserved historical boundaries.
+
+**Fresh successor repairs reviewed; full local audit passed.**
+The genuine successor preserved the original comparison base and all inherited
+TDD cycles, dispositioned the additional predecessor request, and completed
+canonical chained admission. The shell integration cwd fixtures now pass with
+test artifacts outside the source checkout; runtime shell permissions are
+unchanged. The existing workspace lifecycle policy from `484a5600` is adopted
+with its original authority and pointers, preserving successor documentation.
+Independent review passed for those exact changes. The full non-external audit
+passed; exact command, scope and log hash are in HISTORY#698 and Primary
+`.git/seam-consolidation-20261017/successor-2-audit.json`.
+Managed-reference closeout, exact committed assurance, hosted CI, qualification,
+protected merge and resulting-main verification remain pending. Earlier recovery
+headlines below describe preserved historical boundaries.
+
+**Restoration reconciled; fresh successor required after actual compaction.**
+The current root admitted the reviewed successor-chain repair and preserved
+inherited TDD. Restored root contents and immutable inventory now validate
+within the captured archive scope. The existing cleanup policy and its suspended
+shared ledger govern consolidation; pending local policy text awaits reconciliation.
+The interrupted shell-fixture correction is incomplete: cut-off testing exposes
+two neighboring cwd fixtures, while the runtime security boundary remains correct.
+A later automatic compaction (distinct from the dispatcher interruption) requires
+handoff and blocks this root's assurance and qualification. See HISTORY#697 and
+primary `.git/seam-consolidation-20261017/FINAL_HANDOFF.md`. The branch remains
+local and uncommitted; earlier headlines below describe historical boundaries.
+
+
+**Recovery handoff required; publication remains blocked.**
+After the HISTORY#695 checkpoint, this root experienced actual automatic
+compaction. The canonical guardian records `HANDOFF_REQUIRED` with a missing
+guardian checkpoint; the external manual checkpoint is not retrospective usage
+evidence. Session identity was preserved. An independent BLOCKED closeout receipt
+for commit `1cfa0e3` is stored without superseding any predecessor. HISTORY#696
+and external `finalization-20261017/FINAL_HANDOFF.md` preserve the serial recovery
+boundary. A genuinely fresh root and authoritative context for the disappeared
+worktrees are required before assurance can resume. No publication is claimed.
+
+**Exact-candidate assurance blocked by disappeared worktrees.**
+Independent review of committed candidate `0fc2cec` confirms the source,
+original-base TDD, full non-external audit and continuity evidence, but the
+successor inventory gate fails: eleven roots present at activation are now
+absent. Repeated real-filesystem inspection finds twelve roots against the
+immutable twenty-three-root binding; no original queue record is missing.
+The cause and authorized disposition of those removals are unknown. Preserve
+all bindings and evidence; do not rewrite inventory or create placeholder roots.
+HISTORY#695 and external `finalization-20261017/ASSURANCE_BLOCKED.md` record the
+exact blocker. Operator removal/restoration context is requested. No assurance
+PASS, release qualification, push, PR, merge or resulting-main verification.
+GitHub main remains `79c40b55` and the refreshed open-PR list is empty.
+
+
+**Genuine successor activated; full non-external audit passed (local candidate).**
+The original repair branch is restored with every retained evidence hash intact.
+Both primary administrative tails have independently reviewed admission-only
+dispositions; their BLOCKED receipts remain unchanged. The original five TDD
+cycles are preserved and later witnessed cycles cover the full original-base
+runtime delta. The Unicode fix and the real-Git administrative-state ignore fix
+have independent source-adoption approval. The full `tests/audit/ -m "not external"`
+run exits zero in the dedicated Python 3.12 environment using existing offline
+model cache. Exact command, log hash and scope: HISTORY#694 and the external
+`finalization-20261017/audit-result.json`. Managed references, exact committed
+assurance, required CI, stored qualification, protected merge and resulting-main
+verification are the remaining delivery gates. No repair push or merge claimed.
+Older recovery headlines below remain historical; no predecessor was reset.
+
+
+**Resumed Unicode repair reviewed; genuine successor required (local only).**
+Independent Astra source-adoption review passes the repaired no-BOM UTF-16/32
+result detection, with 201 affected tests and actual retained-bundle probes
+passing. This supersedes the earlier Unicode source blocker, not release gates.
+The resumed root then experienced actual unexpected compaction and recorded
+HANDOFF_REQUIRED without inventing a checkpoint or changing its identity.
+See HISTORY#693 (correcting #692) and
+`../serial-recovery-20261017/resumed-20261017/RESUME_HANDOFF.md`.
+Source adoption, full original-base TDD reconciliation, administrative tails,
+full audit, managed-reference review, exact committed assurance, CI and protected
+merge remain pending. No repair push or merge; GitHub open PR read returned none.
+Frozen evidence and all predecessor recovery states remain preserved.
+
+**Serial bootstrap review blocked (local only).** The affected successor suite
+passes, but independent review identified seven remaining recovery defects.
+The serial root also recorded an actual checkpoint-present unexpected compaction;
+its assurance and qualification require a genuine successor. See HISTORY#689 and
+`../serial-recovery-20261017/REVIEW.md`. Preserve the earlier cut-off and all
+evidence. Source adoption, push, CI, qualification and merge remain pending.
+
+**External bootstrap cut-off (local only).** Successor recovery implementation
+is incomplete and independently unqualified. A new unplanned compaction requires
+handoff; the administrative authority prototype must be replaced before use.
+See HISTORY#688 and `../successor-review-20261017/SUCCESSOR_RECOVERY.md`.
+The preserved source checkpoint and its blocked evidence remain unchanged.
+
+**2026-10-17 — PR #313 documentation delivery verified; protocol completion
+repair tracked separately.** PR #313 merged as
+`79c40b55f8aea7a6615bdccf4b331b41dd46a362` after required checks and stored
+independent qualification; its actual resulting-main verification passed.
+The subsequent audit found stale resume pointers, early session-state writes,
+unreconciled unexpected compaction, and a final edit after assurance. Those
+process failures remain historical facts; successful delivery does not erase them.
+
+Use the [current handoff](docs/handoffs/INDEX.md) and
+[delivery plan](docs/delivery/current.json) to resolve the repair's completion.
+Run `python -m tools.agents.delivery_status`: only verified completion evidence
+advances to the plan's next action. Missing evidence means finish or reproduce
+verification, not repeat the already delivered PR #313 documentation task.
+Independent Doctor is the conditional next review. Licensing and the exact
+Suite 2.4.1rc1 TestPyPI acceptance remain complete; deferred features and
+production publication remain held. See HISTORY#687 and the
+[completion audit](docs/audits/2026-10-17-protocol-completion.md).
+
+**Repair checkpoint is in progress, not delivered.** An actual automatic
+compaction during this repair was recorded with its existing checkpoint and
+prior `COMPACT_AT_MILESTONE` action. The guardian requires handoff and blocks
+this session's assurance and qualification. A genuine successor must first
+reconcile inherited scope and pending recovery records; normal initialization
+does not yet implement that transition. Preserve base
+`79c40b55f8aea7a6615bdccf4b331b41dd46a362`. No repair push, merge, or resulting-main
+acceptance is claimed.
+
+The dated headlines below preserve earlier checkpoints, including their
+then-pending actions; they do not override this current route.
+
 **2026-10-16 — protocol repair delivered; finite current-built documentation
 review active.** PR #312's candidate `0cab587` received required CI and independent
 qualification before protected merge as `6498e293259572181c268b40ae2503fa67131c99`;

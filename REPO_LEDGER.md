@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-10-16
+Last updated: 2026-10-17
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -16,9 +16,11 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - `SEAM`: Surface Encoded Agent Memory; runtime/tool identity
 - Product/deployment names: `docs/PRODUCTS.md`; product acceptance backlog: `docs/roadmap/SEAM_LAUNCH.md` (HISTORY#634, priority revised HISTORY#645).
 - Current operator order: licensing is complete through PR #286 and PR #288,
-  and merge-protocol repair is delivered through PR #312. Finish the finite
-  current-built documentation/disposition review, then independent SEAM Doctor
-  subject to documentation signoff and its exact-source/review gates.
+  and merge chronology repair is delivered through PR #312. PR #313 completed
+  the finite current-built documentation/disposition review. The successor
+  protocol-completion repair has a conditional delivery route in
+  `docs/delivery/current.json`: resolve its verified completion before advancing
+  to independent SEAM Doctor and its exact-source/review gates.
   Website scope is limited to SEAM documentation, licensing consistency and
   existing download destinations; broader website work is not a prerequisite.
   No licensing artifact change belongs to those remaining steps. The formation
@@ -42,6 +44,35 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Genuine recovery successor admission (2026-10-17).** Preserve the original
+  base and TDD prefix, bind every external recovery manifest and truthful
+  checkpoint/result state, and keep administrative dispositions admission-only.
+  Disposition files are local operational state excluded from Git source scope,
+  while explicit queue inventory still validates their bytes. Final committed
+  assurance and qualified supersession remain independent release gates.
+  See HISTORY#694 and `docs/SOP_AGENT_ORCHESTRATION.md`.
+
+- **Evidence-backed protocol completion (2026-10-17).** Session initialization
+  requires reconciled linked and registered retained queues. Removed-worktree
+  receipt storage remains part of admission. Unexpected compaction is a new
+  recovery event, never retroactive checkpoint evidence. Independent assurance
+  covers the final committed candidate and continuity; later edits invalidate
+  it. Registered-session publication and new qualification require matching
+  assurance. A tracked delivery plan supplies the conditional next action;
+  validated completion evidence survives in the Git common directory after
+  worktree cleanup. Missing evidence means unverified, not complete. See
+  `docs/SOP_SEAM_CODEX_WORKFLOW.md` and HISTORY#687. These checks do not prove
+  unreported client events or independently authenticate reviewer identity.
+- **Workspace lifecycle (2026-10-17).** `AGENTS.md` Workspace Lifecycle owns
+  the shared, all-agent creation and cleanup contract. Reuse a suitable checkout;
+  extra worktrees need a concrete isolation or required exact-commit verification
+  reason, one lowercase identity under the primary root's `.worktrees/`, and a
+  recorded cleanup owner. Startup and closeout reconcile the primary-root
+  `.seam/orchestration/cleanup-ledger.json`. Safe cleanup in the session's or
+  operator's existing scope is required, without repeating approval. Preserve
+  unique work and immutable evidence, verify recovery and reference resolution,
+  and retain active or unresolved items with an owner, reason and review date.
+  This is a procedural contract; automatic hook enforcement is not implemented.
 - **PR lifecycle and merge completion (2026-10-16).** The operator requires
   stale proposals to be preserved and closed, concrete blockers to remain
   tracked, and approved ready work to reach a verified protected merge.
@@ -782,6 +813,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - The `handoff/archive` branch is reserved for PDF and handoff artifact publication, not primary runtime/source work.
 
 ## Temporal Continuity Policy
+
+- Workspace consolidation recovery: follow the existing cleanup policy on
+  `docs/worktree-cleanup-20261017` (commit `484a5600`) and its shared ledger;
+  integration and provenance boundaries are recorded in HISTORY#697. Preserve
+  immutable-bound roots while cleanup is suspended. A policy edit grants no
+  deletion authority. Do not create a competing cleanup contract.
 
 - Every material repo change must produce an append-only `HISTORY.md` entry, rebuilt `HISTORY_INDEX.md`, verified integrity, and one validated snapshot.
 - History entries must preserve the temporal chain: previous state, new state, `supersedes` link when applicable, successes, failures, skipped verification, changed files, and unresolved next steps.

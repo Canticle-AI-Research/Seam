@@ -26,7 +26,15 @@ case "$REMOTE_NAME $REMOTE_URL" in
   *) ;;
 esac
 
-if ! REPO_ROOT=$(git rev-parse --show-toplevel); then
+CLEAN_GIT_ENV=(env)
+while IFS='=' read -r ENV_NAME _; do
+  case "$ENV_NAME" in
+    GIT_*) CLEAN_GIT_ENV+=(-u "$ENV_NAME") ;;
+    *) ;;
+  esac
+done < <(env)
+
+if ! REPO_ROOT=$("${CLEAN_GIT_ENV[@]}" git rev-parse --show-toplevel); then
   echo "[SEAM pre-push] BLOCKED: cannot resolve repository root." >&2
   exit 1
 fi
@@ -43,6 +51,8 @@ while read -r LOCAL_REF LOCAL_SHA REMOTE_REF REMOTE_SHA; do
     continue
   fi
   HAS_PUSH_UPDATES=1
+  "$PYTHON_BIN" -m tools.agents.assurance \
+    --repo-root "$REPO_ROOT" check-push --head "$LOCAL_SHA" || exit 1
   SCAN_BASE=$REMOTE_SHA
   SCAN_BASE=${SCAN_BASE:-$ZERO_SHA}
   "$PYTHON_BIN" -m tools.security.secret_scan \
@@ -126,34 +136,54 @@ DIRTY_WORKTREES=""
 # `git rev-parse --show-toplevel` here: when a push starts from a linked
 # worktree that resolves the current linked checkout and incorrectly subjects
 # the intentionally exempt primary checkout to the linked-worktree gate.
-PRIMARY_WT=$(git worktree list --porcelain 2>/dev/null \
+if ! WORKTREE_LIST=$("${CLEAN_GIT_ENV[@]}" git worktree list --porcelain 2>/dev/null); then
+  echo "[SEAM pre-push] BLOCKED: cannot inspect registered Git worktrees." >&2
+  exit 1
+fi
+PRIMARY_WT=$(printf '%s\n' "$WORKTREE_LIST" \
   | sed -n 's/^worktree //p' \
   | sed -n '1p')
-PRIMARY_WT=${PRIMARY_WT:-$REPO_ROOT}
+if [ -z "$PRIMARY_WT" ]; then
+  echo "[SEAM pre-push] BLOCKED: Git reported no primary worktree." >&2
+  exit 1
+fi
 while read -r WT_PATH; do
   [ -n "$WT_PATH" ] || continue
   [ "$WT_PATH" = "$PRIMARY_WT" ] && continue
-  [ -d "$WT_PATH" ] || continue
+  if [ ! -d "$WT_PATH" ]; then
+    echo "[SEAM pre-push] BLOCKED: cannot inspect linked worktree: ${WT_PATH}" >&2
+    exit 1
+  fi
   # Git exports GIT_DIR/GIT_WORK_TREE while invoking hooks. If those values
   # leak into `git -C <sibling>`, -C changes only cwd while Git still inspects
   # the caller's worktree, producing a large false dirty count. Resolve each
   # linked checkout from its own .git file instead.
-  WT_DIRTY=$(env -u GIT_DIR -u GIT_WORK_TREE \
-    git -C "$WT_PATH" status --porcelain 2>/dev/null | grep -c . || true)
+  if ! WT_STATUS=$("${CLEAN_GIT_ENV[@]}" git -C "$WT_PATH" \
+    status --porcelain=v1 --untracked-files=all 2>/dev/null); then
+    echo "[SEAM pre-push] BLOCKED: cannot inspect linked worktree: ${WT_PATH}" >&2
+    exit 1
+  fi
+  WT_DIRTY=$(printf '%s\n' "$WT_STATUS" | grep -c . || true)
   if [ "${WT_DIRTY:-0}" -gt 0 ]; then
+    if "$PYTHON_BIN" -m tools.git.verify_retained_worktree \
+      --repo-root "$REPO_ROOT" --worktree "$WT_PATH"; then
+      echo "[SEAM pre-push] retained linked worktree validated: ${WT_PATH}" >&2
+      continue
+    fi
     DIRTY_WORKTREES="${DIRTY_WORKTREES}  ${WT_PATH} (${WT_DIRTY} uncommitted file(s))
 "
   fi
 done <<EOF
-$(git worktree list --porcelain 2>/dev/null | sed -n 's/^worktree //p')
+$(printf '%s\n' "$WORKTREE_LIST" | sed -n 's/^worktree //p')
 EOF
 
 if [ -n "$DIRTY_WORKTREES" ]; then
   echo "[SEAM pre-push] BLOCKED: linked worktree(s) hold uncommitted work:" >&2
   printf '%s' "$DIRTY_WORKTREES" >&2
-  echo "[SEAM pre-push] That work exists in no commit, branch, or PR. Commit it," >&2
-  echo "[SEAM pre-push] or 'git worktree remove --force <path>' to discard it." >&2
-  echo "[SEAM pre-push] AGENTS.md:39 -- see HISTORY#223 for the regression this caused." >&2
+  echo "[SEAM pre-push] Commit the work, or preserve it with an exact retained" >&2
+  echo "[SEAM pre-push] cleanup-ledger record naming its owner and next review." >&2
+  echo "[SEAM pre-push] Resolve ownership before any removal; never force-discard unique work." >&2
+  echo "[SEAM pre-push] See AGENTS.md Workspace Lifecycle and HISTORY#223." >&2
   echo "[SEAM pre-push] Override for one push: SEAM_ALLOW_DIRTY_WORKTREES=1" >&2
   if [ "${SEAM_ALLOW_DIRTY_WORKTREES:-0}" != "1" ]; then
     exit 1

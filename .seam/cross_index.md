@@ -2,28 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 752
+total_events: 767
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-29T05:39:28Z | history:492:d051142c | session-event | changed | graph, g3, node-vectors, semantic-seeding, retrieval | docs/roadmap/GRAPH_MEMORY_MATURITY.md |
-| 2026-07-29T06:21:50Z | history:493:3a2ced3b | session-event | changed | extraction, derived-facts, benchmarks, ollama | docs/kb/seam-internals/derived-facts-grounded-clm.md |
-| 2026-07-29T08:07:06Z | history:494:638f4a69 | session-event | done | graph, retrieval, rank, provenance, verify, benchmark, me... | seam_runtime/reasoning_patterns.py, seam_runtime/reasoning_graph.py, seam_run... |
-| 2026-07-29T09:34:17Z | history:495:6171d8cd | session-event | done | graph, reasoning, provenance, storage, mirl, audit, verif... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,... |
-| 2026-07-29T10:37:47Z | history:496:69f0bf33 | session-event | done | graph, retrieval, pack, storage, persist, retry, benchmar... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/REASONING_GRAPH.md,... |
-| 2026-07-29T15:08:37Z | history:497:c921e841 | session-event | done | handoff, status, graph, reasoning, benchmark, verify | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-g5-g7-r6-pr... |
-| 2026-07-29T20:57:28Z | history:498:5b00f63c | session-event | done | retrieval, graph, benchmark, reasoning, bugfix, provenanc... | PROJECT_STATUS.md,docs/handoffs/INDEX.md,docs/handoffs/2026-07-29-semantic-re... |
-| 2026-07-30T00:34:40Z | history:499:cac73724 | session-event | done | retrieval, graph, reasoning, promotion, benchmark, sdk, v... | seam_runtime/sdk.py,benchmarks/external/mem0_harness/seam_mem0_server.py,test... |
-| 2026-07-30T12:36:38Z | history:500:377e4029 | session-event | changed | history, audit, classification, verify | AGENTS.md,HISTORY.md,HISTORY_INDEX.md |
-| 2026-07-30T13:19:48Z | history:501:de6bd3e6 | session-event | changed | packaging, consolidation, distribution, licensing, workflows | REPO_LEDGER.md,docs/CODE_LAYOUT.md,ROADMAP.md |
-| 2026-07-30T15:22:13Z | history:502:e3a0799e | session-event | changed | retrieval, graph, locomo, surface, vector, tests, verify,... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/handoffs/2026-07-30... |
-| 2026-07-30T16:33:26Z | history:503:1b3130cb | session-event | changed | retrieval, benchmark, locomo, rank, graph, verify, handof... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-30-full-retrieval-ab-n... |
-| 2026-07-30T17:09:40Z | history:504:41987004 | session-event | in-progress | retrieval, benchmark, locomo, rank, graph, verify, handof... | seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/extern... |
-| 2026-07-30T21:07:58Z | history:505:5673f963 | session-event | changed | retrieval, benchmark, wandr, trace, status, locomo, verify | PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-ne... |
-| 2026-07-31T19:32:14Z | history:506:cfcf42ff | session-event | done | tests, sqlite, test-artifacts, cleanup, windows, verify | none |
 | 2026-07-31T22:28:32Z | history:507:7d3ad352 | session-event | done | benchmarks, locomo, operations, huggingface, docs, verify | none |
 | 2026-07-31T22:48:26Z | history:508:cac65cb0 | session-event | done | retrieval, graph, fusion, locomo, benchmarks, verify | none |
 | 2026-07-31T23:29:44Z | history:509:0389549c | session-event | done | retrieval, graph, fusion, locomo, benchmarks, ablation, v... | none |
@@ -209,10 +194,25 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-16T13:29:46Z | history:684:51b044cc | session-event | changed | ci, git-hooks, protocol, verify, reconcile, docs, handoff... | docs/PR_LIFECYCLE.md,docs/audits/evidence/2026-10-16-pr-closeout/original-pr-... |
 | 2026-10-16T20:05:25Z | history:685:f0ecb250 | session-event | changed | audit, protocol, ci, gates, verify, docs, correction, con... | docs/audits/2026-10-16-protocol-retrospective.md,tools/ci/verify_merge.py,tes... |
 | 2026-10-17T03:11:20Z | history:686:e954c431 | session-event | changed | docs, continuity, verify, handoff, status | PROJECT_STATUS.md,REPO_LEDGER.md,docs/audits/2026-10-16-current-built-documen... |
+| 2026-10-17T04:17:16Z | history:687:48ed8e30 | session-event | in-progress | protocol, continuity, audit, verify, handoff, worktree, test | docs/audits/2026-10-17-protocol-completion.md,docs/handoffs/2026-10-17-protoc... |
+| 2026-10-17T10:59:23Z | history:688:0368ad22 | session-event | in-progress | agent, protocol, continuity, session, handoff, tests | tools/agents/successor.py,tools/agents/closeout_queue.py,tools/agents/assuran... |
+| 2026-10-17T11:57:53Z | history:689:d9760999 | session-event | in-progress | agent, protocol, continuity, handoff, test | tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_ST... |
+| 2026-10-17T11:58:32Z | history:690:b3c1d0ee | session-event | in-progress | agent, protocol, continuity, handoff, correction | tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_ST... |
+| 2026-10-17T12:55:05Z | history:691:20632186 | session-event | in-progress | agent, protocol, continuity, handoff, test, verify | tools/agents/successor.py,tools/agents/assurance.py,tools/agents/closeout_que... |
+| 2026-10-17T23:23:44Z | history:692:d82166a7 | session-event | in-progress | agent, protocol, continuity, handoff, test, verify | tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_ST... |
+| 2026-10-17T23:24:40Z | history:693:54872256 | session-event | in-progress | correction, continuity, handoff, verify | tools/agents/successor.py, tests/audit/test_successor_transition.py, PROJECT_... |
+| 2026-10-17T23:58:41Z | history:694:49420ef8 | session-event | in-progress | agent, protocol, continuity, verify, bugfix, handoff | .gitignore,tools/agents/successor.py,tests/audit/test_successor_transition.py... |
+| 2026-10-18T00:06:57Z | history:695:5e3de27f | session-event | in-progress | agent, protocol, continuity, handoff, verify | PROJECT_STATUS.md,tools/agents/closeout_queue.py,tools/agents/successor.py,do... |
+| 2026-10-18T00:19:57Z | history:696:6b8e6d8d | session-event | in-progress | agent, protocol, continuity, handoff | PROJECT_STATUS.md |
+| 2026-10-18T03:57:17Z | history:697:03d86436 | session-event | in-progress | agent, protocol, continuity, handoff, worktree | PROJECT_STATUS.md,REPO_LEDGER.md,tools/agents/successor.py,tools/agents/close... |
+| 2026-10-18T04:36:29Z | history:698:a4be7a10 | session-event | in-progress | agent, protocol, continuity, worktree, tests, verify | PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/SOP_AGENT_ORCHESTRATION.md,do... |
+| 2026-10-18T05:10:42Z | history:699:1b89c131 | session-event | in-progress | agent, protocol, continuity, worktree, tests, verify | tools/git/verify_retained_worktree.py,tools/git-hooks/pre-push,tests/audit/te... |
+| 2026-10-18T05:25:57Z | history:700:51faf49b | session-event | in-progress | agent, protocol, continuity, verify, handoff | PROJECT_STATUS.md,docs/handoffs/2026-10-17-protocol-completion.md |
+| 2026-10-18T05:38:08Z | history:701:01382e83 | session-event | in-progress | ci, bugfix, continuity, verify | tools/git/verify_retained_worktree.py,tests/audit/test_retained_worktree_push... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0552.cross.md | 2026-04-15T00:00:00Z..2026-07-29T04:50:58Z | 552 | (multi) | (multi) |
+| 0001-0567.cross.md | 2026-04-15T00:00:00Z..2026-07-31T19:32:14Z | 567 | (multi) | (multi) |

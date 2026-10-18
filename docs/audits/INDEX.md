@@ -1,6 +1,6 @@
 ---
 schema: seam-audit-registry/v1
-latest: 2026-10-16-current-built-documentation-closeout
+latest: 2026-10-17-protocol-completion
 policy_start: 2026-08-11
 ---
 
@@ -28,6 +28,7 @@ HISTORY entry for that report. Use
 
 | date | audit | scope | history |
 | --- | --- | --- | --- |
+| 2026-10-17 | [Protocol completion and restart repair](2026-10-17-protocol-completion.md) | Audited admission, compaction, assurance and resume gaps; bounded completion claims and current preservation correction | `HISTORY#687` |
 | 2026-10-16 | [Current-built documentation closeout](2026-10-16-current-built-documentation-closeout.md) | Four current status documents, preserved PR dispositions and bounded live metadata readbacks | `HISTORY#686` |
 | 2026-10-16 | [Two-week protocol retrospective](2026-10-16-protocol-retrospective.md) | 15 merged PRs, chronology enforcement, corrected current records and explicit historical gaps | `HISTORY#685` |
 | 2026-10-14 | [Branch recovery closeout](2026-10-14-branch-recovery-closeout.md) | admitted source/live website,15 verified retirements and15 retained exact tips | `HISTORY#675` |

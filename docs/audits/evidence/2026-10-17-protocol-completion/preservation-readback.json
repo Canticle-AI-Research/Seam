@@ -1,0 +1,62 @@
+{
+  "observed_at": "2026-10-17T03:52:47.606516+00:00",
+  "source_refs": [
+    {
+      "pr": 272,
+      "head": "ab27b54d08a022259e0e052cee06ef48917c027d",
+      "branch_matches": true,
+      "pull_matches": true,
+      "closed_unmerged": true
+    },
+    {
+      "pr": 271,
+      "head": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f",
+      "branch_matches": true,
+      "pull_matches": true,
+      "closed_unmerged": true
+    },
+    {
+      "pr": 270,
+      "head": "044c8b3d048829156dcc2d8af4f4d2448329c086",
+      "branch_matches": true,
+      "pull_matches": true,
+      "closed_unmerged": true
+    },
+    {
+      "pr": 269,
+      "head": "406f9c43479cac02716c9912569f9ec0f9ac2c32",
+      "branch_matches": true,
+      "pull_matches": true,
+      "closed_unmerged": true
+    },
+    {
+      "pr": 264,
+      "head": "a5a19d4189b27157fffd677270ba87de0a19b78e",
+      "branch_matches": true,
+      "pull_matches": true,
+      "closed_unmerged": true
+    },
+    {
+      "pr": 249,
+      "head": "8d77775fe6e029717115758b917c94c757ed0d4a",
+      "branch_matches": false,
+      "pull_matches": true,
+      "closed_unmerged": true
+    },
+    {
+      "pr": 230,
+      "head": "6313f851c2cf68ef06350c910f6c9bbf3be13762",
+      "branch_matches": true,
+      "pull_matches": true,
+      "closed_unmerged": true
+    }
+  ],
+  "website": {
+    "private": true,
+    "tag_matches": true,
+    "branch_matches": true,
+    "pull_matches": true,
+    "all_six_preserved_file_hashes_match": true,
+    "scope": "Hash-only validation; no private document contents copied"
+  }
+}

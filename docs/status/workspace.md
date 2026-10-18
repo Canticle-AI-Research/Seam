@@ -2,6 +2,24 @@
 
 > Current source/site checkout and exact branch-recovery state; HISTORY#675.
 
+## Current workspace operating rule
+
+`AGENTS.md` Workspace Lifecycle is the current authority for creation,
+retention, and cleanup. Reuse a suitable checkout by default. New isolated
+worktrees are exceptional and use only the lowercase
+`<primary-root>/.worktrees/<task-slug>-<yyyymmdd>` namespace. The shared ignored
+queue is `<primary-root>/.seam/orchestration/cleanup-ledger.json`; evidence has
+one primary-root or configured external archive home and never contains source
+copies, caches, or duplicated environments.
+
+Every startup reconciles that ledger against Git worktrees and live ownership.
+Every closeout preserves unique work and required evidence first, validates the
+preserved copy, removes safe completed owned worktrees, verifies the resulting
+worktree list and disk delta, and records the outcome. Unknown, dirty, active,
+locked, or pending-recovery state is retained with an owner, reason, and review
+date. This document's historical inventory informs recovery but does not
+override those checks.
+
 ## Current decision map
 
 | Item | Verified state | Next action |
@@ -15,8 +33,10 @@
 
 See [final inventory and provenance](../audits/2026-10-14-branch-recovery-closeout.md),
 [recovery plan](../roadmap/BRANCH_RECOVERY.md) and current handoff. Prior registers
-below are historical and do not authorize deletion. Each cleanup requires exact
-current tip, preserved useful work and ownership checks.
+below are historical and are not sufficient deletion evidence. Apply the
+mandatory lifecycle checks to the exact current tip. Routine removal of a safe
+completed workspace already in session or operator cleanup scope does not need
+another approval; unique or ambiguously owned data remains protected.
 
 ## Historical 2026-09-06 decision map
 
@@ -354,6 +374,7 @@ Run from the primary checkout before relying on counts or dispositions:
 git fetch --prune origin
 git status --short --branch
 git worktree list --porcelain
+python -m json.tool .seam/orchestration/cleanup-ledger.json
 .venv/bin/python -m tools.git.scan_stale_branches --json
 gh pr list --state all --limit 100 --json number,title,state,isDraft,headRefName,headRefOid,mergedAt,url
 ```

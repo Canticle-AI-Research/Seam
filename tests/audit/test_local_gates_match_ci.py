@@ -42,12 +42,17 @@ WIKI_STAGED_FLAG = "--staged"
 REFERENCE_GATE_MODULE = "tools.docs.sync_references"
 AGENT_CONFIG_MODULE = "tools.git.verify_agent_config"
 PR_LIFECYCLE_MODULE = "tools.ci.pr_lifecycle"
+ASSURANCE_MODULE = "tools.agents.assurance"
 LIFECYCLE_REGRESSION_TESTS = (
     "tests/audit/test_pr_lifecycle.py",
     "tests/audit/test_verify_merge.py",
     "tests/audit/test_git_hook_install.py",
     "tests/audit/test_github_maintenance_report.py",
+    "tests/audit/test_agent_session_state.py",
+    "tests/audit/test_context_guardian.py",
     "tests/audit/test_closeout_queue.py",
+    "tests/audit/test_assurance.py",
+    "tests/audit/test_delivery_status.py",
     "tests/audit/test_session_end_agent_closeout.py",
 )
 REQUIRED_GATE_MODULES = {
@@ -340,6 +345,16 @@ def test_pre_push_enforces_the_same_public_lifecycle_cli():
     assert lines == [
         '"$PYTHON_BIN" -m tools.ci.pr_lifecycle --repo "$LIFECYCLE_REPO" || exit 1'
     ]
+
+
+def test_pre_push_enforces_registered_exact_state_assurance_unconditionally():
+    text = PUSH_HOOK.read_text(encoding="utf-8")
+    invocation = (
+        '"$PYTHON_BIN" -m tools.agents.assurance \\\n'
+        '    --repo-root "$REPO_ROOT" check-push --head "$LOCAL_SHA" || exit 1'
+    )
+    assert text.count(invocation) == 1
+    assert text.index(invocation) > text.index("while read -r LOCAL_REF LOCAL_SHA")
 
 
 def test_lifecycle_parity_detection_rejects_removed_or_advisory_gate():

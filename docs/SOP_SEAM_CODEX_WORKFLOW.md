@@ -26,11 +26,24 @@ the registered current handoff, and pending SessionEnd closeout requests. Use
 the repository CLI and GitHub CLI; treat branch-local, merged, released,
 deployed, and benchmark-qualified as different states.
 
+Complete the `AGENTS.md` Workspace Lifecycle startup checkpoint: reconcile the
+shared cleanup ledger from the primary worktree, classify every registered
+worktree using the required dirt, ignored-file, process, lock, stash, and
+request/receipt checks, and perform any already-authorized safe dormant cleanup
+before allocating another workspace. Retained items need a concrete owner,
+reason, and review date.
+
 Capture a contemporaneous pre-write inventory of every standard closeout
 request/receipt location and the validator admission result for each discovered
 record. A later empty queue or stored receipt does not reconstruct that earlier
 boundary. If the inventory or admission evidence is missing, record that gap
 plainly instead of upgrading current state into historical proof.
+
+Run `python -m tools.agents.closeout_queue --repo-root "$PWD" admit`, adding
+each receipt-only retained root with `--register-root`. It requires two
+identical validated byte inventories and persists ownership in the Git common
+directory. `session_state init` repeats admission before it creates or replaces
+state and registers the session's immutable base SHA.
 
 Preserve unrelated work as named exclusions. Dispatch every pending closeout
 request to the release wave described in the orchestration SOP. A verdict
@@ -57,9 +70,11 @@ operator-visible API, CLI, persistence, or runtime boundary rather than only a
 private helper.
 
 Record authority separately for pushes and protected merge. Paid provider
-calls, releases, deployments, destructive cleanup, and scope expansion require
-an explicit operator decision at the point of action; an implementation request
-does not imply any of them.
+calls, releases, deployments, destruction of unique or ambiguously owned data,
+and scope expansion require an explicit operator decision at the point of
+action; an implementation request does not imply any of them. Routine safe
+cleanup within the authority defined by `AGENTS.md` Workspace Lifecycle does
+not need a repeated approval.
 
 For repo-changing work, initialize or update the root session-state record as
 specified by the orchestration SOP.
@@ -87,9 +102,16 @@ decision; no child has widened repository scope.
 **Owner: Codex root**
 
 Resume the intended PR branch only after confirming its remote head and base
-drift. For new work, update from protected main and use a working branch and,
-when isolation is needed, a dedicated worktree. Keep one writable owner per
-path and wave. Root retains integration, staging, continuity, and PR artifacts.
+drift. Reuse the current suitable checkout by default. For new work, update
+from protected main and use a working branch. Add a worktree only when actual
+concurrent writes require isolation, using the root-assigned lowercase task
+slug and the sole `<primary-root>/.worktrees/<task-slug>-<yyyymmdd>` location
+defined by `AGENTS.md`. The narrow non-concurrency exception is a
+repository-required clean exact-commit verification when no suitable existing
+checkout can be reused safely; it uses the distinct root-assigned
+`<task-slug>-verify` identity in that same location and the same ledger and
+cleanup procedure. Keep one writable owner per path and wave. Root retains
+integration, staging, continuity, and PR artifacts.
 
 **Complete when:** the branch/worktree lineage is anchored to a recorded base
 SHA, the PR relationship is known, writable paths have one owner each, and all
@@ -138,6 +160,13 @@ Give assurance the integrated diff, governing-contract digest, claimed
 acceptance evidence, tests, and exclusions using the orchestration SOP. The
 assurance wave is read-only and cannot repair its own findings.
 
+Commit the final candidate and require a clean worktree before admitting the
+review report with `tools.agents.assurance accept`. The report names the
+independent reviewer and binds the registered base, exact HEAD, changed paths,
+content fingerprint, and continuity evidence. The pre-push hook checks that
+accepted state against each actual outgoing SHA from Git-common state, so
+clearing an environment session ID cannot bypass it.
+
 Route every actionable finding to a **new delivery wave**, then reintegrate and
 run independent assurance again on the changed exact state. Do not convert a
 review report into qualification by assertion.
@@ -184,6 +213,22 @@ If the branch changes, a check is rerun on another SHA, or CI exposes a defect,
 return to a new delivery wave and repeat assurance and closeout on the successor
 state.
 
+A recovery successor keeps its original base and immutable activation SHA while
+allowing reviewed descendant commits. Before push, exact assurance revalidates
+the predecessor and the semantic external recovery chain, including every
+evidence-manifest member and either a truthful missing or bound checkpoint.
+The binding directly names the canonical recovery event and records result
+presence as `RETAINED` or `NOT_RETAINED`; retained results must be uniquely
+discoverable from the pinned inventory and match all seven event-derived
+fields. `NOT_RETAINED` is scoped to that inventory and does not assert that no
+historical result ever existed.
+Activation retries preserve valid appended cycles; before push, assurance
+requires complete runtime TDD coverage, the lineage-scoped retained-root
+inventory, and the actual outgoing SHA. Administrative
+duplicate dispositions are admission-only inputs and never replace this
+assurance. This ordering permits push and exact-head CI without pretending that
+the successor is already release-qualified.
+
 **Complete when:** local HEAD, remote branch head, PR head, reviewed candidate,
 and verification evidence name the same SHA, and every required exact-head CI
 check is successful. This phase proves the candidate and required CI state; it
@@ -203,6 +248,15 @@ call a paid provider, release, or deploy. The root admits its result only
 through the tracked validator and atomic receipt store. A repair follows a new
 delivery wave and produces a new exact-state request; prior verdicts remain
 immutable evidence.
+
+After assurance enforcement is initialized, a newly stored `QUALIFIED` receipt
+must match the active registered session's accepted assurance and must have no
+planned or orphan unexpected-compaction recovery.
+
+If enforcement begins with an immutable request already pending, use the
+request-bound `assurance accept-request` path in the orchestration SOP. It
+avoids a new-session admission deadlock while remaining limited to the
+validated request and report byte hashes.
 
 **Complete when:** a validated stored `QUALIFIED` receipt matches the current
 candidate exactly, explicitly supersedes applicable older requests, and the
@@ -236,7 +290,7 @@ qualification.
 
 ## 12. Verify exact main and leave a durable resume
 
-**Owner: Codex root; operator owns destructive cleanup**
+**Owner: Codex root; operator decides ambiguous or unique-data destruction**
 
 Fetch protected main after merge and verify the resulting exact main SHA,
 candidate ancestry, PR state, and applicable post-merge checks. Reconcile the
@@ -248,18 +302,30 @@ SHA, original stored request/receipt and a clean isolated exact-main checkout.
 Retain its machine-readable evidence only after actual gates complete. If
 protocol was not followed, record the failure and repair its enforcement with
 a regression test in a new delivery wave before reporting the merge complete.
+Supply exact-main `docs/delivery/current.json` with `--plan`. After all gates
+pass, the verifier copies and hashes the plan, proof, request, and receipt into
+Git-common durable completion state. Confirm it after removing the verification
+worktree with `python -m tools.agents.delivery_status --repo-root <checkout>
+--json`. A fresh clone remains `UNVERIFIED` until it obtains fresh proof.
 The verifier rejects missing, malformed, timezone-naive, or reversed phase
 times and requires `check start <= check completion <= qualification completion
 <= PR merge` before local merge inspection or canonical gates. This final
 evidence proves the verified exact-main boundary only; publication, deployment,
 installation, and product acceptance require their own evidence.
 
-Reconcile the working branch, worktree, and stashes. Remove a clean merged
-branch or worktree only when that cleanup is authorized and recoverability is
-clear; otherwise record exactly why it is retained and who owns cleanup. Never
-discard unrelated dirty work as cleanup.
+Run the mandatory `AGENTS.md` Workspace Lifecycle cleanup checkpoint. Stop
+task-owned processes; preserve required evidence and unique work with checksums
+and a read/restore validation; remove safe completed owned task worktrees; and
+prune stale Git metadata. Remove merged branches only with ancestry or
+patch-equivalence proof, and retain branch refs for unmerged work. Verify path
+absence, the resulting worktree list, and disk-space delta, then update the
+shared cleanup ledger. Routine cleanup within the session's or operator's
+already recorded scope is authorized here. Retain unrelated, unknown, dirty,
+active, locked, or pending-recovery work with an owner, reason, and review date.
 
 **Complete when:** exact protected-main state is verified and recorded, no
 closeout request lacks a disposition, the handoff/resume pointer names the
 first next action or clean stop, and every branch, worktree, stash, and dirty
-path is either safely closed or explicitly retained with an owner.
+path is either safely closed or explicitly retained with an owner, reason, and
+review date. The cleanup ledger, final worktree list, and measured disk delta
+must reflect the checkpoint before the task is reported complete.

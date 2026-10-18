@@ -28,6 +28,10 @@ The initial policy permits one ordinary PR and no blocker exceptions. Source
 gate. The scheduled repository-maintenance workflow checks it again. Source CI
 does not claim website enforcement or require credentials for that private
 repository; the explicit website CLI invocation is a separate local check.
+For a registered Codex worktree, pre-push also requires immutable independent
+assurance for a clean committed candidate and compares it with the actual
+outgoing SHA. The gate reads Git-common registration, not an environment
+session ID.
 
 A genuine blocker can retain an active PR only through an exception admitted on
 protected main in `.github/pr-lifecycle-policy.json`. It binds the repository,
@@ -66,12 +70,22 @@ Installation does not update or authorize that checkout's source.
 Follow [the Codex workflow](SOP_SEAM_CODEX_WORKFLOW.md), including independent
 assurance, canonical continuity, the candidate secret scan, exact-head required
 CI, and an independently qualified receipt admitted by `closeout_queue`.
+Once assurance enforcement is initialized, the queue refuses a new
+`QUALIFIED` receipt without matching registered assurance or while any
+unexpected-compaction recovery event remains, including an orphan event written
+before its state record.
 Recheck live lifecycle and candidate identity immediately before protected
 merge. This verifier initially supports ordinary merge commits; use the
 protected merge-commit path. Unsupported squash/rebase mappings fail closed.
 
 Fetch main and prepare a clean, isolated checkout at the exact resulting merge
-commit. Supply actual full SHAs and the original stored request and receipt:
+commit. Reuse a suitable clean exact-main verification checkout when one
+already exists for the task; otherwise create it only in the canonical
+`<primary-root>/.worktrees/<task-slug>-verify-<yyyymmdd>` namespace from
+`AGENTS.md`, using that distinct root-assigned verification identity. It has the
+same ledger and cleanup requirements as every other worktree. Do not create a
+sibling repository copy for merge verification. Supply actual full SHAs and
+the original stored request and receipt:
 
 ```bash
 python -m tools.ci.verify_merge \
@@ -80,7 +94,8 @@ python -m tools.ci.verify_merge \
   --worktree /absolute/path/to/isolated-main \
   --request /absolute/path/to/request.json \
   --receipt /absolute/path/to/stored-receipt.json \
-  --evidence /absolute/path/to/new-merge-evidence.json
+  --evidence /absolute/path/to/new-merge-evidence.json \
+  --plan /absolute/path/to/exact-main/docs/delivery/current.json
 ```
 
 The command independently checks GitHub merged state, source identity,
@@ -97,7 +112,18 @@ and repair any protocol defect through a new reviewed delivery wave before
 claiming completion. A stored receipt or empty pending queue alone does not
 execute these checks.
 
+With `--plan`, success also stores a `seam-delivery-completion/v1` record in
+the repository's Git common directory. It binds the tracked plan blob and
+immutable copies and hashes of the proof, request, and receipt.
+`python -m tools.agents.delivery_status --repo-root ROOT --json` validates those
+bindings, the current plan, and merge ancestry after the verification worktree
+is removed. Missing or corrupt local completion is `UNVERIFIED`; a fresh clone
+must obtain fresh proof.
+
 Record the verified merge receipt in the tracker or recovery issue, reconcile
-pending closeouts, and finish the session's worktree and branch. Preserve
-unrelated dirty work and existing source recovery refs. Release, installation,
+pending closeouts, and finish the session's worktree and branch. Remove the
+exact-main scratch worktree through the mandatory Workspace Lifecycle cleanup
+checkpoint after its unique evidence is preserved and validated; update the
+shared cleanup ledger and verify the reclaimed disk delta. Preserve unrelated
+dirty work and existing source recovery refs. Release, installation,
 publication and product acceptance retain their own evidence and authority.

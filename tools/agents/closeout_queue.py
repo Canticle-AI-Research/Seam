@@ -9,9 +9,10 @@ import json
 import os
 import re
 import stat
+import subprocess
 import sys
 import tempfile
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -26,6 +27,7 @@ from tools.agents.session_end_closeout import (
     runtime_paths,
 )
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
 MAX_RECORD_BYTES = 1024 * 1024
 REQUEST_FIELDS = {
     "schema",
@@ -91,6 +93,38 @@ RECEIPT_FIELDS = {
 SAFE_ID = re.compile(r"^[A-Za-z0-9._-]{1,200}$")
 SHA256 = re.compile(r"^[0-9a-f]{64}$")
 COMMIT = re.compile(r"^[0-9a-f]{40,64}$")
+ADMISSION_FIELDS = {
+    "schema",
+    "kind",
+    "repository_common_dir",
+    "registered_roots",
+    "observed_roots",
+    "pending_request_ids",
+    "record_sha256s",
+    "admitted_at",
+}
+ROOT_REGISTRATION_FIELDS = {
+    "schema",
+    "kind",
+    "repository_common_dir",
+    "registered_root",
+}
+ADMINISTRATIVE_DISPOSITION_FIELDS = {
+    "schema", "status", "request_id", "request_path", "request_bytes_sha256",
+    "blocked_receipt_path", "blocked_receipt_bytes_sha256", "prior_request_id",
+    "prior_request_path", "prior_request_bytes_sha256", "prior_receipt_path",
+    "prior_receipt_bytes_sha256", "projection_sha256", "current_origin_main",
+    "prior_origin_main", "review_path", "review_bytes_sha256", "authority",
+    "reconciled_at",
+}
+ADMINISTRATIVE_REVIEW_FIELDS = {
+    "schema", "repository_common_dir", "queue_root", "current_request_id",
+    "current_request_sha256", "current_receipt_sha256", "prior_request_id",
+    "prior_request_sha256", "prior_receipt_sha256", "producer_session_id",
+    "reviewer", "reviewed_at", "status", "reason", "authority",
+    "unresolved_findings",
+}
+ADMINISTRATIVE_REASON = "UNCHANGED_NONRUNTIME_TAIL_ASSURANCE_BOUNDARY"
 
 
 class CloseoutQueueError(RuntimeError):
@@ -109,12 +143,17 @@ def _timestamp(value: object, *, label: str) -> datetime:
     return parsed
 
 
-def _load_json(path: Path) -> dict[str, Any]:
+def _load_json_record(path: Path) -> tuple[dict[str, Any], bytes]:
     descriptor: int | None = None
     try:
-        if path.is_symlink():
+        if (
+            not path.is_absolute()
+            or ".." in path.parts
+            or path.is_symlink()
+            or path.resolve(strict=True) != path
+        ):
             raise CloseoutQueueError(
-                f"closeout record must be a regular file: {path.name}"
+                f"closeout record must use a regular file; path is unsafe: {path.name}"
             )
         descriptor = os.open(
             path,
@@ -157,7 +196,11 @@ def _load_json(path: Path) -> dict[str, Any]:
             os.close(descriptor)
     if not isinstance(value, dict):
         raise CloseoutQueueError(f"closeout record must be an object: {path.name}")
-    return value
+    return value, encoded
+
+
+def _load_json(path: Path) -> dict[str, Any]:
+    return _load_json_record(path)[0]
 
 
 def _request_hash(value: dict[str, Any]) -> str:
@@ -195,6 +238,11 @@ def _receipt_attempt_path(
 
 
 def _ensure_state_directory(path: Path, *, label: str) -> None:
+    ancestor = path
+    while not os.path.lexists(ancestor) and ancestor != ancestor.parent:
+        ancestor = ancestor.parent
+    if ancestor.is_symlink() or not ancestor.is_dir() or ancestor.resolve() != ancestor:
+        raise CloseoutQueueError(f"closeout {label} directory has an unsafe ancestor")
     if os.path.lexists(path) and (path.is_symlink() or not path.is_dir()):
         raise CloseoutQueueError(f"closeout {label} directory must be a real directory")
     path.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -916,6 +964,37 @@ def store_receipt(
     if any(_receipt_is_dispositive(request, existing) for _, existing in stored):
         raise CloseoutQueueError("conflicting qualified closeout receipt already exists")
 
+    if receipt["status"] == "QUALIFIED":
+        from tools.agents import assurance
+
+        try:
+            result = assurance.check_request(request, state_root=state_root)
+            if result["status"] == "NOT_APPLICABLE":
+                result = assurance.check_session(
+                    Path(request["repo"]["root"]), request["session_id"]
+                )
+        except assurance.AssuranceError as exc:
+            raise CloseoutQueueError(str(exc)) from exc
+        if result["status"] == "NOT_APPLICABLE" and assurance.enforcement_active(
+            Path(request["repo"]["root"])
+        ):
+            raise CloseoutQueueError("qualified closeout session is not registered")
+        if result["status"] not in {"PASS", "NOT_APPLICABLE"}:
+            raise CloseoutQueueError("qualified closeout lacks accepted assurance")
+        try:
+            transition = assurance.successor_transition(
+                Path(request["repo"]["root"]), request["session_id"]
+            )
+        except assurance.AssuranceError as exc:
+            raise CloseoutQueueError(str(exc)) from exc
+        if (
+            transition is not None
+            and transition["request_id"] not in receipt["supersedes_request_ids"]
+        ):
+            raise CloseoutQueueError(
+                "qualified successor receipt must supersede its predecessor request"
+            )
+
     canonical = _expected_receipt_path(state_root, request["request_id"])
     if not stored:
         _ensure_state_directory(canonical.parent, label="receipt")
@@ -949,13 +1028,352 @@ def store_receipt(
     return {"status": "STORED_ATTEMPT", "receipt_path": str(attempt)}
 
 
+def _administrative_disposition_path(state_root: Path, request_id: str) -> Path:
+    return state_root.resolve() / "administrative-dispositions" / f"{request_id}.json"
+
+
+def _request_projection(request: dict[str, Any]) -> dict[str, Any]:
+    projection = json.loads(json.dumps(request))
+    for field in ("request_id", "request_sha256", "session_id", "created_at", "receipt_path"):
+        projection.pop(field)
+    projection["repo"].pop("origin_main")
+    return projection
+
+
+def _projection_sha256(request: dict[str, Any]) -> str:
+    return hashlib.sha256(
+        json.dumps(_request_projection(request), sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+
+
+def _administrative_eligible(request: dict[str, Any]) -> bool:
+    context = request["context"]
+    tdd = request["tdd_evidence"]
+    return (
+        request["change_class"] == "non_runtime"
+        and request["repo"]["changed_paths_truncated"] is False
+        and request["repo"]["base_sha"] is None
+        and context["available"] is False
+        and context["affected_tests"] == []
+        and tdd["status"] == "TDD_NOT_REQUIRED"
+        and tdd["cycle_count"] == 0
+        and tdd.get("cycles", []) == []
+    )
+
+
+def _administrative_blocker(receipt: dict[str, Any]) -> bool:
+    return (
+        receipt["status"] == "BLOCKED"
+        and receipt["tdd"]["status"] == "TDD_NOT_REQUIRED"
+        and all(check["status"] == "PASS" and check["exit_code"] == 0 for check in receipt["checks"])
+        and receipt["continuity"]["status"] == "BLOCKED"
+        and receipt["project_alignment"]["status"] == "ALIGNED"
+    )
+
+
+def _validate_administrative_review(
+    value: object,
+    *,
+    review_path: Path,
+    state_root: Path,
+    common_dir: Path,
+    request: dict[str, Any],
+    request_bytes: bytes,
+    blocked: dict[str, Any],
+    blocked_bytes: bytes,
+    prior: dict[str, Any],
+    prior_bytes: bytes,
+    prior_receipt: dict[str, Any],
+    prior_receipt_bytes: bytes,
+) -> dict[str, Any]:
+    if (
+        not isinstance(value, dict)
+        or set(value) != ADMINISTRATIVE_REVIEW_FIELDS
+        or value.get("schema") != "seam-closeout-administrative-review/v1"
+    ):
+        raise CloseoutQueueError("administrative review does not match its strict contract")
+    if value.get("repository_common_dir") != str(common_dir):
+        raise CloseoutQueueError("administrative review repository identity is invalid")
+    if value.get("queue_root") != str(state_root):
+        raise CloseoutQueueError("administrative review queue root is invalid")
+    expected = {
+        "current_request_id": request["request_id"],
+        "current_request_sha256": hashlib.sha256(request_bytes).hexdigest(),
+        "current_receipt_sha256": hashlib.sha256(blocked_bytes).hexdigest(),
+        "prior_request_id": prior["request_id"],
+        "prior_request_sha256": hashlib.sha256(prior_bytes).hexdigest(),
+        "prior_receipt_sha256": hashlib.sha256(prior_receipt_bytes).hexdigest(),
+    }
+    for field, expected_value in expected.items():
+        if value.get(field) != expected_value:
+            raise CloseoutQueueError(f"administrative review {field} is invalid")
+    if value.get("status") != "PASS":
+        raise CloseoutQueueError("administrative review status must be PASS")
+    if value.get("reason") != ADMINISTRATIVE_REASON:
+        raise CloseoutQueueError("administrative review reason is invalid")
+    if value.get("authority") != "admission_only":
+        raise CloseoutQueueError("administrative review authority must be admission_only")
+    if value.get("unresolved_findings") != []:
+        raise CloseoutQueueError("administrative review findings must be empty")
+    producer = value.get("producer_session_id")
+    reviewer = value.get("reviewer")
+    if (
+        not isinstance(producer, str)
+        or not SAFE_ID.fullmatch(producer)
+        or not isinstance(reviewer, str)
+        or not SAFE_ID.fullmatch(reviewer)
+        or producer != reviewer
+        or producer in {request["session_id"], prior["session_id"]}
+    ):
+        raise CloseoutQueueError(
+            "administrative review requires immutable independent producer provenance"
+        )
+    reviewed_at = _timestamp(value.get("reviewed_at"), label="review reviewed_at")
+    if reviewed_at <= _timestamp(blocked["completed_at"], label="blocked receipt completed_at"):
+        raise CloseoutQueueError("administrative review predates the current blocked receipt")
+    if reviewed_at <= _timestamp(prior_receipt["completed_at"], label="prior receipt completed_at"):
+        raise CloseoutQueueError("administrative review predates prior qualification")
+    if not review_path.is_absolute() or ".." in review_path.parts:
+        raise CloseoutQueueError("administrative review path is unsafe")
+    return value
+
+
+def _validate_administrative_disposition(
+    value: object, path: Path, *, state_root: Path
+) -> dict[str, Any]:
+    if (
+        not isinstance(value, dict)
+        or set(value) != ADMINISTRATIVE_DISPOSITION_FIELDS
+        or value.get("schema") != "seam-closeout-administrative-disposition/v1"
+        or value.get("status") != "RECONCILED_DUPLICATE"
+    ):
+        raise CloseoutQueueError("administrative disposition does not match its contract")
+    request_id = value.get("request_id")
+    prior_id = value.get("prior_request_id")
+    if (
+        not isinstance(request_id, str) or not SAFE_ID.fullmatch(request_id)
+        or not isinstance(prior_id, str) or not SAFE_ID.fullmatch(prior_id)
+        or request_id == prior_id
+        or path != _administrative_disposition_path(state_root, request_id)
+    ):
+        raise CloseoutQueueError("administrative disposition identity is invalid")
+    bindings = (
+        ("request_path", "request_bytes_sha256"),
+        ("blocked_receipt_path", "blocked_receipt_bytes_sha256"),
+        ("prior_request_path", "prior_request_bytes_sha256"),
+        ("prior_receipt_path", "prior_receipt_bytes_sha256"),
+        ("review_path", "review_bytes_sha256"),
+    )
+    loaded: dict[str, tuple[dict[str, Any], bytes]] = {}
+    for path_field, hash_field in bindings:
+        raw_path, digest = value.get(path_field), value.get(hash_field)
+        if (
+            not isinstance(raw_path, str) or not Path(raw_path).is_absolute()
+            or ".." in Path(raw_path).parts
+            or not isinstance(digest, str) or not SHA256.fullmatch(digest)
+        ):
+            raise CloseoutQueueError("administrative disposition artifact binding is invalid")
+        loaded[path_field] = _load_json_record(Path(raw_path))
+        if hashlib.sha256(loaded[path_field][1]).hexdigest() != digest:
+            raise CloseoutQueueError("administrative disposition artifact changed")
+    request = validate_request(loaded["request_path"][0], state_root=state_root)
+    prior = validate_request(loaded["prior_request_path"][0], state_root=state_root)
+    if request["request_id"] != request_id or prior["request_id"] != prior_id:
+        raise CloseoutQueueError("administrative disposition request binding is invalid")
+    if (
+        Path(value["request_path"]) != _request_root(state_root) / f"{request_id}.json"
+        or Path(value["prior_request_path"]) != _request_root(state_root) / f"{prior_id}.json"
+    ):
+        raise CloseoutQueueError("administrative disposition requests lack one canonical host")
+    blocked = validate_receipt(request, loaded["blocked_receipt_path"][0], state_root=state_root)
+    prior_receipt = validate_receipt(prior, loaded["prior_receipt_path"][0], state_root=state_root)
+    if Path(value["blocked_receipt_path"]) != _expected_receipt_path(state_root, request_id):
+        raise CloseoutQueueError("administrative blocked receipt is not canonically stored")
+    if Path(value["prior_receipt_path"]) != _expected_receipt_path(state_root, prior_id):
+        raise CloseoutQueueError("administrative prior receipt is not canonically stored")
+    if not _administrative_eligible(request) or not _administrative_eligible(prior):
+        raise CloseoutQueueError("administrative duplicate is not eligible")
+    if not _administrative_blocker(blocked):
+        raise CloseoutQueueError("administrative duplicate lacks an assurance-boundary blocker")
+    if not _receipt_is_dispositive(prior, prior_receipt):
+        raise CloseoutQueueError("administrative prior receipt is not dispositive")
+    if _timestamp(prior_receipt["completed_at"], label="prior receipt completed_at") >= _timestamp(request["created_at"], label="request created_at"):
+        raise CloseoutQueueError("administrative prior disposition does not predate duplicate")
+    projection = _projection_sha256(request)
+    if projection != _projection_sha256(prior) or value.get("projection_sha256") != projection:
+        raise CloseoutQueueError("administrative requests are not exact duplicates")
+    if value.get("current_origin_main") != request["repo"]["origin_main"] or value.get("prior_origin_main") != prior["repo"]["origin_main"]:
+        raise CloseoutQueueError("administrative origin_main evidence is invalid")
+    if value.get("authority") != "admission_only":
+        raise CloseoutQueueError("administrative disposition authority is invalid")
+    from tools.agents import assurance, context_guardian
+    repo_root = Path(request["repo"]["root"])
+    common_dir = assurance._common_dir(repo_root)
+    _validate_administrative_review(
+        loaded["review_path"][0],
+        review_path=Path(value["review_path"]),
+        state_root=state_root,
+        common_dir=common_dir,
+        request=request,
+        request_bytes=loaded["request_path"][1],
+        blocked=blocked,
+        blocked_bytes=loaded["blocked_receipt_path"][1],
+        prior=prior,
+        prior_bytes=loaded["prior_request_path"][1],
+        prior_receipt=prior_receipt,
+        prior_receipt_bytes=loaded["prior_receipt_path"][1],
+    )
+    _timestamp(value.get("reconciled_at"), label="disposition reconciled_at")
+    registration_path = assurance._registration_path(common_dir, request["session_id"])
+    if registration_path.exists():
+        registration = assurance._validate_registration(
+            assurance._load(registration_path), common_dir, registration_path
+        )
+        if registration["worktree_root"] == str(repo_root):
+            raise CloseoutQueueError(
+                "administrative duplicate has a root-local registered candidate"
+            )
+    if context_guardian.has_unresolved_recovery(
+        request["session_id"],
+        state_root=repo_root / ".seam" / "orchestration" / "context",
+        handoff_root=repo_root / ".context-handoffs",
+    ):
+        raise CloseoutQueueError("administrative duplicate has a recovery claim")
+    return value
+
+
+def _load_administrative_disposition(
+    state_root: Path, request_id: str
+) -> tuple[Path, dict[str, Any], bytes] | None:
+    path = _administrative_disposition_path(state_root, request_id)
+    if not os.path.lexists(path):
+        return None
+    value, encoded = _load_json_record(path)
+    return path, _validate_administrative_disposition(value, path, state_root=state_root), encoded
+
+
+def reconcile_duplicate(
+    *, request_path: Path, prior_request_path: Path, prior_receipt_path: Path,
+    review_path: Path, disposition_path: Path, state_root: Path
+) -> dict[str, Any]:
+    state_root = state_root.resolve()
+    for raw_path in (request_path, prior_request_path, prior_receipt_path, review_path):
+        if (
+            not raw_path.is_absolute()
+            or ".." in raw_path.parts
+            or raw_path.is_symlink()
+            or raw_path.resolve(strict=True) != raw_path
+        ):
+            raise CloseoutQueueError("administrative evidence path is unsafe")
+    request_path = request_path.resolve(strict=True)
+    prior_request_path = prior_request_path.resolve(strict=True)
+    prior_receipt_path = prior_receipt_path.resolve(strict=True)
+    review_path = review_path.resolve(strict=True)
+    request, request_bytes = _load_json_record(request_path)
+    request = validate_request(request, state_root=state_root)
+    prior, prior_bytes = _load_json_record(prior_request_path)
+    prior = validate_request(prior, state_root=state_root)
+    expected = _administrative_disposition_path(state_root, request["request_id"])
+    if disposition_path.resolve() != expected:
+        raise CloseoutQueueError("administrative disposition path is not canonical")
+    current_receipts = _stored_receipts(request, state_root=state_root)
+    if len(current_receipts) != 1 or current_receipts[0][0] != _expected_receipt_path(state_root, request["request_id"]):
+        raise CloseoutQueueError("administrative duplicate requires one canonical blocked receipt")
+    blocked_path, blocked = current_receipts[0]
+    blocked_bytes = _load_json_record(blocked_path)[1]
+    prior_value, prior_receipt_bytes = _load_json_record(prior_receipt_path)
+    prior_receipt = validate_receipt(prior, prior_value, state_root=state_root)
+    if prior_receipt_path != _expected_receipt_path(state_root, prior["request_id"]):
+        raise CloseoutQueueError("administrative prior receipt is not canonical")
+    if not _administrative_eligible(request) or not _administrative_eligible(prior):
+        raise CloseoutQueueError("administrative duplicate is not eligible")
+    if not _administrative_blocker(blocked):
+        raise CloseoutQueueError("administrative duplicate lacks an assurance-boundary blocker")
+    if not _receipt_is_dispositive(prior, prior_receipt):
+        raise CloseoutQueueError("administrative prior receipt is not dispositive")
+    if _timestamp(prior_receipt["completed_at"], label="prior receipt completed_at") >= _timestamp(request["created_at"], label="request created_at"):
+        raise CloseoutQueueError("administrative prior disposition does not predate duplicate")
+    projection = _projection_sha256(request)
+    if projection != _projection_sha256(prior):
+        raise CloseoutQueueError("administrative requests are not exact duplicates")
+    from tools.agents import assurance
+    review_value, review_bytes = _load_json_record(review_path)
+    _validate_administrative_review(
+        review_value,
+        review_path=review_path,
+        state_root=state_root,
+        common_dir=assurance._common_dir(Path(request["repo"]["root"])),
+        request=request,
+        request_bytes=request_bytes,
+        blocked=blocked,
+        blocked_bytes=blocked_bytes,
+        prior=prior,
+        prior_bytes=prior_bytes,
+        prior_receipt=prior_receipt,
+        prior_receipt_bytes=prior_receipt_bytes,
+    )
+    if os.path.lexists(expected):
+        existing, _ = _load_json_record(expected)
+        _validate_administrative_disposition(existing, expected, state_root=state_root)
+        if (
+            existing["request_bytes_sha256"] != hashlib.sha256(request_bytes).hexdigest()
+            or existing["prior_request_bytes_sha256"] != hashlib.sha256(prior_bytes).hexdigest()
+            or existing["review_bytes_sha256"] != hashlib.sha256(review_bytes).hexdigest()
+        ):
+            raise CloseoutQueueError("conflicting administrative disposition exists")
+        return {"status": "ALREADY_RECONCILED", "disposition_path": str(expected)}
+    value = {
+        "schema": "seam-closeout-administrative-disposition/v1",
+        "status": "RECONCILED_DUPLICATE",
+        "request_id": request["request_id"],
+        "request_path": str(request_path),
+        "request_bytes_sha256": hashlib.sha256(request_bytes).hexdigest(),
+        "blocked_receipt_path": str(blocked_path),
+        "blocked_receipt_bytes_sha256": hashlib.sha256(blocked_bytes).hexdigest(),
+        "prior_request_id": prior["request_id"],
+        "prior_request_path": str(prior_request_path),
+        "prior_request_bytes_sha256": hashlib.sha256(prior_bytes).hexdigest(),
+        "prior_receipt_path": str(prior_receipt_path),
+        "prior_receipt_bytes_sha256": hashlib.sha256(prior_receipt_bytes).hexdigest(),
+        "projection_sha256": projection,
+        "current_origin_main": request["repo"]["origin_main"],
+        "prior_origin_main": prior["repo"]["origin_main"],
+        "review_path": str(review_path),
+        "review_bytes_sha256": hashlib.sha256(review_bytes).hexdigest(),
+        "authority": "admission_only",
+        "reconciled_at": datetime.now(timezone.utc).isoformat(),
+    }
+    _verify_live_scope(request, blocked)
+    for artifact_path, original_bytes in (
+        (request_path, request_bytes),
+        (blocked_path, blocked_bytes),
+        (prior_request_path, prior_bytes),
+        (prior_receipt_path, prior_receipt_bytes),
+        (review_path, review_bytes),
+    ):
+        if _load_json_record(artifact_path)[1] != original_bytes:
+            raise CloseoutQueueError("administrative evidence changed before publication")
+    _validate_administrative_disposition(value, expected, state_root=state_root)
+    encoded = _canonical_record(value)
+    _ensure_state_directory(expected.parent, label="administrative disposition")
+    if not _publish_record_once(expected, encoded):
+        existing, _ = _load_json_record(expected)
+        _validate_administrative_disposition(existing, expected, state_root=state_root)
+        stable_fields = set(value) - {"reconciled_at"}
+        if any(existing[field] != value[field] for field in stable_fields):
+            raise CloseoutQueueError("conflicting administrative disposition exists")
+        value = existing
+    _validate_administrative_disposition(value, expected, state_root=state_root)
+    return {"status": "RECONCILED_DUPLICATE", "disposition_path": str(expected)}
+
+
 def pending(state_root: Path = DEFAULT_STATE_ROOT) -> dict[str, Any]:
     """Return validated pending requests without launching a model or writing state."""
 
     state_root = state_root.resolve()
     requests = _load_queued_requests(state_root)
     if not requests:
-        return {"profile": "seam_release_orchestrator", "requests": []}
+        return {"profile": "seam_release_orchestrator", "requests": [], "administrative_dispositions": []}
     requests_by_id = {request["request_id"]: request for request in requests}
     receipts_by_id: dict[str, list[dict[str, Any]]] = {}
     superseded: set[str] = set()
@@ -973,6 +1391,7 @@ def pending(state_root: Path = DEFAULT_STATE_ROOT) -> dict[str, Any]:
                 )
                 superseded.update(receipt["supersedes_request_ids"])
     pending_requests: list[dict[str, Any]] = []
+    dispositions: list[dict[str, Any]] = []
     for request in requests:
         if request["request_id"] in superseded:
             continue
@@ -982,7 +1401,440 @@ def pending(state_root: Path = DEFAULT_STATE_ROOT) -> dict[str, Any]:
         ):
             continue
         pending_requests.append(request)
-    return {"profile": "seam_release_orchestrator", "requests": pending_requests}
+        disposition = _load_administrative_disposition(state_root, request["request_id"])
+        if disposition is not None:
+            dispositions.append({"request_id": request["request_id"], "receipt_status": "BLOCKED", "disposition": disposition[1]})
+    return {"profile": "seam_release_orchestrator", "requests": pending_requests, "administrative_dispositions": dispositions}
+
+
+def _git_inventory_text(repo_root: Path, *arguments: str) -> str:
+    result = subprocess.run(
+        ["git", *arguments],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode:
+        raise CloseoutQueueError("closeout admission cannot inspect Git worktrees")
+    return result.stdout.strip()
+
+
+def _common_dir(repo_root: Path) -> Path:
+    value = _git_inventory_text(
+        repo_root, "rev-parse", "--path-format=absolute", "--git-common-dir"
+    )
+    path = Path(value)
+    if not path.is_absolute():
+        path = repo_root / path
+    path = path.resolve(strict=True)
+    if path.is_symlink() or not path.is_dir():
+        raise CloseoutQueueError("closeout admission Git common directory is unsafe")
+    return path
+
+
+def _admission_path(common_dir: Path) -> Path:
+    return common_dir / "seam-orchestration" / "queue-admission.json"
+
+
+def _load_admission(path: Path, common_dir: Path) -> dict[str, Any] | None:
+    if not os.path.lexists(path):
+        return None
+    value = _load_json(path)
+    if (
+        set(value) != ADMISSION_FIELDS
+        or value.get("schema") != "seam-queue-admission/v1"
+        or value.get("kind") != "inventory"
+    ):
+        raise CloseoutQueueError("closeout admission record does not match its contract")
+    if value.get("repository_common_dir") != str(common_dir):
+        raise CloseoutQueueError("closeout admission record has the wrong repository")
+    for field in (
+        "registered_roots",
+        "observed_roots",
+        "pending_request_ids",
+        "record_sha256s",
+    ):
+        items = value.get(field)
+        maximum_length = 3000 if field == "record_sha256s" else 1000
+        if (
+            not isinstance(items, list)
+            or len(items) > 512
+            or any(
+                not isinstance(item, str)
+                or not item
+                or len(item) > maximum_length
+                for item in items
+            )
+            or items != sorted(set(items))
+        ):
+            raise CloseoutQueueError(f"closeout admission {field} is invalid")
+    _timestamp(value.get("admitted_at"), label="admission admitted_at")
+    return value
+
+
+def _write_admission(path: Path, value: dict[str, Any]) -> None:
+    encoded = _canonical_record(value)
+    _ensure_state_directory(path.parent, label="admission")
+    descriptor, temporary_name = tempfile.mkstemp(prefix=f".{path.name}.", dir=path.parent)
+    temporary = Path(temporary_name)
+    try:
+        with os.fdopen(descriptor, "wb") as handle:
+            handle.write(encoded)
+            handle.flush()
+            os.fsync(handle.fileno())
+        os.chmod(temporary, 0o600)
+        os.replace(temporary, path)
+        directory = os.open(path.parent, os.O_RDONLY | getattr(os, "O_DIRECTORY", 0))
+        try:
+            os.fsync(directory)
+        finally:
+            os.close(directory)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+
+def _worktree_roots(repo_root: Path) -> list[Path]:
+    roots = []
+    for line in _git_inventory_text(repo_root, "worktree", "list", "--porcelain").splitlines():
+        if line.startswith("worktree "):
+            roots.append(Path(line.removeprefix("worktree ")))
+    if not roots:
+        raise CloseoutQueueError("closeout admission found no Git worktrees")
+    return roots
+
+
+def _registration_root(common_dir: Path) -> Path:
+    return common_dir / "seam-orchestration" / "retained-roots"
+
+
+def _registration_path(common_dir: Path, registered_root: Path) -> Path:
+    digest = hashlib.sha256(str(registered_root).encode("utf-8")).hexdigest()
+    return _registration_root(common_dir) / f"{digest}.json"
+
+
+def _load_registered_roots(common_dir: Path) -> list[Path]:
+    root = _registration_root(common_dir)
+    if not os.path.lexists(root):
+        return []
+    if root.is_symlink() or not root.is_dir() or root.resolve() != root:
+        raise CloseoutQueueError("closeout retained-root registry is unsafe")
+    registered: list[Path] = []
+    for path in sorted(root.glob("*.json"), key=lambda item: item.name):
+        value = _load_json(path)
+        if (
+            set(value) != ROOT_REGISTRATION_FIELDS
+            or value.get("schema") != "seam-queue-admission/v1"
+            or value.get("kind") != "retained-root"
+            or value.get("repository_common_dir") != str(common_dir)
+        ):
+            raise CloseoutQueueError("closeout retained-root binding is invalid")
+        raw_root = value.get("registered_root")
+        if not isinstance(raw_root, str) or not raw_root or len(raw_root) > 1000:
+            raise CloseoutQueueError("closeout retained-root path is invalid")
+        registered_root = Path(raw_root)
+        if not registered_root.is_absolute() or ".." in registered_root.parts:
+            raise CloseoutQueueError("closeout retained-root path is unsafe")
+        if path != _registration_path(common_dir, registered_root):
+            raise CloseoutQueueError("closeout retained-root binding name is invalid")
+        registered.append(registered_root)
+    return registered
+
+
+def _store_root_registration(common_dir: Path, registered_root: Path) -> None:
+    value = {
+        "schema": "seam-queue-admission/v1",
+        "kind": "retained-root",
+        "repository_common_dir": str(common_dir),
+        "registered_root": str(registered_root),
+    }
+    encoded = _canonical_record(value)
+    path = _registration_path(common_dir, registered_root)
+    _ensure_state_directory(path.parent, label="retained-root registry")
+    if _publish_record_once(path, encoded):
+        return
+    existing = _load_json(path)
+    if _canonical_record(existing) != encoded:
+        raise CloseoutQueueError("conflicting retained-root binding exists")
+
+
+def _queue_record_sha256s(
+    root: Path, *, allowed_dispositions: set[Path] | None = None
+) -> tuple[list[str], list[str], set[Path]]:
+    state_root = root / ".seam" / "orchestration" / "session-end"
+    requests = _load_queued_requests(state_root)
+    queue = pending(state_root)
+    pending_ids = {request["request_id"] for request in queue["requests"]}
+    hashes: list[str] = []
+    observed_dispositions: set[Path] = set()
+    for request in requests:
+        hosted_elsewhere = (
+            request["repo"]["root"] != str(root)
+            or request["repo"]["worktree"] != str(root)
+        )
+        if hosted_elsewhere and request["request_id"] in pending_ids:
+            raise CloseoutQueueError("retained closeout request ownership is inconsistent")
+        request_path = _request_root(state_root) / f"{request['request_id']}.json"
+        reread_request, request_bytes = _load_json_record(request_path)
+        if reread_request != request:
+            raise CloseoutQueueError("closeout request changed during admission")
+        request_digest = hashlib.sha256(request_bytes).hexdigest()
+        hashes.append(f"{root}|request|{request['request_id']}|{request_digest}")
+        stored_receipts = _stored_receipts(request, state_root=state_root)
+        if hosted_elsewhere and not stored_receipts:
+            raise CloseoutQueueError(
+                "historical hosted request lacks a canonical stored receipt"
+            )
+        for path, receipt in stored_receipts:
+            reread_receipt, receipt_bytes = _load_json_record(path)
+            if reread_receipt != receipt:
+                raise CloseoutQueueError("closeout receipt changed during admission")
+            receipt_digest = hashlib.sha256(receipt_bytes).hexdigest()
+            hashes.append(
+                f"{root}|receipt|{request['request_id']}|{path.name}|{receipt_digest}"
+            )
+        disposition = _load_administrative_disposition(state_root, request["request_id"])
+        if disposition is not None:
+            disposition_path, _, disposition_bytes = disposition
+            observed_dispositions.add(disposition_path)
+            hashes.append(
+                f"{root}|administrative-disposition|{request['request_id']}|"
+                f"{hashlib.sha256(disposition_bytes).hexdigest()}"
+            )
+            if allowed_dispositions is None or disposition_path in allowed_dispositions:
+                pending_ids.discard(request["request_id"])
+    return sorted(pending_ids), sorted(hashes), observed_dispositions
+
+
+def _validate_queue_path(root: Path) -> None:
+    current = root
+    for component in (".seam", "orchestration", "session-end"):
+        current = current / component
+        if not os.path.lexists(current):
+            return
+        if current.is_symlink() or not current.is_dir():
+            raise CloseoutQueueError(
+                f"closeout admission queue path must be a real directory: {current}"
+            )
+
+
+def _admission_inventory(
+    repo_root: Path,
+    common_dir: Path,
+    registered_roots: list[Path],
+    *,
+    allowed_dispositions: set[Path] | None = None,
+) -> tuple[list[str], list[str], list[str], list[str]]:
+    roots = sorted({str(path) for path in [*_worktree_roots(repo_root), *registered_roots]})
+    request_ids: list[str] = []
+    record_sha256s: list[str] = []
+    observed_dispositions: set[Path] = set()
+    registered_values = {str(path) for path in registered_roots}
+    for raw_root in roots:
+        path = Path(raw_root)
+        if not os.path.lexists(path) or path.is_symlink() or not path.is_dir():
+            raise CloseoutQueueError(f"closeout admission registered root is missing: {raw_root}")
+        resolved = path.resolve(strict=True)
+        git_metadata = resolved / ".git"
+        if os.path.lexists(git_metadata):
+            if _git_inventory_text(resolved, "rev-parse", "--show-toplevel") != str(resolved):
+                raise CloseoutQueueError(f"closeout admission root is not a Git worktree: {raw_root}")
+            if _common_dir(resolved) != common_dir:
+                raise CloseoutQueueError(f"closeout admission root belongs to another repository: {raw_root}")
+        elif str(resolved) not in registered_values:
+            raise CloseoutQueueError(
+                f"closeout admission non-Git root lacks retained ownership: {raw_root}"
+            )
+        _validate_queue_path(resolved)
+        pending_ids, hashes, dispositions = _queue_record_sha256s(
+            resolved, allowed_dispositions=allowed_dispositions
+        )
+        if not os.path.lexists(git_metadata) and not hashes:
+            raise CloseoutQueueError(
+                f"closeout admission retained root has no immutable queue evidence: {raw_root}"
+            )
+        request_ids.extend(pending_ids)
+        record_sha256s.extend(hashes)
+        observed_dispositions.update(dispositions)
+    return roots, sorted(request_ids), sorted(record_sha256s), sorted(str(path) for path in observed_dispositions)
+
+
+def admit(
+    repo_root: Path,
+    *,
+    register_roots: list[Path] | None = None,
+) -> dict[str, Any]:
+    """Admit a stable, complete, empty closeout inventory before new writes."""
+
+    repo_root = repo_root.resolve(strict=True)
+    common_dir = _common_dir(repo_root)
+    record_path = _admission_path(common_dir)
+    previous = _load_admission(record_path, common_dir)
+    registered = _load_registered_roots(common_dir)
+    registered.extend(
+        Path(value) for value in (previous or {}).get("registered_roots", [])
+    )
+    for path in register_roots or []:
+        registered.append(path.resolve(strict=True))
+    registered = [Path(value) for value in sorted({str(path) for path in registered})]
+    first = _admission_inventory(repo_root, common_dir, registered)
+    second = _admission_inventory(repo_root, common_dir, registered)
+    if first != second:
+        raise CloseoutQueueError("closeout admission inventory changed while reading")
+    observed_roots, request_ids, record_sha256s, _ = second
+    if request_ids:
+        raise CloseoutQueueError(
+            "closeout admission has unresolved requests: " + ", ".join(request_ids)
+        )
+    for path in registered:
+        _store_root_registration(common_dir, path)
+    record = {
+        "schema": "seam-queue-admission/v1",
+        "kind": "inventory",
+        "repository_common_dir": str(common_dir),
+        "registered_roots": [str(path) for path in registered],
+        "observed_roots": observed_roots,
+        "pending_request_ids": [],
+        "record_sha256s": record_sha256s,
+        "admitted_at": datetime.now(timezone.utc).isoformat(),
+    }
+    _write_admission(record_path, record)
+    return record
+
+
+def _unexpected_successor_pending(
+    roots: list[str],
+    pending_ids: list[str],
+    *,
+    obligation_request_ids: set[str],
+    lineage_session_ids: set[str],
+    worktree_root: str,
+    branch: str,
+    original_base_sha: str,
+    require_obligations: bool,
+) -> list[str]:
+    pending = set(pending_ids)
+    if require_obligations and not obligation_request_ids <= pending:
+        missing = sorted(obligation_request_ids - pending)
+        raise CloseoutQueueError(
+            "successor admission lost inherited obligations: " + ", ".join(missing)
+        )
+    allowed = set(obligation_request_ids)
+    for root in map(Path, roots):
+        for request in _load_queued_requests(
+            root / ".seam" / "orchestration" / "session-end"
+        ):
+            if request["request_id"] not in pending:
+                continue
+            request_repo = request["repo"]
+            if (
+                request["session_id"] in lineage_session_ids
+                and request_repo["root"] == worktree_root
+                and request_repo["worktree"] == worktree_root
+                and request_repo["branch"] == branch
+                and request_repo["base_sha"] == original_base_sha
+            ):
+                allowed.add(request["request_id"])
+    return sorted(pending - allowed)
+
+
+def admit_successor(
+    repo_root: Path,
+    *,
+    obligation_request_ids: set[str],
+    lineage_session_ids: set[str],
+    branch: str,
+    original_base_sha: str,
+    repair_paths: list[Path],
+) -> dict[str, Any]:
+    """Validate hash-bound lineage obligations plus named admin repairs."""
+
+    repo_root = repo_root.resolve(strict=True)
+    common_dir = _common_dir(repo_root)
+    previous = _load_admission(_admission_path(common_dir), common_dir)
+    registered = _load_registered_roots(common_dir)
+    registered.extend(Path(value) for value in (previous or {}).get("registered_roots", []))
+    registered = [Path(value) for value in sorted({str(path) for path in registered})]
+    repairs = {path.resolve(strict=True) for path in repair_paths}
+    first = _admission_inventory(
+        repo_root, common_dir, registered, allowed_dispositions=repairs
+    )
+    second = _admission_inventory(
+        repo_root, common_dir, registered, allowed_dispositions=repairs
+    )
+    if first != second:
+        raise CloseoutQueueError("successor admission inventory changed while reading")
+    roots, request_ids, record_sha256s, observed = second
+    unexpected = _unexpected_successor_pending(
+        roots,
+        request_ids,
+        obligation_request_ids=obligation_request_ids,
+        lineage_session_ids=lineage_session_ids,
+        worktree_root=str(repo_root),
+        branch=branch,
+        original_base_sha=original_base_sha,
+        require_obligations=True,
+    )
+    if unexpected:
+        raise CloseoutQueueError(
+            "successor admission found unrelated unresolved requests: "
+            + ", ".join(unexpected)
+        )
+    if {str(path) for path in repairs} != set(observed):
+        raise CloseoutQueueError("successor repair paths do not match administrative dispositions")
+    return {
+        "kind": "successor-repair",
+        "observed_roots": roots,
+        "pending_request_ids": request_ids,
+        "record_sha256s": record_sha256s,
+    }
+
+
+def validate_successor_inventory(
+    repo_root: Path,
+    transition: dict[str, Any],
+    *,
+    obligation_request_ids: set[str],
+    lineage_session_ids: set[str],
+) -> None:
+    """Recompute a successor's retained roots and preserve its activation evidence."""
+
+    repo_root = repo_root.resolve(strict=True)
+    common_dir = _common_dir(repo_root)
+    previous = _load_admission(_admission_path(common_dir), common_dir)
+    registered = _load_registered_roots(common_dir)
+    registered.extend(Path(value) for value in (previous or {}).get("registered_roots", []))
+    registered = [Path(value) for value in sorted({str(path) for path in registered})]
+    repairs = {Path(item["path"]) for item in transition["repair_artifacts"]}
+    first = _admission_inventory(
+        repo_root, common_dir, registered, allowed_dispositions=repairs
+    )
+    second = _admission_inventory(
+        repo_root, common_dir, registered, allowed_dispositions=repairs
+    )
+    if first != second:
+        raise CloseoutQueueError("successor queue inventory changed while reading")
+    roots, pending_ids, record_sha256s, observed = second
+    if roots != transition["queue_roots"]:
+        raise CloseoutQueueError("successor retained-root inventory changed")
+    if not set(transition["queue_record_sha256s"]).issubset(record_sha256s):
+        raise CloseoutQueueError("successor inherited queue evidence changed")
+    if {str(path) for path in repairs} != set(observed):
+        raise CloseoutQueueError("successor administrative repair inventory changed")
+    unexpected = _unexpected_successor_pending(
+        roots,
+        pending_ids,
+        obligation_request_ids=obligation_request_ids,
+        lineage_session_ids=lineage_session_ids,
+        worktree_root=transition["worktree_root"],
+        branch=transition["branch"],
+        original_base_sha=transition["original_base_sha"],
+        require_obligations=False,
+    )
+    if unexpected:
+        raise CloseoutQueueError(
+            "successor queue gained unresolved obligations: " + ", ".join(unexpected)
+        )
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -990,11 +1842,25 @@ def _parser() -> argparse.ArgumentParser:
         description="Validate and process SEAM root closeout queue records."
     )
     parser.add_argument("--state-root", type=Path, default=DEFAULT_STATE_ROOT)
+    parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("pending", help="Print validated pending requests.")
     store = commands.add_parser("store", help="Validate and atomically store a receipt.")
     store.add_argument("--request", type=Path, required=True)
     store.add_argument("--receipt", type=Path, required=True)
+    admission = commands.add_parser(
+        "admit", help="Admit a stable empty inventory across all retained roots."
+    )
+    admission.add_argument("--register-root", type=Path, action="append", default=[])
+    duplicate = commands.add_parser(
+        "reconcile-duplicate",
+        help="Record an admission-only disposition for one repeated administrative tail.",
+    )
+    duplicate.add_argument("--request", type=Path, required=True)
+    duplicate.add_argument("--prior-request", type=Path, required=True)
+    duplicate.add_argument("--prior-receipt", type=Path, required=True)
+    duplicate.add_argument("--review", type=Path, required=True)
+    duplicate.add_argument("--disposition", type=Path, required=True)
     return parser
 
 
@@ -1005,6 +1871,17 @@ def main(argv: list[str] | None = None) -> int:
     try:
         if args.command == "pending":
             result = pending(args.state_root)
+        elif args.command == "admit":
+            result = admit(args.repo_root, register_roots=args.register_root)
+        elif args.command == "reconcile-duplicate":
+            result = reconcile_duplicate(
+                request_path=args.request,
+                prior_request_path=args.prior_request,
+                prior_receipt_path=args.prior_receipt,
+                review_path=args.review,
+                disposition_path=args.disposition,
+                state_root=args.state_root,
+            )
         else:
             request = _load_json(args.request)
             receipt = _load_json(args.receipt)

@@ -1,0 +1,510 @@
+{
+  "pr286": {
+    "number": 286,
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-10-14T06:00:26Z",
+    "merge_commit_sha": "607ac3089c58bfc033d9442762c40505f0ab8d2b",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/286",
+    "head": "2a1a82ca211c942769eea4ee23eb5f0f4c49f0ce"
+  },
+  "pr288": {
+    "number": 288,
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-10-14T08:21:34Z",
+    "merge_commit_sha": "6c6ecd13490c9b675a77f246573491824313343c",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/288",
+    "head": "706d62f4d3dca6293c7ef380124af21342a08633"
+  },
+  "pr305": {
+    "number": 305,
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-10-14T11:43:19Z",
+    "merge_commit_sha": "df1c66d59f469fbe0c1dd903a88401f0ac517323",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/305",
+    "head": "ad5ab751b777c53c3c99482a138786d18311959a"
+  },
+  "pr311": {
+    "number": 311,
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-10-16T13:41:11Z",
+    "merge_commit_sha": "fa66a82771de298bc46f965c2cd7855cadc8f5d6",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/311",
+    "head": "349b939701af3f358282794df163c07c05bb1a1d"
+  },
+  "pr312": {
+    "number": 312,
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-10-16T20:14:53Z",
+    "merge_commit_sha": "6498e293259572181c268b40ae2503fa67131c99",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/312",
+    "head": "0cab587fe76ee910d9ad141ca71a297621e2d0b4"
+  },
+  "pr313": {
+    "number": 313,
+    "state": "closed",
+    "merged": true,
+    "merged_at": "2026-10-17T03:21:30Z",
+    "merge_commit_sha": "79c40b55f8aea7a6615bdccf4b331b41dd46a362",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/313",
+    "head": "1d42c3a4307a98268b29e363c4c28d09fdeaad3d"
+  },
+  "deferred-pr272": {
+    "number": 272,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": "26b35ffdfad0b1813910a3a2454ede604eb94c79",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/272",
+    "head": "ab27b54d08a022259e0e052cee06ef48917c027d"
+  },
+  "deferred-pr271": {
+    "number": 271,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/271",
+    "head": "c7e8e3642d9ea9492b22cb3663c159db7a40b04f"
+  },
+  "deferred-pr270": {
+    "number": 270,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/270",
+    "head": "044c8b3d048829156dcc2d8af4f4d2448329c086"
+  },
+  "deferred-pr269": {
+    "number": 269,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/269",
+    "head": "406f9c43479cac02716c9912569f9ec0f9ac2c32"
+  },
+  "deferred-pr264": {
+    "number": 264,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/264",
+    "head": "a5a19d4189b27157fffd677270ba87de0a19b78e"
+  },
+  "deferred-pr249": {
+    "number": 249,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": "664e9e0abe94b61f8faa6d5d953702e247534eb7",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/249",
+    "head": "8d77775fe6e029717115758b917c94c757ed0d4a"
+  },
+  "deferred-pr230": {
+    "number": 230,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/pull/230",
+    "head": "6313f851c2cf68ef06350c910f6c9bbf3be13762"
+  },
+  "website-pr29": {
+    "number": 29,
+    "state": "closed",
+    "merged": false,
+    "merged_at": null,
+    "merge_commit_sha": null,
+    "html_url": "https://github.com/BlackhatShiftey/Cantlicle/pull/29",
+    "head": "13a40ea1b44a6e11f3c56daf9f3077324ee08bc9"
+  },
+  "publisher": {
+    "id": 38562182535,
+    "conclusion": "success",
+    "head_sha": "7b96a012784296989958e1774dbb8a0f52c3bfed",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/actions/runs/38562182535",
+    "created_at": "2026-10-14T12:13:15Z",
+    "updated_at": "2026-10-14T12:15:57Z"
+  },
+  "publisher-jobs": {
+    "jobs": [
+      {
+        "id": 115845736913,
+        "name": "prepare",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-14T12:13:21Z",
+            "completed_at": "2026-10-14T12:13:22Z"
+          },
+          {
+            "name": "Check out the dispatched protected-main commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-14T12:13:22Z",
+            "completed_at": "2026-10-14T12:13:24Z"
+          },
+          {
+            "name": "Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-14T12:13:24Z",
+            "completed_at": "2026-10-14T12:13:25Z"
+          },
+          {
+            "name": "Install publisher verification tools from trusted PyPI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-14T12:13:25Z",
+            "completed_at": "2026-10-14T12:13:32Z"
+          },
+          {
+            "name": "Bind dispatch to the current remote protected-main head",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-14T12:13:32Z",
+            "completed_at": "2026-10-14T12:13:32Z"
+          },
+          {
+            "name": "Write runner-local current-history snapshot",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-14T12:13:32Z",
+            "completed_at": "2026-10-14T12:13:35Z"
+          },
+          {
+            "name": "Verify SEAM history integrity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-14T12:13:35Z",
+            "completed_at": "2026-10-14T12:13:36Z"
+          },
+          {
+            "name": "Verify SEAM classification routing",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-14T12:13:36Z",
+            "completed_at": "2026-10-14T12:13:38Z"
+          },
+          {
+            "name": "Verify SEAM handoff registry",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-14T12:13:38Z",
+            "completed_at": "2026-10-14T12:13:39Z"
+          },
+          {
+            "name": "Verify SEAM temporal continuity",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-14T12:13:39Z",
+            "completed_at": "2026-10-14T12:13:50Z"
+          },
+          {
+            "name": "Verify SEAM streams",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 11,
+            "started_at": "2026-10-14T12:13:50Z",
+            "completed_at": "2026-10-14T12:13:52Z"
+          },
+          {
+            "name": "Verify SEAM wiki navigation",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 12,
+            "started_at": "2026-10-14T12:13:52Z",
+            "completed_at": "2026-10-14T12:13:55Z"
+          },
+          {
+            "name": "Verify reviewed Suite source manifest",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 13,
+            "started_at": "2026-10-14T12:13:55Z",
+            "completed_at": "2026-10-14T12:13:55Z"
+          },
+          {
+            "name": "Scan source for secrets and private session URLs",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 14,
+            "started_at": "2026-10-14T12:13:55Z",
+            "completed_at": "2026-10-14T12:13:58Z"
+          },
+          {
+            "name": "Build wheel and source distribution into an empty directory",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 15,
+            "started_at": "2026-10-14T12:13:58Z",
+            "completed_at": "2026-10-14T12:14:02Z"
+          },
+          {
+            "name": "Verify exact archives and write immutable preparation receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 16,
+            "started_at": "2026-10-14T12:14:02Z",
+            "completed_at": "2026-10-14T12:14:08Z"
+          },
+          {
+            "name": "Smoke exact wheel with default dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 17,
+            "started_at": "2026-10-14T12:14:08Z",
+            "completed_at": "2026-10-14T12:14:27Z"
+          },
+          {
+            "name": "Smoke exact sdist with default dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 18,
+            "started_at": "2026-10-14T12:14:27Z",
+            "completed_at": "2026-10-14T12:14:47Z"
+          },
+          {
+            "name": "Transfer only the verified files and receipt",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-10-14T12:14:47Z",
+            "completed_at": "2026-10-14T12:14:48Z"
+          },
+          {
+            "name": "Post Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 37,
+            "started_at": "2026-10-14T12:14:48Z",
+            "completed_at": "2026-10-14T12:14:48Z"
+          },
+          {
+            "name": "Post Check out the dispatched protected-main commit",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 38,
+            "started_at": "2026-10-14T12:14:48Z",
+            "completed_at": "2026-10-14T12:14:49Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 39,
+            "started_at": "2026-10-14T12:14:49Z",
+            "completed_at": "2026-10-14T12:14:49Z"
+          }
+        ]
+      },
+      {
+        "id": 115846376586,
+        "name": "publish-and-verify",
+        "conclusion": "success",
+        "steps": [
+          {
+            "name": "Set up job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 1,
+            "started_at": "2026-10-14T12:14:53Z",
+            "completed_at": "2026-10-14T12:14:54Z"
+          },
+          {
+            "name": "Check out current protected main",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 2,
+            "started_at": "2026-10-14T12:14:54Z",
+            "completed_at": "2026-10-14T12:14:58Z"
+          },
+          {
+            "name": "Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 3,
+            "started_at": "2026-10-14T12:14:58Z",
+            "completed_at": "2026-10-14T12:14:58Z"
+          },
+          {
+            "name": "Install publisher verification tools from trusted PyPI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 4,
+            "started_at": "2026-10-14T12:14:58Z",
+            "completed_at": "2026-10-14T12:15:04Z"
+          },
+          {
+            "name": "Download the exact preparation artifact",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 5,
+            "started_at": "2026-10-14T12:15:04Z",
+            "completed_at": "2026-10-14T12:15:05Z"
+          },
+          {
+            "name": "Inspect current remote protected-main head",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 6,
+            "started_at": "2026-10-14T12:15:05Z",
+            "completed_at": "2026-10-14T12:15:06Z"
+          },
+          {
+            "name": "Revalidate and upload exactly two files to TestPyPI",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 7,
+            "started_at": "2026-10-14T12:15:06Z",
+            "completed_at": "2026-10-14T12:15:15Z"
+          },
+          {
+            "name": "Poll public TestPyPI metadata and download exact published bytes",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 8,
+            "started_at": "2026-10-14T12:15:15Z",
+            "completed_at": "2026-10-14T12:15:17Z"
+          },
+          {
+            "name": "Smoke TestPyPI-downloaded wheel with trusted PyPI dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 9,
+            "started_at": "2026-10-14T12:15:17Z",
+            "completed_at": "2026-10-14T12:15:34Z"
+          },
+          {
+            "name": "Smoke TestPyPI-downloaded sdist with trusted PyPI dependencies",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 10,
+            "started_at": "2026-10-14T12:15:34Z",
+            "completed_at": "2026-10-14T12:15:54Z"
+          },
+          {
+            "name": "Post Set up Python",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 19,
+            "started_at": "2026-10-14T12:15:54Z",
+            "completed_at": "2026-10-14T12:15:54Z"
+          },
+          {
+            "name": "Post Check out current protected main",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 20,
+            "started_at": "2026-10-14T12:15:54Z",
+            "completed_at": "2026-10-14T12:15:54Z"
+          },
+          {
+            "name": "Complete job",
+            "status": "completed",
+            "conclusion": "success",
+            "number": 21,
+            "started_at": "2026-10-14T12:15:54Z",
+            "completed_at": "2026-10-14T12:15:54Z"
+          }
+        ]
+      }
+    ]
+  },
+  "about": {
+    "description": "SEAM \u2014 Surface Encoded Agent Memory. Proprietary Suite; free personal, noncommercial self-hosting. Business and organizational use require a written license.",
+    "visibility": "public",
+    "default_branch": "main"
+  },
+  "issue287": {
+    "number": 287,
+    "state": "closed",
+    "closed_at": "2026-10-17T03:03:30Z",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/287",
+    "title": "OWNER TODO: update GitHub About to current Suite licensing"
+  },
+  "issue291": {
+    "number": 291,
+    "state": "closed",
+    "closed_at": "2026-10-16T13:10:06Z",
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/291",
+    "title": "R1: Website publication safety and operator facts"
+  },
+  "issue292": {
+    "number": 292,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/292",
+    "title": "R2: Cache reuse and bounded embedding batching"
+  },
+  "issue293": {
+    "number": 293,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/293",
+    "title": "R3: Owned PostgreSQL fixture and safe bootstrap"
+  },
+  "issue294": {
+    "number": 294,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/294",
+    "title": "R4: Fail-closed workspace gate parity"
+  },
+  "issue297": {
+    "number": 297,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/297",
+    "title": "R7: Offline report export and hardened probes"
+  },
+  "issue298": {
+    "number": 298,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/298",
+    "title": "R8: Opt-in formation and benchmark qualification"
+  },
+  "issue299": {
+    "number": 299,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/299",
+    "title": "R9: Portable skills and Codex adapter"
+  },
+  "issue301": {
+    "number": 301,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/301",
+    "title": "R11: Comparator dependency qualification"
+  },
+  "issue302": {
+    "number": 302,
+    "state": "open",
+    "closed_at": null,
+    "html_url": "https://github.com/Canticle-AI-Research/Seam/issues/302",
+    "title": "R12: Website design/data and feed migration backlog"
+  },
+  "observed_at": "2026-10-17T03:52:22.499073+00:00"
+}

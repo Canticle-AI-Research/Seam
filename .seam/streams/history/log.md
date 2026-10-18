@@ -22318,3 +22318,359 @@ All existing local queue roots were inspected; four newly observed retained-stat
 
 This entry records the candidate before final independent assurance, canonical gate completion, pushed-head CI, release qualification, protected merge and actual resulting-main verification; those remain required delivery steps. No whole-wiki semantic acceptance, fresh package installation, production publication, service/provider execution or new product acceptance is claimed. Doctor is only the conditional next review after documentation signoff; all other recovery and launch work remains held.
 ---END-ENTRY-#686---
+
+---BEGIN-ENTRY-#687---
+id: 687
+date: 2026-10-17T04:17:16Z
+agent: codex
+status: in-progress
+topics: protocol, continuity, audit, verify, handoff, worktree, test
+commits: pending
+refs: docs/audits/2026-10-17-protocol-completion.md,docs/handoffs/2026-10-17-protocol-completion.md,docs/delivery/current.json,tools/agents/assurance.py,tools/agents/delivery_status.py
+supersedes: 686
+tokens: 810
+---
+PR313 restart audit repair is a local in-progress checkpoint, not delivered.
+PR313 itself remains verified at main79c40b55. The bounded completion audit
+rechecked licensing PR286/288, exact Suite2.4.1rc1 public artifacts and dated
+installed acceptance, prior protocol/docs merges, original closed-unmerged
+PR dispositions, private proposal preservation, and About state. PR249 now
+has no remote Dependabot branch; its exact pull ref remains. Issue301 received
+an appended correction. PR305 historical evidence remains Partial.
+
+Implemented admission over linked and registered retained queues with stable
+validated byte inventories; preserved canonical qualified relocated history.
+Implemented honest unexpected-compaction recovery, final committed-source
+assurance including actual outgoing SHA and sibling worktrees, immutable
+report bindings, and durable conditional completion with semantic proof and
+current-plan validation. Code paths: tools/agents/session_state.py,
+tools/agents/closeout_queue.py, tools/agents/context_guardian.py,
+tools/agents/assurance.py, tools/agents/delivery_status.py,
+tools/ci/verify_merge.py, tools/git-hooks/pre-push, .github/workflows/ci.yml.
+Affected tests and exact source hashes are in the checkpoint-verification
+artifact linked from the audit report. Current status, ledger, code layout,
+SOPs, delivery plan, audit/handoff registries and branch/launch/packaging
+pointers were reconciled. All unrelated original worktrees remain excluded.
+
+Verification: final nine-module pytest command recorded in checkpoint-
+verification.json passed194, failed0, skipped0. Final tests/audit collection
+with external tests deselected succeeded. The broader audit run exited1
+with46failed nodes; missing local embedding/tokenizer/server dependencies
+appear in errors. Exact nodes/log hash retained, no baseline comparison or
+full-suite success claimed. Independent Astra CLI/Git negative probes passed
+bounded checkpoint review after multiple repair cycles. Fixture gate stubs
+are explicitly distinct from actual canonical continuity checks. Corrected
+one reconstructed TDD test-module reference by excluding that cycle and
+recording the separately witnessed review regression; raw logs preserved.
+
+Actual automatic compaction occurred during this repair. Event
+automatic-20261017-repair-review preserves the checkpoint, previous
+COMPACT_AT_MILESTONE at74.677percent, and first compaction. HANDOFF_REQUIRED
+blocks this session's assurance, qualification and push. Do not clear/reset
+or relabel it. Genuine-successor initialization and predecessor-request
+reconciliation remain unimplemented; preserve original base79c40b55, original
+recovery/queue artifacts, unpushed branch and durable external bundle.
+No undefined constants/helpers or test-import mismatches were found by the
+final collection; unresolved work is the explicit successor interface,
+broad environment/test failures, final committed assurance and hosted
+CI/qualification/protected merge/exact-main proof. First successor action:
+read current handoff and external recovery manifest, reconcile the blocked
+predecessor before normal session init or any publication. No production,
+paid providers, service/network changes or deferred feature acceptance.
+---END-ENTRY-#687---
+
+---BEGIN-ENTRY-#688---
+id: 688
+date: 2026-10-17T10:59:23Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, session, handoff, tests
+commits: pending
+refs: tools/agents/successor.py,tools/agents/closeout_queue.py,tools/agents/assurance.py,tools/agents/session_state.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 687
+tokens: 636
+---
+External successor bootstrap cut-off, not integrated delivery. The saved protocol checkpoint and original comparison base remain unchanged in the source repository. Live evidence review found no change to the governing priority: finish protocol completion before conditional independent Doctor review; do not repeat PR313 documentation delivery.
+
+Implementation is incomplete in an isolated detached clone. Modified runtime paths are tools/agents/assurance.py, tools/agents/closeout_queue.py and tools/agents/session_state.py; new paths are tools/agents/successor.py, tools/agents/schemas/successor-transition.schema.json, tools/agents/schemas/administrative-disposition.schema.json and tests/audit/test_successor_transition.py. No missing import or undefined symbol was observed by the cut-off collection, compilation and symbol-reference checks. The functional contract mismatch is explicit: closeout_queue._administrative_blocker still treats free-text substrings as administrative authority, and its tests mirror that rejected contract. The independent administrative-review schema, validator and review binding remain to be added test-first before integration. The two orchestration SOP updates remain outstanding.
+
+The initial implementation-before-tests prototype was discarded and saved externally. A genuine failing baseline was subsequently recorded; passing cut-off tests do not establish accepted GREEN, TDD_PROVEN, assurance or qualification. Exact logs and preserved source hashes are under ../successor-review-20261017/builder-evidence/IN_PROGRESS.md. Root experienced an actual unplanned automatic compaction; the immutable event automatic-20261017-successor-bootstrap-review records the missing checkpoint and HANDOFF_REQUIRED. No compaction count reset, source admission, commit, push or qualification occurred.
+
+First successor action: in a genuinely new client read ../successor-review-20261017/SUCCESSOR_RECOVERY.md and reconcile the original blocked checkpoint, duplicate nonruntime shutdown tail and this bootstrap event before normal source writes. Run the existing successor regression file with the preserved venv to reproduce the incomplete baseline; add failing independent-review tests before replacing the rejected blocker. Preserve all predecessor evidence and inherited original-base TDD. The primary checkout and unrelated worktrees remain excluded. This HISTORY entry and its derived snapshot are local cut-off breadcrumbs only; later integration must reconcile their entry identity with then-current history.
+---END-ENTRY-#688---
+
+---BEGIN-ENTRY-#689---
+id: 689
+date: 2026-10-17T11:57:53Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, test
+commits: pending
+refs: tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 688
+tokens: 697
+---
+Serial Split Mind recovery continues the isolated local bootstrap from HISTORY#688; source adoption remains blocked. User authorizes push and protected merge after protocol gates and requests tracker task details aligned with append-only history. Primary and unrelated worktrees remain preserved.
+
+Sol changed tools/agents/{successor,assurance,closeout_queue,session_state}.py, three successor/admin schemas, tests/audit/test_successor_transition.py and two orchestration SOPs in successor-bootstrap only. The six-module command recorded in ../serial-recovery-20261017/sol-evidence/command-evidence.json passed 152 affected tests and collected 152 tests; initial recorded RED had six failures and three passes. The old 210-pass prototype evidence remains diagnostic. Later corrective cycles lack complete standalone timestamps; green results do not establish complete inherited TDD provenance.
+
+Independent review is BLOCKED by seven defects: fixture-prose eligibility, validation after disposition publication, activation/TDD retry deadlock, incomplete external artifact semantics/dependency binding, rejection of real checkpoint-present recovery, same-session foreign-root queue exemption, and caller-dependent historical review validity. See ../serial-recovery-20261017/REVIEW.md for source lines and six-part repair handoff. No missing implementation symbols or collection/import errors occurred in the affected six-module collection; behavioral contract mismatches above remain open.
+
+Root actually compacted while awaiting Sol. Event automatic-20261017-serial-builder-wait preserves its prior checkpoint and records missing_checkpoint=false, one compaction, HANDOFF_REQUIRED. This root cannot accept assurance or qualification. Spawned reviewer shares its genuine client identity; use a genuinely new client with independently verified distinct identity, never rename/reset this session.
+
+Cut-off audit command: the owning external venv Python -m pytest -q tests/audit/ -m "not external", recorded in ../serial-recovery-20261017/cutoff-audit-evidence.json, exited 1. Its log lists 46 failed cases and forbidden dependency skips, including absent numpy, sentence_transformers and uvicorn. This is not a full audit pass. No repair push or merge occurred. Three previously reviewed BLOCKED queue obligations remain open.
+
+Tracker stable parent ops:protocol-completion and children successor, admin-review, bootstrap, continuity carry this same state. First reproduce the seven review regressions and repair in isolation under a valid fresh-client handoff, then independent review, source adoption, exact assurance, required CI, qualified supersession, protected merge and resulting-main verification. Do not reopen completed licensing/TestPyPI/PR313 documentation or held product work.
+---END-ENTRY-#689---
+
+---BEGIN-ENTRY-#690---
+id: 690
+date: 2026-10-17T11:58:32Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, correction
+commits: pending
+refs: tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 689
+tokens: 467
+---
+Correct the ambiguous test-count wording in HISTORY#689 without changing that entry or its result. The exact affected GREEN command was the external owning venv Python -m pytest -q tests/audit/test_successor_transition.py tests/audit/test_assurance.py tests/audit/test_agent_session_state.py tests/audit/test_closeout_queue.py tests/audit/test_context_guardian.py tests/audit/test_session_end_agent_closeout.py. It exited zero; the same explicit paths with --collect-only exited zero. Exact measured totals, start/end timestamps, exits and log hashes remain in ../serial-recovery-20261017/sol-evidence/command-evidence.json. Initial RED is recorded there with its narrower -k selection. This is affected-suite evidence only, not full audit acceptance or full inherited TDD provenance.
+
+The broader Python -m pytest -q tests/audit/ -m "not external" cut-off run exited one; preserve ../serial-recovery-20261017/cutoff-audit.log and cutoff-audit-evidence.json. Missing-dependency failures and forbidden skips remain unresolved. The first closeout run appended HISTORY#689, rebuilt streams and snapshot, then failed verify_continuity on unscoped count prose. This append records that failure and clarifies scope; no gate was suppressed.
+
+All substantive status from HISTORY#689 remains: dirty isolated bootstrap, seven independent review blockers, actual checkpoint-present unexpected compaction and HANDOFF_REQUIRED, genuine-client successor required, earlier BLOCKED requests still open, no repair push or merge. Missing implementation symbols were not observed in affected collection. Tracker parent ops:protocol-completion and its stable children retain these explicit boundaries. Next action remains the seven-finding test-first repair handoff in ../serial-recovery-20261017/REVIEW.md, then independent review and the authorized exact-state protected PR sequence.
+---END-ENTRY-#690---
+
+---BEGIN-ENTRY-#691---
+id: 691
+date: 2026-10-17T12:55:05Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, test, verify
+commits: pending
+refs: tools/agents/successor.py,tools/agents/assurance.py,tools/agents/closeout_queue.py,tests/audit/test_successor_transition.py,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_SEAM_CODEX_WORKFLOW.md,PROJECT_STATUS.md
+supersedes: 690
+tokens: 986
+---
+Operator requested immediate bounded wrap-up to conserve usage. The genuine fresh root identity was read from the existing environment and remained distinct from the recovered predecessor; no identity was assigned or reset. Startup and frozen evidence were verified, and work remained serial in the pre-existing detached successor-bootstrap clone at saved candidate18b9fa07. Original comparison base79c40b55 and all earlier HISTORY entries remain unchanged. No source adoption, normal successor initialization, commit, push, repair PR or merge occurred. Fresh GitHub open-PR read at wrap-up returned an empty list.
+
+Sol changed tools/agents/successor.py, assurance.py and closeout_queue.py, successor-transition and administrative-review schemas, tests/audit/test_successor_transition.py and the two orchestration SOPs during this client. Inherited session_state.py, administrative-disposition schema and previous continuity changes remain preserved, not newly authored or qualified here. Independent Astra confirmed targeted fixes for original findings1,2,3,5,6,7. Finding4 remains blocked: unsupported BOM-less Unicode result evidence can be omitted while claiming NOT_RETAINED. Follow-up implemented explicit retained/absent-result binding, canonical handoff/event semantics, manifest verification and BOM rejection, but independent review found the remaining endian/size omission. Reports NEW_CLIENT_REVIEW_1.md through NEW_CLIENT_REVIEW_3.md and exact evidence are preserved under ../serial-recovery-20261017/.
+
+The last worker stopped at a safe test-only boundary. tools/agents/successor.py remains unchanged from the prior encoding pass; the focused test now contains the complete no-BOM Unicode matrix. The accepted RED command is the external owning venv Python -m pytest -q tests/audit/test_successor_transition.py::test_external_recovery_rejects_no_bom_unicode_result_candidate; its actual failure and logs are in new-client-unicode-evidence. No GREEN or six-module test execution followed that addition. Root performed current affected collect-only over test_successor_transition.py, test_assurance.py, test_agent_session_state.py, test_closeout_queue.py, test_context_guardian.py and test_session_end_agent_closeout.py; it exited zero without collection/import errors. No missing implementation symbol is known. Earlier passing affected-suite evidence is scoped to its previous source hashes and cannot qualify current failing tests or inherited green-only work. The broader audit remains incomplete with its preserved missing sentence_transformers failure and skip conditions; no new full audit was run. The reported early oversized-member failure has no separate retained log and remains an explicit evidence gap.
+
+Saved-candidate validators rechecked primary/linked/retained queues twice and found the same original runtime plus two primary-tail BLOCKED obligations, with no receiptless request. Original frozen manifest members rehash unchanged. Exact inventory, current collection, preservation patch/source manifest and closeout logs belong in wrap-up-evidence. Required canonical gates and additional closeout checks are run unsuppressed after this append; their observed outcomes are recorded in WRAP_UP.md, never inferred from this planned closeout. PROJECT_STATUS now routes to this stopping point. Overview, stable task register IDs and verification Page are updated/read back at closeout; prior accomplishments and held work remain preserved.
+
+First reproduce the exact Unicode test command above. Then a later authorized session must finish the approved size-independent unsupported-prefix rejection, obtain independent review, establish complete original-base TDD and resolve the audit environment before controlled adoption, assurance, exact-head CI, qualified supersession, protected merge and actual-main verification. This client stops after the requested wrap-up and does not start Doctor or held product work.
+---END-ENTRY-#691---
+
+---BEGIN-ENTRY-#692---
+id: 692
+date: 2026-10-17T23:23:44Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, test, verify
+commits: pending
+refs: tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 691
+tokens: 742
+---
+Resumed user-authorized serial repair following HISTORY#691. Astra reproduced the existing no-BOM Unicode matrix before correction: 14 failed, 2 passed. ASCII prefix detection missed NUL-containing UTF-16/32 JSON; oversized scanning and swallowed parse failures allowed false NOT_RETAINED acceptance. Sol added seven contemporaneously failing edge regressions for split reads, whitespace boundary and size boundaries, then rejected NUL in the significant prefix. Independent Astra approved exact source adoption only, not release qualification.
+
+Changed repair paths: tools/agents/successor.py and tests/audit/test_successor_transition.py. Prior dirty implementation paths remain tools/agents/assurance.py, tools/agents/closeout_queue.py, tools/agents/session_state.py, three successor/administrative schemas and two agent SOPs; exact source manifest and external patch will be preserved with the handoff. No known undefined helpers or test/implementation collection mismatch: Sol collected 201 tests; independent six-module run passed 201 tests in 17.49s, exit0. Exact commands, times and hashes live in resumed-20261017/sol-evidence/command-evidence.json and ASTRA_REVIEW.md. Actual bootstrap47/serial23 bundle probes pass, preserving INHERITED_UNQUALIFIED and missing-result distinctions. Missing historical oversized-failure log remains a genuine gap.
+
+The root then underwent actual automatic context compaction. It recorded automatic-20261017-resumed-integration under its unchanged authentic identity, with missing_checkpoint=true and HANDOFF_REQUIRED; the result is retained. No source adoption or successor activation occurred. Original base79c40b55 and all predecessor receipts remain unchanged. Saved-validator inventory: 23 registered source/retained roots,115 records,3 pending,0 receiptless; the extra root is the clean existing project-tracking worktree. GitHub open PR read returned an empty list. No push, PR or merge.
+
+Full audit is not accepted: previous failed first audit test requires missing sentence_transformers; no broad rerun was represented as passing. External/primary Python3.14 environments are incomplete; installed system Python3.12 has pytest/numpy but lacks sentence_transformers/uvicorn/tiktoken/torch/transformers. No model downloads, services or dependency changes performed. Original-base TDD reconciliation, typed independent administrative dispositions, controlled source adoption, docs-reference reviews, exact assurance, required CI, qualified supersession and protected merge remain pending.
+
+Next: genuinely fresh serial root reads resumed-20261017/RESUME_HANDOFF.md and ASTRA_REVIEW.md, verifies identity and frozen hashes, reconciles recovery/queue before adoption, then runs the recorded six-module test command and investigates supported audit environment. No predecessor qualification/reset. Continuity closeout results and tracker readbacks are recorded alongside the external handoff; no full-audit rerun at cutoff.
+---END-ENTRY-#692---
+
+---BEGIN-ENTRY-#693---
+id: 693
+date: 2026-10-17T23:24:40Z
+agent: codex
+status: in-progress
+topics: correction, continuity, handoff, verify
+commits: pending
+refs: tools/agents/successor.py, tests/audit/test_successor_transition.py, PROJECT_STATUS.md
+supersedes: 692
+tokens: 469
+---
+Correction to HISTORY#692: its test-count wording omitted explicit pytest scope in the claim context, and verify_continuity correctly failed. Preserve that entry and failed closeout.log unchanged. This appended record supplies the exact invocation and evidence; no runtime change or new acceptance occurred.
+
+Independent Astra command with external owning venv Python: -m pytest -o addopts= -q -p no:cacheprovider tests/audit/test_successor_transition.py tests/audit/test_assurance.py tests/audit/test_agent_session_state.py tests/audit/test_closeout_queue.py tests/audit/test_context_guardian.py tests/audit/test_session_end_agent_closeout.py. The selected run exited zero; its exact parameterized execution total and timing are retained in ../serial-recovery-20261017/resumed-20261017/astra-six-modules-green.log and ASTRA_REVIEW.md. Collection evidence is sol-evidence/06-collection.log as indexed by sol-evidence/command-evidence.json; use that manifest for the actual recorded filename. The review permits source adoption only. It does not establish full audit, original-base TDD reconciliation, exact committed assurance, qualification, CI, protected merge or resulting-main acceptance.
+
+Current root recovery remains HANDOFF_REQUIRED with missing_checkpoint=true, recorded after actual compaction without resetting identity. Source is preserved dirty; no missing helper/import mismatch is known in the scoped collection. First reproducible next step is the exact six-module command above in a genuinely fresh root after recovery/queue reconciliation. Pending original runtime and two administrative tails remain blocked. Tracker scan succeeded without dispatch and reports pending signals; unresolved signals are not acknowledged. No PR was open at the GitHub read and no repair push/merge occurred. RESUME_HANDOFF.md records closeout outcomes and all remaining gates.
+---END-ENTRY-#693---
+
+---BEGIN-ENTRY-#694---
+id: 694
+date: 2026-10-17T23:58:41Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, verify, bugfix, handoff
+commits: pending
+refs: .gitignore,tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_SEAM_CODEX_WORKFLOW.md
+supersedes: 693
+tokens: 649
+---
+Genuine fresh root verified actual environment identity distinct from all four recovered clients; no identity/reset/compaction claim invented. Restored saved branch18b9fa07 at original worktree after preserving the entire receipt-only directory externally; all13retained hashes verified. Original comparison base79c40b55 preserved. Prior Unicode SOURCE-ADOPTION PASS source/log hashes reused. Independent Astra reviewed both strict administrative dispositions and five original TDD cycles/seven original implementation paths. Both primary tails are now admission-only reconciled; their canonical BLOCKED receipts remain immutable.
+
+Actual first disposition publication exposed one concrete integration defect: new administrative-dispositions directory was not ignored, changing primary source fingerprint before the second publication. Astra approved a narrow rule; Sol witnessed a real-Git failing regression with actual copied ignore rules, then fixed it; independent Astra focused review passed. Only .gitignore and the successor test gained this correction. Root added the exact local info/exclude rule to the older primary checkout, verified its original fingerprint twice, verified explicit queue inventory still includes the disposition, then stored the second review. No validator weakened.
+
+Successor activation binds the original runtime request, original base/TDD prefix, both dispositions and three immutable external recoveries, preserving RETAINED versus NOT_RETAINED and true/missing checkpoint distinctions. Original five cycles remain unchanged; eleven independently reviewed later cycles appended through session_state record-tdd. assess_tdd reports TDD_PROVEN for all eleven classified runtime paths. The missing old oversized failure and missing bootstrap timestamps remain excluded; later green is not reconstructed red.
+
+Exact full audit invocation: HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 HF_HUB_CACHE=/mnt/t7/hf-cache external audit-venv312/bin/python -m pytest -o addopts= -q -p no:cacheprovider tests/audit/ -m "not external" --maxfail=1. Exit0; exact execution totals and log hash are in ../SEAM-Protocol-Completion-20261017/finalization-20261017/audit-result.json and audit-unsandboxed.log. Collection with the same tests/audit/ and non-external selection exited0. External tests were explicitly deselected; no skips. Earlier sandbox run stalled at local FastAPI and was interrupted130; the isolated test passed outside sandbox, then the full audit passed there. Dedicated external Python3.12 environment and required library dependencies including CPU Torch installed under explicit authority; existing pinned BGE cache used offline, no modelweights downloaded, no unrelated service changes.
+
+Runtime source is reviewed and tests pass, but exact committed assurance, managed-document closeout, required hosted CI, independent stored release qualification/supersession, protected merge and resulting-main verification remain open. Source approval is not qualification. Native tracker stable IDs retained; no event acknowledgement or held product work. Durable checkpoint and exact evidence under external finalization-20261017; actual context telemetry unavailable, no fabricated usage or recovery event. No known missing symbol/import mismatch. Next perform managed references/canonical closeout and final committed assurance, then complete the authorized one-PR protected delivery.
+---END-ENTRY-#694---
+
+---BEGIN-ENTRY-#695---
+id: 695
+date: 2026-10-18T00:06:57Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, verify
+commits: pending
+refs: PROJECT_STATUS.md,tools/agents/closeout_queue.py,tools/agents/successor.py,docs/handoffs/2026-10-17-protocol-completion.md
+supersedes: 694
+tokens: 536
+---
+Independent exact-candidate assurance of clean commit0fc2cec34df506aaecd2694194c20789c1087462 against original base79c40b55f8aea7a6615bdccf4b331b41dd46a362 is BLOCKED. Its independently recomputed50path scope and content fingerprint match root evidence; original five TDD cycles remain unchanged, later reviewed cycles cover all runtime paths, source hashes and retained audit evidence verify. HISTORY append-only prefixes and final documentation boundaries pass. No source defect was identified in this bounded review.
+
+The mandatory successor registration validator fails at closeout_queue.py with retained-root inventory changed. Both independent reviewer and root repeated actual escalated filesystem checks: immutable activation bound23roots, current enumeration12roots, eleven removed directories all report nonexistent. Original115queue records remain, plus the two new reviewed dispositions; no missing immutable queue record was observed. Exact paths and timestamp in external finalization-20261017/inventory-drift.json. Do not rewrite transition queue_roots, fabricate replacement directories, reset identity or bypass assurance. Bounded inspection of audit tests containing worktree removal shows tmp_path fixtures; it does not establish the actor/cause of actual removals. Operator removal/restoration context requested and remains pending.
+
+Prior full audit invocation remains external audit-venv312/bin/python -m pytest -o addopts= -q -p no:cacheprovider tests/audit/ -m "not external" --maxfail=1 with offline model-cache variables, exit0; exact command/result/hash in finalization-20261017/audit-result.json. No runtime changes after that run. No numeric test-count claim is inferred from this continuity update. No actual root compaction observed; available runtime context telemetry remains unavailable, and no usage value is invented.
+
+Actual GitHub read refreshed protected main79c40b55f8aea7a6615bdccf4b331b41dd46a362 and empty open-PR inventory. No assurance PASS report was stored, no required-CI candidate exists, no release qualification/push/PR/merge/main verification occurred. Authorised push remains blocked by the actual prepublication invariant, not a permission request. Preserve the restored repair worktree and local branch because their real reviewed work cannot be published through the blocked gate. Source bootstrap and all immutable evidence remain separately preserved. Next reconcile disappeared-root provenance/authorized restoration, obtain fresh exact committed assurance, then complete requiredCI, qualified supersession, protected merge and exact-main verification. Native tracker retains stable task IDs and labels this concrete blocker; no unrelated held product work or signal acknowledgement.
+---END-ENTRY-#695---
+
+---BEGIN-ENTRY-#696---
+id: 696
+date: 2026-10-18T00:19:57Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff
+commits: pending
+refs: PROJECT_STATUS.md
+supersedes: 695
+tokens: 573
+---
+Actual automatic context compaction occurred after the HISTORY#695 committed checkpoint and during final blocked closeout. The actual root identity remains 01a14c32-cca0-71a2-b8fe-1c3a462eee6a. Canonical tools.agents.context_guardian recover-unexpected-compaction records event automatic-20261017-finalization, HANDOFF_REQUIRED and missing_checkpoint=true. Available runtime usage telemetry was unavailable; the guardian default previous usage value is not a measured usage claim. The external manual CHECKPOINT.md is preserved but was not represented as a guardian checkpoint. No identity or predecessor recovery was reset.
+
+Independent seam_release_orchestrator returned BLOCKED for exact commit1cfa0e3e1aa932fb6e70c452f47390b8611e26e9 and request01a14c32-cca0-71a2-b8fe-1c3a462eee6a-dde618204614f3e0. The first returned draft failed canonical storage because its checks included extra requirements; the reviewer corrected the exact check set and explicitly marked current continuity BLOCKED for the newly reported recovery. The corrected receipt is canonically STORED under .seam/orchestration/session-end/receipts; the rejected draft remains external evidence. No predecessor receipt is superseded. Historical TDD and audit evidence remain verified, not newly rerun or promoted to qualification.
+
+The separate retained-root inventory failure remains unresolved as described in HISTORY#695 and external finalization-20261017/inventory-drift.json. No authoritative removal/restoration context has arrived. No runtime source change was made after the successful full audit described by finalization-20261017/audit-result.json. This update performs only recovery continuity and durable handoff; it does not resume assurance. Protected push, hosted required checks, release qualification, merge and exact resulting-main verification remain unperformed. The restored real repair branch/worktree and source bootstrap remain preserved because the blocking invariant prevents safe publication and disposal.
+
+External finalization-20261017/FINAL_HANDOFF.md supplies the outer dispatcher a bounded evidence map and genuine-successor instructions. The delivery client stopped before completing this append and final handoff after automatic approval review rejected detailed tracker writes as exports of internal recovery information. The outer recovered client completes only durable cut-off records, not assurance or qualification. A safer minimal status-only update was accepted on the existing personal overview, task register and verification Pages; detailed recovery information stays local. Previous tracker evidence and stable task IDs are preserved. Next obtain authoritative missing-worktree context and dispatch a genuinely fresh root, preserve this event and all evidence, then use the canonical successor mechanism without rewriting immutable bindings. Existing push/merge authorization remains in force; no redundant publishing permission is requested. The separate diagnostic question about disappeared worktrees remains pending.
+---END-ENTRY-#696---
+
+---BEGIN-ENTRY-#697---
+id: 697
+date: 2026-10-18T03:57:17Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, worktree
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,tools/agents/successor.py,tools/agents/closeout_queue.py,tests/audit/test_successor_transition.py,tests/audit/test_shell_security.py
+supersedes: 696
+tokens: 642
+---
+Same genuine root 01a14cf4-a203-7723-a482-28829289a211 completed canonical successor admission on candidate 907116e, preserving original base 79c40b55 and the inherited TDD cycles verbatim. Independently reviewed successor-chain repairs add witnessed evidence without resetting predecessor requests or root bindings. Source adoption is not exact committed assurance. Activation, scoped commands, hashes and review packets are retained in the primary Git directory under seam-consolidation-20261017/.
+
+The disappeared-root incident is now reconciled within captured evidence: the existing cleanup branch records removal and subsequent restoration. Independently verified restoration archives, file hashes, Git HEADs, binary patches and status records match the surviving roots. Original inventory validation succeeds without changed bindings. This does not prove preservation of excluded dependencies, live sessions, or changes after capture. Operator attribution is not retroactive deletion authority. Existing cleanup policy belongs to docs/worktree-cleanup-20261017 at 484a5600; its shared cleanup ledger has cleanup_suspended=true. That policy already covers reuse, canonical containment, retention and preservation. The pending local policy edits must be reconciled with that owning version before adoption, without duplicating or reverting operator policy. No actual cleanup, root move, new checkout or environment was performed by this root.
+
+The dispatcher SIGINT was an interruption only. A later actual automatic context compaction occurred during reconciliation and is recorded canonically as automatic-20261018-consolidation with HANDOFF_REQUIRED and missing_checkpoint=true. No context usage measurement is available; no identity or guardian reset is permitted. This entry is the cut-off breadcrumb, not release qualification.
+
+Uncommitted implementation paths are tools/agents/successor.py and tools/agents/closeout_queue.py; regression paths are tests/audit/test_successor_transition.py and tests/audit/test_shell_security.py; pending policy paths are AGENTS.md, docs/SOP_AGENT_ORCHESTRATION.md and docs/SOP_SEAM_CODEX_WORKFLOW.md. No unresolved missing helper or import symbol was found by the exact collection recorded in cutoff-collect.json. The interrupted shell worker changed only the allowed-command cwd fixture and left RED evidence without its final return. Root cut-off verification confirms that case passes, but two neighboring integration fixtures still assume temporary directories are permitted shell working directories. The real runtime validator correctly rejects Primary test data outside the reused source checkout. Preserve the failure; do not weaken shell permissions. Exact collection and focused outcomes are in cutoff-collect.json and cutoff-focused.json; the earlier partial full audit remains audit-retry-result.json, not an all-green result.
+
+First reproduce the two failures with the exact cutoff-focused.json argv, then have a fresh successor finish the fixture-only Sol repair and independent review, reconcile existing cleanup policy, rerun justified audit verification, and complete canonical continuity, exact committed assurance, one protected PR, required CI, qualification and resulting-main verification. Durable OUT/FINAL_HANDOFF.md and OUT/RESULT.md carry the bounded evidence map. No new commit, push, PR, merge, or resulting-main acceptance is claimed by this checkpoint. Existing authorization remains in force; no repeated permission request is needed.
+---END-ENTRY-#697---
+
+---BEGIN-ENTRY-#698---
+id: 698
+date: 2026-10-18T04:36:29Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, worktree, tests, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/PR_LIFECYCLE.md,docs/status/workspace.md,tests/audit/test_shell_security.py,tools/agents/successor.py,tools/agents/closeout_queue.py
+supersedes: 697
+tokens: 622
+---
+Fresh actual successor completed canonical admission after independent disposition of the additional unreceipted predecessor request. Original comparison base 79c40b55f8aea7a6615bdccf4b331b41dd46a362 and all nineteen inherited witnessed cycles remain unchanged. Existing ancestor recovery obligations, retained roots and source-adoption hashes remain bound; no guardian, identity or evidence reset occurred.
+
+Serial Sol completed only the two remaining cwd fixtures in tests/audit/test_shell_security.py, preserving the earlier allowed-command fixture and the real runtime permission boundary. Root reproduced the exact cutoff-focused argv with 2 failed and 207 passed before the fix. The same three-module scope subsequently passed 209 cases. Independent Astra verified fixture diffs, log hashes and the unchanged security contract. Evidence is in Primary .git/seam-consolidation-20261017/successor-2-focused-red.json, successor-2-fixture-green.json and successor-2-independent-review.json.
+
+The authoritative Workspace Lifecycle policy from branch docs/worktree-cleanup-20261017 at 484a5600df99f0f2949a2d2cf4ba6e455ca649c4 was adopted across AGENTS.md, REPO_LEDGER.md, docs/PR_LIFECYCLE.md, both orchestration/workflow SOPs and docs/status/workspace.md. Only our redundant policy wording was removed; successor-specific documentation remains. Independent review verified every owning policy change occurs exactly once. The owning checkout's unrelated dirty chronology, status and reference files remain excluded. No new competing policy or speculative safeguard was added.
+
+Full current non-external audit: existing audit-venv312/bin/python -m pytest -o addopts= -q -p no:cacheprovider tests/audit/ -m "not external" --basetemp=/home/terrabyte/Documents/Projects/Seam/test_seam/consolidation-successor2-audit exited 0 with 3669 passed, 65 deselected,zero failures/skips. Exact argv, timestamps and sha256 are in successor-2-audit.json; log sha256 c04126c0e62a3c480da7df8d596bf8d99adc544abc75c84aa8e13f0e11d7ea2a. Existing offline caches and short TMPDIR were reused. Prior failed/partial audit evidence remains unchanged.
+
+Task fixture cleanup stopped before deletion because live-process reference inspection was incomplete; all mapped fixtures remain retained and reclaimed space is zero. No worktree, environment, clone or sibling output directory was created or removed. The shared suspended ledger changed only this source item's HEAD; all other items were preserved. No restoration rehash or unrelated cleanup sweep was performed.
+
+Current operating pointers now identify this local repaired candidate. Proper changed-page review and managed-reference synchronization precede canonical closeout. Exact committed assurance, one PR, required hosted checks, independent qualified supersession, protected merge and actual resulting-main verification are still required; no delivery claim is made by this entry.
+---END-ENTRY-#698---
+
+---BEGIN-ENTRY-#699---
+id: 699
+date: 2026-10-18T05:10:42Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, worktree, tests, verify
+commits: pending
+refs: tools/git/verify_retained_worktree.py,tools/git-hooks/pre-push,tests/audit/test_retained_worktree_push_gate.py,AGENTS.md,PROJECT_STATUS.md,docs/handoffs/2026-10-17-protocol-completion.md
+supersedes: 698
+tokens: 664
+---
+Normal protected push of independently assured commit f47b7a76dedef3efb6bcf606fb5f581163c3d4cd failed on eleven unrelated dirty retained worktrees; no remote push occurred. A stale hook dispatcher was normally reinstalled before this failure. Existing workspace lifecycle policy was authoritative; no competing cleanup policy or blanket cleanup was introduced.
+
+The narrow follow-up implements fail-closed exact, unexpired retained-ledger validation in tools/git/verify_retained_worktree.py and tools/git-hooks/pre-push, with tests/audit/test_retained_worktree_push_gate.py and the matching AGENTS.md clarification. Sol supplied two witnessed red/green cycles (7 failed/14 passed to 22 passed; independent-review findings 3 failed/22 passed to 25 passed). Independent Astra source review passed exact hashes saved in Primary .git/seam-consolidation-20261017/successor-2-retention-independent-review.json. It is source review only, not committed assurance or qualification. Original comparison base 79c40b55f8aea7a6615bdccf4b331b41dd46a362 and nineteen inherited cycles remain, plus two new cycles for twenty-one total.
+
+Actual automatic compaction was recorded for the unchanged session 01a14d32-8d21-7b13-b120-d93473a401d7 with event automatic-20261018-successor2-retention. Existing checkpoint was preserved (missing_checkpoint false), previous action COMPACT_NOW, actual compactions one, resulting HANDOFF_REQUIRED. No identity or telemetry reset occurred. A genuinely fresh client/session must reconcile the canonical request and admit this successor chain before qualification or publishing. Earlier committed assurance does not cover the dirty retention repair.
+
+Cut-off verification: existing audit-venv312 Python -m pytest -o addopts= -q -p no:cacheprovider tests/audit -m "not external" --basetemp=/home/terrabyte/Documents/Projects/Seam/test_seam/successor2-cutoff-audit passed 3694 tests, deselected 65 external tests, with zero skips/failures and three warnings. Exact argv, timestamps, exit and SHA256 are in successor-2-cutoff-audit.json, log SHA256 1b7c0f6278513b159de1fdd1c82eb97b22123eeecdb807240dcb7c3234700f81. The targeted module collected all 25 tests. No missing symbols or test/implementation mismatch remains known. Managed references were reviewed and synchronized, not bypassed.
+
+Dirty cut-off paths include the four repair paths above plus PROJECT_STATUS.md, the current tracked handoff, this append and derived history/index/stream/snapshot/reference state. First reproduction: use the exact cutoff-audit receipt argv and recorded offline-cache environment. Unique durable recovery is Primary .git/seam-consolidation-20261017/successor-2-result.md. All bound roots/environments and ancestor recovery obligations remain. Fixture cleanup stopped before deletion because process-use evidence was incomplete; zero reclaimed bytes claimed. Current local tests do not establish push, hosted CI, independent qualified supersession, protected merge or actual resulting-main acceptance.
+---END-ENTRY-#699---
+
+---BEGIN-ENTRY-#700---
+id: 700
+date: 2026-10-18T05:25:57Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, verify, handoff
+commits: 5c8a11c
+refs: PROJECT_STATUS.md,docs/handoffs/2026-10-17-protocol-completion.md
+supersedes: 699
+tokens: 452
+---
+Genuine fresh successor completed canonical admission from the prior recovery without resetting guardian, identity or immutable evidence. Original comparison base 79c40b55f8aea7a6615bdccf4b331b41dd46a362 and all 21 witnessed cycles remain unchanged. Current metadata confirms gpt-6-astra/high. A real telemetry checkpoint was recorded before further work; no compaction was observed.
+
+Normal signed commit 5c8a11c contains the independently reviewed retention validator, pre-push hook, 25-case regression module and narrow policy wording with HISTORY699 continuity. Canonical hooks passed and the installed dispatcher was refreshed normally. The four source hashes match the independent review; prior full audit evidence in successor-2-cutoff-audit.json remains the current unchanged-source boundary and was not repeated. Canonical content-free working-tree secret scan passed with its ten policy exclusions.
+
+Before writes the successor read canonical pending state across 23 roots and 60 requests. Seven requests remain pending with named receipts: Primary two BLOCKED administrative tails have validated admission-only dispositions; Source five ancestor requests require valid qualified supersession. Evidence is Primary .git/seam-consolidation-20261017/successor-3-startup-queues.json and successor-3-startup-workspaces.json. No empty queue or local gate is claimed as qualification. All unrelated dirty work, original bound roots and suspended shared cleanup ledger remain preserved; no deletion or reclaimed bytes claimed.
+
+Correct the previous detailed recovery pointer prospectively: successor-2-durable-handoff-recovered.md exactly matches predecessor final-readback SHA256; successor-2-result.md was overwritten by CLI final output. Current durable details are successor-3-handoff.md in the same Primary Git-common evidence directory; successor-3-cli-final.md is reserved for CLI final output only. Existing history is unchanged.
+
+Origin was fetched and GitHub open-PR inventory is empty. Fresh exact-commit assurance, normal lifecycle/push, one PR, required exact-head hosted checks, independent qualified supersession, protected merge and actual resulting-main verification remain the authorized next actions. The framework author owns its separate implementation and rebases after this repair reaches verified main. No framework, board, milestone or account-permission work is included.
+---END-ENTRY-#700---
+
+---BEGIN-ENTRY-#701---
+id: 701
+date: 2026-10-18T05:38:08Z
+agent: codex
+status: in-progress
+topics: ci, bugfix, continuity, verify
+commits: pending
+refs: tools/git/verify_retained_worktree.py,tests/audit/test_retained_worktree_push_gate.py
+supersedes: 700
+tokens: 396
+---
+Normal push succeeded and the single repair PR #314 was opened at candidate 930883aa631829ce6815370221fdbed8887b0c25 after canonical exact-state assurance. All eleven retained dirty worktrees passed the normal hook, with no suppression flags. Required hosted LoCoMo and Chroma checks passed, but repo-hygiene failed at Ruff I001 on one excess blank line after imports in each of tools/git/verify_retained_worktree.py and tests/audit/test_retained_worktree_push_gate.py. Its protocol regression step passed. This failure is not a qualified delivery.
+
+Independent release review recorded and canonically stored NOT_QUALIFIED for the exact failed candidate, with TDD_PROVEN and no supersession. Serial Terra removed exactly those two blank lines. Scoped Ruff, diff-check and AST equality against the prior committed blobs passed; root then ran the full ruff check . successfully. No runtime behavior or test design changed. Evidence is Primary .git/seam-consolidation-20261017/successor-3-ci-failure.txt, successor-3-failed-ci-receipt.json and successor-3-spacing-verification.json. The prior full audit remains adopted for unchanged semantics; it was not redundantly rerun.
+
+The new committed candidate must receive fresh exact-state independent assurance, a normal push to the same PR, all required exact-head hosted checks, independent qualification with explicit supersession, protected merge and actual resulting-main verification. All 21 original-base TDD cycles and ancestor requests remain preserved. Primary administrative dispositions retain their admission-only scope.
+
+Cleanup diagnosis distinguished sandbox-limited process visibility from the actual host: the host check found seven protected same-user daemons with unreadable cwd/file references and no visible task-fixture references. Existing noninteractive administrative read access is unavailable. No fixture deletion, permission change or reclaimed bytes is claimed; uncertainty remains recorded in successor-3-process-preflight.json. Publication remains the priority.
+---END-ENTRY-#701---
