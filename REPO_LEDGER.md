@@ -63,6 +63,16 @@ bounded task-specific reading; do not maintain a competing sequence here.
   worktree cleanup. Missing evidence means unverified, not complete. See
   `docs/SOP_SEAM_CODEX_WORKFLOW.md` and HISTORY#687. These checks do not prove
   unreported client events or independently authenticate reviewer identity.
+- **Workspace lifecycle (2026-10-17).** `AGENTS.md` Workspace Lifecycle owns
+  the shared, all-agent creation and cleanup contract. Reuse a suitable checkout;
+  extra worktrees need a concrete isolation or required exact-commit verification
+  reason, one lowercase identity under the primary root's `.worktrees/`, and a
+  recorded cleanup owner. Startup and closeout reconcile the primary-root
+  `.seam/orchestration/cleanup-ledger.json`. Safe cleanup in the session's or
+  operator's existing scope is required, without repeating approval. Preserve
+  unique work and immutable evidence, verify recovery and reference resolution,
+  and retain active or unresolved items with an owner, reason and review date.
+  This is a procedural contract; automatic hook enforcement is not implemented.
 - **PR lifecycle and merge completion (2026-10-16).** The operator requires
   stale proposals to be preserved and closed, concrete blockers to remain
   tracked, and approved ready work to reach a verified protected merge.
@@ -803,6 +813,12 @@ bounded task-specific reading; do not maintain a competing sequence here.
 - The `handoff/archive` branch is reserved for PDF and handoff artifact publication, not primary runtime/source work.
 
 ## Temporal Continuity Policy
+
+- Workspace consolidation recovery: follow the existing cleanup policy on
+  `docs/worktree-cleanup-20261017` (commit `484a5600`) and its shared ledger;
+  integration and provenance boundaries are recorded in HISTORY#697. Preserve
+  immutable-bound roots while cleanup is suspended. A policy edit grants no
+  deletion authority. Do not create a competing cleanup contract.
 
 - Every material repo change must produce an append-only `HISTORY.md` entry, rebuilt `HISTORY_INDEX.md`, verified integrity, and one validated snapshot.
 - History entries must preserve the temporal chain: previous state, new state, `supersedes` link when applicable, successes, failures, skipped verification, changed files, and unresolved next steps.

@@ -79,7 +79,13 @@ merge. This verifier initially supports ordinary merge commits; use the
 protected merge-commit path. Unsupported squash/rebase mappings fail closed.
 
 Fetch main and prepare a clean, isolated checkout at the exact resulting merge
-commit. Supply actual full SHAs and the original stored request and receipt:
+commit. Reuse a suitable clean exact-main verification checkout when one
+already exists for the task; otherwise create it only in the canonical
+`<primary-root>/.worktrees/<task-slug>-verify-<yyyymmdd>` namespace from
+`AGENTS.md`, using that distinct root-assigned verification identity. It has the
+same ledger and cleanup requirements as every other worktree. Do not create a
+sibling repository copy for merge verification. Supply actual full SHAs and
+the original stored request and receipt:
 
 ```bash
 python -m tools.ci.verify_merge \
@@ -115,6 +121,9 @@ is removed. Missing or corrupt local completion is `UNVERIFIED`; a fresh clone
 must obtain fresh proof.
 
 Record the verified merge receipt in the tracker or recovery issue, reconcile
-pending closeouts, and finish the session's worktree and branch. Preserve
-unrelated dirty work and existing source recovery refs. Release, installation,
+pending closeouts, and finish the session's worktree and branch. Remove the
+exact-main scratch worktree through the mandatory Workspace Lifecycle cleanup
+checkpoint after its unique evidence is preserved and validated; update the
+shared cleanup ledger and verify the reclaimed disk delta. Preserve unrelated
+dirty work and existing source recovery refs. Release, installation,
 publication and product acceptance retain their own evidence and authority.

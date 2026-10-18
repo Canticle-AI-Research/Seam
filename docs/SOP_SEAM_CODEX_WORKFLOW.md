@@ -26,6 +26,13 @@ the registered current handoff, and pending SessionEnd closeout requests. Use
 the repository CLI and GitHub CLI; treat branch-local, merged, released,
 deployed, and benchmark-qualified as different states.
 
+Complete the `AGENTS.md` Workspace Lifecycle startup checkpoint: reconcile the
+shared cleanup ledger from the primary worktree, classify every registered
+worktree using the required dirt, ignored-file, process, lock, stash, and
+request/receipt checks, and perform any already-authorized safe dormant cleanup
+before allocating another workspace. Retained items need a concrete owner,
+reason, and review date.
+
 Capture a contemporaneous pre-write inventory of every standard closeout
 request/receipt location and the validator admission result for each discovered
 record. A later empty queue or stored receipt does not reconstruct that earlier
@@ -63,9 +70,11 @@ operator-visible API, CLI, persistence, or runtime boundary rather than only a
 private helper.
 
 Record authority separately for pushes and protected merge. Paid provider
-calls, releases, deployments, destructive cleanup, and scope expansion require
-an explicit operator decision at the point of action; an implementation request
-does not imply any of them.
+calls, releases, deployments, destruction of unique or ambiguously owned data,
+and scope expansion require an explicit operator decision at the point of
+action; an implementation request does not imply any of them. Routine safe
+cleanup within the authority defined by `AGENTS.md` Workspace Lifecycle does
+not need a repeated approval.
 
 For repo-changing work, initialize or update the root session-state record as
 specified by the orchestration SOP.
@@ -93,9 +102,16 @@ decision; no child has widened repository scope.
 **Owner: Codex root**
 
 Resume the intended PR branch only after confirming its remote head and base
-drift. For new work, update from protected main and use a working branch and,
-when isolation is needed, a dedicated worktree. Keep one writable owner per
-path and wave. Root retains integration, staging, continuity, and PR artifacts.
+drift. Reuse the current suitable checkout by default. For new work, update
+from protected main and use a working branch. Add a worktree only when actual
+concurrent writes require isolation, using the root-assigned lowercase task
+slug and the sole `<primary-root>/.worktrees/<task-slug>-<yyyymmdd>` location
+defined by `AGENTS.md`. The narrow non-concurrency exception is a
+repository-required clean exact-commit verification when no suitable existing
+checkout can be reused safely; it uses the distinct root-assigned
+`<task-slug>-verify` identity in that same location and the same ledger and
+cleanup procedure. Keep one writable owner per path and wave. Root retains
+integration, staging, continuity, and PR artifacts.
 
 **Complete when:** the branch/worktree lineage is anchored to a recorded base
 SHA, the PR relationship is known, writable paths have one owner each, and all
@@ -274,7 +290,7 @@ qualification.
 
 ## 12. Verify exact main and leave a durable resume
 
-**Owner: Codex root; operator owns destructive cleanup**
+**Owner: Codex root; operator decides ambiguous or unique-data destruction**
 
 Fetch protected main after merge and verify the resulting exact main SHA,
 candidate ancestry, PR state, and applicable post-merge checks. Reconcile the
@@ -297,12 +313,19 @@ times and requires `check start <= check completion <= qualification completion
 evidence proves the verified exact-main boundary only; publication, deployment,
 installation, and product acceptance require their own evidence.
 
-Reconcile the working branch, worktree, and stashes. Remove a clean merged
-branch or worktree only when that cleanup is authorized and recoverability is
-clear; otherwise record exactly why it is retained and who owns cleanup. Never
-discard unrelated dirty work as cleanup.
+Run the mandatory `AGENTS.md` Workspace Lifecycle cleanup checkpoint. Stop
+task-owned processes; preserve required evidence and unique work with checksums
+and a read/restore validation; remove safe completed owned task worktrees; and
+prune stale Git metadata. Remove merged branches only with ancestry or
+patch-equivalence proof, and retain branch refs for unmerged work. Verify path
+absence, the resulting worktree list, and disk-space delta, then update the
+shared cleanup ledger. Routine cleanup within the session's or operator's
+already recorded scope is authorized here. Retain unrelated, unknown, dirty,
+active, locked, or pending-recovery work with an owner, reason, and review date.
 
 **Complete when:** exact protected-main state is verified and recorded, no
 closeout request lacks a disposition, the handoff/resume pointer names the
 first next action or clean stop, and every branch, worktree, stash, and dirty
-path is either safely closed or explicitly retained with an owner.
+path is either safely closed or explicitly retained with an owner, reason, and
+review date. The cleanup ledger, final worktree list, and measured disk delta
+must reflect the checkpoint before the task is reported complete.

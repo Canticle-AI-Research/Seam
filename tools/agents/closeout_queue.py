@@ -1702,10 +1702,52 @@ def admit(
     return record
 
 
+def _unexpected_successor_pending(
+    roots: list[str],
+    pending_ids: list[str],
+    *,
+    obligation_request_ids: set[str],
+    lineage_session_ids: set[str],
+    worktree_root: str,
+    branch: str,
+    original_base_sha: str,
+    require_obligations: bool,
+) -> list[str]:
+    pending = set(pending_ids)
+    if require_obligations and not obligation_request_ids <= pending:
+        missing = sorted(obligation_request_ids - pending)
+        raise CloseoutQueueError(
+            "successor admission lost inherited obligations: " + ", ".join(missing)
+        )
+    allowed = set(obligation_request_ids)
+    for root in map(Path, roots):
+        for request in _load_queued_requests(
+            root / ".seam" / "orchestration" / "session-end"
+        ):
+            if request["request_id"] not in pending:
+                continue
+            request_repo = request["repo"]
+            if (
+                request["session_id"] in lineage_session_ids
+                and request_repo["root"] == worktree_root
+                and request_repo["worktree"] == worktree_root
+                and request_repo["branch"] == branch
+                and request_repo["base_sha"] == original_base_sha
+            ):
+                allowed.add(request["request_id"])
+    return sorted(pending - allowed)
+
+
 def admit_successor(
-    repo_root: Path, *, request_id: str, repair_paths: list[Path]
+    repo_root: Path,
+    *,
+    obligation_request_ids: set[str],
+    lineage_session_ids: set[str],
+    branch: str,
+    original_base_sha: str,
+    repair_paths: list[Path],
 ) -> dict[str, Any]:
-    """Validate the one predecessor request plus explicitly named admin repairs."""
+    """Validate hash-bound lineage obligations plus named admin repairs."""
 
     repo_root = repo_root.resolve(strict=True)
     common_dir = _common_dir(repo_root)
@@ -1723,10 +1765,20 @@ def admit_successor(
     if first != second:
         raise CloseoutQueueError("successor admission inventory changed while reading")
     roots, request_ids, record_sha256s, observed = second
-    if request_ids != [request_id]:
+    unexpected = _unexpected_successor_pending(
+        roots,
+        request_ids,
+        obligation_request_ids=obligation_request_ids,
+        lineage_session_ids=lineage_session_ids,
+        worktree_root=str(repo_root),
+        branch=branch,
+        original_base_sha=original_base_sha,
+        require_obligations=True,
+    )
+    if unexpected:
         raise CloseoutQueueError(
-            "successor admission permits only its predecessor request: "
-            + ", ".join(request_ids)
+            "successor admission found unrelated unresolved requests: "
+            + ", ".join(unexpected)
         )
     if {str(path) for path in repairs} != set(observed):
         raise CloseoutQueueError("successor repair paths do not match administrative dispositions")
@@ -1739,7 +1791,11 @@ def admit_successor(
 
 
 def validate_successor_inventory(
-    repo_root: Path, transition: dict[str, Any]
+    repo_root: Path,
+    transition: dict[str, Any],
+    *,
+    obligation_request_ids: set[str],
+    lineage_session_ids: set[str],
 ) -> None:
     """Recompute a successor's retained roots and preserve its activation evidence."""
 
@@ -1765,19 +1821,16 @@ def validate_successor_inventory(
         raise CloseoutQueueError("successor inherited queue evidence changed")
     if {str(path) for path in repairs} != set(observed):
         raise CloseoutQueueError("successor administrative repair inventory changed")
-    allowed = {transition["request_id"]}
-    for root in map(Path, roots):
-        for request in _load_queued_requests(
-            root / ".seam" / "orchestration" / "session-end"
-        ):
-            if (
-                request["session_id"] == transition["successor_session_id"]
-                and request["repo"]["root"] == transition["worktree_root"]
-                and request["repo"]["branch"] == transition["branch"]
-                and request["repo"]["base_sha"] == transition["original_base_sha"]
-            ):
-                allowed.add(request["request_id"])
-    unexpected = sorted(set(pending_ids) - allowed)
+    unexpected = _unexpected_successor_pending(
+        roots,
+        pending_ids,
+        obligation_request_ids=obligation_request_ids,
+        lineage_session_ids=lineage_session_ids,
+        worktree_root=transition["worktree_root"],
+        branch=transition["branch"],
+        original_base_sha=transition["original_base_sha"],
+        require_obligations=False,
+    )
     if unexpected:
         raise CloseoutQueueError(
             "successor queue gained unresolved obligations: " + ", ".join(unexpected)

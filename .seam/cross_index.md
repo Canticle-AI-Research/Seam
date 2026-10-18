@@ -2,15 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 762
+total_events: 764
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-30T15:22:13Z | history:502:e3a0799e | session-event | changed | retrieval, graph, locomo, surface, vector, tests, verify,... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/CODE_LAYOUT.md,docs/handoffs/2026-07-30... |
-| 2026-07-30T16:33:26Z | history:503:1b3130cb | session-event | changed | retrieval, benchmark, locomo, rank, graph, verify, handof... | PROJECT_STATUS.md,REPO_LEDGER.md,docs/handoffs/2026-07-30-full-retrieval-ab-n... |
 | 2026-07-30T17:09:40Z | history:504:41987004 | session-event | in-progress | retrieval, benchmark, locomo, rank, graph, verify, handof... | seam_runtime/runtime.py,seam_runtime/retrieval_orchestrator,benchmarks/extern... |
 | 2026-07-30T21:07:58Z | history:505:5673f963 | session-event | changed | retrieval, benchmark, wandr, trace, status, locomo, verify | PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-ne... |
 | 2026-07-31T19:32:14Z | history:506:cfcf42ff | session-event | done | tests, sqlite, test-artifacts, cleanup, windows, verify | none |
@@ -209,10 +207,12 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-17T23:58:41Z | history:694:49420ef8 | session-event | in-progress | agent, protocol, continuity, verify, bugfix, handoff | .gitignore,tools/agents/successor.py,tests/audit/test_successor_transition.py... |
 | 2026-10-18T00:06:57Z | history:695:5e3de27f | session-event | in-progress | agent, protocol, continuity, handoff, verify | PROJECT_STATUS.md,tools/agents/closeout_queue.py,tools/agents/successor.py,do... |
 | 2026-10-18T00:19:57Z | history:696:6b8e6d8d | session-event | in-progress | agent, protocol, continuity, handoff | PROJECT_STATUS.md |
+| 2026-10-18T03:57:17Z | history:697:03d86436 | session-event | in-progress | agent, protocol, continuity, handoff, worktree | PROJECT_STATUS.md,REPO_LEDGER.md,tools/agents/successor.py,tools/agents/close... |
+| 2026-10-18T04:36:29Z | history:698:a4be7a10 | session-event | in-progress | agent, protocol, continuity, worktree, tests, verify | PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/SOP_AGENT_ORCHESTRATION.md,do... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0562.cross.md | 2026-04-15T00:00:00Z..2026-07-30T13:19:48Z | 562 | (multi) | (multi) |
+| 0001-0564.cross.md | 2026-04-15T00:00:00Z..2026-07-30T16:33:26Z | 564 | (multi) | (multi) |

@@ -27,6 +27,131 @@ Then:
   under ignored `test_seam/` subdirectories such as `test_seam/pgvector/`.
   Do not leave ad-hoc `Test*`, `test_*`, or `test_pgvector_*` scratch files in
   the repo root.
+- Complete the workspace-lifecycle startup checkpoint below before authorizing
+  new writes.
+
+## Workspace Lifecycle
+
+This is the canonical workspace creation, evidence, retention, and cleanup
+policy for every agent and orchestration system.
+
+Reuse an existing suitable checkout by default. A new task does not receive a
+new clone, copied repository, duplicated virtual environment, or worktree
+merely because a new agent or session started. Read-only reviewers use the
+current checkout. Create one additional worktree when actual concurrent writes
+require branch isolation, while preserving one writable owner per path and
+wave. The only non-concurrency exception is a repository-required clean
+exact-commit verification when no suitable existing checkout can be reused
+safely; the root assigns the distinct lowercase `<task-slug>-verify` identity.
+This exception does not authorize a general per-task worktree.
+
+The root or coordinating agent assigns one lowercase task slug and all agents
+reuse it. New linked worktrees live only at
+`<primary-root>/.worktrees/<task-slug>-<yyyymmdd>`. Do not create sibling
+`Seam-*` directories, case variants, or agent-specific worktree roots.
+An exact-commit verification exception therefore uses
+`<primary-root>/.worktrees/<task-slug>-verify-<yyyymmdd>` and follows the same
+ledger, preservation, and cleanup requirements.
+Claude-created worktrees and other legacy locations are grandfathered only
+until their work is inactive and preserved; do not use those locations for new
+tasks. Before creation, inspect `git worktree list --porcelain`, the shared
+cleanup ledger, existing task identity, current workspace disk use, `df`
+capacity, and the intended path. Record the cleanup owner and exit condition at
+creation.
+
+Store task evidence in exactly one ignored location: either
+`<primary-root>/.seam/evidence/<task-slug>/` or one configured external
+`seam-evidence-archive/<task-slug>/`. Evidence directories contain only unique
+evidence needed for audit or recovery. They must not contain repository copies,
+source caches, duplicated virtual environments, or generated dependencies.
+
+The ignored shared ledger is
+`<primary-root>/.seam/orchestration/cleanup-ledger.json`, resolved from the
+primary worktree listed by Git rather than from each linked worktree. It is the
+machine-readable cleanup queue. Until a tracked schema or command implements
+this contract, the root or coordinating agent is its single writer. Write and
+validate a complete sibling temporary file, then atomically replace the ledger;
+children return proposed entries instead of writing concurrently. Each item
+records at least:
+
+```json
+{
+  "schema": "seam-workspace-cleanup-ledger/v1",
+  "items": [
+    {
+      "path": "/absolute/path/to/worktree",
+      "task": "lowercase-task-slug",
+      "branch": "docs/example",
+      "head": "40-character-commit-sha",
+      "status": "active|cleanup-ready|retained|removed",
+      "owner": "agent-or-operator",
+      "reason": "active work or exact retention/removal basis",
+      "created_at": "RFC3339 timestamp",
+      "review_after": "RFC3339 timestamp",
+      "retained_artifacts": [
+        {"path": "/absolute/archive/path", "sha256": "64-hex-digest"}
+      ]
+    }
+  ]
+}
+```
+
+Use `"unknown"` for a historical item's `created_at` when no trustworthy
+creation timestamp exists. Never invent a timestamp to make a legacy entry
+conform.
+
+At Session Start, enumerate the common repository's worktrees and ledger
+entries. For every cleanup candidate, verify branch and HEAD identity, tracked
+and untracked dirt, ignored files with an inspection-only clean preview,
+worktree locks, running processes using the path, stashes, and every SessionEnd
+request/receipt state root. Unknown ownership, dirty or unique work, a live
+process, a lock, an unqualified or pending recovery request, or an unverified
+archive makes the item `retained`; record its concrete owner, reason, and next
+review date. Never erase it to satisfy a count or disk target. Before new
+writes, remove `cleanup-ready` dormant items already covered by recorded
+operator authority when all preservation safeguards below pass. A missing or
+stale ledger is a condition to repair, not permission to skip the checkpoint.
+Dirty authorized dormant work starts as `retained`; it may become
+`cleanup-ready` only after every unique change and required recovery artifact
+passes the preservation, checksum, restore, and reference-resolution checks
+below.
+
+At Session End, perform the cleanup checkpoint before reporting the task
+complete:
+
+1. Stop task-owned processes and identify every created or explicitly
+   authorized dormant workspace.
+2. Preserve required immutable evidence and unique work first. Record SHA-256
+   checksums and prove the preserved artifact can be read or restored before
+   removal. Archive any linked-worktree-local `.seam` state that must survive
+   into the task's evidence home without changing original request IDs,
+   worktree identity, original path references, branch lineage, or immutable
+   receipt contents. After archival, rerun the applicable reference-resolution
+   and queue-admission validators against the preserved records. If current
+   tooling cannot consume relocated state, retain the exact original worktree
+   and path with the reason and review date; do not replace it with a newly
+   created orphan state stub.
+   The prohibition on new orphan stubs does not authorize removal of an
+   existing recovery stub, which remains `retained` until these same checks
+   prove removal safe.
+3. Remove each safe, completed, owned task worktree with
+   `git worktree remove <exact-path>`, then prune stale Git metadata. Never use
+   broad globs, recursive force, or cleanup that crosses an unresolved owner.
+4. Delete a merged local branch only after ancestry or patch-equivalence proves
+   that its useful changes are reachable. Keep a branch ref for unmerged work.
+5. Verify the removed path is absent, rerun `git worktree list --porcelain`,
+   measure the disk-space delta, and mark the ledger item `removed` with its
+   basis and retained-artifact hashes.
+
+Routine cleanup of a workspace created by the current session, or of a dormant
+workspace the operator explicitly placed in cleanup scope, is part of the
+task's authority once these safeguards pass; it does not require a repeated
+approval. Destructive handling of unique data, ambiguous ownership, active
+work, or a workspace outside that scope still requires an explicit operator
+decision.
+
+This section defines the required human/agent procedure and ledger contract. It
+does not claim that a hook or runtime command enforces the policy automatically.
 
 ### Codex-Only Delegated Context Fast Path
 
@@ -76,7 +201,10 @@ with an unscoped test-count claim while `closeout` printed all gates green.
 weaker again. Convenience wrappers are allowed to be *slower* than the required
 check, never quieter.
 
-If you created a git worktree during the session: finish it. Either commit, push, and `git worktree remove` it, or remove the worktree even if abandoning the work. Never leave a dirty worktree on a stale base for the next agent to find — that pattern caused real regressions before (see HISTORY#223 worktree triage).
+If you created or owned a git worktree during the session, finish the Workspace
+Lifecycle cleanup checkpoint above. Preserve unique work before removal and do
+not leave a dirty worktree on a stale base for the next agent to find (see
+HISTORY#223 worktree triage).
 
 If you created a working branch: push it if the work is real, delete it locally if the work is fully merged. Stale branches accumulate across multi-agent sessions and look like active work to the next agent.
 

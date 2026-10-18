@@ -19,6 +19,7 @@ from tools.agents.session_end_closeout import (
     SessionEndError,
     _changed_paths,
     assess_tdd,
+    runtime_paths,
     validate_session_state,
 )
 
@@ -612,6 +613,230 @@ def _load_transition(path: Path) -> tuple[dict[str, Any], bytes]:
     return validate_transition(value, path), encoded
 
 
+def _transition_for_registration(
+    common_dir: Path, registration: dict[str, Any]
+) -> tuple[dict[str, Any], str] | None:
+    digest = registration.get("successor_transition_sha256")
+    if digest is None:
+        return None
+    if not isinstance(digest, str) or not SHA256.fullmatch(digest):
+        raise SuccessorError("successor ancestor registration hash is invalid")
+    transition_root = common_dir / "seam-orchestration" / "successors"
+    matches: list[tuple[dict[str, Any], str]] = []
+    for path in sorted(transition_root.glob("*.json")) if transition_root.exists() else []:
+        transition, encoded = _load_transition(path)
+        observed = hashlib.sha256(encoded).hexdigest()
+        if observed == digest:
+            matches.append((transition, observed))
+    if len(matches) != 1:
+        raise SuccessorError("successor ancestor registration lacks one immutable transition")
+    return matches[0]
+
+
+def _artifact_with_label(
+    transition: dict[str, Any], label: str
+) -> dict[str, str]:
+    matches = [item for item in transition["artifacts"] if item["label"] == label]
+    if len(matches) != 1:
+        raise SuccessorError(f"successor lineage lacks one {label} artifact")
+    return matches[0]
+
+
+def _committed_tail_paths(
+    repo_root: Path, request_head: str, activation_sha: str
+) -> list[str]:
+    for label, commit in (("request head", request_head), ("activation", activation_sha)):
+        if _git(repo_root, "rev-parse", "--verify", f"{commit}^{{commit}}") != commit:
+            raise SuccessorError(f"successor {label} does not resolve exactly")
+    ancestor = subprocess.run(
+        ["git", "merge-base", "--is-ancestor", request_head, activation_sha],
+        cwd=repo_root,
+        check=False,
+    )
+    if ancestor.returncode:
+        raise SuccessorError("successor activation does not descend from its request head")
+    history = subprocess.run(
+        [
+            "git", "rev-list", "--reverse", "--parents",
+            f"{request_head}..{activation_sha}",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if history.returncode:
+        raise SuccessorError("successor cannot inspect its committed request tail")
+    touched: set[str] = set()
+    for line in history.stdout.splitlines():
+        commit_and_parents = line.split()
+        if len(commit_and_parents) != 2:
+            raise SuccessorError("successor request has a merge committed tail")
+        commit, parent = commit_and_parents
+        result = subprocess.run(
+            [
+                "git", "diff", "--no-renames", "--name-only", "-z",
+                parent, commit,
+            ],
+            cwd=repo_root,
+            capture_output=True,
+            check=False,
+        )
+        if result.returncode:
+            raise SuccessorError("successor cannot inspect its committed request tail")
+        touched.update(
+            item.decode("utf-8", errors="replace")
+            for item in result.stdout.split(b"\x00")
+            if item
+        )
+    return sorted(touched)
+
+
+def _validate_request_activation(
+    repo_root: Path,
+    request: dict[str, Any],
+    *,
+    original_base_sha: str,
+    activation_sha: str,
+    branch: str,
+) -> None:
+    request_repo = request["repo"]
+    if (
+        request_repo["root"] != str(repo_root)
+        or request_repo["worktree"] != str(repo_root)
+        or request_repo["branch"] != branch
+        or request_repo["base_sha"] != original_base_sha
+        or request_repo["changed_paths_truncated"] is not False
+        or (
+            request["change_class"] == "runtime"
+            and request["tdd_evidence"]["status"] != "TDD_PROVEN"
+        )
+    ):
+        raise SuccessorError("successor activation lacks complete predecessor evidence")
+    tail = _committed_tail_paths(repo_root, request_repo["head"], activation_sha)
+    if runtime_paths(tail):
+        raise SuccessorError("successor request has a runtime committed tail")
+
+
+def _validate_request_tdd_prefix(
+    request: dict[str, Any], predecessor_state: dict[str, Any]
+) -> None:
+    request_cycles = request["tdd_evidence"].get("cycles")
+    if request_cycles is None:
+        if request["change_class"] == "runtime":
+            raise SuccessorError(
+                "successor predecessor request TDD evidence is missing complete cycles"
+            )
+        return
+    current_cycles = predecessor_state["tdd_cycles"]
+    if (
+        len(current_cycles) < len(request_cycles)
+        or current_cycles[: len(request_cycles)] != request_cycles
+    ):
+        raise SuccessorError(
+            "successor predecessor request TDD evidence is not an immutable state prefix"
+        )
+
+
+def _lineage_obligations(
+    repo_root: Path, transition: dict[str, Any]
+) -> tuple[set[str], set[str]]:
+    common_dir = _common_dir(repo_root)
+    state_root = repo_root / ".seam" / "orchestration" / "sessions"
+    request_ids: set[str] = set()
+    session_ids: set[str] = set()
+    seen_digests: set[str] = set()
+    current = transition
+    for _ in range(32):
+        current_path = _transition_path(
+            common_dir,
+            current["predecessor_session_id"],
+            current["recovery_event_id"],
+        )
+        _, encoded = _load_transition(current_path)
+        digest = hashlib.sha256(encoded).hexdigest()
+        if digest in seen_digests:
+            raise SuccessorError("successor lineage contains a transition cycle")
+        seen_digests.add(digest)
+        predecessor_id = current["predecessor_session_id"]
+        successor_id = current["successor_session_id"]
+        if predecessor_id == successor_id:
+            raise SuccessorError("successor lineage contains a session cycle")
+        session_ids.update({predecessor_id, successor_id})
+        if (
+            current["repository_common_dir"] != str(common_dir)
+            or current["worktree_root"] != str(repo_root)
+            or current["branch"] != transition["branch"]
+            or current["original_base_sha"] != transition["original_base_sha"]
+        ):
+            raise SuccessorError("successor lineage repository binding drifted")
+        request_artifact = _artifact_with_label(current, "predecessor_request")
+        request_path = Path(request_artifact["path"])
+        request, _ = _read_json(request_path)
+        request = closeout_queue.validate_request(
+            request, state_root=request_path.parents[1]
+        )
+        if (
+            request["request_id"] != current["request_id"]
+            or request["session_id"] != predecessor_id
+        ):
+            raise SuccessorError("successor lineage request identity drifted")
+        if request["request_id"] in request_ids:
+            raise SuccessorError("successor lineage repeats a request")
+        request_ids.add(request["request_id"])
+        _validate_request_activation(
+            repo_root,
+            request,
+            original_base_sha=current["original_base_sha"],
+            activation_sha=current["activation_sha"],
+            branch=current["branch"],
+        )
+        receipt_artifact = _artifact_with_label(current, "predecessor_receipt")
+        receipt_path = Path(receipt_artifact["path"])
+        receipt, _ = _read_json(receipt_path)
+        receipt = closeout_queue.validate_receipt(
+            request, receipt, state_root=request_path.parents[1]
+        )
+        if receipt["status"] == "QUALIFIED":
+            raise SuccessorError("successor lineage ancestor receipt is already qualified")
+        predecessor_state, _ = _read_json(state_root / f"{predecessor_id}.json")
+        successor_state, _ = _read_json(state_root / f"{successor_id}.json")
+        try:
+            validate_session_state(predecessor_state, expected_session_id=predecessor_id)
+            validate_session_state(successor_state, expected_session_id=successor_id)
+        except SessionEndError as exc:
+            raise SuccessorError(str(exc)) from exc
+        _validate_request_tdd_prefix(request, predecessor_state)
+        inherited = predecessor_state["tdd_cycles"]
+        if (
+            predecessor_state["base_sha"] != current["original_base_sha"]
+            or successor_state["base_sha"] != current["original_base_sha"]
+            or successor_state["tdd_cycles"][: len(inherited)] != inherited
+        ):
+            raise SuccessorError("successor lineage lost inherited base or TDD evidence")
+        registration_artifact = _artifact_with_label(
+            current, "predecessor_registration"
+        )
+        registration_path = Path(registration_artifact["path"])
+        registration = assurance._validate_registration(
+            assurance._load(registration_path), common_dir, registration_path
+        )
+        if (
+            registration["session_id"] != predecessor_id
+            or registration["worktree_root"] != str(repo_root)
+            or registration["base_sha"] != current["original_base_sha"]
+        ):
+            raise SuccessorError("successor lineage registration drifted")
+        ancestor = _transition_for_registration(common_dir, registration)
+        if ancestor is None:
+            return request_ids, session_ids
+        ancestor_transition, _ = ancestor
+        if ancestor_transition["successor_session_id"] != predecessor_id:
+            raise SuccessorError("successor lineage predecessor link is invalid")
+        current = ancestor_transition
+    raise SuccessorError("successor lineage exceeds the bounded transition depth")
+
+
 def validate_registration_binding(
     repo_root: Path,
     registration: dict[str, Any],
@@ -628,14 +853,10 @@ def validate_registration_binding(
         and (not transition_root.is_dir() or transition_root.resolve() != transition_root)
     ):
         raise SuccessorError("successor transition directory is unsafe")
-    matches: list[dict[str, Any]] = []
-    for path in sorted(transition_root.glob("*.json")) if transition_root.exists() else []:
-        transition, encoded = _load_transition(path)
-        if hashlib.sha256(encoded).hexdigest() == digest:
-            matches.append(transition)
-    if len(matches) != 1:
+    matched = _transition_for_registration(common_dir, registration)
+    if matched is None:
         raise SuccessorError("successor registration lacks one immutable transition")
-    transition = matches[0]
+    transition, _ = matched
     if (
         transition["successor_session_id"] != registration.get("session_id")
         or transition["worktree_root"] != str(repo_root)
@@ -663,40 +884,117 @@ def validate_registration_binding(
     inherited = predecessor["tdd_cycles"]
     if successor_state["base_sha"] != transition["original_base_sha"] or successor_state["tdd_cycles"][: len(inherited)] != inherited:
         raise SuccessorError("successor session lost inherited base or TDD evidence")
-    request_artifact = next(
-        (
-            item
-            for item in transition["artifacts"]
-            if item["label"] == "predecessor_request"
-        ),
-        None,
-    )
-    if request_artifact is None:
-        raise SuccessorError("successor activation lacks its predecessor request")
-    request_path = Path(request_artifact["path"])
-    request, _ = _read_json(request_path)
-    request = closeout_queue.validate_request(request, state_root=request_path.parents[1])
-    if (
-        request["repo"]["root"] != str(repo_root)
-        or request["repo"]["base_sha"] != transition["original_base_sha"]
-        or request["repo"]["head"] != transition["activation_sha"]
-        or request["repo"]["changed_paths_truncated"] is not False
-        or (
-            request["change_class"] == "runtime"
-            and request["tdd_evidence"]["status"] != "TDD_PROVEN"
-        )
-    ):
-        raise SuccessorError("successor activation lacks complete predecessor evidence")
+    request_ids, lineage_session_ids = _lineage_obligations(repo_root, transition)
     if require_complete_tdd:
         changed_paths, truncated = _changed_paths(repo_root, transition["original_base_sha"])
         tdd = assess_tdd(changed_paths, successor_state)
         if truncated or (tdd["runtime_paths"] and tdd["status"] != "TDD_PROVEN"):
             raise SuccessorError("successor runtime changes lack complete TDD coverage")
     try:
-        closeout_queue.validate_successor_inventory(repo_root, transition)
+        closeout_queue.validate_successor_inventory(
+            repo_root,
+            transition,
+            obligation_request_ids=request_ids,
+            lineage_session_ids=lineage_session_ids,
+        )
     except closeout_queue.CloseoutQueueError as exc:
         raise SuccessorError(str(exc)) from exc
     return transition
+
+
+def _prevalidate_successor_state(
+    state_root: Path,
+    transition_path: Path,
+    successor_id: str,
+    original_base: str,
+    predecessor_state: dict[str, Any],
+    *,
+    objective: str,
+    plan: list[str],
+    constraints: list[str],
+    affected_tests: list[str],
+) -> tuple[dict[str, Any], bytes, Path, bool]:
+    successor_state = {
+        "schema": "seam-agent-session-state/v1",
+        "session_id": successor_id,
+        "base_sha": original_base,
+        "objective": objective,
+        "plan": plan,
+        "constraints": constraints,
+        "affected_tests": affected_tests,
+        "tdd_cycles": predecessor_state["tdd_cycles"],
+    }
+    try:
+        validate_session_state(successor_state, expected_session_id=successor_id)
+    except SessionEndError as exc:
+        raise SuccessorError(str(exc)) from exc
+    successor_state_path = state_root / f"{successor_id}.json"
+    state_bytes = _canonical(successor_state)
+    if not os.path.lexists(successor_state_path):
+        return successor_state, state_bytes, successor_state_path, False
+    if not transition_path.exists():
+        raise SuccessorError(
+            "conflicting successor session state lacks immutable transition intent"
+        )
+    existing_state, existing_bytes = _read_json(successor_state_path)
+    try:
+        validate_session_state(existing_state, expected_session_id=successor_id)
+    except SessionEndError as exc:
+        raise SuccessorError(str(exc)) from exc
+    stable_fields = set(successor_state) - {"tdd_cycles"}
+    if (
+        any(existing_state[field] != successor_state[field] for field in stable_fields)
+        or existing_state["tdd_cycles"][: len(predecessor_state["tdd_cycles"])]
+        != predecessor_state["tdd_cycles"]
+    ):
+        raise SuccessorError("conflicting successor session state exists")
+    return existing_state, existing_bytes, successor_state_path, True
+
+
+def _prevalidate_assurance_activation(
+    repo_root: Path,
+    common_dir: Path,
+    *,
+    predecessor_id: str,
+    successor_id: str,
+    original_base: str,
+    transition_digest: str,
+    successor_state_exists: bool,
+) -> None:
+    registration_path = assurance._registration_path(common_dir, successor_id)
+    expected_registration = {
+        "schema": assurance.SCHEMA,
+        "kind": "registration",
+        "repository": assurance.REPOSITORY,
+        "repository_common_dir": str(common_dir),
+        "session_id": successor_id,
+        "worktree_root": str(repo_root),
+        "base_sha": original_base,
+        "successor_transition_sha256": transition_digest,
+    }
+    registration_exists = os.path.lexists(registration_path)
+    if registration_exists:
+        existing = assurance._validate_registration(
+            assurance._load(registration_path), common_dir, registration_path
+        )
+        if assurance._canonical(existing) != assurance._canonical(expected_registration):
+            raise SuccessorError("conflicting immutable assurance registration exists")
+        if not successor_state_exists:
+            raise SuccessorError(
+                "successor assurance registration lacks its existing session state"
+            )
+    active_path = assurance._active_path(common_dir, repo_root)
+    if not os.path.lexists(active_path):
+        return
+    active = assurance._validate_active(
+        assurance._load(active_path), common_dir, repo_root
+    )
+    if active["session_id"] not in {predecessor_id, successor_id}:
+        raise SuccessorError("conflicting active assurance binding exists")
+    if active["session_id"] == successor_id and (
+        not registration_exists or not successor_state_exists
+    ):
+        raise SuccessorError("active successor assurance binding is incomplete")
 
 
 def create(
@@ -735,10 +1033,37 @@ def create(
     except SessionEndError as exc:
         raise SuccessorError(str(exc)) from exc
     original_base = predecessor_state["base_sha"]
+    path = _transition_path(common_dir, predecessor, event_id)
+    (
+        successor_state,
+        state_bytes,
+        successor_state_path,
+        successor_state_exists,
+    ) = _prevalidate_successor_state(
+        state_root,
+        path,
+        successor_id,
+        original_base,
+        predecessor_state,
+        objective=objective,
+        plan=plan,
+        constraints=constraints,
+        affected_tests=affected_tests,
+    )
     registration_path = assurance._registration_path(common_dir, predecessor)
     registration = assurance._validate_registration(assurance._load(registration_path), common_dir, registration_path)
     if registration["worktree_root"] != str(repo_root) or registration["base_sha"] != original_base:
         raise SuccessorError("predecessor registration does not match original state")
+    predecessor_transition: dict[str, Any] | None = None
+    obligation_request_ids: set[str] = set()
+    lineage_session_ids: set[str] = {predecessor}
+    if "successor_transition_sha256" in registration:
+        predecessor_transition = validate_registration_binding(
+            repo_root, registration, require_complete_tdd=False
+        )
+        obligation_request_ids, lineage_session_ids = _lineage_obligations(
+            repo_root, predecessor_transition
+        )
     recovery_path = context_root / "recoveries" / predecessor / f"{event_id}.json"
     context_guardian._load_recovery(recovery_path, context_root, predecessor)
     context_state_path = context_root / f"{predecessor}.json"
@@ -753,6 +1078,7 @@ def create(
     request = closeout_queue.validate_request(request, state_root=queue_root)
     if request["session_id"] != predecessor or request["repo"]["root"] != str(repo_root):
         raise SuccessorError("predecessor request identity does not match transition")
+    _validate_request_tdd_prefix(request, predecessor_state)
     stored = closeout_queue._stored_receipts(request, state_root=queue_root)
     canonical_receipt = closeout_queue._expected_receipt_path(queue_root, request_id)
     selected = [(path, receipt) for path, receipt in stored if path == canonical_receipt]
@@ -768,6 +1094,17 @@ def create(
     if ancestor.returncode:
         raise SuccessorError("successor candidate does not descend from original base")
     branch = _git(repo_root, "branch", "--show-current") or "detached"
+    _validate_request_activation(
+        repo_root,
+        request,
+        original_base_sha=original_base,
+        activation_sha=activation,
+        branch=branch,
+    )
+    if request_id in obligation_request_ids:
+        raise SuccessorError("successor lineage repeats its current request")
+    obligation_request_ids.add(request_id)
+    lineage_session_ids.add(predecessor)
     artifacts = [
         _artifact(registration_path, "predecessor_registration"),
         _artifact(predecessor_state_path, "predecessor_session_state"),
@@ -781,7 +1118,14 @@ def create(
     if checkpoint_path.exists():
         context_guardian._load_checkpoint(context_root, predecessor)
         artifacts.append(_artifact(checkpoint_path, "predecessor_checkpoint"))
-    admission = closeout_queue.admit_successor(repo_root, request_id=request_id, repair_paths=repair_paths)
+    admission = closeout_queue.admit_successor(
+        repo_root,
+        obligation_request_ids=obligation_request_ids,
+        lineage_session_ids=lineage_session_ids,
+        branch=branch,
+        original_base_sha=original_base,
+        repair_paths=repair_paths,
+    )
     repair_artifacts = [
         _artifact(path.resolve(strict=True), f"repair:{index}")
         for index, path in enumerate(repair_paths)
@@ -792,7 +1136,6 @@ def create(
             value["external_root"], value["session_id"], value["event_id"]
         ),
     )
-    path = _transition_path(common_dir, predecessor, event_id)
     stable = {
         "schema": SCHEMA,
         "predecessor_session_id": predecessor,
@@ -810,13 +1153,25 @@ def create(
         "queue_roots": admission["observed_roots"],
         "queue_record_sha256s": admission["record_sha256s"],
     }
-    if path.exists():
+    transition_exists = path.exists()
+    if transition_exists:
         transition, encoded = _load_transition(path)
         if {key: value for key, value in transition.items() if key != "created_at"} != stable:
             raise SuccessorError("competing or conflicting successor transition exists")
     else:
         transition = {**stable, "created_at": datetime.now(timezone.utc).isoformat()}
         encoded = _canonical(transition)
+    digest = hashlib.sha256(encoded).hexdigest()
+    _prevalidate_assurance_activation(
+        repo_root,
+        common_dir,
+        predecessor_id=predecessor,
+        successor_id=successor_id,
+        original_base=original_base,
+        transition_digest=digest,
+        successor_state_exists=successor_state_exists,
+    )
+    if not transition_exists:
         if not _publish_once(path, encoded):
             existing, existing_bytes = _load_transition(path)
             if {
@@ -825,39 +1180,8 @@ def create(
                 raise SuccessorError("competing or conflicting successor transition exists")
             transition = existing
             encoded = existing_bytes
-    digest = hashlib.sha256(encoded).hexdigest()
-    successor_state = {
-        "schema": "seam-agent-session-state/v1",
-        "session_id": successor_id,
-        "base_sha": original_base,
-        "objective": objective,
-        "plan": plan,
-        "constraints": constraints,
-        "affected_tests": affected_tests,
-        "tdd_cycles": predecessor_state["tdd_cycles"],
-    }
-    try:
-        validate_session_state(successor_state, expected_session_id=successor_id)
-    except SessionEndError as exc:
-        raise SuccessorError(str(exc)) from exc
-    successor_state_path = state_root / f"{successor_id}.json"
-    state_bytes = _canonical(successor_state)
-    if successor_state_path.exists():
-        existing_state, existing_bytes = _read_json(successor_state_path)
-        try:
-            validate_session_state(existing_state, expected_session_id=successor_id)
-        except SessionEndError as exc:
-            raise SuccessorError(str(exc)) from exc
-        stable_fields = set(successor_state) - {"tdd_cycles"}
-        if (
-            any(existing_state[field] != successor_state[field] for field in stable_fields)
-            or existing_state["tdd_cycles"][: len(predecessor_state["tdd_cycles"])]
-            != predecessor_state["tdd_cycles"]
-        ):
-            raise SuccessorError("conflicting successor session state exists")
-        successor_state = existing_state
-        state_bytes = existing_bytes
-    elif not _publish_once(successor_state_path, state_bytes):
+            digest = hashlib.sha256(encoded).hexdigest()
+    if not successor_state_exists and not _publish_once(successor_state_path, state_bytes):
         existing_state, existing_bytes = _read_json(successor_state_path)
         if existing_bytes != state_bytes or existing_state != successor_state:
             raise SuccessorError("conflicting successor session state exists")

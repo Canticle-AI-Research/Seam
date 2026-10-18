@@ -182,6 +182,373 @@ def _session_cli(repo: Path, state_root: Path, session_id: str, *arguments: str)
     )
 
 
+def _first_generation_request(
+    repo: Path,
+    state_root: Path,
+    predecessor: str,
+    predecessor_request: dict[str, object],
+) -> tuple[str, dict[str, object]]:
+    first = "successor-generation-one"
+    created = _session_cli(
+        repo,
+        state_root,
+        first,
+        "successor",
+        "--predecessor-session", predecessor,
+        "--request-id", str(predecessor_request["request_id"]),
+        "--recovery-event", "automatic-compaction-1",
+        "--objective", "Preserve the first recovered generation.",
+    )
+    assert created.returncode == 0, created.stderr
+    for cycle in range(2, 17):
+        appended = _session_cli(
+            repo,
+            state_root,
+            first,
+            "record-tdd",
+            "--behavior", f"the first successor preserves witnessed cycle {cycle}",
+            "--test-ref", "tests/audit/test_successor_transition.py::test_public_cli_allows_second_generation_after_non_runtime_committed_tail",
+            "--implementation-ref", "seam_runtime/feature.py",
+            "--red-command", f"pytest inherited-red-{cycle}",
+            "--red-exit", "1",
+            "--red-fingerprint", f"inherited-red-{cycle}",
+            "--green-command", f"pytest inherited-green-{cycle}",
+            "--green-exit", "0",
+            "--green-fingerprint", f"inherited-green-{cycle}",
+        )
+        assert appended.returncode == 0, appended.stderr
+    context_root = repo / ".seam" / "orchestration" / "context"
+    handoff_root = repo / ".context-handoffs"
+    context_guardian.observe(
+        session_id=first,
+        used_tokens=45,
+        context_limit=100,
+        at_coherent_milestone=False,
+        summary=["The first successor retained all witnessed cycles."],
+        next_step="Create the second generation successor.",
+        state_root=context_root,
+        handoff_root=handoff_root,
+    )
+    context_guardian.recover_unexpected_compaction(
+        session_id=first,
+        event_id="automatic-compaction-2",
+        summary=["The first successor stopped after a second compaction."],
+        next_step="Resume through another same-root successor.",
+        state_root=context_root,
+        handoff_root=handoff_root,
+    )
+    queue_root = repo / ".seam" / "orchestration" / "session-end"
+    queued = session_end_closeout.handle_session_end(
+        {"session_id": first, "cwd": str(repo)},
+        repo_root=repo,
+        state_root=queue_root,
+        dispatch=False,
+    )
+    request = json.loads(Path(str(queued["request_path"])).read_text())
+    closeout_queue.store_receipt(
+        request, _blocked_receipt(request), state_root=queue_root
+    )
+    return first, request
+
+
+def _second_generation_cli(
+    repo: Path,
+    state_root: Path,
+    predecessor: str,
+    request: dict[str, object],
+):
+    return _session_cli(
+        repo,
+        state_root,
+        "successor-generation-two",
+        "successor",
+        "--predecessor-session", predecessor,
+        "--request-id", str(request["request_id"]),
+        "--recovery-event", "automatic-compaction-2",
+        "--objective", "Resume the exact second generation lineage.",
+    )
+
+
+def _publication_snapshot(
+    repo: Path, state_root: Path, successor_id: str
+) -> dict[str, object]:
+    common = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    transition_root = common / "seam-orchestration" / "successors"
+    registration_path = assurance._registration_path(common, successor_id)
+    active_path = assurance._active_path(common, repo)
+    state_path = state_root / f"{successor_id}.json"
+
+    def optional_bytes(path: Path) -> bytes | None:
+        return path.read_bytes() if path.exists() else None
+
+    return {
+        "transitions": {
+            path.name: path.read_bytes() for path in transition_root.glob("*.json")
+        },
+        "state": optional_bytes(state_path),
+        "registration": optional_bytes(registration_path),
+        "active": optional_bytes(active_path),
+    }
+
+
+def test_invalid_successor_metadata_fails_before_any_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, request = recovered_repo
+    successor_id = "successor-invalid-metadata"
+    before = _publication_snapshot(repo, state_root, successor_id)
+    arguments = [
+        "successor",
+        "--predecessor-session", predecessor,
+        "--request-id", str(request["request_id"]),
+        "--recovery-event", "automatic-compaction-1",
+        "--objective", "Reject invalid successor metadata without publication.",
+    ]
+    for index in range(17):
+        arguments.extend(("--plan", f"plan item {index}"))
+
+    rejected = _session_cli(repo, state_root, successor_id, *arguments)
+
+    assert rejected.returncode != 0
+    assert "plan" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_conflicting_successor_registration_fails_before_any_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, base, predecessor, state_root, request = recovered_repo
+    successor_id = "successor-conflicting-identity"
+    common = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    registration_path = assurance._registration_path(common, successor_id)
+    registration = {
+        "schema": assurance.SCHEMA,
+        "kind": "registration",
+        "repository": assurance.REPOSITORY,
+        "repository_common_dir": str(common),
+        "session_id": successor_id,
+        "worktree_root": str(repo),
+        "base_sha": base,
+    }
+    registration_path.parent.mkdir(parents=True, exist_ok=True)
+    assert assurance._publish_once(
+        registration_path, assurance._canonical(registration)
+    )
+    before = _publication_snapshot(repo, state_root, successor_id)
+
+    rejected = _session_cli(
+        repo,
+        state_root,
+        successor_id,
+        "successor",
+        "--predecessor-session", predecessor,
+        "--request-id", str(request["request_id"]),
+        "--recovery-event", "automatic-compaction-1",
+        "--objective", "Reject the conflicting immutable identity.",
+    )
+
+    assert rejected.returncode != 0
+    assert "conflicting immutable assurance registration" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_public_cli_allows_second_generation_after_non_runtime_committed_tail(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, base, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    docs = repo / "docs"
+    docs.mkdir()
+    (docs / "continuity.md").write_text("continuity only\n", encoding="utf-8")
+    _git(repo, "add", "docs/continuity.md")
+    _git(repo, "commit", "-qm", "record continuity")
+
+    created = _second_generation_cli(repo, state_root, first, request)
+
+    assert created.returncode == 0, created.stderr
+    first_state = json.loads((state_root / f"{first}.json").read_text())
+    second_state = json.loads(
+        (state_root / "successor-generation-two.json").read_text()
+    )
+    assert second_state["base_sha"] == base
+    assert len(second_state["tdd_cycles"]) == 16
+    assert second_state["tdd_cycles"] == first_state["tdd_cycles"]
+    common = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    transitions = list((common / "seam-orchestration" / "successors").glob("*.json"))
+    assert len(transitions) == 2
+    bound_requests = {
+        json.loads(path.read_text())["request_id"] for path in transitions
+    }
+    assert bound_requests == {
+        predecessor_request["request_id"],
+        request["request_id"],
+    }
+
+
+def test_second_generation_rejects_runtime_committed_tail_before_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    (repo / "seam_runtime" / "feature.py").write_text("VALUE = 3\n", encoding="utf-8")
+    _git(repo, "commit", "-qam", "runtime tail")
+    common = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    transition_root = common / "seam-orchestration" / "successors"
+    before = {path.name: path.read_bytes() for path in transition_root.glob("*.json")}
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "runtime" in rejected.stderr
+    assert not (state_root / "successor-generation-two.json").exists()
+    assert {path.name: path.read_bytes() for path in transition_root.glob("*.json")} == before
+    assert not assurance._registration_path(
+        common, "successor-generation-two"
+    ).exists()
+
+
+def test_second_generation_rejects_reverted_runtime_tail_before_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    runtime = repo / "seam_runtime" / "feature.py"
+    runtime.write_text("VALUE = 3\n", encoding="utf-8")
+    _git(repo, "commit", "-qam", "runtime edit")
+    runtime.write_text("VALUE = 2\n", encoding="utf-8")
+    _git(repo, "commit", "-qam", "runtime revert")
+    successor_id = "successor-generation-two"
+    before = _publication_snapshot(repo, state_root, successor_id)
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "runtime" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_second_generation_rejects_runtime_rename_tail_before_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    _git(repo, "config", "diff.renames", "true")
+    docs = repo / "docs"
+    docs.mkdir()
+    _git(repo, "mv", "seam_runtime/feature.py", "docs/feature.py")
+    _git(repo, "commit", "-qm", "rename runtime file into documentation")
+    successor_id = "successor-generation-two"
+    before = _publication_snapshot(repo, state_root, successor_id)
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "runtime" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_second_generation_rejects_merge_tail_before_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    branch = _git(repo, "branch", "--show-current")
+    _git(repo, "checkout", "-qb", "tail-side")
+    (repo / "side.md").write_text("side\n", encoding="utf-8")
+    _git(repo, "add", "side.md")
+    _git(repo, "commit", "-qm", "side documentation")
+    _git(repo, "checkout", "-q", branch)
+    (repo / "main.md").write_text("main\n", encoding="utf-8")
+    _git(repo, "add", "main.md")
+    _git(repo, "commit", "-qm", "main documentation")
+    _git(repo, "merge", "--no-ff", "tail-side", "-qm", "merge documentation")
+    successor_id = "successor-generation-two"
+    before = _publication_snapshot(repo, state_root, successor_id)
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "merge" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_second_generation_rejects_removed_immediate_predecessor_cycle(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    first_path = state_root / f"{first}.json"
+    first_state = json.loads(first_path.read_text())
+    assert len(first_state["tdd_cycles"]) == 16
+    del first_state["tdd_cycles"][8]
+    first_path.write_text(json.dumps(first_state), encoding="utf-8")
+    successor_id = "successor-generation-two"
+    before = _publication_snapshot(repo, state_root, successor_id)
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "request TDD evidence" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_second_generation_rejects_modified_immediate_predecessor_cycle(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    first_path = state_root / f"{first}.json"
+    first_state = json.loads(first_path.read_text())
+    assert len(first_state["tdd_cycles"]) == 16
+    first_state["tdd_cycles"][8]["behavior"] = "modified after immutable request"
+    first_path.write_text(json.dumps(first_state), encoding="utf-8")
+    successor_id = "successor-generation-two"
+    before = _publication_snapshot(repo, state_root, successor_id)
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "request TDD evidence" in rejected.stderr
+    assert _publication_snapshot(repo, state_root, successor_id) == before
+
+
+def test_second_generation_rejects_lost_inherited_cycle_before_publication(
+    recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
+) -> None:
+    repo, _, predecessor, state_root, predecessor_request = recovered_repo
+    first, request = _first_generation_request(
+        repo, state_root, predecessor, predecessor_request
+    )
+    first_path = state_root / f"{first}.json"
+    first_state = json.loads(first_path.read_text())
+    first_state["tdd_cycles"] = first_state["tdd_cycles"][1:]
+    first_path.write_text(json.dumps(first_state), encoding="utf-8")
+    common = Path(_git(repo, "rev-parse", "--path-format=absolute", "--git-common-dir"))
+    transition_root = common / "seam-orchestration" / "successors"
+    before = {path.name: path.read_bytes() for path in transition_root.glob("*.json")}
+
+    rejected = _second_generation_cli(repo, state_root, first, request)
+
+    assert rejected.returncode != 0
+    assert "inherited" in rejected.stderr
+    assert not (state_root / "successor-generation-two.json").exists()
+    assert {path.name: path.read_bytes() for path in transition_root.glob("*.json")} == before
+
+
 def test_successor_cli_preserves_predecessor_and_resumes_immutable_intent(
     recovered_repo: tuple[Path, str, str, Path, dict[str, object]],
 ) -> None:

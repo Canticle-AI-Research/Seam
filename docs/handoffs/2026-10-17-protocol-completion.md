@@ -7,6 +7,14 @@ history: HISTORY#687
 
 # Resolve verified completion before choosing the next task
 
+Latest recovery update: HISTORY#698 records the fresh chained successor,
+unchanged inherited TDD, independently reviewed cwd-fixture and existing
+workspace-policy adoption, and passing full non-external audit. Finish the
+exact committed assurance and protected-delivery sequence before advancing
+the delivery plan. Current incremental evidence is in Primary
+`.git/seam-consolidation-20261017/successor-2-progress.json`. Earlier updates
+below remain historical and do not grant a compacted predecessor authority.
+
 Current recovery update: HISTORY#694 records genuine successor activation,
 restoration of the original branch/evidence, admission-only dispositions,
 original-base TDD reconciliation, and a passing full non-external audit.

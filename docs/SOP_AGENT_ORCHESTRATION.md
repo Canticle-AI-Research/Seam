@@ -64,7 +64,7 @@ packet rather than the parent conversation or repository startup set.
 
 | Role | Owns | May write | Cannot own |
 | --- | --- | --- | --- |
-| Root | objective, operator dialogue, context spine, decomposition, integration, final judgment | integration worktree, local session state, continuity and PR artifacts | independent acceptance of its own claims |
+| Root | objective, operator dialogue, context spine, decomposition, integration, final judgment | integration checkout, local session state, continuity and PR artifacts | independent acceptance of its own claims |
 | Context | supplied-contract reconciliation, dependency map, scoped unknowns | no | implementation or broad discovery |
 | Delivery | one approved vertical slice, disjoint specialist ownership, red/green evidence | packet-owned paths | architecture, staging, history, or publication |
 | Assurance | independent spec/test/security review of an integrated slice | no | silent repairs or qualification by assertion |
@@ -150,9 +150,10 @@ repo-wide scan.
 
 ## Execution pipeline
 
-1. **Root frame.** Reconcile live Git/worktree state, load canonical startup
-   sources once, record the objective and acceptance criteria, and identify
-   user-owned exclusions.
+1. **Root frame.** Reconcile live Git/worktree state and the primary-root shared
+   cleanup ledger, load canonical startup sources once, record the objective
+   and acceptance criteria, and identify user-owned exclusions. Apply the
+   `AGENTS.md` Workspace Lifecycle startup checkpoint before new writes.
 2. **Context wave.** Use `seam_context_orchestrator` only for a bounded contract,
    dependency, or unknown-resolution question. Root supplies the relevant
    extracts.
@@ -228,11 +229,17 @@ Passing tests do not prove TDD. A runtime path without a complete recorded
 cycle is `TDD_UNPROVEN`.
 
 After an unexpected compaction, resume through `session_state successor`
-instead of replacing the predecessor registration. The command publishes an
-immutable activation intent before session state or assurance activation. It
-preserves the predecessor base and witnessed cycles, binds the canonical
-recovery, handoff, request, non-qualified receipt, retained-root inventory,
-and any explicitly named administrative dispositions. An external unfinished
+instead of replacing the predecessor registration. A successor may itself be
+the predecessor of another generation. The command walks the immutable
+registration-to-transition chain, rejects cycles or lineage drift, and retains
+the original base, every inherited witnessed cycle, and every still
+non-qualified ancestor request obligation. It permits only those verified
+obligations and later requests from the same repository-bound lineage; an
+unrelated pending request fails admission. Only after these deterministic
+checks does it publish the immutable activation intent, session state, and
+assurance activation. Each transition binds the canonical recovery, handoff,
+request, non-qualified receipt, retained-root inventory, and any explicitly
+named administrative dispositions. An external unfinished
 bootstrap is supplied with `--external-recovery`; its strict binding retains
 the guardian state, handoff, recovery event, evidence manifest, truthful
 checkpoint state, compaction count, and `INHERITED_UNQUALIFIED` status.
@@ -246,9 +253,12 @@ handoff, optional checkpoint, and any retained seven-field result are
 semantically cross-bound. External evidence never contributes inherited TDD
 or qualification.
 
-The activation SHA is an ancestry anchor, so a successor may add reviewed
-descendant commits. Activation checks the predecessor's exact request and TDD
-evidence; deterministic retries preserve valid successor-appended cycles.
+The stored request HEAD remains an immutable hash-bound ancestry anchor. A
+later activation may descend from it only when every committed tail path is
+non-runtime under the canonical runtime-path classifier. A non-ancestor head,
+runtime tail, root or branch drift, incomplete request scope, or lost inherited
+cycle fails before transition, state, or registration publication.
+Deterministic retries preserve valid successor-appended cycles.
 Final assurance still requires a clean exact outgoing SHA,
 complete TDD coverage for every runtime path since the original base, unchanged
 inherited evidence, and the same retained-root inventory. A successor's later
@@ -424,8 +434,20 @@ next action and remain pending evidence for the root.
 
 ## Collision and safety rules
 
-- One writable owner per path and wave. Use separate worktrees for concurrent
-  implementation branches.
+- One writable owner per path and wave. Reuse a suitable checkout by default;
+  read-only agents do not need worktrees. Use one additional worktree only for
+  actual concurrent branch writes, under the root-assigned lowercase canonical
+  path in `AGENTS.md` Workspace Lifecycle. A repository-required clean
+  exact-commit verification may use the distinct root-assigned
+  `<task-slug>-verify` worktree only when no existing checkout can be reused
+  safely; it has identical ledger and cleanup duties. Agent identity alone
+  never creates a checkout.
+- The root owns worktree identity, cleanup conditions, and the shared cleanup
+  ledger. Child agents report changed paths and unique artifacts; they do not
+  create case variants, sibling repository copies, or private worktree roots.
+- A root wave does not finish until its task-owned workspaces pass the mandatory
+  cleanup checkpoint or are retained with a concrete owner, reason, and review
+  date. Qualification and immutable closeout evidence remain unchanged.
 - Specialists inherit only their child packet, not the full conversation.
 - Root stages explicit paths; never `git add -A`.
 - No agent repairs, expands scope, invokes paid providers, pushes, merges, or

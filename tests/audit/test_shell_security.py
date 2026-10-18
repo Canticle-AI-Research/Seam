@@ -251,8 +251,10 @@ class TestShellIntegration:
         monkeypatch.setenv("SHELL", "/bin/bash")
         monkeypatch.setenv("SEAM_SHELL_TIMEOUT_SECONDS", "5")
 
+        import seam_runtime.dashboard as dashboard_module
+
         mock_self = MagicMock()
-        mock_self.shell_cwd = tmp_path
+        mock_self.shell_cwd = Path(dashboard_module.__file__).resolve().parent.parent
 
         from seam_runtime.dashboard import TextualDashboardApp
 
@@ -296,8 +298,10 @@ class TestShellIntegration:
         secret = tmp_path / "secret.txt"
         secret.write_text("TOP_SECRET_VALUE", encoding="utf-8")
 
+        import seam_runtime.dashboard as dashboard_module
+
         mock_self = MagicMock()
-        mock_self.shell_cwd = tmp_path
+        mock_self.shell_cwd = Path(dashboard_module.__file__).resolve().parent.parent
 
         from seam_runtime.dashboard import TextualDashboardApp
 
@@ -327,8 +331,10 @@ class TestShellIntegration:
         monkeypatch.setenv("SHELL", "/bin/bash")
         monkeypatch.setenv("SEAM_SHELL_TIMEOUT_SECONDS", "1")
 
+        import seam_runtime.dashboard as dashboard_module
+
         mock_self = MagicMock()
-        mock_self.shell_cwd = tmp_path
+        mock_self.shell_cwd = Path(dashboard_module.__file__).resolve().parent.parent
 
         from seam_runtime.dashboard import TextualDashboardApp
 

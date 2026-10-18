@@ -5,6 +5,33 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Fresh successor repairs reviewed; full local audit passed.**
+The genuine successor preserved the original comparison base and all inherited
+TDD cycles, dispositioned the additional predecessor request, and completed
+canonical chained admission. The shell integration cwd fixtures now pass with
+test artifacts outside the source checkout; runtime shell permissions are
+unchanged. The existing workspace lifecycle policy from `484a5600` is adopted
+with its original authority and pointers, preserving successor documentation.
+Independent review passed for those exact changes. The full non-external audit
+passed; exact command, scope and log hash are in HISTORY#698 and Primary
+`.git/seam-consolidation-20261017/successor-2-audit.json`.
+Managed-reference closeout, exact committed assurance, hosted CI, qualification,
+protected merge and resulting-main verification remain pending. Earlier recovery
+headlines below describe preserved historical boundaries.
+
+**Restoration reconciled; fresh successor required after actual compaction.**
+The current root admitted the reviewed successor-chain repair and preserved
+inherited TDD. Restored root contents and immutable inventory now validate
+within the captured archive scope. The existing cleanup policy and its suspended
+shared ledger govern consolidation; pending local policy text awaits reconciliation.
+The interrupted shell-fixture correction is incomplete: cut-off testing exposes
+two neighboring cwd fixtures, while the runtime security boundary remains correct.
+A later automatic compaction (distinct from the dispatcher interruption) requires
+handoff and blocks this root's assurance and qualification. See HISTORY#697 and
+primary `.git/seam-consolidation-20261017/FINAL_HANDOFF.md`. The branch remains
+local and uncommitted; earlier headlines below describe historical boundaries.
+
+
 **Recovery handoff required; publication remains blocked.**
 After the HISTORY#695 checkpoint, this root experienced actual automatic
 compaction. The canonical guardian records `HANDOFF_REQUIRED` with a missing

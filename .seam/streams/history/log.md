@@ -22564,3 +22564,49 @@ The separate retained-root inventory failure remains unresolved as described in 
 
 External finalization-20261017/FINAL_HANDOFF.md supplies the outer dispatcher a bounded evidence map and genuine-successor instructions. The delivery client stopped before completing this append and final handoff after automatic approval review rejected detailed tracker writes as exports of internal recovery information. The outer recovered client completes only durable cut-off records, not assurance or qualification. A safer minimal status-only update was accepted on the existing personal overview, task register and verification Pages; detailed recovery information stays local. Previous tracker evidence and stable task IDs are preserved. Next obtain authoritative missing-worktree context and dispatch a genuinely fresh root, preserve this event and all evidence, then use the canonical successor mechanism without rewriting immutable bindings. Existing push/merge authorization remains in force; no redundant publishing permission is requested. The separate diagnostic question about disappeared worktrees remains pending.
 ---END-ENTRY-#696---
+
+---BEGIN-ENTRY-#697---
+id: 697
+date: 2026-10-18T03:57:17Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, worktree
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,tools/agents/successor.py,tools/agents/closeout_queue.py,tests/audit/test_successor_transition.py,tests/audit/test_shell_security.py
+supersedes: 696
+tokens: 642
+---
+Same genuine root 01a14cf4-a203-7723-a482-28829289a211 completed canonical successor admission on candidate 907116e, preserving original base 79c40b55 and the inherited TDD cycles verbatim. Independently reviewed successor-chain repairs add witnessed evidence without resetting predecessor requests or root bindings. Source adoption is not exact committed assurance. Activation, scoped commands, hashes and review packets are retained in the primary Git directory under seam-consolidation-20261017/.
+
+The disappeared-root incident is now reconciled within captured evidence: the existing cleanup branch records removal and subsequent restoration. Independently verified restoration archives, file hashes, Git HEADs, binary patches and status records match the surviving roots. Original inventory validation succeeds without changed bindings. This does not prove preservation of excluded dependencies, live sessions, or changes after capture. Operator attribution is not retroactive deletion authority. Existing cleanup policy belongs to docs/worktree-cleanup-20261017 at 484a5600; its shared cleanup ledger has cleanup_suspended=true. That policy already covers reuse, canonical containment, retention and preservation. The pending local policy edits must be reconciled with that owning version before adoption, without duplicating or reverting operator policy. No actual cleanup, root move, new checkout or environment was performed by this root.
+
+The dispatcher SIGINT was an interruption only. A later actual automatic context compaction occurred during reconciliation and is recorded canonically as automatic-20261018-consolidation with HANDOFF_REQUIRED and missing_checkpoint=true. No context usage measurement is available; no identity or guardian reset is permitted. This entry is the cut-off breadcrumb, not release qualification.
+
+Uncommitted implementation paths are tools/agents/successor.py and tools/agents/closeout_queue.py; regression paths are tests/audit/test_successor_transition.py and tests/audit/test_shell_security.py; pending policy paths are AGENTS.md, docs/SOP_AGENT_ORCHESTRATION.md and docs/SOP_SEAM_CODEX_WORKFLOW.md. No unresolved missing helper or import symbol was found by the exact collection recorded in cutoff-collect.json. The interrupted shell worker changed only the allowed-command cwd fixture and left RED evidence without its final return. Root cut-off verification confirms that case passes, but two neighboring integration fixtures still assume temporary directories are permitted shell working directories. The real runtime validator correctly rejects Primary test data outside the reused source checkout. Preserve the failure; do not weaken shell permissions. Exact collection and focused outcomes are in cutoff-collect.json and cutoff-focused.json; the earlier partial full audit remains audit-retry-result.json, not an all-green result.
+
+First reproduce the two failures with the exact cutoff-focused.json argv, then have a fresh successor finish the fixture-only Sol repair and independent review, reconcile existing cleanup policy, rerun justified audit verification, and complete canonical continuity, exact committed assurance, one protected PR, required CI, qualification and resulting-main verification. Durable OUT/FINAL_HANDOFF.md and OUT/RESULT.md carry the bounded evidence map. No new commit, push, PR, merge, or resulting-main acceptance is claimed by this checkpoint. Existing authorization remains in force; no repeated permission request is needed.
+---END-ENTRY-#697---
+
+---BEGIN-ENTRY-#698---
+id: 698
+date: 2026-10-18T04:36:29Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, worktree, tests, verify
+commits: pending
+refs: PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_SEAM_CODEX_WORKFLOW.md,docs/PR_LIFECYCLE.md,docs/status/workspace.md,tests/audit/test_shell_security.py,tools/agents/successor.py,tools/agents/closeout_queue.py
+supersedes: 697
+tokens: 622
+---
+Fresh actual successor completed canonical admission after independent disposition of the additional unreceipted predecessor request. Original comparison base 79c40b55f8aea7a6615bdccf4b331b41dd46a362 and all nineteen inherited witnessed cycles remain unchanged. Existing ancestor recovery obligations, retained roots and source-adoption hashes remain bound; no guardian, identity or evidence reset occurred.
+
+Serial Sol completed only the two remaining cwd fixtures in tests/audit/test_shell_security.py, preserving the earlier allowed-command fixture and the real runtime permission boundary. Root reproduced the exact cutoff-focused argv with 2 failed and 207 passed before the fix. The same three-module scope subsequently passed 209 cases. Independent Astra verified fixture diffs, log hashes and the unchanged security contract. Evidence is in Primary .git/seam-consolidation-20261017/successor-2-focused-red.json, successor-2-fixture-green.json and successor-2-independent-review.json.
+
+The authoritative Workspace Lifecycle policy from branch docs/worktree-cleanup-20261017 at 484a5600df99f0f2949a2d2cf4ba6e455ca649c4 was adopted across AGENTS.md, REPO_LEDGER.md, docs/PR_LIFECYCLE.md, both orchestration/workflow SOPs and docs/status/workspace.md. Only our redundant policy wording was removed; successor-specific documentation remains. Independent review verified every owning policy change occurs exactly once. The owning checkout's unrelated dirty chronology, status and reference files remain excluded. No new competing policy or speculative safeguard was added.
+
+Full current non-external audit: existing audit-venv312/bin/python -m pytest -o addopts= -q -p no:cacheprovider tests/audit/ -m "not external" --basetemp=/home/terrabyte/Documents/Projects/Seam/test_seam/consolidation-successor2-audit exited 0 with 3669 passed, 65 deselected,zero failures/skips. Exact argv, timestamps and sha256 are in successor-2-audit.json; log sha256 c04126c0e62a3c480da7df8d596bf8d99adc544abc75c84aa8e13f0e11d7ea2a. Existing offline caches and short TMPDIR were reused. Prior failed/partial audit evidence remains unchanged.
+
+Task fixture cleanup stopped before deletion because live-process reference inspection was incomplete; all mapped fixtures remain retained and reclaimed space is zero. No worktree, environment, clone or sibling output directory was created or removed. The shared suspended ledger changed only this source item's HEAD; all other items were preserved. No restoration rehash or unrelated cleanup sweep was performed.
+
+Current operating pointers now identify this local repaired candidate. Proper changed-page review and managed-reference synchronization precede canonical closeout. Exact committed assurance, one PR, required hosted checks, independent qualified supersession, protected merge and actual resulting-main verification are still required; no delivery claim is made by this entry.
+---END-ENTRY-#698---
