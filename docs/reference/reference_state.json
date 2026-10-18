@@ -5,14 +5,14 @@
   "documents": {
     ".github/RELEASE_CHECKLIST.md": "f5c152df77f5db80ecf4831c840d75ba69c13ffb9492704f7f58944832ab7b83",
     ".github/pull_request_template.md": "d54fca27182e20151672ad83b26cf0b7f76d92f7971009b98617767646c08eb2",
-    "AGENTS.md": "b080a82f569489fdbef82082fa1458b1206564757456097580710707b66f008a",
+    "AGENTS.md": "4f99709a1f0a225337cf4ef06a6e39a4b5d489acac7e10f7642e130b5fa0e52e",
     "ANTIGRAVITY.md": "d3cd80e1983e502889484cfb2537a204258d8fd758aa48570f9024b870f8697f",
     "CLAUDE.md": "b4d9084c33c3a97c8b7ff430fc71f69b891b4e6eaff6b7d75e48be6a84b51a0f",
     "COMMERCIAL_LICENSE.md": "b0b8ffbb2298e7df18b45da195aa8a5666c9bfc062f4b698c53dceae01fe781b",
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "b1c4a6659e0d81302aa99c712559b33901345969c77d44ef2b8a3425b70b7da7",
+    "PROJECT_STATUS.md": "350f379d2313526dbde99bfcc095892e491a384e61e4ce6216ce78617a608b6b",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
     "REPO_LEDGER.md": "180d50f0dd83776e4442f38ce100158486e19c7aeee7da856a7c2650b1b3b812",
@@ -204,7 +204,7 @@
   "review_acknowledgements": {
     "AGENTS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "b080a82f569489fdbef82082fa1458b1206564757456097580710707b66f008a",
+      "document_sha256": "4f99709a1f0a225337cf4ef06a6e39a4b5d489acac7e10f7642e130b5fa0e52e",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -234,7 +234,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "b1c4a6659e0d81302aa99c712559b33901345969c77d44ef2b8a3425b70b7da7",
+      "document_sha256": "350f379d2313526dbde99bfcc095892e491a384e61e4ce6216ce78617a608b6b",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

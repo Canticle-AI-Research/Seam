@@ -5,6 +5,20 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Retention gate repair reviewed and audit passed; genuine successor required.**
+Normal push exposed a conflict between retained-worktree policy and the hook's
+blanket dirty-worktree rejection. The narrow repair validates exact, unexpired
+shared-ledger retention records and fails closed on Git errors and ambiguous
+JSON. Independent source review passed. Current cut-off audit evidence records
+3694 passed, 65 external tests deselected, zero failures or skips; see HISTORY#699
+and Primary `.git/seam-consolidation-20261017/successor-2-cutoff-audit.json`.
+Actual automatic compaction is recorded with the existing checkpoint and
+`HANDOFF_REQUIRED`. All 21 witnessed cycles and ancestor obligations remain.
+HEAD is `f47b7a76dedef3efb6bcf606fb5f581163c3d4cd`; the retention repair is
+uncommitted. No push, hosted CI, qualified supersession, merge or resulting-main
+acceptance occurred. Resume from the unique `successor-2-result.md` in that same
+evidence directory. Earlier headlines are preserved historical boundaries.
+
 **Fresh successor repairs reviewed; full local audit passed.**
 The genuine successor preserved the original comparison base and all inherited
 TDD cycles, dispositioned the additional predecessor request, and completed

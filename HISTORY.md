@@ -22610,3 +22610,25 @@ Task fixture cleanup stopped before deletion because live-process reference insp
 
 Current operating pointers now identify this local repaired candidate. Proper changed-page review and managed-reference synchronization precede canonical closeout. Exact committed assurance, one PR, required hosted checks, independent qualified supersession, protected merge and actual resulting-main verification are still required; no delivery claim is made by this entry.
 ---END-ENTRY-#698---
+
+---BEGIN-ENTRY-#699---
+id: 699
+date: 2026-10-18T05:10:42Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, worktree, tests, verify
+commits: pending
+refs: tools/git/verify_retained_worktree.py,tools/git-hooks/pre-push,tests/audit/test_retained_worktree_push_gate.py,AGENTS.md,PROJECT_STATUS.md,docs/handoffs/2026-10-17-protocol-completion.md
+supersedes: 698
+tokens: 664
+---
+Normal protected push of independently assured commit f47b7a76dedef3efb6bcf606fb5f581163c3d4cd failed on eleven unrelated dirty retained worktrees; no remote push occurred. A stale hook dispatcher was normally reinstalled before this failure. Existing workspace lifecycle policy was authoritative; no competing cleanup policy or blanket cleanup was introduced.
+
+The narrow follow-up implements fail-closed exact, unexpired retained-ledger validation in tools/git/verify_retained_worktree.py and tools/git-hooks/pre-push, with tests/audit/test_retained_worktree_push_gate.py and the matching AGENTS.md clarification. Sol supplied two witnessed red/green cycles (7 failed/14 passed to 22 passed; independent-review findings 3 failed/22 passed to 25 passed). Independent Astra source review passed exact hashes saved in Primary .git/seam-consolidation-20261017/successor-2-retention-independent-review.json. It is source review only, not committed assurance or qualification. Original comparison base 79c40b55f8aea7a6615bdccf4b331b41dd46a362 and nineteen inherited cycles remain, plus two new cycles for twenty-one total.
+
+Actual automatic compaction was recorded for the unchanged session 01a14d32-8d21-7b13-b120-d93473a401d7 with event automatic-20261018-successor2-retention. Existing checkpoint was preserved (missing_checkpoint false), previous action COMPACT_NOW, actual compactions one, resulting HANDOFF_REQUIRED. No identity or telemetry reset occurred. A genuinely fresh client/session must reconcile the canonical request and admit this successor chain before qualification or publishing. Earlier committed assurance does not cover the dirty retention repair.
+
+Cut-off verification: existing audit-venv312 Python -m pytest -o addopts= -q -p no:cacheprovider tests/audit -m "not external" --basetemp=/home/terrabyte/Documents/Projects/Seam/test_seam/successor2-cutoff-audit passed 3694 tests, deselected 65 external tests, with zero skips/failures and three warnings. Exact argv, timestamps, exit and SHA256 are in successor-2-cutoff-audit.json, log SHA256 1b7c0f6278513b159de1fdd1c82eb97b22123eeecdb807240dcb7c3234700f81. The targeted module collected all 25 tests. No missing symbols or test/implementation mismatch remains known. Managed references were reviewed and synchronized, not bypassed.
+
+Dirty cut-off paths include the four repair paths above plus PROJECT_STATUS.md, the current tracked handoff, this append and derived history/index/stream/snapshot/reference state. First reproduction: use the exact cutoff-audit receipt argv and recorded offline-cache environment. Unique durable recovery is Primary .git/seam-consolidation-20261017/successor-2-result.md. All bound roots/environments and ancestor recovery obligations remain. Fixture cleanup stopped before deletion because process-use evidence was incomplete; zero reclaimed bytes claimed. Current local tests do not establish push, hosted CI, independent qualified supersession, protected merge or actual resulting-main acceptance.
+---END-ENTRY-#699---

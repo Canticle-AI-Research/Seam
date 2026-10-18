@@ -150,8 +150,10 @@ approval. Destructive handling of unique data, ambiguous ownership, active
 work, or a workspace outside that scope still requires an explicit operator
 decision.
 
-This section defines the required human/agent procedure and ledger contract. It
-does not claim that a hook or runtime command enforces the policy automatically.
+This section defines the required human/agent procedure and ledger contract.
+The pre-push hook only validates whether a dirty linked worktree has an exact,
+unexpired `retained` ledger record. It does not create or update ledger entries,
+authorize removal, or enforce workspace creation and cleanup automatically.
 
 ### Codex-Only Delegated Context Fast Path
 

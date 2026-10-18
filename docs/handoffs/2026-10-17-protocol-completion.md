@@ -7,6 +7,13 @@ history: HISTORY#687
 
 # Resolve verified completion before choosing the next task
 
+Latest cut-off update: HISTORY#699 records the source-reviewed retention gate
+repair, current full audit, and actual automatic compaction requiring a genuinely
+fresh client/session. Preserve the original comparison base and all 21 witnessed
+cycles. No current qualification or publication is claimed. Resume through Primary
+`.git/seam-consolidation-20261017/successor-2-result.md`; the earlier assurance
+covers only committed `f47b7a7` and does not cover the dirty retention repair.
+
 Latest recovery update: HISTORY#698 records the fresh chained successor,
 unchanged inherited TDD, independently reviewed cwd-fixture and existing
 workspace-policy adoption, and passing full non-external audit. Finish the
