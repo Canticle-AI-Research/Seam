@@ -22544,3 +22544,23 @@ Prior full audit invocation remains external audit-venv312/bin/python -m pytest 
 
 Actual GitHub read refreshed protected main79c40b55f8aea7a6615bdccf4b331b41dd46a362 and empty open-PR inventory. No assurance PASS report was stored, no required-CI candidate exists, no release qualification/push/PR/merge/main verification occurred. Authorised push remains blocked by the actual prepublication invariant, not a permission request. Preserve the restored repair worktree and local branch because their real reviewed work cannot be published through the blocked gate. Source bootstrap and all immutable evidence remain separately preserved. Next reconcile disappeared-root provenance/authorized restoration, obtain fresh exact committed assurance, then complete requiredCI, qualified supersession, protected merge and exact-main verification. Native tracker retains stable task IDs and labels this concrete blocker; no unrelated held product work or signal acknowledgement.
 ---END-ENTRY-#695---
+
+---BEGIN-ENTRY-#696---
+id: 696
+date: 2026-10-18T00:19:57Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff
+commits: pending
+refs: PROJECT_STATUS.md
+supersedes: 695
+tokens: 573
+---
+Actual automatic context compaction occurred after the HISTORY#695 committed checkpoint and during final blocked closeout. The actual root identity remains 01a14c32-cca0-71a2-b8fe-1c3a462eee6a. Canonical tools.agents.context_guardian recover-unexpected-compaction records event automatic-20261017-finalization, HANDOFF_REQUIRED and missing_checkpoint=true. Available runtime usage telemetry was unavailable; the guardian default previous usage value is not a measured usage claim. The external manual CHECKPOINT.md is preserved but was not represented as a guardian checkpoint. No identity or predecessor recovery was reset.
+
+Independent seam_release_orchestrator returned BLOCKED for exact commit1cfa0e3e1aa932fb6e70c452f47390b8611e26e9 and request01a14c32-cca0-71a2-b8fe-1c3a462eee6a-dde618204614f3e0. The first returned draft failed canonical storage because its checks included extra requirements; the reviewer corrected the exact check set and explicitly marked current continuity BLOCKED for the newly reported recovery. The corrected receipt is canonically STORED under .seam/orchestration/session-end/receipts; the rejected draft remains external evidence. No predecessor receipt is superseded. Historical TDD and audit evidence remain verified, not newly rerun or promoted to qualification.
+
+The separate retained-root inventory failure remains unresolved as described in HISTORY#695 and external finalization-20261017/inventory-drift.json. No authoritative removal/restoration context has arrived. No runtime source change was made after the successful full audit described by finalization-20261017/audit-result.json. This update performs only recovery continuity and durable handoff; it does not resume assurance. Protected push, hosted required checks, release qualification, merge and exact resulting-main verification remain unperformed. The restored real repair branch/worktree and source bootstrap remain preserved because the blocking invariant prevents safe publication and disposal.
+
+External finalization-20261017/FINAL_HANDOFF.md supplies the outer dispatcher a bounded evidence map and genuine-successor instructions. The delivery client stopped before completing this append and final handoff after automatic approval review rejected detailed tracker writes as exports of internal recovery information. The outer recovered client completes only durable cut-off records, not assurance or qualification. A safer minimal status-only update was accepted on the existing personal overview, task register and verification Pages; detailed recovery information stays local. Previous tracker evidence and stable task IDs are preserved. Next obtain authoritative missing-worktree context and dispatch a genuinely fresh root, preserve this event and all evidence, then use the canonical successor mechanism without rewriting immutable bindings. Existing push/merge authorization remains in force; no redundant publishing permission is requested. The separate diagnostic question about disappeared worktrees remains pending.
+---END-ENTRY-#696---

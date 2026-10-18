@@ -5,6 +5,16 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Recovery handoff required; publication remains blocked.**
+After the HISTORY#695 checkpoint, this root experienced actual automatic
+compaction. The canonical guardian records `HANDOFF_REQUIRED` with a missing
+guardian checkpoint; the external manual checkpoint is not retrospective usage
+evidence. Session identity was preserved. An independent BLOCKED closeout receipt
+for commit `1cfa0e3` is stored without superseding any predecessor. HISTORY#696
+and external `finalization-20261017/FINAL_HANDOFF.md` preserve the serial recovery
+boundary. A genuinely fresh root and authoritative context for the disappeared
+worktrees are required before assurance can resume. No publication is claimed.
+
 **Exact-candidate assurance blocked by disappeared worktrees.**
 Independent review of committed candidate `0fc2cec` confirms the source,
 original-base TDD, full non-external audit and continuity evidence, but the
