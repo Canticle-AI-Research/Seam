@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 765
+total_events: 766
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-30T21:07:58Z | history:505:5673f963 | session-event | changed | retrieval, benchmark, wandr, trace, status, locomo, verify | PROJECT_STATUS.md,docs/status/index.md,docs/handoffs/2026-07-30-wandr-zero-ne... |
 | 2026-07-31T19:32:14Z | history:506:cfcf42ff | session-event | done | tests, sqlite, test-artifacts, cleanup, windows, verify | none |
 | 2026-07-31T22:28:32Z | history:507:7d3ad352 | session-event | done | benchmarks, locomo, operations, huggingface, docs, verify | none |
 | 2026-07-31T22:48:26Z | history:508:cac65cb0 | session-event | done | retrieval, graph, fusion, locomo, benchmarks, verify | none |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-18T03:57:17Z | history:697:03d86436 | session-event | in-progress | agent, protocol, continuity, handoff, worktree | PROJECT_STATUS.md,REPO_LEDGER.md,tools/agents/successor.py,tools/agents/close... |
 | 2026-10-18T04:36:29Z | history:698:a4be7a10 | session-event | in-progress | agent, protocol, continuity, worktree, tests, verify | PROJECT_STATUS.md,REPO_LEDGER.md,AGENTS.md,docs/SOP_AGENT_ORCHESTRATION.md,do... |
 | 2026-10-18T05:10:42Z | history:699:1b89c131 | session-event | in-progress | agent, protocol, continuity, worktree, tests, verify | tools/git/verify_retained_worktree.py,tools/git-hooks/pre-push,tests/audit/te... |
+| 2026-10-18T05:25:57Z | history:700:51faf49b | session-event | in-progress | agent, protocol, continuity, verify, handoff | PROJECT_STATUS.md,docs/handoffs/2026-10-17-protocol-completion.md |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0565.cross.md | 2026-04-15T00:00:00Z..2026-07-30T17:09:40Z | 565 | (multi) | (multi) |
+| 0001-0566.cross.md | 2026-04-15T00:00:00Z..2026-07-30T21:07:58Z | 566 | (multi) | (multi) |

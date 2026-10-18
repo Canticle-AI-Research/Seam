@@ -5,6 +5,17 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Reviewed retention repair committed; protected delivery in progress.**
+The genuine successor completed canonical admission with the original base and
+all 21 witnessed TDD cycles preserved. Normal signed commit `5c8a11c` contains
+the reviewed retention repair and HISTORY#699 continuity; the installed hook
+was refreshed normally. See HISTORY#700. The corrected recovery source is
+Primary `.git/seam-consolidation-20261017/successor-2-durable-handoff-recovered.md`;
+current durable delivery evidence is `successor-3-handoff.md` in that directory.
+Independent exact-commit assurance, hosted checks, qualified supersession,
+protected merge and actual resulting-main verification remain required.
+Earlier headlines below are historical boundaries.
+
 **Retention gate repair reviewed and audit passed; genuine successor required.**
 Normal push exposed a conflict between retained-worktree policy and the hook's
 blanket dirty-worktree rejection. The narrow repair validates exact, unexpired

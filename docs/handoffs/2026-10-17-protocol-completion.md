@@ -7,6 +7,14 @@ history: HISTORY#687
 
 # Resolve verified completion before choosing the next task
 
+Latest continuation: HISTORY#700 records genuine successor admission and normal
+commit of the reviewed retention repair. Read Primary
+`.git/seam-consolidation-20261017/successor-3-handoff.md` for current delivery
+evidence. The predecessor detailed handoff was recovered at
+`successor-2-durable-handoff-recovered.md`; the old `successor-2-result.md` pointer
+was overwritten by the CLI final-message dispatcher and is not the detailed
+recovery source. Earlier updates below retain their historical boundaries.
+
 Latest cut-off update: HISTORY#699 records the source-reviewed retention gate
 repair, current full audit, and actual automatic compaction requiring a genuinely
 fresh client/session. Preserve the original comparison base and all 21 witnessed

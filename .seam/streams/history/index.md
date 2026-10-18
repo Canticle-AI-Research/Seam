@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 699
-total_tokens: ~358196
-latest_id: 699
+total_entries: 700
+total_tokens: ~358648
+latest_id: 700
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 700 | 2026-10-18 | in-progress | 51faf49b6d8a6082 | agent,protocol,continuity,verify,+ | 699 |
 | 699 | 2026-10-18 | in-progress | 1b89c1316ec061d4 | agent,protocol,continuity,worktree,+ | 698 |
 | 698 | 2026-10-18 | in-progress | a4be7a1074a484aa | agent,protocol,continuity,worktree,+ | 697 |
 | 697 | 2026-10-18 | in-progress | 03d86436c0a9a6c0 | agent,protocol,continuity,handoff,+ | 696 |
@@ -717,7 +718,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=35 latest=#699, #698, #697, #696, #695
+- agent: count=36 latest=#700, #699, #698, #697, #696
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -776,7 +777,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=117 latest=#699, #698, #697, #696, #695
+- continuity: count=118 latest=#700, #699, #698, #697, #696
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -847,7 +848,7 @@ compact: true
 - graphrag: count=1 latest=#325
 - grounded-clm: count=1 latest=#438
 - h2: count=6 latest=#297, #293, #292, #291, #290
-- handoff: count=150 latest=#697, #696, #695, #694, #693
+- handoff: count=151 latest=#700, #697, #696, #695, #694
 - harden: count=12 latest=#619, #618, #617, #616, #594
 - hardening: count=1 latest=#268
 - harness: count=5 latest=#395, #394, #393, #333, #303
@@ -951,7 +952,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=134 latest=#699, #698, #697, #696, #695
+- protocol: count=135 latest=#700, #699, #698, #697, #696
 - protocol/context: count=1 latest=#671
 - prov: count=1 latest=#316
 - provenance: count=38 latest=#673, #672, #655, #654, #653
@@ -1050,7 +1051,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=495 latest=#699, #698, #695, #694, #693
+- verify: count=496 latest=#700, #699, #698, #695, #694
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1069,5 +1070,5 @@ compact: true
 - roots: 90
 - changed: 86
 - done: 542
-- in-progress: 49
+- in-progress: 50
 - planned: 22
