@@ -44,6 +44,14 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Genuine recovery successor admission (2026-10-17).** Preserve the original
+  base and TDD prefix, bind every external recovery manifest and truthful
+  checkpoint/result state, and keep administrative dispositions admission-only.
+  Disposition files are local operational state excluded from Git source scope,
+  while explicit queue inventory still validates their bytes. Final committed
+  assurance and qualified supersession remain independent release gates.
+  See HISTORY#694 and `docs/SOP_AGENT_ORCHESTRATION.md`.
+
 - **Evidence-backed protocol completion (2026-10-17).** Session initialization
   requires reconciled linked and registered retained queues. Removed-worktree
   receipt storage remains part of admission. Unexpected compaction is a new

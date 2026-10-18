@@ -75,6 +75,7 @@ seam_runtime/_handoff_20260419/
 .seam/orchestration/session-end/requests/
 .seam/orchestration/session-end/receipts/
 .seam/orchestration/session-end/receipt-attempts/
+.seam/orchestration/session-end/administrative-dispositions/
 .context-handoffs/
 
 # Local editor and agent config

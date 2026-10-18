@@ -227,6 +227,35 @@ Each TDD cycle records one public behavior and:
 Passing tests do not prove TDD. A runtime path without a complete recorded
 cycle is `TDD_UNPROVEN`.
 
+After an unexpected compaction, resume through `session_state successor`
+instead of replacing the predecessor registration. The command publishes an
+immutable activation intent before session state or assurance activation. It
+preserves the predecessor base and witnessed cycles, binds the canonical
+recovery, handoff, request, non-qualified receipt, retained-root inventory,
+and any explicitly named administrative dispositions. An external unfinished
+bootstrap is supplied with `--external-recovery`; its strict binding retains
+the guardian state, handoff, recovery event, evidence manifest, truthful
+checkpoint state, compaction count, and `INHERITED_UNQUALIFIED` status.
+`result_status=RETAINED` requires exactly one manifest-discovered result and
+its exact binding; `NOT_RETAINED` forbids both and means only that no result is
+present in the independently pinned frozen inventory. It makes no claim about
+historical existence or reconstructed output. `missing_checkpoint=false`
+requires the exact checkpoint binding; `true` forbids one. Every manifest
+member is hash- and size-checked before the guardian, canonical event, rendered
+handoff, optional checkpoint, and any retained seven-field result are
+semantically cross-bound. External evidence never contributes inherited TDD
+or qualification.
+
+The activation SHA is an ancestry anchor, so a successor may add reviewed
+descendant commits. Activation checks the predecessor's exact request and TDD
+evidence; deterministic retries preserve valid successor-appended cycles.
+Final assurance still requires a clean exact outgoing SHA,
+complete TDD coverage for every runtime path since the original base, unchanged
+inherited evidence, and the same retained-root inventory. A successor's later
+qualified receipt must explicitly supersede its predecessor request. Exact
+assurance and the bound repair inventory may therefore precede push and hosted
+CI; qualification follows required exact-head CI and precedes merge.
+
 ## Context guardian
 
 Observe current usage with bounded summary items and one concrete resume step:
@@ -357,6 +386,26 @@ and verified during reads. Once any validated receipt is
 `QUALIFIED`, its own request and every explicitly superseded request leave the
 pending queue. The queue never launches a model, runs a check, or repairs the
 worktree.
+
+A repeated unchanged non-runtime tail may be removed from admission only by
+`closeout_queue reconcile-duplicate --review <review.json>`. The required
+`seam-closeout-administrative-review/v1` artifact is independently authored
+and strictly binds the Git common directory, queue root, both requests, both
+canonical receipts, their byte hashes, an aware review time, `PASS`, fixed
+reason `UNCHANGED_NONRUNTIME_TAIL_ASSURANCE_BOUNDARY`, authority
+`admission_only`, no unresolved findings, and immutable producer/reviewer
+session provenance. The producer must be the named independent reviewer and
+must differ from both request sessions. Validation never depends on the
+current caller identity. The CLI derives blocker eligibility from typed receipt
+status and checks, never continuity or next-action prose. The immutable disposition
+retains the review bytes and hash and remains visible with the original
+BLOCKED receipt. It can satisfy only a narrowly named queue-admission repair;
+it cannot satisfy assurance, qualification, supersession, publication, or
+merge authority.
+
+A successor's own later request is exempt from its activation inventory only
+when its session, repository root, branch, and original base all match the
+transition. A same-session request from another retained root remains pending.
 
 Receipt meaning:
 

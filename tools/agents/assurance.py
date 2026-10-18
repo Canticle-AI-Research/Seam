@@ -48,6 +48,7 @@ REGISTRATION_FIELDS = {
     "worktree_root",
     "base_sha",
 }
+SUCCESSOR_REGISTRATION_FIELDS = REGISTRATION_FIELDS | {"successor_transition_sha256"}
 ACTIVE_FIELDS = {
     "schema",
     "kind",
@@ -112,6 +113,11 @@ def _canonical(value: dict[str, Any]) -> bytes:
 
 
 def _ensure_directory(path: Path) -> None:
+    ancestor = path
+    while not os.path.lexists(ancestor) and ancestor != ancestor.parent:
+        ancestor = ancestor.parent
+    if ancestor.is_symlink() or not ancestor.is_dir() or ancestor.resolve() != ancestor:
+        raise AssuranceError("assurance state directory has an unsafe ancestor")
     if os.path.lexists(path) and (path.is_symlink() or not path.is_dir()):
         raise AssuranceError("assurance state directory must be a real directory")
     path.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -219,7 +225,7 @@ def _selection_path(common_dir: Path, session_id: str) -> Path:
 
 def _validate_registration(value: dict[str, Any], common_dir: Path, path: Path) -> dict[str, Any]:
     if (
-        set(value) != REGISTRATION_FIELDS
+        set(value) not in (REGISTRATION_FIELDS, SUCCESSOR_REGISTRATION_FIELDS)
         or value.get("schema") != SCHEMA
         or value.get("kind") != "registration"
         or value.get("repository") != REPOSITORY
@@ -238,6 +244,11 @@ def _validate_registration(value: dict[str, Any], common_dir: Path, path: Path) 
         raise AssuranceError("assurance registered base is invalid")
     if path != _registration_path(common_dir, value["session_id"]):
         raise AssuranceError("assurance registration path does not match its session")
+    transition_digest = value.get("successor_transition_sha256")
+    if transition_digest is not None and (
+        not isinstance(transition_digest, str) or not SHA256.fullmatch(transition_digest)
+    ):
+        raise AssuranceError("assurance successor transition hash is invalid")
     return value
 
 
@@ -256,7 +267,13 @@ def _validate_active(
     return value
 
 
-def register(repo_root: Path, session_id: str, base_sha: str) -> dict[str, Any]:
+def register(
+    repo_root: Path,
+    session_id: str,
+    base_sha: str,
+    *,
+    successor_transition_sha256: str | None = None,
+) -> dict[str, Any]:
     """Persist the active session binding for one worktree."""
 
     repo_root = repo_root.resolve(strict=True)
@@ -266,6 +283,19 @@ def register(repo_root: Path, session_id: str, base_sha: str) -> dict[str, Any]:
     if _git(repo_root, "rev-parse", "--verify", f"{base_sha}^{{commit}}") != base_sha:
         raise AssuranceError("assurance base_sha does not resolve exactly")
     common_dir = _common_dir(repo_root)
+    active_path = _active_path(common_dir, repo_root)
+    if active_path.is_file():
+        active = _validate_active(_load(active_path), common_dir, repo_root)
+        if active["session_id"] != session_id:
+            context_root = repo_root / ".seam" / "orchestration" / "context"
+            if context_guardian.has_unresolved_recovery(
+                active["session_id"],
+                state_root=context_root,
+                handoff_root=repo_root / ".context-handoffs",
+            ) and successor_transition_sha256 is None:
+                raise AssuranceError(
+                    "recovered active binding requires the successor transition CLI"
+                )
     value = {
         "schema": SCHEMA,
         "kind": "registration",
@@ -275,6 +305,15 @@ def register(repo_root: Path, session_id: str, base_sha: str) -> dict[str, Any]:
         "worktree_root": str(repo_root),
         "base_sha": base_sha,
     }
+    if successor_transition_sha256 is not None:
+        if not SHA256.fullmatch(successor_transition_sha256):
+            raise AssuranceError("assurance successor transition hash is invalid")
+        value["successor_transition_sha256"] = successor_transition_sha256
+        from tools.agents import successor
+
+        successor.validate_registration_binding(
+            repo_root, value, require_complete_tdd=False
+        )
     registration_path = _registration_path(common_dir, session_id)
     encoded = _canonical(value)
     if not _publish_once(registration_path, encoded):
@@ -329,6 +368,13 @@ def _registration_for(repo_root: Path, session_id: str) -> tuple[Path, dict[str,
     if not path.is_file():
         return None
     value = _validate_registration(_load(path), common_dir, path)
+    if "successor_transition_sha256" in value:
+        from tools.agents import successor
+
+        try:
+            successor.validate_registration_binding(repo_root, value)
+        except successor.SuccessorError as exc:
+            raise AssuranceError(str(exc)) from exc
     active_path = _active_path(common_dir, repo_root)
     if not active_path.is_file():
         raise AssuranceError("session has no active assurance worktree binding")
@@ -455,7 +501,16 @@ def _require_clean_candidate(repo_root: Path) -> None:
         raise AssuranceError("assurance requires a clean committed candidate")
 
 
-def _check_recovery(repo_root: Path, session_id: str) -> None:
+def _check_recovery(
+    repo_root: Path, session_id: str, registration: dict[str, Any] | None = None
+) -> None:
+    if registration is not None and "successor_transition_sha256" in registration:
+        from tools.agents import successor
+
+        try:
+            successor.validate_registration_binding(repo_root, registration)
+        except successor.SuccessorError as exc:
+            raise AssuranceError(str(exc)) from exc
     state_root = repo_root / ".seam" / "orchestration" / "context"
     if context_guardian.has_unresolved_recovery(
         session_id,
@@ -477,7 +532,7 @@ def accept(repo_root: Path, session_id: str, report_path: Path) -> dict[str, Any
     report, report_bytes = _report_source(report_path, session_id)
     if report["base_sha"] != registration["base_sha"]:
         raise AssuranceError("assurance report does not match registered base")
-    _check_recovery(repo_root, session_id)
+    _check_recovery(repo_root, session_id, registration)
     _require_clean_candidate(repo_root)
     first = _live_scope(repo_root, report["base_sha"])
     second = _live_scope(repo_root, report["base_sha"])
@@ -522,6 +577,13 @@ def check_session(
     session_id = _session_id(session_id)
     binding = _registration_for(repo_root, session_id)
     if binding is None:
+        common_dir = _common_dir(repo_root)
+        if any(
+            active["session_id"] == session_id
+            and active["worktree_root"] == str(repo_root)
+            for active in _active_bindings(common_dir)
+        ):
+            raise AssuranceError("active assurance binding lacks immutable registration")
         return {"session_id": session_id, "status": "NOT_APPLICABLE"}
     common_dir, registration = binding
     bound_root = Path(registration["worktree_root"])
@@ -532,7 +594,7 @@ def check_session(
         raise AssuranceError("accepted assurance does not match registered base")
     if expected_head is not None and report["head"] != expected_head:
         raise AssuranceError("accepted assurance does not match outgoing head")
-    _check_recovery(bound_root, session_id)
+    _check_recovery(bound_root, session_id, registration)
     _require_clean_candidate(bound_root)
     first = _live_scope(bound_root, report["base_sha"])
     second = _live_scope(bound_root, report["base_sha"])
@@ -541,6 +603,24 @@ def check_session(
     if second != (report["head"], report["changed_paths"], report["content_sha256"]):
         raise AssuranceError("scope changed after assurance")
     return {"session_id": session_id, "status": "PASS"}
+
+
+def successor_transition(repo_root: Path, session_id: str) -> dict[str, Any] | None:
+    """Return the validated transition for a successor registration, if present."""
+
+    repo_root = repo_root.resolve(strict=True)
+    binding = _registration_for(repo_root, _session_id(session_id))
+    if binding is None:
+        return None
+    _, registration = binding
+    if "successor_transition_sha256" not in registration:
+        return None
+    from tools.agents import successor
+
+    try:
+        return successor.validate_registration_binding(repo_root, registration)
+    except successor.SuccessorError as exc:
+        raise AssuranceError(str(exc)) from exc
 
 
 def check_push(repo_root: Path, expected_head: str) -> dict[str, Any]:

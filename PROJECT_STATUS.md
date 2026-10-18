@@ -5,6 +5,47 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**Genuine successor activated; full non-external audit passed (local candidate).**
+The original repair branch is restored with every retained evidence hash intact.
+Both primary administrative tails have independently reviewed admission-only
+dispositions; their BLOCKED receipts remain unchanged. The original five TDD
+cycles are preserved and later witnessed cycles cover the full original-base
+runtime delta. The Unicode fix and the real-Git administrative-state ignore fix
+have independent source-adoption approval. The full `tests/audit/ -m "not external"`
+run exits zero in the dedicated Python 3.12 environment using existing offline
+model cache. Exact command, log hash and scope: HISTORY#694 and the external
+`finalization-20261017/audit-result.json`. Managed references, exact committed
+assurance, required CI, stored qualification, protected merge and resulting-main
+verification are the remaining delivery gates. No repair push or merge claimed.
+Older recovery headlines below remain historical; no predecessor was reset.
+
+
+**Resumed Unicode repair reviewed; genuine successor required (local only).**
+Independent Astra source-adoption review passes the repaired no-BOM UTF-16/32
+result detection, with 201 affected tests and actual retained-bundle probes
+passing. This supersedes the earlier Unicode source blocker, not release gates.
+The resumed root then experienced actual unexpected compaction and recorded
+HANDOFF_REQUIRED without inventing a checkpoint or changing its identity.
+See HISTORY#693 (correcting #692) and
+`../serial-recovery-20261017/resumed-20261017/RESUME_HANDOFF.md`.
+Source adoption, full original-base TDD reconciliation, administrative tails,
+full audit, managed-reference review, exact committed assurance, CI and protected
+merge remain pending. No repair push or merge; GitHub open PR read returned none.
+Frozen evidence and all predecessor recovery states remain preserved.
+
+**Serial bootstrap review blocked (local only).** The affected successor suite
+passes, but independent review identified seven remaining recovery defects.
+The serial root also recorded an actual checkpoint-present unexpected compaction;
+its assurance and qualification require a genuine successor. See HISTORY#689 and
+`../serial-recovery-20261017/REVIEW.md`. Preserve the earlier cut-off and all
+evidence. Source adoption, push, CI, qualification and merge remain pending.
+
+**External bootstrap cut-off (local only).** Successor recovery implementation
+is incomplete and independently unqualified. A new unplanned compaction requires
+handoff; the administrative authority prototype must be replaced before use.
+See HISTORY#688 and `../successor-review-20261017/SUCCESSOR_RECOVERY.md`.
+The preserved source checkpoint and its blocked evidence remain unchanged.
+
 **2026-10-17 — PR #313 documentation delivery verified; protocol completion
 repair tracked separately.** PR #313 merged as
 `79c40b55f8aea7a6615bdccf4b331b41dd46a362` after required checks and stored

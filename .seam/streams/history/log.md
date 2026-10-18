@@ -22378,3 +22378,149 @@ read current handoff and external recovery manifest, reconcile the blocked
 predecessor before normal session init or any publication. No production,
 paid providers, service/network changes or deferred feature acceptance.
 ---END-ENTRY-#687---
+
+---BEGIN-ENTRY-#688---
+id: 688
+date: 2026-10-17T10:59:23Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, session, handoff, tests
+commits: pending
+refs: tools/agents/successor.py,tools/agents/closeout_queue.py,tools/agents/assurance.py,tools/agents/session_state.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 687
+tokens: 636
+---
+External successor bootstrap cut-off, not integrated delivery. The saved protocol checkpoint and original comparison base remain unchanged in the source repository. Live evidence review found no change to the governing priority: finish protocol completion before conditional independent Doctor review; do not repeat PR313 documentation delivery.
+
+Implementation is incomplete in an isolated detached clone. Modified runtime paths are tools/agents/assurance.py, tools/agents/closeout_queue.py and tools/agents/session_state.py; new paths are tools/agents/successor.py, tools/agents/schemas/successor-transition.schema.json, tools/agents/schemas/administrative-disposition.schema.json and tests/audit/test_successor_transition.py. No missing import or undefined symbol was observed by the cut-off collection, compilation and symbol-reference checks. The functional contract mismatch is explicit: closeout_queue._administrative_blocker still treats free-text substrings as administrative authority, and its tests mirror that rejected contract. The independent administrative-review schema, validator and review binding remain to be added test-first before integration. The two orchestration SOP updates remain outstanding.
+
+The initial implementation-before-tests prototype was discarded and saved externally. A genuine failing baseline was subsequently recorded; passing cut-off tests do not establish accepted GREEN, TDD_PROVEN, assurance or qualification. Exact logs and preserved source hashes are under ../successor-review-20261017/builder-evidence/IN_PROGRESS.md. Root experienced an actual unplanned automatic compaction; the immutable event automatic-20261017-successor-bootstrap-review records the missing checkpoint and HANDOFF_REQUIRED. No compaction count reset, source admission, commit, push or qualification occurred.
+
+First successor action: in a genuinely new client read ../successor-review-20261017/SUCCESSOR_RECOVERY.md and reconcile the original blocked checkpoint, duplicate nonruntime shutdown tail and this bootstrap event before normal source writes. Run the existing successor regression file with the preserved venv to reproduce the incomplete baseline; add failing independent-review tests before replacing the rejected blocker. Preserve all predecessor evidence and inherited original-base TDD. The primary checkout and unrelated worktrees remain excluded. This HISTORY entry and its derived snapshot are local cut-off breadcrumbs only; later integration must reconcile their entry identity with then-current history.
+---END-ENTRY-#688---
+
+---BEGIN-ENTRY-#689---
+id: 689
+date: 2026-10-17T11:57:53Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, test
+commits: pending
+refs: tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 688
+tokens: 697
+---
+Serial Split Mind recovery continues the isolated local bootstrap from HISTORY#688; source adoption remains blocked. User authorizes push and protected merge after protocol gates and requests tracker task details aligned with append-only history. Primary and unrelated worktrees remain preserved.
+
+Sol changed tools/agents/{successor,assurance,closeout_queue,session_state}.py, three successor/admin schemas, tests/audit/test_successor_transition.py and two orchestration SOPs in successor-bootstrap only. The six-module command recorded in ../serial-recovery-20261017/sol-evidence/command-evidence.json passed 152 affected tests and collected 152 tests; initial recorded RED had six failures and three passes. The old 210-pass prototype evidence remains diagnostic. Later corrective cycles lack complete standalone timestamps; green results do not establish complete inherited TDD provenance.
+
+Independent review is BLOCKED by seven defects: fixture-prose eligibility, validation after disposition publication, activation/TDD retry deadlock, incomplete external artifact semantics/dependency binding, rejection of real checkpoint-present recovery, same-session foreign-root queue exemption, and caller-dependent historical review validity. See ../serial-recovery-20261017/REVIEW.md for source lines and six-part repair handoff. No missing implementation symbols or collection/import errors occurred in the affected six-module collection; behavioral contract mismatches above remain open.
+
+Root actually compacted while awaiting Sol. Event automatic-20261017-serial-builder-wait preserves its prior checkpoint and records missing_checkpoint=false, one compaction, HANDOFF_REQUIRED. This root cannot accept assurance or qualification. Spawned reviewer shares its genuine client identity; use a genuinely new client with independently verified distinct identity, never rename/reset this session.
+
+Cut-off audit command: the owning external venv Python -m pytest -q tests/audit/ -m "not external", recorded in ../serial-recovery-20261017/cutoff-audit-evidence.json, exited 1. Its log lists 46 failed cases and forbidden dependency skips, including absent numpy, sentence_transformers and uvicorn. This is not a full audit pass. No repair push or merge occurred. Three previously reviewed BLOCKED queue obligations remain open.
+
+Tracker stable parent ops:protocol-completion and children successor, admin-review, bootstrap, continuity carry this same state. First reproduce the seven review regressions and repair in isolation under a valid fresh-client handoff, then independent review, source adoption, exact assurance, required CI, qualified supersession, protected merge and resulting-main verification. Do not reopen completed licensing/TestPyPI/PR313 documentation or held product work.
+---END-ENTRY-#689---
+
+---BEGIN-ENTRY-#690---
+id: 690
+date: 2026-10-17T11:58:32Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, correction
+commits: pending
+refs: tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 689
+tokens: 467
+---
+Correct the ambiguous test-count wording in HISTORY#689 without changing that entry or its result. The exact affected GREEN command was the external owning venv Python -m pytest -q tests/audit/test_successor_transition.py tests/audit/test_assurance.py tests/audit/test_agent_session_state.py tests/audit/test_closeout_queue.py tests/audit/test_context_guardian.py tests/audit/test_session_end_agent_closeout.py. It exited zero; the same explicit paths with --collect-only exited zero. Exact measured totals, start/end timestamps, exits and log hashes remain in ../serial-recovery-20261017/sol-evidence/command-evidence.json. Initial RED is recorded there with its narrower -k selection. This is affected-suite evidence only, not full audit acceptance or full inherited TDD provenance.
+
+The broader Python -m pytest -q tests/audit/ -m "not external" cut-off run exited one; preserve ../serial-recovery-20261017/cutoff-audit.log and cutoff-audit-evidence.json. Missing-dependency failures and forbidden skips remain unresolved. The first closeout run appended HISTORY#689, rebuilt streams and snapshot, then failed verify_continuity on unscoped count prose. This append records that failure and clarifies scope; no gate was suppressed.
+
+All substantive status from HISTORY#689 remains: dirty isolated bootstrap, seven independent review blockers, actual checkpoint-present unexpected compaction and HANDOFF_REQUIRED, genuine-client successor required, earlier BLOCKED requests still open, no repair push or merge. Missing implementation symbols were not observed in affected collection. Tracker parent ops:protocol-completion and its stable children retain these explicit boundaries. Next action remains the seven-finding test-first repair handoff in ../serial-recovery-20261017/REVIEW.md, then independent review and the authorized exact-state protected PR sequence.
+---END-ENTRY-#690---
+
+---BEGIN-ENTRY-#691---
+id: 691
+date: 2026-10-17T12:55:05Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, test, verify
+commits: pending
+refs: tools/agents/successor.py,tools/agents/assurance.py,tools/agents/closeout_queue.py,tests/audit/test_successor_transition.py,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_SEAM_CODEX_WORKFLOW.md,PROJECT_STATUS.md
+supersedes: 690
+tokens: 986
+---
+Operator requested immediate bounded wrap-up to conserve usage. The genuine fresh root identity was read from the existing environment and remained distinct from the recovered predecessor; no identity was assigned or reset. Startup and frozen evidence were verified, and work remained serial in the pre-existing detached successor-bootstrap clone at saved candidate18b9fa07. Original comparison base79c40b55 and all earlier HISTORY entries remain unchanged. No source adoption, normal successor initialization, commit, push, repair PR or merge occurred. Fresh GitHub open-PR read at wrap-up returned an empty list.
+
+Sol changed tools/agents/successor.py, assurance.py and closeout_queue.py, successor-transition and administrative-review schemas, tests/audit/test_successor_transition.py and the two orchestration SOPs during this client. Inherited session_state.py, administrative-disposition schema and previous continuity changes remain preserved, not newly authored or qualified here. Independent Astra confirmed targeted fixes for original findings1,2,3,5,6,7. Finding4 remains blocked: unsupported BOM-less Unicode result evidence can be omitted while claiming NOT_RETAINED. Follow-up implemented explicit retained/absent-result binding, canonical handoff/event semantics, manifest verification and BOM rejection, but independent review found the remaining endian/size omission. Reports NEW_CLIENT_REVIEW_1.md through NEW_CLIENT_REVIEW_3.md and exact evidence are preserved under ../serial-recovery-20261017/.
+
+The last worker stopped at a safe test-only boundary. tools/agents/successor.py remains unchanged from the prior encoding pass; the focused test now contains the complete no-BOM Unicode matrix. The accepted RED command is the external owning venv Python -m pytest -q tests/audit/test_successor_transition.py::test_external_recovery_rejects_no_bom_unicode_result_candidate; its actual failure and logs are in new-client-unicode-evidence. No GREEN or six-module test execution followed that addition. Root performed current affected collect-only over test_successor_transition.py, test_assurance.py, test_agent_session_state.py, test_closeout_queue.py, test_context_guardian.py and test_session_end_agent_closeout.py; it exited zero without collection/import errors. No missing implementation symbol is known. Earlier passing affected-suite evidence is scoped to its previous source hashes and cannot qualify current failing tests or inherited green-only work. The broader audit remains incomplete with its preserved missing sentence_transformers failure and skip conditions; no new full audit was run. The reported early oversized-member failure has no separate retained log and remains an explicit evidence gap.
+
+Saved-candidate validators rechecked primary/linked/retained queues twice and found the same original runtime plus two primary-tail BLOCKED obligations, with no receiptless request. Original frozen manifest members rehash unchanged. Exact inventory, current collection, preservation patch/source manifest and closeout logs belong in wrap-up-evidence. Required canonical gates and additional closeout checks are run unsuppressed after this append; their observed outcomes are recorded in WRAP_UP.md, never inferred from this planned closeout. PROJECT_STATUS now routes to this stopping point. Overview, stable task register IDs and verification Page are updated/read back at closeout; prior accomplishments and held work remain preserved.
+
+First reproduce the exact Unicode test command above. Then a later authorized session must finish the approved size-independent unsupported-prefix rejection, obtain independent review, establish complete original-base TDD and resolve the audit environment before controlled adoption, assurance, exact-head CI, qualified supersession, protected merge and actual-main verification. This client stops after the requested wrap-up and does not start Doctor or held product work.
+---END-ENTRY-#691---
+
+---BEGIN-ENTRY-#692---
+id: 692
+date: 2026-10-17T23:23:44Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, handoff, test, verify
+commits: pending
+refs: tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md
+supersedes: 691
+tokens: 742
+---
+Resumed user-authorized serial repair following HISTORY#691. Astra reproduced the existing no-BOM Unicode matrix before correction: 14 failed, 2 passed. ASCII prefix detection missed NUL-containing UTF-16/32 JSON; oversized scanning and swallowed parse failures allowed false NOT_RETAINED acceptance. Sol added seven contemporaneously failing edge regressions for split reads, whitespace boundary and size boundaries, then rejected NUL in the significant prefix. Independent Astra approved exact source adoption only, not release qualification.
+
+Changed repair paths: tools/agents/successor.py and tests/audit/test_successor_transition.py. Prior dirty implementation paths remain tools/agents/assurance.py, tools/agents/closeout_queue.py, tools/agents/session_state.py, three successor/administrative schemas and two agent SOPs; exact source manifest and external patch will be preserved with the handoff. No known undefined helpers or test/implementation collection mismatch: Sol collected 201 tests; independent six-module run passed 201 tests in 17.49s, exit0. Exact commands, times and hashes live in resumed-20261017/sol-evidence/command-evidence.json and ASTRA_REVIEW.md. Actual bootstrap47/serial23 bundle probes pass, preserving INHERITED_UNQUALIFIED and missing-result distinctions. Missing historical oversized-failure log remains a genuine gap.
+
+The root then underwent actual automatic context compaction. It recorded automatic-20261017-resumed-integration under its unchanged authentic identity, with missing_checkpoint=true and HANDOFF_REQUIRED; the result is retained. No source adoption or successor activation occurred. Original base79c40b55 and all predecessor receipts remain unchanged. Saved-validator inventory: 23 registered source/retained roots,115 records,3 pending,0 receiptless; the extra root is the clean existing project-tracking worktree. GitHub open PR read returned an empty list. No push, PR or merge.
+
+Full audit is not accepted: previous failed first audit test requires missing sentence_transformers; no broad rerun was represented as passing. External/primary Python3.14 environments are incomplete; installed system Python3.12 has pytest/numpy but lacks sentence_transformers/uvicorn/tiktoken/torch/transformers. No model downloads, services or dependency changes performed. Original-base TDD reconciliation, typed independent administrative dispositions, controlled source adoption, docs-reference reviews, exact assurance, required CI, qualified supersession and protected merge remain pending.
+
+Next: genuinely fresh serial root reads resumed-20261017/RESUME_HANDOFF.md and ASTRA_REVIEW.md, verifies identity and frozen hashes, reconciles recovery/queue before adoption, then runs the recorded six-module test command and investigates supported audit environment. No predecessor qualification/reset. Continuity closeout results and tracker readbacks are recorded alongside the external handoff; no full-audit rerun at cutoff.
+---END-ENTRY-#692---
+
+---BEGIN-ENTRY-#693---
+id: 693
+date: 2026-10-17T23:24:40Z
+agent: codex
+status: in-progress
+topics: correction, continuity, handoff, verify
+commits: pending
+refs: tools/agents/successor.py, tests/audit/test_successor_transition.py, PROJECT_STATUS.md
+supersedes: 692
+tokens: 469
+---
+Correction to HISTORY#692: its test-count wording omitted explicit pytest scope in the claim context, and verify_continuity correctly failed. Preserve that entry and failed closeout.log unchanged. This appended record supplies the exact invocation and evidence; no runtime change or new acceptance occurred.
+
+Independent Astra command with external owning venv Python: -m pytest -o addopts= -q -p no:cacheprovider tests/audit/test_successor_transition.py tests/audit/test_assurance.py tests/audit/test_agent_session_state.py tests/audit/test_closeout_queue.py tests/audit/test_context_guardian.py tests/audit/test_session_end_agent_closeout.py. The selected run exited zero; its exact parameterized execution total and timing are retained in ../serial-recovery-20261017/resumed-20261017/astra-six-modules-green.log and ASTRA_REVIEW.md. Collection evidence is sol-evidence/06-collection.log as indexed by sol-evidence/command-evidence.json; use that manifest for the actual recorded filename. The review permits source adoption only. It does not establish full audit, original-base TDD reconciliation, exact committed assurance, qualification, CI, protected merge or resulting-main acceptance.
+
+Current root recovery remains HANDOFF_REQUIRED with missing_checkpoint=true, recorded after actual compaction without resetting identity. Source is preserved dirty; no missing helper/import mismatch is known in the scoped collection. First reproducible next step is the exact six-module command above in a genuinely fresh root after recovery/queue reconciliation. Pending original runtime and two administrative tails remain blocked. Tracker scan succeeded without dispatch and reports pending signals; unresolved signals are not acknowledged. No PR was open at the GitHub read and no repair push/merge occurred. RESUME_HANDOFF.md records closeout outcomes and all remaining gates.
+---END-ENTRY-#693---
+
+---BEGIN-ENTRY-#694---
+id: 694
+date: 2026-10-17T23:58:41Z
+agent: codex
+status: in-progress
+topics: agent, protocol, continuity, verify, bugfix, handoff
+commits: pending
+refs: .gitignore,tools/agents/successor.py,tests/audit/test_successor_transition.py,PROJECT_STATUS.md,REPO_LEDGER.md,docs/SOP_AGENT_ORCHESTRATION.md,docs/SOP_SEAM_CODEX_WORKFLOW.md
+supersedes: 693
+tokens: 649
+---
+Genuine fresh root verified actual environment identity distinct from all four recovered clients; no identity/reset/compaction claim invented. Restored saved branch18b9fa07 at original worktree after preserving the entire receipt-only directory externally; all13retained hashes verified. Original comparison base79c40b55 preserved. Prior Unicode SOURCE-ADOPTION PASS source/log hashes reused. Independent Astra reviewed both strict administrative dispositions and five original TDD cycles/seven original implementation paths. Both primary tails are now admission-only reconciled; their canonical BLOCKED receipts remain immutable.
+
+Actual first disposition publication exposed one concrete integration defect: new administrative-dispositions directory was not ignored, changing primary source fingerprint before the second publication. Astra approved a narrow rule; Sol witnessed a real-Git failing regression with actual copied ignore rules, then fixed it; independent Astra focused review passed. Only .gitignore and the successor test gained this correction. Root added the exact local info/exclude rule to the older primary checkout, verified its original fingerprint twice, verified explicit queue inventory still includes the disposition, then stored the second review. No validator weakened.
+
+Successor activation binds the original runtime request, original base/TDD prefix, both dispositions and three immutable external recoveries, preserving RETAINED versus NOT_RETAINED and true/missing checkpoint distinctions. Original five cycles remain unchanged; eleven independently reviewed later cycles appended through session_state record-tdd. assess_tdd reports TDD_PROVEN for all eleven classified runtime paths. The missing old oversized failure and missing bootstrap timestamps remain excluded; later green is not reconstructed red.
+
+Exact full audit invocation: HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 HF_HUB_DISABLE_TELEMETRY=1 HF_HUB_CACHE=/mnt/t7/hf-cache external audit-venv312/bin/python -m pytest -o addopts= -q -p no:cacheprovider tests/audit/ -m "not external" --maxfail=1. Exit0; exact execution totals and log hash are in ../SEAM-Protocol-Completion-20261017/finalization-20261017/audit-result.json and audit-unsandboxed.log. Collection with the same tests/audit/ and non-external selection exited0. External tests were explicitly deselected; no skips. Earlier sandbox run stalled at local FastAPI and was interrupted130; the isolated test passed outside sandbox, then the full audit passed there. Dedicated external Python3.12 environment and required library dependencies including CPU Torch installed under explicit authority; existing pinned BGE cache used offline, no modelweights downloaded, no unrelated service changes.
+
+Runtime source is reviewed and tests pass, but exact committed assurance, managed-document closeout, required hosted CI, independent stored release qualification/supersession, protected merge and resulting-main verification remain open. Source approval is not qualification. Native tracker stable IDs retained; no event acknowledgement or held product work. Durable checkpoint and exact evidence under external finalization-20261017; actual context telemetry unavailable, no fabricated usage or recovery event. No known missing symbol/import mismatch. Next perform managed references/canonical closeout and final committed assurance, then complete the authorized one-PR protected delivery.
+---END-ENTRY-#694---

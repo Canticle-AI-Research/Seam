@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seam.local/schemas/closeout-administrative-disposition-v1.json",
+  "title": "SEAM Closeout Administrative Disposition v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "status", "request_id", "request_path", "request_bytes_sha256",
+    "blocked_receipt_path", "blocked_receipt_bytes_sha256", "prior_request_id",
+    "prior_request_path", "prior_request_bytes_sha256", "prior_receipt_path",
+    "prior_receipt_bytes_sha256", "projection_sha256", "current_origin_main",
+    "prior_origin_main", "review_path", "review_bytes_sha256", "authority",
+    "reconciled_at"
+  ],
+  "properties": {
+    "schema": {"const": "seam-closeout-administrative-disposition/v1"},
+    "status": {"const": "RECONCILED_DUPLICATE"},
+    "request_id": {"$ref": "#/$defs/id"},
+    "request_path": {"$ref": "#/$defs/path"},
+    "request_bytes_sha256": {"$ref": "#/$defs/sha256"},
+    "blocked_receipt_path": {"$ref": "#/$defs/path"},
+    "blocked_receipt_bytes_sha256": {"$ref": "#/$defs/sha256"},
+    "prior_request_id": {"$ref": "#/$defs/id"},
+    "prior_request_path": {"$ref": "#/$defs/path"},
+    "prior_request_bytes_sha256": {"$ref": "#/$defs/sha256"},
+    "prior_receipt_path": {"$ref": "#/$defs/path"},
+    "prior_receipt_bytes_sha256": {"$ref": "#/$defs/sha256"},
+    "projection_sha256": {"$ref": "#/$defs/sha256"},
+    "current_origin_main": {"oneOf": [{"$ref": "#/$defs/commit"}, {"type": "null"}]},
+    "prior_origin_main": {"oneOf": [{"$ref": "#/$defs/commit"}, {"type": "null"}]},
+    "review_path": {"$ref": "#/$defs/path"},
+    "review_bytes_sha256": {"$ref": "#/$defs/sha256"},
+    "authority": {"const": "admission_only"},
+    "reconciled_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,200}$"},
+    "path": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"}
+  }
+}

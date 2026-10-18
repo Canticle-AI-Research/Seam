@@ -7,6 +7,16 @@ history: HISTORY#687
 
 # Resolve verified completion before choosing the next task
 
+Current recovery update: HISTORY#694 records genuine successor activation,
+restoration of the original branch/evidence, admission-only dispositions,
+original-base TDD reconciliation, and a passing full non-external audit.
+The earlier recovery requirements below remain preserved historical evidence;
+they no longer require another client while the activated successor remains
+valid. Finish exact committed assurance, required CI, independently stored
+qualification/supersession, protected merge and actual-main verification before
+advancing the delivery plan. Durable local progress is in the recovery directory's
+`finalization-20261017/CHECKPOINT.md`. No repair merge is claimed yet.
+
 PR #313's finite documentation review is delivered at
 `79c40b55f8aea7a6615bdccf4b331b41dd46a362`. Its four subsequent process findings
 are recorded in the [completion audit](../audits/2026-10-17-protocol-completion.md).

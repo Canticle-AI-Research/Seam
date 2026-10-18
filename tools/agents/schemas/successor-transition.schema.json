@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seam.local/schemas/session-successor-transition-v1.json",
+  "title": "SEAM Session Successor Transition v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "predecessor_session_id", "successor_session_id",
+    "recovery_event_id", "repository_common_dir", "worktree_root", "branch",
+    "original_base_sha", "activation_sha", "request_id", "artifacts",
+    "repair_artifacts", "external_recoveries", "queue_roots",
+    "queue_record_sha256s", "created_at"
+  ],
+  "properties": {
+    "schema": {"const": "seam-session-successor-transition/v1"},
+    "predecessor_session_id": {"$ref": "#/$defs/id"},
+    "successor_session_id": {"$ref": "#/$defs/id"},
+    "recovery_event_id": {"$ref": "#/$defs/id"},
+    "repository_common_dir": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "worktree_root": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "branch": {"type": "string", "minLength": 1, "maxLength": 300},
+    "original_base_sha": {"$ref": "#/$defs/commit"},
+    "activation_sha": {"$ref": "#/$defs/commit"},
+    "request_id": {"$ref": "#/$defs/id"},
+    "artifacts": {"type": "array", "minItems": 7, "maxItems": 32, "items": {"$ref": "#/$defs/artifact"}},
+    "repair_artifacts": {"type": "array", "maxItems": 32, "items": {"$ref": "#/$defs/artifact"}},
+    "external_recoveries": {
+      "type": "array",
+      "maxItems": 16,
+      "items": {"$ref": "#/$defs/externalRecovery"}
+    },
+    "queue_roots": {
+      "type": "array", "minItems": 1, "maxItems": 512,
+      "items": {"type": "string", "minLength": 1, "maxLength": 1000}
+    },
+    "queue_record_sha256s": {"type": "array", "minItems": 1, "maxItems": 512, "items": {"type": "string", "minLength": 1, "maxLength": 3000}},
+    "created_at": {"type": "string", "format": "date-time"}
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[A-Za-z0-9._-]{1,200}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40,64}$"},
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["label", "path", "sha256"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1, "maxLength": 200},
+        "path": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "externalArtifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "externalRecovery": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema", "external_root", "session_id", "event_id", "status",
+        "missing_checkpoint", "compaction_count", "guardian_state", "handoff",
+        "recovery_event", "result_status", "evidence_manifest", "binding_path",
+        "binding_sha256"
+      ],
+      "properties": {
+        "schema": {"const": "seam-external-recovery-binding/v1"},
+        "external_root": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "session_id": {"$ref": "#/$defs/id"},
+        "event_id": {"$ref": "#/$defs/id"},
+        "status": {"const": "INHERITED_UNQUALIFIED"},
+        "result_status": {"enum": ["RETAINED", "NOT_RETAINED"]},
+        "missing_checkpoint": {"type": "boolean"},
+        "compaction_count": {"type": "integer", "minimum": 1},
+        "guardian_state": {"$ref": "#/$defs/externalArtifact"},
+        "handoff": {"$ref": "#/$defs/externalArtifact"},
+        "recovery_event": {"$ref": "#/$defs/externalArtifact"},
+        "result": {"$ref": "#/$defs/externalArtifact"},
+        "evidence_manifest": {"$ref": "#/$defs/externalArtifact"},
+        "checkpoint": {"$ref": "#/$defs/externalArtifact"},
+        "binding_path": {"type": "string", "minLength": 1, "maxLength": 1000},
+        "binding_sha256": {"$ref": "#/$defs/sha256"}
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"missing_checkpoint": {"const": false}},
+            "required": ["missing_checkpoint"]
+          },
+          "then": {"required": ["checkpoint"]},
+          "else": {"not": {"required": ["checkpoint"]}}
+        },
+        {
+          "if": {
+            "properties": {"result_status": {"const": "RETAINED"}},
+            "required": ["result_status"]
+          },
+          "then": {"required": ["result"]},
+          "else": {"not": {"required": ["result"]}}
+        }
+      ]
+    }
+  }
+}

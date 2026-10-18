@@ -12,10 +12,10 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "23e86249654fd0e1c404099fe1791f82448741a0fab25b42ca4e2abfcef9bae3",
+    "PROJECT_STATUS.md": "c7084da16592bcbdb28fe9cbed4bcaa1111a8f82cb087d98c8f21fe534d21ab9",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
-    "REPO_LEDGER.md": "59b073d22fa1f2f7acf805a51252ebedbad0be2722c49d92337cff9ea127735d",
+    "REPO_LEDGER.md": "6a729d8dac9c44c6ca4e01d004dfcdbd7497ac302d9153a85dc32eebddc267a0",
     "ROADMAP.md": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
@@ -63,7 +63,7 @@
     "docs/SEAM_OPERATOR_GUIDE.md": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
     "docs/SELF_HOST_SECURITY.md": "e6c9227923d16ea8f129eaf86e6969c113f83a96528e68a26c2f836e614d8909",
     "docs/SOP_ADVISOR_EXECUTOR_LOOP.md": "b2b018793c28c47aa075f5699ed18cd464db4b05d9f3b8eb29048fd3ffd998ac",
-    "docs/SOP_AGENT_ORCHESTRATION.md": "4d12ed199198c6a9ebac1d84c5e120eb8b2691c4e162dab7743e7f23a4ab3d11",
+    "docs/SOP_AGENT_ORCHESTRATION.md": "9e667103b04cbe42c67fbc947da91f68027f39cdb4d60b1abe9eae67017c6bed",
     "docs/SOP_BENCHMARKABLE_STATE_ROADMAP.md": "43269d3e5ed93d972734484acc33af8b3f05b768d11738ca1996f0564aaec805",
     "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
     "docs/SOP_CI_HARDENING_DEEPSEEK.md": "853a213b7df80dd76b0b3679ba41b555245c9d5ec85605d386dc40ddfc94dec3",
@@ -81,7 +81,7 @@
     "docs/SOP_INDEX.md": "9365416636450044f49c7b647a2a4391fc9ead40a420cf6d36b4fb54187aeb6b",
     "docs/SOP_MODEL_INTEGRATION.md": "591a4a46cf806f69ba02176ae49d8ca5ec63aeebffa9f7d2b6ef4403a685caf5",
     "docs/SOP_PRODUCTION_READINESS_REMEDIATION.md": "c00f053762e3a0081be8ce5cff17e7e58f872936419c2584e532a5b5b799be00",
-    "docs/SOP_SEAM_CODEX_WORKFLOW.md": "86e650e7b80e516ec017dd926523141dd0fed1ae481b6da297826cc39297ca90",
+    "docs/SOP_SEAM_CODEX_WORKFLOW.md": "133267d7f3ee6518c477c214f5d6d543322b8797ae61de2e0b2413daf12c5dda",
     "docs/SOP_SEAM_SELF_HOST_WHEEL.md": "3128a1faf7a39c8dec401d7bf4ac9e95de63acf75cb9570217606f5a3bd5abb5",
     "docs/SOP_TRACK_K_BIL_PHASE1_DEEPSEEK.md": "228af48c1bcd2b158c4984d8ca6a88fd054de0315579372dc689c78f30c54f89",
     "docs/SOP_TRACK_K_BIL_PHASE1_REPAIR_HANDOFF.md": "120072a6b4f9139ebc25cb32cff764f5992cb8b8ce477ba570f01d736a8f0f96",
@@ -234,7 +234,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "23e86249654fd0e1c404099fe1791f82448741a0fab25b42ca4e2abfcef9bae3",
+      "document_sha256": "c7084da16592bcbdb28fe9cbed4bcaa1111a8f82cb087d98c8f21fe534d21ab9",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -254,7 +254,7 @@
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "59b073d22fa1f2f7acf805a51252ebedbad0be2722c49d92337cff9ea127735d",
+      "document_sha256": "6a729d8dac9c44c6ca4e01d004dfcdbd7497ac302d9153a85dc32eebddc267a0",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -586,7 +586,7 @@
     },
     "docs/SOP_AGENT_ORCHESTRATION.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "4d12ed199198c6a9ebac1d84c5e120eb8b2691c4e162dab7743e7f23a4ab3d11",
+      "document_sha256": "9e667103b04cbe42c67fbc947da91f68027f39cdb4d60b1abe9eae67017c6bed",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -746,7 +746,7 @@
     },
     "docs/SOP_SEAM_CODEX_WORKFLOW.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "86e650e7b80e516ec017dd926523141dd0fed1ae481b6da297826cc39297ca90",
+      "document_sha256": "133267d7f3ee6518c477c214f5d6d543322b8797ae61de2e0b2413daf12c5dda",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

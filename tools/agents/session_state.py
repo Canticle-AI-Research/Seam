@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from tools.agents import assurance
+from tools.agents import assurance, successor
 from tools.agents.closeout_queue import CloseoutQueueError
 from tools.agents.closeout_queue import admit as admit_closeout_queue
 from tools.agents.session_end_closeout import SessionEndError, validate_session_state
@@ -123,6 +123,18 @@ def _parser() -> argparse.ArgumentParser:
     tdd.add_argument("--green-exit", required=True, type=int)
     tdd.add_argument("--green-fingerprint", required=True)
     tdd.add_argument("--green-at")
+    resume = subparsers.add_parser(
+        "successor", help="Resume one recovered session through immutable intent."
+    )
+    resume.add_argument("--predecessor-session", required=True)
+    resume.add_argument("--request-id", required=True)
+    resume.add_argument("--recovery-event", required=True)
+    resume.add_argument("--repair-path", type=Path, action="append", default=[])
+    resume.add_argument("--external-recovery", type=Path, action="append", default=[])
+    resume.add_argument("--objective", required=True)
+    resume.add_argument("--plan", action="append", default=[])
+    resume.add_argument("--constraint", action="append", default=[])
+    resume.add_argument("--affected-test", action="append", default=[])
     return parser
 
 
@@ -131,6 +143,22 @@ def _run(args: argparse.Namespace) -> Path:
     repo_root = args.repo_root.resolve(strict=True)
     state_root = args.state_root.resolve()
     path = state_root / f"{session_id}.json"
+    if args.command == "successor":
+        result = successor.create(
+            repo_root,
+            state_root,
+            session_id,
+            predecessor_session_id=args.predecessor_session,
+            request_id=args.request_id,
+            recovery_event_id=args.recovery_event,
+            repair_paths=args.repair_path,
+            external_recovery_paths=args.external_recovery,
+            objective=_check_text(args.objective),
+            plan=[_check_text(value) for value in args.plan],
+            constraints=[_check_text(value) for value in args.constraint],
+            affected_tests=[_check_text(value) for value in args.affected_test],
+        )
+        return Path(result["state_path"])
     if args.command == "init":
         admit_closeout_queue(repo_root)
         base_sha = _head(repo_root)
@@ -191,6 +219,7 @@ def main(argv: list[str] | None = None) -> int:
         json.JSONDecodeError,
         CloseoutQueueError,
         assurance.AssuranceError,
+        successor.SuccessorError,
         SessionStateError,
     ) as exc:
         print(f"SEAM session state failed: {type(exc).__name__}: {exc}", file=sys.stderr)

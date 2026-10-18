@@ -197,6 +197,22 @@ If the branch changes, a check is rerun on another SHA, or CI exposes a defect,
 return to a new delivery wave and repeat assurance and closeout on the successor
 state.
 
+A recovery successor keeps its original base and immutable activation SHA while
+allowing reviewed descendant commits. Before push, exact assurance revalidates
+the predecessor and the semantic external recovery chain, including every
+evidence-manifest member and either a truthful missing or bound checkpoint.
+The binding directly names the canonical recovery event and records result
+presence as `RETAINED` or `NOT_RETAINED`; retained results must be uniquely
+discoverable from the pinned inventory and match all seven event-derived
+fields. `NOT_RETAINED` is scoped to that inventory and does not assert that no
+historical result ever existed.
+Activation retries preserve valid appended cycles; before push, assurance
+requires complete runtime TDD coverage, the lineage-scoped retained-root
+inventory, and the actual outgoing SHA. Administrative
+duplicate dispositions are admission-only inputs and never replace this
+assurance. This ordering permits push and exact-head CI without pretending that
+the successor is already release-qualified.
+
 **Complete when:** local HEAD, remote branch head, PR head, reviewed candidate,
 and verification evidence name the same SHA, and every required exact-head CI
 check is successful. This phase proves the candidate and required CI state; it
