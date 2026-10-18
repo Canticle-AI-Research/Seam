@@ -11,7 +11,6 @@ from pathlib import Path
 
 import pytest
 
-
 REPO = Path(__file__).resolve().parents[2]
 PRE_PUSH = REPO / "tools" / "git-hooks" / "pre-push"
 SCHEMA = "seam-workspace-cleanup-ledger/v1"

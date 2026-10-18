@@ -15,7 +15,6 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Sequence
 
-
 LEDGER_SCHEMA = "seam-workspace-cleanup-ledger/v1"
 
 

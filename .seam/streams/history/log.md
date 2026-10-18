@@ -22654,3 +22654,23 @@ Correct the previous detailed recovery pointer prospectively: successor-2-durabl
 
 Origin was fetched and GitHub open-PR inventory is empty. Fresh exact-commit assurance, normal lifecycle/push, one PR, required exact-head hosted checks, independent qualified supersession, protected merge and actual resulting-main verification remain the authorized next actions. The framework author owns its separate implementation and rebases after this repair reaches verified main. No framework, board, milestone or account-permission work is included.
 ---END-ENTRY-#700---
+
+---BEGIN-ENTRY-#701---
+id: 701
+date: 2026-10-18T05:38:08Z
+agent: codex
+status: in-progress
+topics: ci, bugfix, continuity, verify
+commits: pending
+refs: tools/git/verify_retained_worktree.py,tests/audit/test_retained_worktree_push_gate.py
+supersedes: 700
+tokens: 396
+---
+Normal push succeeded and the single repair PR #314 was opened at candidate 930883aa631829ce6815370221fdbed8887b0c25 after canonical exact-state assurance. All eleven retained dirty worktrees passed the normal hook, with no suppression flags. Required hosted LoCoMo and Chroma checks passed, but repo-hygiene failed at Ruff I001 on one excess blank line after imports in each of tools/git/verify_retained_worktree.py and tests/audit/test_retained_worktree_push_gate.py. Its protocol regression step passed. This failure is not a qualified delivery.
+
+Independent release review recorded and canonically stored NOT_QUALIFIED for the exact failed candidate, with TDD_PROVEN and no supersession. Serial Terra removed exactly those two blank lines. Scoped Ruff, diff-check and AST equality against the prior committed blobs passed; root then ran the full ruff check . successfully. No runtime behavior or test design changed. Evidence is Primary .git/seam-consolidation-20261017/successor-3-ci-failure.txt, successor-3-failed-ci-receipt.json and successor-3-spacing-verification.json. The prior full audit remains adopted for unchanged semantics; it was not redundantly rerun.
+
+The new committed candidate must receive fresh exact-state independent assurance, a normal push to the same PR, all required exact-head hosted checks, independent qualification with explicit supersession, protected merge and actual resulting-main verification. All 21 original-base TDD cycles and ancestor requests remain preserved. Primary administrative dispositions retain their admission-only scope.
+
+Cleanup diagnosis distinguished sandbox-limited process visibility from the actual host: the host check found seven protected same-user daemons with unreadable cwd/file references and no visible task-fixture references. Existing noninteractive administrative read access is unavailable. No fixture deletion, permission change or reclaimed bytes is claimed; uncertainty remains recorded in successor-3-process-preflight.json. Publication remains the priority.
+---END-ENTRY-#701---

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 700
-total_tokens: ~358648
-latest_id: 700
+total_entries: 701
+total_tokens: ~359044
+latest_id: 701
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 701 | 2026-10-18 | in-progress | 01382e83d8dd79c4 | ci,bugfix,continuity,verify | 700 |
 | 700 | 2026-10-18 | in-progress | 51faf49b6d8a6082 | agent,protocol,continuity,verify,+ | 699 |
 | 699 | 2026-10-18 | in-progress | 1b89c1316ec061d4 | agent,protocol,continuity,worktree,+ | 698 |
 | 698 | 2026-10-18 | in-progress | a4be7a1074a484aa | agent,protocol,continuity,worktree,+ | 697 |
@@ -742,7 +743,7 @@ compact: true
 - branding: count=3 latest=#566, #565, #564
 - budget: count=1 latest=#320
 - bug: count=1 latest=#303
-- bugfix: count=88 latest=#694, #679, #668, #629, #628
+- bugfix: count=89 latest=#701, #694, #679, #668, #629
 - build: count=2 latest=#413, #408
 - bundle: count=12 latest=#515, #490, #489, #488, #487
 - busl: count=4 latest=#485, #482, #477, #474
@@ -754,7 +755,7 @@ compact: true
 - chat: count=18 latest=#542, #526, #342, #286, #137
 - chat-endpoint: count=1 latest=#300
 - chroma: count=7 latest=#640, #524, #296, #295, #293
-- ci: count=90 latest=#685, #684, #679, #676, #673
+- ci: count=91 latest=#701, #685, #684, #679, #676
 - classification: count=12 latest=#500, #177, #176, #171, #170
 - cleanup: count=4 latest=#632, #506, #394, #326
 - clear-text-logging: count=2 latest=#299, #298
@@ -777,7 +778,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=118 latest=#700, #699, #698, #697, #696
+- continuity: count=119 latest=#701, #700, #699, #698, #697
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -1051,7 +1052,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=496 latest=#700, #699, #698, #695, #694
+- verify: count=497 latest=#701, #700, #699, #698, #695
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1070,5 +1071,5 @@ compact: true
 - roots: 90
 - changed: 86
 - done: 542
-- in-progress: 50
+- in-progress: 51
 - planned: 22
