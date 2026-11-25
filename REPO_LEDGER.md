@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-10-17
+Last updated: 2026-11-25
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -44,6 +44,17 @@ bounded task-specific reading; do not maintain a competing sequence here.
 
 ## Stable Decisions
 
+- **Closeout-queue retirement (2026-11-25).** A SessionEnd request that can
+  never be qualified, or a qualified receipt whose superseded requests were
+  lost, leaves admission only through the operator-authorized, admission-only
+  `closeout_queue retire` path. Each retirement needs an independent review
+  artifact and an operator authorization manifest whose SHA-256 is pinned in
+  HISTORY; records are immutable and byte-bound. Retirement never grants
+  assurance, qualification, supersession, publication or merge authority, and
+  successor admission never honours it. Queues without retirement records
+  behave exactly as before. Same-OS-user authorship cannot be authenticated,
+  the same accepted limit as administrative dispositions. See HISTORY#702 and
+  `docs/SOP_AGENT_ORCHESTRATION.md`.
 - **Genuine recovery successor admission (2026-10-17).** Preserve the original
   base and TDD prefix, bind every external recovery manifest and truthful
   checkpoint/result state, and keep administrative dispositions admission-only.

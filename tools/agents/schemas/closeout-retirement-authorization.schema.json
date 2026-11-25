@@ -1,0 +1,160 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seam.local/schemas/closeout-retirement-authorization-v1.json",
+  "title": "SEAM Closeout Retirement Authorization v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "approved_at",
+    "entries",
+    "operator_authority",
+    "repository_common_dir",
+    "reviewer"
+  ],
+  "properties": {
+    "schema": {
+      "const": "seam-closeout-retirement-authorization/v1"
+    },
+    "approved_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "entries": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "acknowledged_hidden_paths",
+          "captured_paths_sha256",
+          "kind",
+          "missing_request_ids",
+          "omitted_scope_disposal_authorized",
+          "queue_root",
+          "receipt_sha256",
+          "request_id",
+          "request_sha256",
+          "scope_truncated",
+          "surviving_receipts"
+        ],
+        "properties": {
+          "acknowledged_hidden_paths": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "worktree_sha256"
+              ],
+              "properties": {
+                "path": {
+                  "$ref": "#/$defs/path"
+                },
+                "worktree_sha256": {
+                  "$ref": "#/$defs/sha256"
+                }
+              }
+            },
+            "uniqueItems": true
+          },
+          "captured_paths_sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "kind": {
+            "enum": [
+              "ABANDONED_REQUEST",
+              "MISSING_SUPERSESSION_TARGETS"
+            ]
+          },
+          "missing_request_ids": {
+            "type": "array",
+            "items": {
+              "$ref": "#/$defs/id"
+            },
+            "uniqueItems": true,
+            "maxItems": 128
+          },
+          "omitted_scope_disposal_authorized": {
+            "type": "boolean"
+          },
+          "queue_root": {
+            "$ref": "#/$defs/path"
+          },
+          "receipt_sha256": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/sha256"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "request_id": {
+            "$ref": "#/$defs/id"
+          },
+          "request_sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "scope_truncated": {
+            "type": "boolean"
+          },
+          "surviving_receipts": {
+            "description": "Exact receipt inventory for each target while its request is absent.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "path",
+                "sha256"
+              ],
+              "properties": {
+                "path": {
+                  "$ref": "#/$defs/path"
+                },
+                "sha256": {
+                  "$ref": "#/$defs/sha256"
+                }
+              }
+            },
+            "uniqueItems": true
+          }
+        }
+      },
+      "minItems": 1,
+      "maxItems": 512
+    },
+    "operator_authority": {
+      "type": "string",
+      "pattern": "^HISTORY#[0-9]{1,6}$"
+    },
+    "repository_common_dir": {
+      "$ref": "#/$defs/path"
+    },
+    "reviewer": {
+      "$ref": "#/$defs/id"
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,200}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    }
+  }
+}

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 701
-total_tokens: ~359044
-latest_id: 701
+total_entries: 702
+total_tokens: ~361064
+latest_id: 702
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 702 | 2026-11-25 | changed | 53fc0e5a87b16244 | agent,protocol,continuity,gates,+ | 701 |
 | 701 | 2026-10-18 | in-progress | 01382e83d8dd79c4 | ci,bugfix,continuity,verify | 700 |
 | 700 | 2026-10-18 | in-progress | 51faf49b6d8a6082 | agent,protocol,continuity,verify,+ | 699 |
 | 699 | 2026-10-18 | in-progress | 1b89c1316ec061d4 | agent,protocol,continuity,worktree,+ | 698 |
@@ -719,7 +720,7 @@ compact: true
 - abstention: count=1 latest=#325
 - adapter: count=1 latest=#335
 - adapters: count=1 latest=#384
-- agent: count=36 latest=#700, #699, #698, #697, #696
+- agent: count=37 latest=#702, #700, #699, #698, #697
 - agents: count=1 latest=#304
 - alias: count=2 latest=#033, #002
 - allowlist: count=1 latest=#300
@@ -778,7 +779,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=119 latest=#701, #700, #699, #698, #697
+- continuity: count=120 latest=#702, #701, #700, #699, #698
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -808,7 +809,7 @@ compact: true
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
 - docker: count=12 latest=#673, #672, #621, #620, #483
-- docs: count=125 latest=#686, #685, #684, #680, #675
+- docs: count=126 latest=#702, #686, #685, #684, #680
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
 - durability: count=1 latest=#532
@@ -834,7 +835,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=5 latest=#607, #606, #510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=21 latest=#685, #672, #668, #655, #654
+- gates: count=22 latest=#702, #685, #672, #668, #655
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - ghost: count=2 latest=#609, #608
@@ -924,7 +925,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=15 latest=#666, #665, #663, #662, #636
+- operator: count=16 latest=#702, #666, #665, #663, #662
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -953,7 +954,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=135 latest=#700, #699, #698, #697, #696
+- protocol: count=136 latest=#702, #700, #699, #698, #697
 - protocol/context: count=1 latest=#671
 - prov: count=1 latest=#316
 - provenance: count=38 latest=#673, #672, #655, #654, #653
@@ -1036,7 +1037,7 @@ compact: true
 - tenancy: count=2 latest=#538, #535
 - test: count=136 latest=#692, #691, #689, #687, #642
 - test-artifacts: count=1 latest=#506
-- tests: count=89 latest=#699, #698, #688, #652, #650
+- tests: count=90 latest=#702, #699, #698, #688, #652
 - textual: count=19 latest=#554, #543, #108, #106, #063
 - timeline: count=1 latest=#560
 - tokenizer: count=1 latest=#216
@@ -1052,7 +1053,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=497 latest=#701, #700, #699, #698, #695
+- verify: count=498 latest=#702, #701, #700, #699, #698
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1069,7 +1070,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 86
+- changed: 87
 - done: 542
 - in-progress: 51
 - planned: 22

@@ -413,6 +413,31 @@ BLOCKED receipt. It can satisfy only a narrowly named queue-admission repair;
 it cannot satisfy assurance, qualification, supersession, publication, or
 merge authority.
 
+A request that can never be qualified, or a qualified receipt whose superseded
+requests were lost with a removed worktree, may leave admission only through
+`closeout_queue retire --request <request.json> --review <review.json>
+--authorization <authorization.json>` (add `--receipt` for the lost-target
+kind). Retirement is an operator-authorized, admission-only disposition for
+exactly two cases: `ABANDONED_REQUEST`, a stale request whose committed head
+is contained in a commit the origin holds, and
+`MISSING_SUPERSESSION_TARGETS`, a stored `QUALIFIED` receipt whose named
+target requests are absent. It requires an independently authored
+`seam-closeout-retirement-review/v1` artifact per record and one
+`seam-closeout-retirement-authorization/v1` manifest whose entries bind the
+exact request, receipt, captured-path digest and every tracked path outside
+the capture whose working bytes differ from the index
+(`acknowledged_hidden_paths`, path plus SHA-256). A truncated capture also
+needs a clean tracked tree at the request head and explicit
+`omitted_scope_disposal_authorized`. The record is immutable and byte-bound;
+every later read rechecks it. Ordinary `admit` and `session_state init` honour
+a valid retirement; public `pending`, successor admission, receipt storage,
+assurance, qualification, supersession, publication, and merge never do.
+Pin the authorization manifest's SHA-256 in the HISTORY entry that records the
+operator's decision. The checks cannot authenticate the operator against
+another process running as the same OS user, do not enumerate stashes or other
+local refs, and are a point-in-time boundary rather than a worktree lock; the
+module comment in `tools/agents/closeout_queue.py` lists the accepted limits.
+
 A successor's own later request is exempt from its activation inventory only
 when its session, repository root, branch, and original base all match the
 transition. A same-session request from another retained root remains pending.

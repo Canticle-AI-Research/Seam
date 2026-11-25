@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 767
+total_events: 768
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-07-31T22:28:32Z | history:507:7d3ad352 | session-event | done | benchmarks, locomo, operations, huggingface, docs, verify | none |
 | 2026-07-31T22:48:26Z | history:508:cac65cb0 | session-event | done | retrieval, graph, fusion, locomo, benchmarks, verify | none |
 | 2026-07-31T23:29:44Z | history:509:0389549c | session-event | done | retrieval, graph, fusion, locomo, benchmarks, ablation, v... | none |
 | 2026-08-01T00:00:00Z | roadmap:062:a94b5d8b | status-change | bootstrap | packaging, selfhost, distribution, mcp, cli | ROADMAP.md:1702 |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-10-18T05:10:42Z | history:699:1b89c131 | session-event | in-progress | agent, protocol, continuity, worktree, tests, verify | tools/git/verify_retained_worktree.py,tools/git-hooks/pre-push,tests/audit/te... |
 | 2026-10-18T05:25:57Z | history:700:51faf49b | session-event | in-progress | agent, protocol, continuity, verify, handoff | PROJECT_STATUS.md,docs/handoffs/2026-10-17-protocol-completion.md |
 | 2026-10-18T05:38:08Z | history:701:01382e83 | session-event | in-progress | ci, bugfix, continuity, verify | tools/git/verify_retained_worktree.py,tests/audit/test_retained_worktree_push... |
+| 2026-11-25T17:44:35Z | history:702:53fc0e5a | session-event | changed | agent, protocol, continuity, gates, operator, tests, veri... | tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,tools/agent... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0567.cross.md | 2026-04-15T00:00:00Z..2026-07-31T19:32:14Z | 567 | (multi) | (multi) |
+| 0001-0568.cross.md | 2026-04-15T00:00:00Z..2026-07-31T22:28:32Z | 568 | (multi) | (multi) |

@@ -22674,3 +22674,178 @@ The new committed candidate must receive fresh exact-state independent assurance
 
 Cleanup diagnosis distinguished sandbox-limited process visibility from the actual host: the host check found seven protected same-user daemons with unreadable cwd/file references and no visible task-fixture references. Existing noninteractive administrative read access is unavailable. No fixture deletion, permission change or reclaimed bytes is claimed; uncertainty remains recorded in successor-3-process-preflight.json. Publication remains the priority.
 ---END-ENTRY-#701---
+
+---BEGIN-ENTRY-#702---
+id: 702
+date: 2026-11-25T17:44:35Z
+agent: claude-fable-5-2
+status: changed
+topics: agent, protocol, continuity, gates, operator, tests, verify, docs
+commits: fix/closeout-retirement-20261124
+refs: tools/agents/closeout_queue.py,tests/audit/test_closeout_queue.py,tools/agents/schemas/closeout-retirement.schema.json,tools/agents/schemas/closeout-retirement-review.schema.json,tools/agents/schemas/closeout-retirement-authorization.schema.json,.gitignore,docs/SOP_AGENT_ORCHESTRATION.md,REPO_LEDGER.md,PROJECT_STATUS.md
+supersedes: 701
+tokens: 2020
+---
+Added an operator-authorized, admission-only retirement path to the closeout
+queue and used it to retire the twelve records that had kept
+`closeout_queue admit` failing closed since the protocol-completion delivery.
+Admission now reports no pending request. Retirement grants admission only.
+
+## Why
+
+`closeout_queue admit` runs before `session_state init` and therefore before
+any repository write. It failed on two record classes no existing command could
+clear:
+
+- Eleven SessionEnd requests in the primary queue (created 2026-10-18 through
+  2026-11-08). Each captured local scratch and a working-tree scope that has
+  since moved, so none could ever match a `QUALIFIED` receipt. Supersession
+  needs a same-lineage qualified receipt over targets that already hold a
+  non-qualified verdict, which these did not.
+- One stored `QUALIFIED` receipt in the retained
+  `Seam-protocol-completion-20261017` root whose five superseded request files
+  were lost when worktrees were removed and only partly restored.
+
+Queue records are immutable, so editing or deleting them was not an option.
+
+## Operator decisions
+
+- The operator authorized a one-time recorded exception: add an admission-only
+  disposition and retire exactly these twelve records.
+- Same-OS-user forgery of the authorization manifest is an accepted residual,
+  shared with administrative dispositions; its digest is pinned below.
+- Orphan receipts that no retirement covers keep origin/main behaviour.
+- The nine skip-worktree `.opencode/skills/*/SKILL.md` local edits stay
+  untouched and are acknowledged in every abandoned entry.
+- The operator authorized push of this branch and protected merge of its pull
+  request once the reviews passed.
+
+## Changed
+
+- `tools/agents/closeout_queue.py`: `retire` command; retirement, review and
+  authorization validation; write-time proofs (remote preservation, ancestry,
+  captured scope, index and raw working bytes of every tracked path outside the
+  capture, published live HEAD, a final re-derivation immediately before the
+  record is linked); read-time rechecks; admission inventory entries; a
+  pre-write check that a retirement-bearing admission record is readable by
+  its own reader; `--register-root` validated with the registry reader's check.
+- `tools/agents/schemas/closeout-retirement.schema.json`,
+  `closeout-retirement-review.schema.json`,
+  `closeout-retirement-authorization.schema.json`: new record contracts.
+- `tests/audit/test_closeout_queue.py`: regression coverage for every finding.
+- `.gitignore`: the three local retirement state directories.
+- `docs/SOP_AGENT_ORCHESTRATION.md`, `REPO_LEDGER.md`, `PROJECT_STATUS.md`:
+  the durable description, stable decision and current headline.
+
+## Review trail
+
+Fourteen build and review rounds. Builders were delegated agents; reviewers ran
+read-only in isolated clones with copies of the real records.
+
+- Rounds 1 to 5 (design, independent Codex review): dirty and untracked scope,
+  format-only authority reference, registered candidates, successor admission
+  honouring retirements, non-ASCII path quoting, truncated captures, Git-root
+  resolution after cleanup, staged-only differences, first-time host
+  registration, stale registration precedence.
+- Rounds 6 to 9: successor strictness, a local anchor ref for pull-ref
+  commits, remedy texts, environment scoping of the retirement proofs.
+- Round 10: an edit hidden by skip-worktree at capture escaped once its flag
+  was cleared.
+- Round 11: flagged paths were compared with the captured commit instead of
+  the index; a retirement could push the inventory past the reader bound; an
+  unpublished live HEAD was not checked; an unresolved state root misread a
+  valid evidence copy.
+- Round 12: a flagged file edited after its comparison escaped the final
+  check; queue growth after a retirement could store an unreadable record.
+- Round 13: the stored record's encoded size was unchecked; registering an
+  over-long retained root stored a registration its reader rejects.
+- Round 14: both independent reviewers passed with no new finding.
+
+From round 12 the reviewers worked from one shared findings ledger and were
+asked to explain each other's verdicts. Their common diagnosis: the proof read
+HEAD, the index and file bytes against different baselines, and the admission
+writer and reader enforced different limits. Rounds 13 and 14 fixed those two
+causes rather than further instances, and each predicted issue was given a
+reproducing test before it was accepted or closed.
+
+## Application to the real queue (2026-11-25)
+
+- Reviewed bytes: `tools/agents/closeout_queue.py` SHA-256
+  `3d79a8796e20bb6850e9bbc43611581223fc3b5ce96e4bf3f1c7088a308e611a`.
+- Twelve review artifacts authored by an independent reviewer session after
+  re-verifying each subject. Authorization manifest SHA-256
+  `0dc2baad9a5a4a4ba8c1ce9e3c3b30772d62bde7c252a27a957bba5932a07e0e`.
+- Preserved refs read from origin at write time: `refs/heads/main` at
+  `e6c295c13ed1c1a2942ad29042847b236739122c` and `refs/pull/277/head` at
+  `8530717d800d397ba58283710b6e8f0a037aabf8`; local anchors under
+  `refs/seam/preserved/`.
+- With the three tracked change files restored to `e6c295c`, all twelve
+  retirements were written from an out-of-tree copy of the reviewed module.
+  Admission then passed from that copy and again from the repository's own
+  module after the change bytes were restored: no pending request, 26 observed
+  roots, 170 inventory records.
+- Both queue directories and the Git-common orchestration state were copied
+  with checksums before the first write.
+
+## Facts corrected against the working draft
+
+- One subject's session is registered: the missing-target receipt belongs to
+  the delivered, qualified protocol-completion successor. Registration is an
+  ownership condition for abandoned requests only.
+- Two snapshot paths listed by one truncated capture were already absent from
+  disk before this work; the operator's omitted-scope authority covers them.
+
+## Problems met while processing
+
+- The workstation powered off on 2026-11-24. Tracked edits and the evidence
+  home survived; review clones and two pending verdicts in temporary storage
+  did not. Briefs and verdicts have been kept in the evidence home since.
+- A project-aware interpreter probe replaced the repository virtual
+  environment, which was already unusable for the suite. It was rebuilt with
+  the documented extras. Tests for this change never depended on it.
+- A reviewer process was once stopped by pattern instead of by process id,
+  which ended the invoking shell. No repository state was affected.
+
+## Verified
+
+- `python -m pytest tests/audit/test_closeout_queue.py -q` exits zero on the
+  final bytes; the same file run against the origin/main module exits non-zero
+  (witnessed red then green, recorded with `session_state record-tdd`).
+- origin/main's own queue-related audit files give identical per-test outcomes
+  on origin/main and on origin/main plus the new module.
+- Mutation checks: every fix from rounds 10 to 14 has a named test that fails
+  when the fix is removed.
+- `ruff check` on both Python files and `git diff --check` are clean.
+- Full local scope `python -m pytest test_seam_all/ tools/history/test_history_tools.py
+  tools/streams/ tests/ -ra -q -o addopts= -p no:cacheprovider` with pgvector up and the
+  model cache set: every test passes except two in
+  `tests/audit/test_codex_agent_profiles.py`, which fail only because of an untracked local
+  `.codex/agents/seam-retrieval.toml` that predates this work and is not part of the
+  change; that file passes in a clean clone of the same bytes. The first run also showed
+  Chroma collection errors because the rebuilt environment lacked the optional `chroma`
+  extra; with it installed those files pass.
+
+## Honest boundaries
+
+- Retirement cannot authenticate the operator or reviewer against another
+  process running as the same OS user.
+- Stashes and copies on other local refs are not enumerated; untracked or
+  ignored files outside a capture are not examined. The tool deletes no
+  working file.
+- The proof is a point-in-time boundary immediately before publication, not a
+  worktree lock.
+- A hand-deleted retired request makes admission refuse until it is restored.
+- An older checkout running the origin/main module does not honour
+  retirements.
+- The pre-existing inventory bound for queues without retirements is
+  unchanged.
+
+## Next move
+
+Complete protected delivery of this branch: independent exact-commit
+assurance, required CI, stored qualification, merge commit and exact-main
+verification. Then resume the delivery plan's recorded next action, the
+independent SEAM Doctor review. Two reviewer nits remain for a follow-up: a
+misleading refusal message for a captured path later committed, and the
+inventory estimate skipping a listed worktree that is missing on disk.
+---END-ENTRY-#702---

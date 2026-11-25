@@ -5,6 +5,17 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-11-25 — closeout queue unblocked; retirement path in protected delivery.**
+Admission had failed closed since the protocol-completion delivery on eleven
+stale SessionEnd requests in the primary queue and one qualified receipt whose
+five superseded requests were lost. Under a recorded one-time operator
+exception, an admission-only `closeout_queue retire` path was added and the
+twelve records were retired; `closeout_queue admit` now reports no pending
+request. Retirement grants admission only. See HISTORY#702 and
+`docs/SOP_AGENT_ORCHESTRATION.md`. The delivery plan's recorded next action is
+unchanged: independent SEAM Doctor review under its exact-source and
+independent-review gates. Earlier headlines below are historical boundaries.
+
 **Reviewed retention repair committed; protected delivery in progress.**
 The genuine successor completed canonical admission with the original base and
 all 21 witnessed TDD cycles preserved. Normal signed commit `5c8a11c` contains

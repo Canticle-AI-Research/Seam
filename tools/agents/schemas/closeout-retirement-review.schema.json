@@ -1,0 +1,146 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://seam.local/schemas/closeout-retirement-review-v1.json",
+  "title": "SEAM Closeout Retirement Review v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "authority",
+    "kind",
+    "missing_request_ids",
+    "operator_authority",
+    "preserved_commit",
+    "preserved_ref",
+    "producer_session_id",
+    "queue_root",
+    "reason",
+    "receipt_sha256",
+    "repository_common_dir",
+    "request_id",
+    "request_sha256",
+    "reviewed_at",
+    "reviewer",
+    "status",
+    "surviving_receipts",
+    "unresolved_findings"
+  ],
+  "properties": {
+    "schema": {
+      "const": "seam-closeout-retirement-review/v1"
+    },
+    "authority": {
+      "const": "admission_only"
+    },
+    "kind": {
+      "enum": [
+        "ABANDONED_REQUEST",
+        "MISSING_SUPERSESSION_TARGETS"
+      ]
+    },
+    "missing_request_ids": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/id"
+      },
+      "uniqueItems": true,
+      "maxItems": 128
+    },
+    "operator_authority": {
+      "type": "string",
+      "pattern": "^HISTORY#[0-9]{1,6}$"
+    },
+    "preserved_commit": {
+      "$ref": "#/$defs/commit"
+    },
+    "preserved_ref": {
+      "type": "string",
+      "pattern": "^refs/(heads/main|pull/[0-9]{1,9}/head)$"
+    },
+    "producer_session_id": {
+      "$ref": "#/$defs/id"
+    },
+    "queue_root": {
+      "$ref": "#/$defs/path"
+    },
+    "reason": {
+      "enum": [
+        "NO_UNIQUE_WORK_PRESERVED_COMMIT",
+        "UNRECOVERABLE_SUPERSESSION_TARGETS"
+      ]
+    },
+    "receipt_sha256": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "repository_common_dir": {
+      "$ref": "#/$defs/path"
+    },
+    "request_id": {
+      "$ref": "#/$defs/id"
+    },
+    "request_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reviewer": {
+      "$ref": "#/$defs/id"
+    },
+    "status": {
+      "const": "PASS"
+    },
+    "surviving_receipts": {
+      "description": "Exact receipt inventory for each target while its request is absent.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "$ref": "#/$defs/path"
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "unresolved_findings": {
+      "type": "array",
+      "maxItems": 0
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._-]{1,200}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40,64}$"
+    }
+  }
+}
