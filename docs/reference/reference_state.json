@@ -12,10 +12,10 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "0ecfbc188068667b634984826b5b389ef9cd85a5df813ab446cf3d1efe0f63ff",
+    "PROJECT_STATUS.md": "3a1b6760f7d8ca34445faa4bbe66e95efaa23474e11eb64bb21179dae8e47964",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
-    "REPO_LEDGER.md": "180d50f0dd83776e4442f38ce100158486e19c7aeee7da856a7c2650b1b3b812",
+    "REPO_LEDGER.md": "5cca5496f5d713f58eccc520b341ef5a22efca5535d5c5ffd0fe546ad903c344",
     "ROADMAP.md": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
@@ -63,7 +63,7 @@
     "docs/SEAM_OPERATOR_GUIDE.md": "80ef7425bbb8755a7b12fad559b79c09658efeb0f89c50cc916ea96c11738e3c",
     "docs/SELF_HOST_SECURITY.md": "e6c9227923d16ea8f129eaf86e6969c113f83a96528e68a26c2f836e614d8909",
     "docs/SOP_ADVISOR_EXECUTOR_LOOP.md": "b2b018793c28c47aa075f5699ed18cd464db4b05d9f3b8eb29048fd3ffd998ac",
-    "docs/SOP_AGENT_ORCHESTRATION.md": "e2e186e3af8b26321a5167380d517f09ae16619be3fa184bb882006cde9edf75",
+    "docs/SOP_AGENT_ORCHESTRATION.md": "b7883522b0704827aae2b0d9b95b572c52771a12675ba6023364c93bc30b5fae",
     "docs/SOP_BENCHMARKABLE_STATE_ROADMAP.md": "43269d3e5ed93d972734484acc33af8b3f05b768d11738ca1996f0564aaec805",
     "docs/SOP_CI_BENCH_GATE_PREP_DEEPSEEK.md": "ef84437404c103d60be21b5ac5ba405fbaff4007cad5a568630f9fdbd250a938",
     "docs/SOP_CI_HARDENING_DEEPSEEK.md": "853a213b7df80dd76b0b3679ba41b555245c9d5ec85605d386dc40ddfc94dec3",
@@ -234,7 +234,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "0ecfbc188068667b634984826b5b389ef9cd85a5df813ab446cf3d1efe0f63ff",
+      "document_sha256": "3a1b6760f7d8ca34445faa4bbe66e95efaa23474e11eb64bb21179dae8e47964",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -254,7 +254,7 @@
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "180d50f0dd83776e4442f38ce100158486e19c7aeee7da856a7c2650b1b3b812",
+      "document_sha256": "5cca5496f5d713f58eccc520b341ef5a22efca5535d5c5ffd0fe546ad903c344",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -586,7 +586,7 @@
     },
     "docs/SOP_AGENT_ORCHESTRATION.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "e2e186e3af8b26321a5167380d517f09ae16619be3fa184bb882006cde9edf75",
+      "document_sha256": "b7883522b0704827aae2b0d9b95b572c52771a12675ba6023364c93bc30b5fae",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

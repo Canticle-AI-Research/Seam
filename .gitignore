@@ -76,6 +76,9 @@ seam_runtime/_handoff_20260419/
 .seam/orchestration/session-end/receipts/
 .seam/orchestration/session-end/receipt-attempts/
 .seam/orchestration/session-end/administrative-dispositions/
+.seam/orchestration/session-end/retirements/
+.seam/orchestration/session-end/retirement-evidence/
+.seam/orchestration/session-end/.retirement-staging/
 .context-handoffs/
 
 # Local editor and agent config
