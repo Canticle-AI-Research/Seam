@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 703
-total_tokens: ~362534
-latest_id: 703
+total_entries: 704
+total_tokens: ~363257
+latest_id: 704
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 704 | 2026-11-26 | changed | 2ca5918e93aab15f | correction,continuity,verify,worktree | 703 |
 | 703 | 2026-11-26 | changed | aebbb48b041ef68e | agent,protocol,continuity,correction,+ | 702 |
 | 702 | 2026-11-25 | changed | 53fc0e5a87b16244 | agent,protocol,continuity,gates,+ | 701 |
 | 701 | 2026-10-18 | in-progress | 01382e83d8dd79c4 | ci,bugfix,continuity,verify | 700 |
@@ -780,12 +781,12 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=121 latest=#703, #702, #701, #700, #699
+- continuity: count=122 latest=#704, #703, #702, #701, #700
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=36 latest=#703, #693, #690, #685, #683
+- correction: count=37 latest=#704, #703, #693, #690, #685
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -1054,7 +1055,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=499 latest=#703, #702, #701, #700, #699
+- verify: count=500 latest=#704, #703, #702, #701, #700
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1063,7 +1064,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=21 latest=#703, #699, #698, #697, #687
+- worktree: count=22 latest=#704, #703, #699, #698, #697
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -1071,7 +1072,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 88
+- changed: 89
 - done: 542
 - in-progress: 51
 - planned: 22

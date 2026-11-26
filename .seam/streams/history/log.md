@@ -22962,3 +22962,64 @@ on the exact head, the successor request with an independent `QUALIFIED`
 receipt superseding the first request, protected merge commit, `verify_merge`
 on an isolated exact-main checkout, then the security PR tracked in #321.
 ---END-ENTRY-#703---
+
+---BEGIN-ENTRY-#704---
+id: 704
+date: 2026-11-26T12:55:09Z
+agent: claude-mythos-5-2
+status: changed
+topics: correction, continuity, verify, worktree
+commits: fix/closeout-retirement-20261124
+refs: HISTORY.md
+supersedes: 703
+tokens: 723
+---
+Correction to HISTORY#703, found by its independent exact-commit assurance
+review, which failed commit `fa6ac05` on the first point below. HISTORY is
+append-only, so #703 stays as written and this entry supersedes it. No
+runtime or test bytes change.
+
+## Corrections
+
+- HISTORY#703 says "Two other linked worktrees still hold byte-identical
+  untracked copies" of `.codex/agents/seam-retrieval.toml`. The correct
+  number is eight. Enumerating every registered worktree finds the untracked
+  file, SHA-256 `b956a9f236a69a79debef09db856ac5000ac6e066a5c9890d262a5f95eb1d07f`
+  (identical to the copy moved to the operator's user-level Codex agents
+  folder), in these `.claude/worktrees/` checkouts: `chat-session-f56d31`,
+  `codex-handoff-review-8f38f8`, `design-dash-integration-edb60d`,
+  `finish-licensing-30573b`, `local-runtime-check-1eadb2`,
+  `missing-zai-f8ac95`, `oauth2-interactive-auth-9ef8aa` and
+  `self-improvement-loop-repair-89a327`. All eight are retained in the cleanup
+  ledger. Six were already retained and had their review date renewed; the
+  last two were newly recorded as retained on 2026-11-26, and those are the
+  two the pre-push gate named. The count came from that gate output rather
+  than from an enumeration. Removal of any copy still awaits operator
+  confirmation.
+- "Before and after copies" of the cleanup ledger: at the time of #703 the
+  evidence home held the before copy and an intermediate copy, and the final
+  ledger was present only as a hash. The final ledger was unchanged at that
+  hash and has since been copied beside them as `cleanup-ledger.after.json`,
+  SHA-256 `447696472f153ae7ff9f2d602ff052d19bef12619a72bf066fc7fc07c6eeb7b1`.
+- "had all passed their 2026-11-20 review date": one record
+  (`push-block-scope-20261117`) had 2026-11-24. Both dates had passed.
+- The release reviewer id named in #703 (`fable-release-review-20261126`) is
+  recorded in the review brief and evidence home, not as a field of the
+  stored receipt; the receipt schema has no reviewer field.
+
+## Verified
+
+The assurance reviewer re-checked the rest of HISTORY#703 against primary
+sources and found it accurate: GitHub issue and PR state, both Dependabot
+settings, both recorded TDD cycles and their logs, the stored `NOT_QUALIFIED`
+receipt, the full-suite log, and all five HISTORY#702 corrections. Every
+canonical continuity gate, the secret scan and `git diff --check` exited zero
+on `fa6ac05`.
+
+## Next move
+
+Unchanged from HISTORY#703: independent exact-commit assurance on this entry's
+commit, then push, required CI, a successor request with an independent
+`QUALIFIED` receipt superseding the first request, protected merge commit and
+`verify_merge`.
+---END-ENTRY-#704---
