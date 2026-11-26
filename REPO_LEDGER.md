@@ -1,6 +1,6 @@
 # SEAM Repo Ledger
 
-Last updated: 2026-11-25
+Last updated: 2026-11-26
 
 This ledger is the stable engineering memory for repo-level decisions only.
 Detailed session history, milestones, and plan transitions now live in `HISTORY.md`
@@ -967,7 +967,28 @@ bounded task-specific reading; do not maintain a competing sequence here.
 ## Runtime Service Safety Policy
 
 - External services for real-adapter tests (for example Docker pgvector) must be started only for the active test window.
-- Every service started for a test run must be explicitly stopped and removed at the end of that run.
+- Container lifecycle (operator, 2026-11-26; supersedes "stopped and removed"; see HISTORY#707):
+  - **Vital service containers** are named, reused by a recurring Seam workflow (test suite,
+    CI, a running surface) or hold data that is needed. They are started when a run needs
+    them, stopped when it ends, and kept. Current list: `seam-pgvector` (compose service
+    `pgvector`, named volume `pgvector-data`). One is deleted only when creating it fresh
+    each time is the better practice, with its data kept in a named volume.
+  - **Temporary containers** (one task, one test, one command) are removed when that task
+    ends: `docker run --rm`, or `docker rm -v` after stopping. One-off images built for them
+    are removed too.
+  - A repeated task whose container is not on the vital list: ask the operator once whether
+    to keep it, and record the answer in the list above.
+  - **Evidence before removal.** Before any container is removed, every output that is
+    evidence for a decision (data proving a bug, the reason for a fix or policy change, a
+    benchmark result) is copied out, hashed with SHA-256, and cited in the HISTORY entry
+    for that decision. `.seam/evidence/` is ignored and local to one machine, so evidence
+    that a later change must not contradict is made durable in tracked form: the smallest
+    reproducing case as a regression test or fixture (preferred; a reintroduced bug then
+    fails CI), a `docs/audits/` report with an evidence manifest, or a configured external
+    evidence archive. Before changing a rule or component that an earlier fix touched,
+    read that fix's recorded evidence so the fixed error is not recreated.
+  - Remove only containers the session created. Named volumes and other owners' data
+    need operator confirmation.
 - Prefer non-conflicting ports for temporary services and verify they are released after cleanup.
 - Keep resource monitoring lightweight during runs (snapshot checks or low-frequency polling) to avoid adding load.
 - If a run fails or exits early, perform the same shutdown/cleanup sequence before continuing.

@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 706
-total_tokens: ~366092
-latest_id: 706
+total_entries: 707
+total_tokens: ~366906
+latest_id: 707
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 707 | 2026-11-26 | changed | 46330af965ba40d4 | docker,pgvector,operator,protocol,+ | 706 |
 | 706 | 2026-11-26 | changed | 7694bda271f194c8 | correction,continuity,verify,operator,+ | 705 |
 | 705 | 2026-11-26 | changed | 3dfbff8eac2bdbf6 | continuity,verify,gates,worktree,+ | 704 |
 | 704 | 2026-11-26 | changed | 2ca5918e93aab15f | correction,continuity,verify,worktree | 703 |
@@ -783,7 +784,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=124 latest=#706, #705, #704, #703, #702
+- continuity: count=125 latest=#707, #706, #705, #704, #703
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -812,7 +813,7 @@ compact: true
 - distribution: count=2 latest=#501, #474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=14 latest=#706, #705, #673, #672, #621
+- docker: count=15 latest=#707, #706, #705, #673, #672
 - docs: count=126 latest=#702, #686, #685, #684, #680
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
@@ -929,7 +930,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=19 latest=#706, #705, #703, #702, #666
+- operator: count=20 latest=#707, #706, #705, #703, #702
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -941,7 +942,7 @@ compact: true
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
-- pgvector: count=41 latest=#705, #673, #672, #660, #656
+- pgvector: count=42 latest=#707, #705, #673, #672, #660
 - plan: count=27 latest=#673, #672, #645, #634, #620
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
@@ -958,7 +959,7 @@ compact: true
 - prompt: count=4 latest=#382, #365, #345, #340
 - proof: count=1 latest=#410
 - proposer: count=1 latest=#291
-- protocol: count=137 latest=#703, #702, #700, #699, #698
+- protocol: count=138 latest=#707, #703, #702, #700, #699
 - protocol/context: count=1 latest=#671
 - prov: count=1 latest=#316
 - provenance: count=38 latest=#673, #672, #655, #654, #653
@@ -1074,7 +1075,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 91
+- changed: 92
 - done: 542
 - in-progress: 51
 - planned: 22

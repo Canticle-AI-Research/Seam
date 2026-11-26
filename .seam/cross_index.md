@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 772
+total_events: 773
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-08-01T01:48:32Z | history:510:ff1c7a29 | session-event | done | provenance, retrieval, graph, mirl, fusion, verify | none |
 | 2026-08-01T09:22:35Z | history:511:71bf65cc | session-event | in-progress | audit, roadmap, plan, status, retrieval, storage, securit... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,ROADMAP.md,PROJECT_STATUS.md,docs/... |
 | 2026-08-01T10:47:10Z | history:512:6eafc7b3 | session-event | done | fixture, test, wandr, bugfix, verify, continuity | .gitignore,benchmarks/fixtures/wandr/smoke.replay.jsonl,benchmarks/fixtures/w... |
 | 2026-08-01T11:52:41Z | history:513:44291c44 | session-event | done | audit, bugfix, benchmark, retrieval, provenance, verify, ... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-11-26T12:55:09Z | history:704:2ca5918e | session-event | changed | correction, continuity, verify, worktree | HISTORY.md |
 | 2026-11-26T14:20:47Z | history:705:3dfbff8e | session-event | changed | continuity, verify, gates, worktree, docker, pgvector, op... | HISTORY.md,PROJECT_STATUS.md,tools/ci/verify_merge.py,docs/delivery/current.json |
 | 2026-11-26T15:14:39Z | history:706:7694bda2 | session-event | changed | correction, continuity, verify, operator, docker | HISTORY.md,REPO_LEDGER.md,docs/PR_LIFECYCLE.md,docs/SOP_SEAM_CODEX_WORKFLOW.md |
+| 2026-11-26T15:17:11Z | history:707:46330af9 | session-event | changed | docker, pgvector, operator, protocol, continuity | REPO_LEDGER.md,scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,docs... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0572.cross.md | 2026-04-15T00:00:00Z..2026-08-01T00:00:00Z | 572 | (multi) | (multi) |
+| 0001-0573.cross.md | 2026-04-15T00:00:00Z..2026-08-01T01:48:32Z | 573 | (multi) | (multi) |

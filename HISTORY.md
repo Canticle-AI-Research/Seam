@@ -23251,3 +23251,81 @@ qualification.
    regressions.
 5. Independent SEAM Doctor review, per `delivery_status`.
 ---END-ENTRY-#706---
+
+---BEGIN-ENTRY-#707---
+id: 707
+date: 2026-11-26T15:17:11Z
+agent: claude-opus-5-5
+status: changed
+topics: docker, pgvector, operator, protocol, continuity
+commits: docs/history-post-merge-20261126
+refs: REPO_LEDGER.md,scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,docs/PGVECTOR_LOCAL.md
+supersedes: 706
+tokens: 814
+---
+Container lifecycle and evidence-retention policy, set by the operator on
+2026-11-26. REPO_LEDGER "Runtime Service Safety Policy" previously said every
+service started for a test run "must be explicitly stopped and removed".
+That no longer matched practice: `seam-pgvector` is a reused service with
+the named volume `pgvector-data`, and `scripts/run_real_adapters_guarded.ps1`
+already only stops it (`docker stop`) unless `-KeepContainer` is given. The
+rule is replaced in `REPO_LEDGER.md`; no runtime or test bytes change.
+
+## New rule (REPO_LEDGER Runtime Service Safety Policy)
+
+- Vital service containers (named; reused by a recurring Seam workflow such
+  as the test suite or CI, or holding needed data) are started when a run
+  needs them, stopped when it ends, and kept. The current list is
+  `seam-pgvector`. Deleting one is allowed only when a fresh container each
+  time is the better practice, with data in a named volume.
+- Temporary containers (one task, test or command) are removed when the task
+  ends (`docker run --rm`, or `docker rm -v`), with their one-off images.
+- For a repeated task not on the list, the operator is asked once and the
+  answer is recorded in the list.
+- Evidence before removal: any container output that is evidence for a
+  decision is copied out, hashed, and cited in the HISTORY entry for that
+  decision. Because `.seam/evidence/` is ignored and machine-local, evidence
+  a later change must not contradict is made durable in tracked form,
+  preferably as a regression test or fixture, otherwise a `docs/audits/`
+  report with an evidence manifest or a configured external archive. Before
+  changing a rule or component an earlier fix touched, read that fix's
+  evidence.
+- Only containers the session created are removed; named volumes and other
+  owners' data need operator confirmation.
+
+## Why the evidence rule exists (operator's reasoning)
+
+A temporary test container can produce the data that proves why a component
+breaks. That data justifies a fix or a policy change. If the container is
+deleted with the data, a later revision of that fix or policy cannot see the
+original reason, can be made too broad, and can recreate the error the first
+change solved. Keeping the evidence, ideally as a test, prevents fixed errors
+from being repeated.
+
+## Related machine state (outside the repo)
+
+The other live session (seam-f6) reported by message that it installed a
+user-level Docker idle reaper outside this repository: any container stops
+after 30 minutes idle or 4 hours total unless kept with `docker-keep`, with
+desktop notifications on start and five minutes before stop. It tested this
+on `seam-pgvector`, which was started and stopped twice on 2026-11-26 for
+that test and left stopped. The reaper stops containers; it does not remove
+them. The same operator rules (start on need, stop when done, remove
+temporary containers, keep evidence) were added to the agent-global
+instructions, which are not part of this repository.
+
+## Verification
+
+Durable-policy change: contract and ledger review only (VERIFICATION_MATRIX
+"Durable documentation or policy"). Active docs were searched for the old
+"stopped and removed" rule; only historical HISTORY entries and archives
+still contain it, and they stay unchanged. `docs/PGVECTOR_LOCAL.md` has no
+removal step. Continuity gates run through closeout.
+
+## Next move
+
+Unchanged from HISTORY#706: independent assurance on this branch's final
+commit, push, required CI, qualification and protected merge; then the
+history-entry collision fix, the security PR (#321), the `verify_merge` gaps
+and the SEAM Doctor review.
+---END-ENTRY-#707---
