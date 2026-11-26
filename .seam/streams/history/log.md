@@ -23156,3 +23156,98 @@ Still open: closeout-queue follow-ups F12-4, F12-5 and P8a; the
 `push-block-scope-20261117` worktree and the project-tracking branch were
 written expecting HISTORY#702 and must renumber after this entry.
 ---END-ENTRY-#705---
+
+---BEGIN-ENTRY-#706---
+id: 706
+date: 2026-11-26T15:14:39Z
+agent: claude-opus-5-5
+status: changed
+topics: correction, continuity, verify, operator, docker
+commits: docs/history-post-merge-20261126
+refs: HISTORY.md,REPO_LEDGER.md,docs/PR_LIFECYCLE.md,docs/SOP_SEAM_CODEX_WORKFLOW.md
+supersedes: 705
+tokens: 1139
+---
+Correction of HISTORY#705. Independent exact-commit assurance on the first
+#705 commit `4b63706` returned FAIL (reviewer
+`fable-independent-assurance-20261126c`, 2026-11-26T14:25:57Z; report kept in
+the task evidence home as `release/assurance-report-4b63706.json`) on two
+statements of state. Both were re-checked against primary sources in this
+session and are wrong as written. HISTORY#705 is not edited; this entry
+supersedes it.
+
+## Corrections
+
+1. Cleanup ledger count. #705 says "Twenty-six other dirty or retained items
+   remain retained until 2026-12-10." `.seam/orchestration/cleanup-ledger.json`
+   (read 2026-11-26 after the #705 commit) has 32 items: 29 `retained`, all
+   with `review_after` 2026-12-10; 2 `active`; 1 `removed` (the verify
+   worktree). The 2 active items are the root checkout (`main`/`35d5648`,
+   review 2026-12-10) and `.claude/worktrees/graph-dashboard-wiring`
+   (branch `worktree-graph-dashboard-wiring`, head `02528ab`, `git status
+   --short` empty), whose review date 2026-11-20 has already passed. The
+   figure 26 is the `closeout_queue admit` observed-roots count, a different
+   quantity.
+2. Advisory checks on main. #705 says `package-smoke` was "passing on main".
+   On main `35d5648` (GitHub check runs for that SHA) `package-smoke` failed
+   13:07:46-13:08:10Z with the same runner fault, `libpython3.12.so.1.0:
+   cannot open shared object file` (job log). `pgvector-integration` also
+   failed on `35d5648` (13:07:34-13:07:45Z). The three required checks passed
+   on `35d5648`. The PR comment saying "passed on main" was true only of the
+   previous main `e6c295c`.
+
+## Wording corrections
+
+- #705's opening says "two failed attempts". All three `verify_merge` runs
+  exited 1. Attempt 2 wrote the PASS evidence and then exited 1 on the
+  already-recorded delivery plan; the attempt logs read "canonical gate
+  failed: continuity (exit 1)", "delivery completion already exists", and
+  "merge evidence path already exists".
+- #705 says AGENTS.md requires repair "in a new delivery wave". AGENTS.md
+  requires the enforcing hook, rule or check to be repaired with a failing
+  regression before the delivery is claimed complete. The "new delivery wave"
+  wording is in `docs/PR_LIFECYCLE.md` and `docs/SOP_SEAM_CODEX_WORKFLOW.md`
+  phase 12.
+- The REPO_LEDGER Runtime Service Safety Policy says test services are
+  "stopped and removed". `seam-pgvector` and the eight unrelated containers
+  were stopped only, data kept, on operator direction. That deviation is
+  recorded here; the policy itself is revised in the next entry.
+
+## Out-of-scope machine changes (recorded for traceability)
+
+On 2026-11-26 the operator also directed stopping, and disabling at login,
+services that are not part of Seam: canticle-onion (including Pwnion),
+warplay-tor, vscode-tunnel, user and system gnome-remote-desktop, and motion.
+They are outside Seam scope; only `seam-pgvector` (in #705) is a Seam service.
+
+## Process notes
+
+- The first #705 closeout run stopped at `verify_doc_references` until the
+  PROJECT_STATUS managed-reference review was acknowledged; it then passed.
+- #706 was written only after the file-in-use guard showed no other live
+  session using the history files, and the other live local session was told
+  by message not to write Seam history until this branch merges. Operator
+  rule: one history entry completes before the next starts.
+
+## Authority
+
+The operator authorized push of branch docs/history-post-merge-20261126 and
+protected merge of its PR on 2026-11-26 ("land it through the full
+protocol"), after independent assurance, required CI and stored
+qualification.
+
+## Next move (operator order, 2026-11-26)
+
+1. HISTORY#707 on this branch: revised container and evidence-retention
+   policy (vital containers kept and stopped when idle; temporary containers
+   removed; ask once for repeated tasks; evidence extracted, hashed and turned
+   into regression tests before a container is removed).
+2. History-entry collision fix: one history lock shared by every worktree,
+   held for the whole closeout sequence; entry numbers assigned at merge;
+   `observed_at`/`completed_at` metadata for when work actually happened;
+   the entry as a required part of job completion.
+3. Security dependency PR tracked in #321.
+4. Repair the three `verify_merge` protocol gaps (#705) with failing
+   regressions.
+5. Independent SEAM Doctor review, per `delivery_status`.
+---END-ENTRY-#706---

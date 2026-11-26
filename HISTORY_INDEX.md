@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 705
-total_tokens: ~364953
-latest_id: 705
+total_entries: 706
+total_tokens: ~366092
+latest_id: 706
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 706 | 2026-11-26 | changed | 7694bda271f194c8 | correction,continuity,verify,operator,+ | 705 |
 | 705 | 2026-11-26 | changed | 3dfbff8eac2bdbf6 | continuity,verify,gates,worktree,+ | 704 |
 | 704 | 2026-11-26 | changed | 2ca5918e93aab15f | correction,continuity,verify,worktree | 703 |
 | 703 | 2026-11-26 | changed | aebbb48b041ef68e | agent,protocol,continuity,correction,+ | 702 |
@@ -782,12 +783,12 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=123 latest=#705, #704, #703, #702, #701
+- continuity: count=124 latest=#706, #705, #704, #703, #702
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
 - coreference: count=3 latest=#358, #323, #321
-- correction: count=37 latest=#704, #703, #693, #690, #685
+- correction: count=38 latest=#706, #704, #703, #693, #690
 - correctness: count=1 latest=#368
 - cosine: count=1 latest=#363
 - cost: count=3 latest=#428, #425, #366
@@ -811,7 +812,7 @@ compact: true
 - distribution: count=2 latest=#501, #474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=13 latest=#705, #673, #672, #621, #620
+- docker: count=14 latest=#706, #705, #673, #672, #621
 - docs: count=126 latest=#702, #686, #685, #684, #680
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
@@ -928,7 +929,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=18 latest=#705, #703, #702, #666, #665
+- operator: count=19 latest=#706, #705, #703, #702, #666
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -1056,7 +1057,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=501 latest=#705, #704, #703, #702, #701
+- verify: count=502 latest=#706, #705, #704, #703, #702
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1073,7 +1074,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 90
+- changed: 91
 - done: 542
 - in-progress: 51
 - planned: 22
