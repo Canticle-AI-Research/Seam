@@ -23023,3 +23023,377 @@ commit, then push, required CI, a successor request with an independent
 `QUALIFIED` receipt superseding the first request, protected merge commit and
 `verify_merge`.
 ---END-ENTRY-#704---
+
+---BEGIN-ENTRY-#705---
+id: 705
+date: 2026-11-26T14:20:47Z
+agent: claude-mythos-5-2
+status: changed
+topics: continuity, verify, gates, worktree, docker, pgvector, operator, status
+commits: docs/history-post-merge-20261126
+refs: HISTORY.md,PROJECT_STATUS.md,tools/ci/verify_merge.py,docs/delivery/current.json
+supersedes: 704
+tokens: 1696
+---
+Post-merge record for PR #322: protected merge, exact-main merge
+verification (including two failed attempts and why), workspace cleanup,
+stopping the Seam test service, a scope note on HISTORY#704, and the protocol
+gaps the verification exposed. Recorded on operator instruction that
+everything that happens in Seam must be tracked in HISTORY so the reason for
+every state can be reconstructed later. No runtime or test bytes change.
+
+## Qualification and merge (2026-11-26)
+
+- Successor exact-state request
+  `c13868dc-e81e-48ee-9220-2495113284f5-9846070eb4c75c4b` for candidate
+  `e154e9a456eb4e447d2e824608211f8d24ecd3b1` was queued `TDD_PROVEN` (both
+  recorded cycles: `closeout_queue.py` and the three retirement schemas).
+- Required checks on that exact head: `repo-hygiene` 13:00:41-13:02:42Z,
+  `locomo-quickstart-bil2` 13:02:43-13:03:09Z, `chroma-real-smoke`
+  13:03:11-13:03:27Z, all success.
+- An independent read-only release reviewer returned `QUALIFIED` at
+  13:06:59Z, superseding the earlier `NOT_QUALIFIED` request
+  `...-ffcafe1641f2e646` (TDD-only gap, see HISTORY#703). Stored through
+  `closeout_queue store`; `closeout_queue admit` then passed (26 observed
+  roots, 4 registered).
+- Two advisory, non-required runs on that head failed on runner faults, not
+  on the change: `pgvector-integration` (no Docker daemon on the runner; also
+  failing on main) and `package-smoke` (runner missing `libpython3.12.so.1.0`;
+  passing on main). Noted on the PR.
+- `gh pr merge 322 --merge` at 13:07:28Z: merge commit
+  `35d5648f9818ae78f48e93e43aff4ede254c391c`.
+
+## Exact-main verification: three attempts
+
+Run from a clean detached worktree at `35d5648` under the AGENTS.md exact-commit
+verification exception (`.worktrees/closeout-retirement-verify-20261126`).
+
+1. Failed: canonical gate `continuity` exited 1. A fresh checkout contains
+   only the tracked snapshots, the latest dated 2026-09-30, and
+   `tools.ci.verify_merge` runs `verify_continuity` without `--no-snapshot`,
+   while required CI runs it with `--no-snapshot`. A current snapshot was then
+   written inside the verify worktree from its own exact checked-out history,
+   the same way `publish-testpypi.yml` writes its runner-local snapshot
+   (HISTORY#679). New snapshots are ignored, so the worktree stayed clean.
+2. Every proof passed and the merge evidence was written (status `PASS`:
+   merged state, merge-commit mapping, candidate ancestry, the three required
+   checks in order with qualification and merge, and all eleven canonical
+   gates exit 0). The command still exited 1, with "delivery completion
+   already exists": `--plan docs/delivery/current.json` names delivery
+   `protocol-completion-20261017`, whose completion was already recorded by
+   PR #314 on 2026-10-18. PR #322 is not a delivery under that plan.
+3. Without `--plan`, the command refused because the evidence file from
+   attempt 2 already existed.
+
+Result: PR #322's exact-main verification is the attempt-2 evidence,
+`merge-evidence-pr322.json`, SHA-256
+`606a27962d443c71efbfd3d3a167384a93aad9c49c69e4898fffcfc78460ffce`, with all
+three attempt logs kept in the task evidence home.
+`python -m tools.agents.delivery_status` still reports the plan VERIFIED at
+`e6c295c` with next action: independent SEAM Doctor review.
+
+## Protocol gaps exposed (open)
+
+AGENTS.md requires a protocol gap found by merge verification to be repaired
+with a failing regression in a new delivery wave. These are open and not yet
+repaired:
+
+- `verify_merge` depends on a current local snapshot that a clean exact-main
+  checkout cannot have, while required CI checks continuity with
+  `--no-snapshot`. The verifier should create or tolerate the derived
+  snapshot explicitly rather than leave each operator to improvise.
+- `verify_merge` writes PASS evidence before the plan-completion step and then
+  exits non-zero when that step refuses, so a passing verification reads as a
+  failure.
+- The delivery plan covers only `protocol-completion-20261017`; a PR outside
+  that plan has no way to record its own completion.
+
+## Scope note on HISTORY#704
+
+HISTORY#704 says the assurance reviewer "re-checked the rest of HISTORY#703
+against primary sources and found it accurate", followed by a list. Only the
+listed items were checked by that review. Four #703 claims were outside it:
+the profile was moved unchanged (both copies hash to
+`b956a9f236a69a79debef09db856ac5000ac6e066a5c9890d262a5f95eb1d07f`, checked in
+the session), `pr_lifecycle` passed before PR #322 was opened, the push
+passed without override (both shown in the session's command output), and
+the operator approvals (given in the operator conversation; not independently
+verifiable from repository state).
+
+## Cleanup checkpoint
+
+- Verify worktree removed with `git worktree remove` after a clean status;
+  metadata pruned.
+- Root checkout fast-forwarded to `main` at `35d5648`. Branch
+  `fix/closeout-retirement-20261124` deleted locally after confirming
+  `e154e9a` is an ancestor of main; GitHub deleted the remote branch on merge.
+- Cleanup ledger: root record updated to `main`/`35d5648`; the verify worktree
+  recorded as `removed` with the merge-evidence hash. Twenty-six other dirty or
+  retained items remain retained until 2026-12-10.
+- Eight `.claude/worktrees/` checkouts still hold byte-identical untracked
+  copies of the moved retrieval profile (HISTORY#704); removal awaits the
+  operator.
+
+## Seam test service stopped (operator decision)
+
+`seam-pgvector` (restart policy `no`) was started on 2026-11-25 by the previous
+session for the full suite, without an explicit operator yes, and was used
+again for the 2026-11-26 full-suite run. Bringing up Docker Desktop also
+auto-started eight unrelated containers from other projects (restart policy
+`unless-stopped`), which kept Docker's idle shutdown from ever running. On
+2026-11-26 the operator directed stopping all of them; all nine containers
+and Docker Desktop were stopped (stop, not remove; data kept). Per the Runtime
+Service Safety Policy, the next full suite starts Docker and `seam-pgvector`
+for that run only and stops them after.
+
+## Next move
+
+1. Security dependency PR tracked in #321.
+2. Repair the three verify_merge protocol gaps above with failing regressions.
+3. Independent SEAM Doctor review, per `delivery_status`.
+
+Still open: closeout-queue follow-ups F12-4, F12-5 and P8a; the
+`push-block-scope-20261117` worktree and the project-tracking branch were
+written expecting HISTORY#702 and must renumber after this entry.
+---END-ENTRY-#705---
+
+---BEGIN-ENTRY-#706---
+id: 706
+date: 2026-11-26T15:14:39Z
+agent: claude-opus-5-5
+status: changed
+topics: correction, continuity, verify, operator, docker
+commits: docs/history-post-merge-20261126
+refs: HISTORY.md,REPO_LEDGER.md,docs/PR_LIFECYCLE.md,docs/SOP_SEAM_CODEX_WORKFLOW.md
+supersedes: 705
+tokens: 1139
+---
+Correction of HISTORY#705. Independent exact-commit assurance on the first
+#705 commit `4b63706` returned FAIL (reviewer
+`fable-independent-assurance-20261126c`, 2026-11-26T14:25:57Z; report kept in
+the task evidence home as `release/assurance-report-4b63706.json`) on two
+statements of state. Both were re-checked against primary sources in this
+session and are wrong as written. HISTORY#705 is not edited; this entry
+supersedes it.
+
+## Corrections
+
+1. Cleanup ledger count. #705 says "Twenty-six other dirty or retained items
+   remain retained until 2026-12-10." `.seam/orchestration/cleanup-ledger.json`
+   (read 2026-11-26 after the #705 commit) has 32 items: 29 `retained`, all
+   with `review_after` 2026-12-10; 2 `active`; 1 `removed` (the verify
+   worktree). The 2 active items are the root checkout (`main`/`35d5648`,
+   review 2026-12-10) and `.claude/worktrees/graph-dashboard-wiring`
+   (branch `worktree-graph-dashboard-wiring`, head `02528ab`, `git status
+   --short` empty), whose review date 2026-11-20 has already passed. The
+   figure 26 is the `closeout_queue admit` observed-roots count, a different
+   quantity.
+2. Advisory checks on main. #705 says `package-smoke` was "passing on main".
+   On main `35d5648` (GitHub check runs for that SHA) `package-smoke` failed
+   13:07:46-13:08:10Z with the same runner fault, `libpython3.12.so.1.0:
+   cannot open shared object file` (job log). `pgvector-integration` also
+   failed on `35d5648` (13:07:34-13:07:45Z). The three required checks passed
+   on `35d5648`. The PR comment saying "passed on main" was true only of the
+   previous main `e6c295c`.
+
+## Wording corrections
+
+- #705's opening says "two failed attempts". All three `verify_merge` runs
+  exited 1. Attempt 2 wrote the PASS evidence and then exited 1 on the
+  already-recorded delivery plan; the attempt logs read "canonical gate
+  failed: continuity (exit 1)", "delivery completion already exists", and
+  "merge evidence path already exists".
+- #705 says AGENTS.md requires repair "in a new delivery wave". AGENTS.md
+  requires the enforcing hook, rule or check to be repaired with a failing
+  regression before the delivery is claimed complete. The "new delivery wave"
+  wording is in `docs/PR_LIFECYCLE.md` and `docs/SOP_SEAM_CODEX_WORKFLOW.md`
+  phase 12.
+- The REPO_LEDGER Runtime Service Safety Policy says test services are
+  "stopped and removed". `seam-pgvector` and the eight unrelated containers
+  were stopped only, data kept, on operator direction. That deviation is
+  recorded here; the policy itself is revised in the next entry.
+
+## Out-of-scope machine changes (recorded for traceability)
+
+On 2026-11-26 the operator also directed stopping, and disabling at login,
+services that are not part of Seam: canticle-onion (including Pwnion),
+warplay-tor, vscode-tunnel, user and system gnome-remote-desktop, and motion.
+They are outside Seam scope; only `seam-pgvector` (in #705) is a Seam service.
+
+## Process notes
+
+- The first #705 closeout run stopped at `verify_doc_references` until the
+  PROJECT_STATUS managed-reference review was acknowledged; it then passed.
+- #706 was written only after the file-in-use guard showed no other live
+  session using the history files, and the other live local session was told
+  by message not to write Seam history until this branch merges. Operator
+  rule: one history entry completes before the next starts.
+
+## Authority
+
+The operator authorized push of branch docs/history-post-merge-20261126 and
+protected merge of its PR on 2026-11-26 ("land it through the full
+protocol"), after independent assurance, required CI and stored
+qualification.
+
+## Next move (operator order, 2026-11-26)
+
+1. HISTORY#707 on this branch: revised container and evidence-retention
+   policy (vital containers kept and stopped when idle; temporary containers
+   removed; ask once for repeated tasks; evidence extracted, hashed and turned
+   into regression tests before a container is removed).
+2. History-entry collision fix: one history lock shared by every worktree,
+   held for the whole closeout sequence; entry numbers assigned at merge;
+   `observed_at`/`completed_at` metadata for when work actually happened;
+   the entry as a required part of job completion.
+3. Security dependency PR tracked in #321.
+4. Repair the three `verify_merge` protocol gaps (#705) with failing
+   regressions.
+5. Independent SEAM Doctor review, per `delivery_status`.
+---END-ENTRY-#706---
+
+---BEGIN-ENTRY-#707---
+id: 707
+date: 2026-11-26T15:17:11Z
+agent: claude-opus-5-5
+status: changed
+topics: docker, pgvector, operator, protocol, continuity
+commits: docs/history-post-merge-20261126
+refs: REPO_LEDGER.md,scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,docs/PGVECTOR_LOCAL.md
+supersedes: 706
+tokens: 814
+---
+Container lifecycle and evidence-retention policy, set by the operator on
+2026-11-26. REPO_LEDGER "Runtime Service Safety Policy" previously said every
+service started for a test run "must be explicitly stopped and removed".
+That no longer matched practice: `seam-pgvector` is a reused service with
+the named volume `pgvector-data`, and `scripts/run_real_adapters_guarded.ps1`
+already only stops it (`docker stop`) unless `-KeepContainer` is given. The
+rule is replaced in `REPO_LEDGER.md`; no runtime or test bytes change.
+
+## New rule (REPO_LEDGER Runtime Service Safety Policy)
+
+- Vital service containers (named; reused by a recurring Seam workflow such
+  as the test suite or CI, or holding needed data) are started when a run
+  needs them, stopped when it ends, and kept. The current list is
+  `seam-pgvector`. Deleting one is allowed only when a fresh container each
+  time is the better practice, with data in a named volume.
+- Temporary containers (one task, test or command) are removed when the task
+  ends (`docker run --rm`, or `docker rm -v`), with their one-off images.
+- For a repeated task not on the list, the operator is asked once and the
+  answer is recorded in the list.
+- Evidence before removal: any container output that is evidence for a
+  decision is copied out, hashed, and cited in the HISTORY entry for that
+  decision. Because `.seam/evidence/` is ignored and machine-local, evidence
+  a later change must not contradict is made durable in tracked form,
+  preferably as a regression test or fixture, otherwise a `docs/audits/`
+  report with an evidence manifest or a configured external archive. Before
+  changing a rule or component an earlier fix touched, read that fix's
+  evidence.
+- Only containers the session created are removed; named volumes and other
+  owners' data need operator confirmation.
+
+## Why the evidence rule exists (operator's reasoning)
+
+A temporary test container can produce the data that proves why a component
+breaks. That data justifies a fix or a policy change. If the container is
+deleted with the data, a later revision of that fix or policy cannot see the
+original reason, can be made too broad, and can recreate the error the first
+change solved. Keeping the evidence, ideally as a test, prevents fixed errors
+from being repeated.
+
+## Related machine state (outside the repo)
+
+The other live session (seam-f6) reported by message that it installed a
+user-level Docker idle reaper outside this repository: any container stops
+after 30 minutes idle or 4 hours total unless kept with `docker-keep`, with
+desktop notifications on start and five minutes before stop. It tested this
+on `seam-pgvector`, which was started and stopped twice on 2026-11-26 for
+that test and left stopped. The reaper stops containers; it does not remove
+them. The same operator rules (start on need, stop when done, remove
+temporary containers, keep evidence) were added to the agent-global
+instructions, which are not part of this repository.
+
+## Verification
+
+Durable-policy change: contract and ledger review only (VERIFICATION_MATRIX
+"Durable documentation or policy"). Active docs were searched for the old
+"stopped and removed" rule; only historical HISTORY entries and archives
+still contain it, and they stay unchanged. `docs/PGVECTOR_LOCAL.md` has no
+removal step. Continuity gates run through closeout.
+
+## Next move
+
+Unchanged from HISTORY#706: independent assurance on this branch's final
+commit, push, required CI, qualification and protected merge; then the
+history-entry collision fix, the security PR (#321), the `verify_merge` gaps
+and the SEAM Doctor review.
+---END-ENTRY-#707---
+
+---BEGIN-ENTRY-#708---
+id: 708
+date: 2026-11-26T15:22:24Z
+agent: claude-opus-5-5
+status: changed
+topics: correction, docker, pgvector, continuity, verify
+commits: docs/history-post-merge-20261126
+refs: scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,REPO_LEDGER.md,docs/PR_LIFECYCLE.md
+supersedes: 707
+tokens: 674
+---
+Correction of HISTORY#707. Independent exact-commit assurance on `ee237cf`
+returned FAIL (reviewer `fable-independent-assurance-20261126d`; report kept in
+the task evidence home as `release/assurance-report-ee237cf.json`) on one
+statement, re-checked in this session against the script source. HISTORY#707
+is not edited; this entry supersedes it. The REPO_LEDGER policy text from #707
+is unaffected and stays as committed.
+
+## Correction
+
+#707 says `scripts/run_real_adapters_guarded.ps1` "already only stops it
+(`docker stop`) unless `-KeepContainer` is given", meaning `seam-pgvector`.
+That is wrong. The script never uses `seam-pgvector` or the compose service:
+
+- it names its own container `seam-pgvector-guard-<yyyyMMddHHmmss>` and a
+  per-run volume `<container>-data` (lines 105-107);
+- it starts that container with `docker run -d --rm` (line 119);
+- its cleanup runs `docker stop` unless `-KeepContainer` (lines 203-204);
+  because of `--rm`, stopping also removes the container.
+
+So the script is a temporary-container workflow that already removes its
+container; it was not evidence that "stopped and removed" had stopped
+matching practice. The actual basis for the policy change is the operator's
+2026-11-26 decision and the vital-container case of `seam-pgvector` (compose
+service `pgvector`, named volume `pgvector-data`, reused by the full suite and
+stopped, not removed, per HISTORY#705/#706).
+
+The error came from reading only the script's cleanup block and assuming the
+container it stops; it is logged as a caught mistake.
+
+## Open item exposed
+
+Each guarded-script run leaves its named volume `seam-pgvector-guard-<stamp>-data`
+behind. Under the #707 rule, temporary-container data is removed when the task
+ends, after any evidence is extracted. The script is a PowerShell runner;
+`docker volume ls` on this Linux host shows no such volumes. Changing the
+script is a `scripts/` change that needs its own red/green test and is queued,
+not done here.
+
+## Smaller wording note on HISTORY#706
+
+#706 says the "new delivery wave" wording is in `docs/PR_LIFECYCLE.md` and
+`docs/SOP_SEAM_CODEX_WORKFLOW.md` phase 12. The SOP line is verbatim ("in a new
+delivery wave"); `docs/PR_LIFECYCLE.md` line 111 reads "through a new reviewed
+delivery wave".
+
+`PROJECT_STATUS.md` still says the three `verify_merge` gaps are described in
+HISTORY#705; that remains accurate, so it is not changed.
+
+## Next move
+
+Unchanged from HISTORY#706/#707: independent assurance on this branch's final
+commit, push, required CI, qualification, protected merge and `verify_merge`;
+then the history-entry collision fix, the security PR (#321), the
+`verify_merge` gaps, the guarded-script volume cleanup, and the SEAM Doctor
+review.
+---END-ENTRY-#708---

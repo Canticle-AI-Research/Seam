@@ -12,10 +12,10 @@
     "CONTEXT.md": "5554874e1d7dd3aaba5b2c4789f05ba3c34256f8a9f34af68cce8d226c15cc4a",
     "CONTRIBUTING.md": "22fa9411903556ddafb894999cadd050fa359febd73050b700c1cc75f4bd8c37",
     "GEMINI.md": "1b4c47c4f060e49ff73df688af240341035694352220f3494226cdf7d79f94ed",
-    "PROJECT_STATUS.md": "3a1b6760f7d8ca34445faa4bbe66e95efaa23474e11eb64bb21179dae8e47964",
+    "PROJECT_STATUS.md": "4afaa175144692f0c01d7ad5e3914965b0ac5a60123d259483087bd57c77ed30",
     "QWEN.md": "8da15f262029b0b49ba4530a1e406406ac01d615d1f63541c416f1830ca926ec",
     "README.md": "9060b8c56fa319576164914a8b69e2f9049fde8ee141865bf11322df4622b964",
-    "REPO_LEDGER.md": "5cca5496f5d713f58eccc520b341ef5a22efca5535d5c5ffd0fe546ad903c344",
+    "REPO_LEDGER.md": "dd9bcb333ffff619fca6c8b41ae09315166fc78843c2bcd7cee0fd9f532f5871",
     "ROADMAP.md": "327c5f8fcc2b10873337d169a147bce02b023445203615049c177cc07e16e26d",
     "SEAM_SPEC_V0.1.md": "07ee742318a633350f790520b031499140a6027d9d6fc6356beb46f6bf9da2ec",
     "SECURITY.md": "bc35c1d6f2ac6075fc363c306e667987b5893a5d6e8a7791edfdd4149f7f2b0d",
@@ -234,7 +234,7 @@
     },
     "PROJECT_STATUS.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "3a1b6760f7d8ca34445faa4bbe66e95efaa23474e11eb64bb21179dae8e47964",
+      "document_sha256": "4afaa175144692f0c01d7ad5e3914965b0ac5a60123d259483087bd57c77ed30",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"
@@ -254,7 +254,7 @@
     },
     "REPO_LEDGER.md": {
       "command_contract_sha256": "34c21773669d6f13872a585542309377f24b55a78e0eecbf4e291e74f9d585e0",
-      "document_sha256": "5cca5496f5d713f58eccc520b341ef5a22efca5535d5c5ffd0fe546ad903c344",
+      "document_sha256": "dd9bcb333ffff619fca6c8b41ae09315166fc78843c2bcd7cee0fd9f532f5871",
       "link_registry_sha256": "a59e810ce0669679edfa9b4721a52cf44122135e91beba29e768c9d90322cccd",
       "reasons": [
         "hand-written content added/changed; review the authored change"

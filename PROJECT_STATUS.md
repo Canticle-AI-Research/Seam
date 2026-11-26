@@ -5,6 +5,14 @@ chronology lives in `HISTORY.md`. Plans are not implementation evidence.
 
 ## Current headline
 
+**2026-11-26 — closeout-queue retirement merged and verified (PR #322).**
+Merge commit `35d5648` passed exact-main `verify_merge` with every canonical
+gate; the queue admits normally. Dependabot security PRs were closed into
+tracking issue #321, which is the next delivery. Three `verify_merge` protocol
+gaps found during verification are open; see HISTORY#705. The delivery plan's
+next action remains the independent SEAM Doctor review. The 2026-11-25
+headline below is the historical boundary before merge.
+
 **2026-11-25 — closeout queue unblocked; retirement path in protected delivery.**
 Admission had failed closed since the protocol-completion delivery on eleven
 stale SessionEnd requests in the primary queue and one qualified receipt whose
