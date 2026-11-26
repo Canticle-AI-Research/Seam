@@ -1,8 +1,8 @@
 # History Index
 
-total_entries: 704
-total_tokens: ~363257
-latest_id: 704
+total_entries: 705
+total_tokens: ~364953
+latest_id: 705
 source: HISTORY.md
 schema: v1
 compact: true
@@ -11,6 +11,7 @@ compact: true
 
 | id | date | status | hash | topics | supersedes |
 |---|---|---|---|---|---|
+| 705 | 2026-11-26 | changed | 3dfbff8eac2bdbf6 | continuity,verify,gates,worktree,+ | 704 |
 | 704 | 2026-11-26 | changed | 2ca5918e93aab15f | correction,continuity,verify,worktree | 703 |
 | 703 | 2026-11-26 | changed | aebbb48b041ef68e | agent,protocol,continuity,correction,+ | 702 |
 | 702 | 2026-11-25 | changed | 53fc0e5a87b16244 | agent,protocol,continuity,gates,+ | 701 |
@@ -781,7 +782,7 @@ compact: true
 - consolidation: count=2 latest=#501, #306
 - context: count=4 latest=#626, #316, #315, #314
 - context-budget: count=1 latest=#328
-- continuity: count=122 latest=#704, #703, #702, #701, #700
+- continuity: count=123 latest=#705, #704, #703, #702, #701
 - contract: count=2 latest=#305, #303
 - conversation: count=1 latest=#311
 - core: count=1 latest=#328
@@ -810,7 +811,7 @@ compact: true
 - distribution: count=2 latest=#501, #474
 - distribution-boundary: count=1 latest=#476
 - dns-rebinding: count=1 latest=#300
-- docker: count=12 latest=#673, #672, #621, #620, #483
+- docker: count=13 latest=#705, #673, #672, #621, #620
 - docs: count=126 latest=#702, #686, #685, #684, #680
 - doctor: count=12 latest=#667, #524, #324, #287, #170
 - dsl: count=1 latest=#298
@@ -837,7 +838,7 @@ compact: true
 - floor: count=1 latest=#308
 - fusion: count=5 latest=#607, #606, #510, #509, #508
 - g3: count=2 latest=#492, #491
-- gates: count=23 latest=#703, #702, #685, #672, #668
+- gates: count=24 latest=#705, #703, #702, #685, #672
 - generalization: count=1 latest=#297
 - generation: count=1 latest=#365
 - ghost: count=2 latest=#609, #608
@@ -927,7 +928,7 @@ compact: true
 - openai: count=1 latest=#327
 - openclaw: count=1 latest=#407
 - operations: count=3 latest=#533, #532, #507
-- operator: count=17 latest=#703, #702, #666, #665, #663
+- operator: count=18 latest=#705, #703, #702, #666, #665
 - ops: count=4 latest=#428, #426, #425, #424
 - pack: count=13 latest=#623, #496, #460, #450, #448
 - packaging: count=10 latest=#501, #486, #485, #484, #483
@@ -939,7 +940,7 @@ compact: true
 - parked: count=1 latest=#412
 - performance: count=4 latest=#447, #364, #363, #362
 - persist: count=39 latest=#622, #571, #547, #530, #529
-- pgvector: count=40 latest=#673, #672, #660, #656, #648
+- pgvector: count=41 latest=#705, #673, #672, #660, #656
 - plan: count=27 latest=#673, #672, #645, #634, #620
 - planner: count=1 latest=#288
 - planning: count=1 latest=#407
@@ -1024,7 +1025,7 @@ compact: true
 - sqlite: count=4 latest=#624, #606, #506, #364
 - ssrf: count=3 latest=#361, #300, #288
 - stash: count=1 latest=#324
-- status: count=206 latest=#686, #680, #675, #669, #652
+- status: count=207 latest=#705, #686, #680, #675, #669
 - storage: count=38 latest=#638, #637, #626, #624, #623
 - streams: count=26 latest=#562, #561, #531, #530, #529
 - structure: count=3 latest=#326, #285, #284
@@ -1055,7 +1056,7 @@ compact: true
 - unify: count=1 latest=#311
 - vector: count=40 latest=#672, #640, #623, #622, #533
 - vector-adapters: count=1 latest=#359
-- verify: count=500 latest=#704, #703, #702, #701, #700
+- verify: count=501 latest=#705, #704, #703, #702, #701
 - vulnerability: count=1 latest=#296
 - wandr: count=2 latest=#512, #505
 - webui: count=13 latest=#571, #545, #544, #543, #404
@@ -1064,7 +1065,7 @@ compact: true
 - workflow-permissions: count=1 latest=#298
 - workflows: count=1 latest=#501
 - workspace: count=1 latest=#461
-- worktree: count=22 latest=#704, #703, #699, #698, #697
+- worktree: count=23 latest=#705, #704, #703, #699, #698
 - wsl2: count=1 latest=#021
 - xfail: count=1 latest=#303
 - zep: count=1 latest=#384
@@ -1072,7 +1073,7 @@ compact: true
 ## status rollup
 
 - roots: 90
-- changed: 89
+- changed: 90
 - done: 542
 - in-progress: 51
 - planned: 22
