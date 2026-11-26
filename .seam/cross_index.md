@@ -2,14 +2,13 @@
 
 schema: seam-cross-index/v1
 source: streams/*/log.md (derived; do not hand-edit)
-total_events: 773
+total_events: 774
 hot_zone_max: 200
 archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 
 ## Hot Zone (latest 200 events, oldest first)
 | utc | stream:id:hash | kind | event | topics | refs |
 |---|---|---|---|---|---|
-| 2026-08-01T09:22:35Z | history:511:71bf65cc | session-event | in-progress | audit, roadmap, plan, status, retrieval, storage, securit... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,ROADMAP.md,PROJECT_STATUS.md,docs/... |
 | 2026-08-01T10:47:10Z | history:512:6eafc7b3 | session-event | done | fixture, test, wandr, bugfix, verify, continuity | .gitignore,benchmarks/fixtures/wandr/smoke.replay.jsonl,benchmarks/fixtures/w... |
 | 2026-08-01T11:52:41Z | history:513:44291c44 | session-event | done | audit, bugfix, benchmark, retrieval, provenance, verify, ... | docs/roadmap/MEMORY_GUARANTEES_CAMPAIGN.md,docs/handoffs/2026-08-01-track-s-s... |
 | 2026-08-01T11:56:23Z | history:514:a963e0c4 | session-event | done | history, streams, roadmap, bugfix, verify, test, continuity | tools/history/closeout.py,tests/audit/test_history_closeout.py,.seam/streams/... |
@@ -209,10 +208,11 @@ archive_pattern: cross_index_archive/<lo>-<hi>.cross.md
 | 2026-11-26T14:20:47Z | history:705:3dfbff8e | session-event | changed | continuity, verify, gates, worktree, docker, pgvector, op... | HISTORY.md,PROJECT_STATUS.md,tools/ci/verify_merge.py,docs/delivery/current.json |
 | 2026-11-26T15:14:39Z | history:706:7694bda2 | session-event | changed | correction, continuity, verify, operator, docker | HISTORY.md,REPO_LEDGER.md,docs/PR_LIFECYCLE.md,docs/SOP_SEAM_CODEX_WORKFLOW.md |
 | 2026-11-26T15:17:11Z | history:707:46330af9 | session-event | changed | docker, pgvector, operator, protocol, continuity | REPO_LEDGER.md,scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,docs... |
+| 2026-11-26T15:22:24Z | history:708:43c92a8d | session-event | changed | correction, docker, pgvector, continuity, verify | scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,REPO_LEDGER.md,docs... |
 
 
 ## Archive Pointers
 
 | chunk | utc_range | event_count | streams | top_topics |
 |---|---|---|---|---|
-| 0001-0573.cross.md | 2026-04-15T00:00:00Z..2026-08-01T01:48:32Z | 573 | (multi) | (multi) |
+| 0001-0574.cross.md | 2026-04-15T00:00:00Z..2026-08-01T09:22:35Z | 574 | (multi) | (multi) |

@@ -23329,3 +23329,71 @@ commit, push, required CI, qualification and protected merge; then the
 history-entry collision fix, the security PR (#321), the `verify_merge` gaps
 and the SEAM Doctor review.
 ---END-ENTRY-#707---
+
+---BEGIN-ENTRY-#708---
+id: 708
+date: 2026-11-26T15:22:24Z
+agent: claude-opus-5-5
+status: changed
+topics: correction, docker, pgvector, continuity, verify
+commits: docs/history-post-merge-20261126
+refs: scripts/run_real_adapters_guarded.ps1,docker-compose.yaml,REPO_LEDGER.md,docs/PR_LIFECYCLE.md
+supersedes: 707
+tokens: 674
+---
+Correction of HISTORY#707. Independent exact-commit assurance on `ee237cf`
+returned FAIL (reviewer `fable-independent-assurance-20261126d`; report kept in
+the task evidence home as `release/assurance-report-ee237cf.json`) on one
+statement, re-checked in this session against the script source. HISTORY#707
+is not edited; this entry supersedes it. The REPO_LEDGER policy text from #707
+is unaffected and stays as committed.
+
+## Correction
+
+#707 says `scripts/run_real_adapters_guarded.ps1` "already only stops it
+(`docker stop`) unless `-KeepContainer` is given", meaning `seam-pgvector`.
+That is wrong. The script never uses `seam-pgvector` or the compose service:
+
+- it names its own container `seam-pgvector-guard-<yyyyMMddHHmmss>` and a
+  per-run volume `<container>-data` (lines 105-107);
+- it starts that container with `docker run -d --rm` (line 119);
+- its cleanup runs `docker stop` unless `-KeepContainer` (lines 203-204);
+  because of `--rm`, stopping also removes the container.
+
+So the script is a temporary-container workflow that already removes its
+container; it was not evidence that "stopped and removed" had stopped
+matching practice. The actual basis for the policy change is the operator's
+2026-11-26 decision and the vital-container case of `seam-pgvector` (compose
+service `pgvector`, named volume `pgvector-data`, reused by the full suite and
+stopped, not removed, per HISTORY#705/#706).
+
+The error came from reading only the script's cleanup block and assuming the
+container it stops; it is logged as a caught mistake.
+
+## Open item exposed
+
+Each guarded-script run leaves its named volume `seam-pgvector-guard-<stamp>-data`
+behind. Under the #707 rule, temporary-container data is removed when the task
+ends, after any evidence is extracted. The script is a PowerShell runner;
+`docker volume ls` on this Linux host shows no such volumes. Changing the
+script is a `scripts/` change that needs its own red/green test and is queued,
+not done here.
+
+## Smaller wording note on HISTORY#706
+
+#706 says the "new delivery wave" wording is in `docs/PR_LIFECYCLE.md` and
+`docs/SOP_SEAM_CODEX_WORKFLOW.md` phase 12. The SOP line is verbatim ("in a new
+delivery wave"); `docs/PR_LIFECYCLE.md` line 111 reads "through a new reviewed
+delivery wave".
+
+`PROJECT_STATUS.md` still says the three `verify_merge` gaps are described in
+HISTORY#705; that remains accurate, so it is not changed.
+
+## Next move
+
+Unchanged from HISTORY#706/#707: independent assurance on this branch's final
+commit, push, required CI, qualification, protected merge and `verify_merge`;
+then the history-entry collision fix, the security PR (#321), the
+`verify_merge` gaps, the guarded-script volume cleanup, and the SEAM Doctor
+review.
+---END-ENTRY-#708---
